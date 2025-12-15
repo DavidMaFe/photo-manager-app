@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/navigation/app_router.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
+import 'package:photo_manager_app/l10n/app_localizations.dart';
 import 'core/injection_container.dart' as di;
 
 
@@ -35,7 +37,33 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp.router(
         title: 'Photo Manager',
-        routerConfig: router
+        routerConfig: router,
+
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate
+        ],
+
+        supportedLocales: const [
+          Locale('es', ''),
+          Locale('en', ''),
+        ],
+
+        locale: const Locale('es'),
+
+        localeResolutionCallback: (locale, supportedLocales) {
+          if (locale != null) {
+            for (var supportedLocale in supportedLocales) {
+              if (supportedLocale.languageCode == locale.languageCode) {
+                return supportedLocale;
+              }
+            }
+          }
+
+          return const Locale('es');
+        },
       )
     );
   }

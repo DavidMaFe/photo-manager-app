@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 
+import '../../../../l10n/app_localizations.dart';
+
 
 class ProfileStats extends StatelessWidget {
   
@@ -10,24 +12,27 @@ class ProfileStats extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+
+    final l10n = AppLocalizations.of(context)!;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         _StatItem(
           value: _formatNumber(profile.fileCount),
-          label: 'Files',
+          label: l10n.files,
           onTap: () {},
         ),
         _buildDivider(),
         _StatItem(
           value: _formatNumber(profile.folderCount),
-          label: 'Folders',
+          label: l10n.folders,
           onTap: () {},
         ),
         _buildDivider(),
         _StatItem(
           value: _formatNumber(profile.deviceCount),
-          label: 'Devices',
+          label: l10n.devices,
           onTap: () {},
         )
       ],
@@ -61,6 +66,7 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),

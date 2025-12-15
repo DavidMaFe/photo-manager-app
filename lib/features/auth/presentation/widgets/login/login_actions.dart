@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 
+import '../../../../../l10n/app_localizations.dart';
+
 
 class LoginActions extends StatelessWidget {
 
@@ -20,6 +22,9 @@ class LoginActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final l10n = AppLocalizations.of(context)!;
+
     return Expanded(
       child: Column(
         children: [
@@ -47,7 +52,7 @@ class LoginActions extends StatelessWidget {
                   )
                 )
                 : Text(
-                  "Login",
+                  l10n.loginButton,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600
@@ -61,7 +66,7 @@ class LoginActions extends StatelessWidget {
           TextButton(
               onPressed: isLoading ? null : onForgotPassword,
               child: Text(
-                "Forgot your password?",
+                l10n.forgotPassword,
                 style: TextStyle(
                   color: isLoading ? Colors.grey : PhotoManagerColors.primary,
                   fontSize: 15,
@@ -76,7 +81,7 @@ class LoginActions extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "You don't have an account? ",
+                l10n.notHaveAccount,
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: 15
@@ -89,7 +94,7 @@ class LoginActions extends StatelessWidget {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap
                   ),
                   child: Text(
-                    "Sign Up",
+                    l10n.signUp,
                     style: TextStyle(
                       color:  isLoading ? Colors.grey : PhotoManagerColors.primary,
                       fontSize: 14,

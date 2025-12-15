@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
+import '../../../../../l10n/app_localizations.dart';
 
 
 class LoginHeader extends StatelessWidget {
@@ -9,6 +10,9 @@ class LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -29,7 +33,7 @@ class LoginHeader extends StatelessWidget {
         SizedBox(height: 16),
 
         Text(
-          "Welcome",
+          l10n.welcome,
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
@@ -37,7 +41,7 @@ class LoginHeader extends StatelessWidget {
           ),
         ),
         Text(
-          "Login into your account",
+          l10n.loginTitle,
           style: TextStyle(
             fontSize: 16,
             color: Colors.grey[600],

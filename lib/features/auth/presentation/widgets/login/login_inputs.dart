@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 
+import '../../../../../l10n/app_localizations.dart';
+
 
 class LoginInputs extends StatefulWidget{
 
@@ -26,11 +28,14 @@ class _LoginInputsState extends State<LoginInputs> {
 
   @override
   Widget build(BuildContext context) {
+
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Email",
+          l10n.emailLabel,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -58,7 +63,7 @@ class _LoginInputsState extends State<LoginInputs> {
           },
 
           decoration: InputDecoration(
-            hintText: "your@email.com",
+            hintText: l10n.emailPlaceholder,
             hintStyle: TextStyle(color: Colors.grey[400]),
             filled: true,
             fillColor: Colors.grey[50],
@@ -95,7 +100,7 @@ class _LoginInputsState extends State<LoginInputs> {
         SizedBox(height: 20),
 
         Text(
-          "Password",
+          l10n.passwordLabel,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,

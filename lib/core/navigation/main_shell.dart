@@ -16,7 +16,6 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: child,
       bottomNavigationBar: BottomNavigationBar(
@@ -26,11 +25,11 @@ class MainShell extends StatelessWidget {
         selectedItemColor: PhotoManagerColors.primary,
         unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Folders'),
-          BottomNavigationBarItem(icon: Icon(Icons.sync), label: 'Sync'),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notifications'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.home, size: 28), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.folder, size: 28), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.sync, size: 28), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications, size: 28), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.person, size: 28), label: ''),
         ],
       ),
     );

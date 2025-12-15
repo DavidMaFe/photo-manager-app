@@ -11,6 +11,7 @@ import 'package:photo_manager_app/features/profile/presentation/widgets/profile_
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_stats.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/storage_bar.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_state.dart';
 
@@ -21,6 +22,9 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SafeArea(
@@ -43,7 +47,7 @@ class ProfilePage extends StatelessWidget {
                       color: Colors.red,
                     ),
                     const SizedBox(height: 16),
-                    Text('Error loading the profile', style: Theme.of(context).textTheme.titleLarge),
+                    Text(l10n.errorLoadingProfile, style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 8),
                     Text(
                       state.errorMessage,
@@ -56,7 +60,7 @@ class ProfilePage extends StatelessWidget {
                         context.read<ProfileBloc>().add(LoadProfileRequested());
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Try again')
+                      label: Text(l10n.tryAgain)
                     )
                   ],
                 )
@@ -117,32 +121,32 @@ class ProfilePage extends StatelessWidget {
                           children: [
                             ProfileMenuItem(
                               icon: Icons.person_outline,
-                              title: 'Edit Profile',
-                              subtitle: 'Change name and surname',
+                              title: l10n.editProfile,
+                              subtitle: l10n.editProfileSubtitle,
                               onTap: () {},
                             ),
                             const Divider(height: 1, indent: 60),
         
                             ProfileMenuItem(
                               icon: Icons.devices_outlined,
-                              title: 'My Devices',
-                              subtitle: '${profile.deviceCount} linked devices',
+                              title: l10n.myDevices,
+                              subtitle: l10n.myDevicesSubtitle(profile.deviceCount),
                               onTap: () {},
                             ),
                             const Divider(height: 1, indent: 60),
         
                             ProfileMenuItem(
                               icon: Icons.sync_outlined,
-                              title: 'Sync Settings',
-                              subtitle: 'Auto sync every 6 hours',
+                              title: l10n.syncSettings,
+                              subtitle: l10n.syncSettingsSubtitle,
                               onTap: () {},
                             ),
                             const Divider(height: 1, indent: 60),
         
                             ProfileMenuItem(
                               icon: Icons.notifications_outlined,
-                              title: 'Notifications',
-                              subtitle: 'Manage notifications',
+                              title: l10n.notifications,
+                              subtitle: l10n.notificationsSubtitle,
                               onTap: () {},
                             ),
                           ],
@@ -153,11 +157,11 @@ class ProfilePage extends StatelessWidget {
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            _showLogoutDialog(context);
+                            _showLogoutDialog(context, l10n);
                           },
                           icon: const Icon(Icons.logout, color: Colors.red),
-                          label: const Text(
-                            'Logout',
+                          label: Text(
+                            l10n.logoutButton,
                             style: TextStyle(color: Colors.red),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -182,16 +186,16 @@ class ProfilePage extends StatelessWidget {
     );
   }
   
-  void _showLogoutDialog(BuildContext context) {
+  void _showLogoutDialog(BuildContext context, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure to logout?'),
+        title: Text(l10n.logoutButton),
+        content: Text(l10n.logoutConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -199,7 +203,7 @@ class ProfilePage extends StatelessWidget {
               context.read<AuthBloc>().add(LogoutRequested());
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Logout')
+            child: Text(l10n.logoutButton)
           )
         ]
       )

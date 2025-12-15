@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 
+import '../../../../l10n/app_localizations.dart';
+
 
 class StorageBar extends StatelessWidget {
 
@@ -15,6 +17,7 @@ class StorageBar extends StatelessWidget {
     final usedGb = profile.storageUsedGb;
     final totalGb = profile.storageTotalGb;
     final percentage = profile.storageUsedPercentage;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -22,9 +25,9 @@ class StorageBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Storage',
-              style: TextStyle(
+            Text(
+              l10n.storage,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87
