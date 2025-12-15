@@ -10,15 +10,15 @@ import 'package:photo_manager_app/features/auth/presentation/widgets/login/login
 import 'package:photo_manager_app/features/auth/presentation/widgets/login/login_inputs.dart';
 
 
-class LoginScreen extends StatefulWidget {
+class LoginPage extends StatefulWidget {
 
-  const LoginScreen({super.key});
+  const LoginPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _LoginScreenState();
+  State<StatefulWidget> createState() => _LoginPageState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _emailInputController = TextEditingController();
   final TextEditingController _passwordInputController = TextEditingController();

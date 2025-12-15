@@ -1,26 +1,31 @@
-
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:photo_manager_app/features/auth/data/data_sources/remote/auth_remote_datasource.dart';
-import 'package:photo_manager_app/features/auth/data/models/auth_response_model.dart';
+
+import '../models/auth_response_model.dart';
 
 
-class HttpRemoteDatasource implements AuthRemoteDatasource {
+abstract class AuthRemoteDataSource {
+  Future<AuthResponseModel> login(String email, String password);
+  Future<void> logout(String token);
+}
+
+
+class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   final http.Client client;
   final String baseUrl;
 
-  HttpRemoteDatasource({
+  AuthRemoteDataSourceImpl({
     required this.client,
     this.baseUrl = 'http://10.0.2.2:8080'
   });
-  
+
   @override
   Future<AuthResponseModel> login(String email, String password) async {
-    
+
     final url =  Uri.parse('$baseUrl/api/login/');
-    
+
     try {
       final response = await client.post(
           url,
@@ -49,11 +54,11 @@ class HttpRemoteDatasource implements AuthRemoteDatasource {
 
     try {
       await client.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
-        }
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token'
+          }
       );
     } catch (e){
       // Ignore the error, the token will be cleared anyways

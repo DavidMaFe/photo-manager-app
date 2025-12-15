@@ -1,18 +1,27 @@
-
 import 'dart:convert';
 
-import 'package:photo_manager_app/features/auth/data/data_sources/local/auth_local_datasource.dart';
 import 'package:photo_manager_app/features/auth/data/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AuthLocalDatasourceImpl implements AuthLocalDatasource {
+
+abstract class AuthLocalDataSource {
+  Future<void> cacheUser(UserModel user);
+  Future<UserModel?> getCachedUser();
+  Future<void> cacheToken(String token);
+  Future<String?> getToken();
+  Future<bool> hasValidToken();
+  Future<void> clearCache();
+}
+
+
+class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   final SharedPreferences sharedPreferences;
 
   static const String _keyUser = 'CACHED_USER';
   static const String _keyToken = 'AUTH_TOKEN';
 
-  AuthLocalDatasourceImpl({required this.sharedPreferences});
+  AuthLocalDataSourceImpl({required this.sharedPreferences});
 
   @override
   Future<void> cacheUser(UserModel user) async {

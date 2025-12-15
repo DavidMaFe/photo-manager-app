@@ -1,28 +1,31 @@
 
-import 'package:photo_manager_app/features/auth/data/data_sources/local/auth_local_datasource.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/remote/auth_remote_datasource.dart';
+import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
+import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:photo_manager_app/features/profile/data/data_sources/profile_local_data_source.dart';
 
 import '../../domain/entities/user.dart';
 
 
 class AuthDataRepository implements AuthRepository {
 
-  final AuthRemoteDatasource remoteDatasource;
-  final AuthLocalDatasource localDatasource;
+  final AuthRemoteDataSource remoteDataSource;
+  final AuthLocalDataSource localDataSource;
+  final ProfileLocalDataSource profileLocalDataSource;
 
   AuthDataRepository({
-    required this.remoteDatasource,
-    required this.localDatasource
+    required this.remoteDataSource,
+    required this.localDataSource,
+    required this.profileLocalDataSource
   });
 
   @override
   Future<User> login({required String email, required String password}) async {
 
-    final authResponse = await remoteDatasource.login(email, password);
+    final authResponse = await remoteDataSource.login(email, password);
 
-    await localDatasource.cacheToken(authResponse.token);
-    await localDatasource.cacheUser(authResponse.user);
+    await localDataSource.cacheToken(authResponse.token);
+    await localDataSource.cacheUser(authResponse.user);
 
     return authResponse.user;
   }
@@ -31,31 +34,34 @@ class AuthDataRepository implements AuthRepository {
   Future<void> logout() async {
 
     try {
-      final token = await localDatasource.getToken();
+      final token = await localDataSource.getToken();
 
       if (token != null && token.isNotEmpty) {
-        await remoteDatasource.logout(token);
+        await remoteDataSource.logout(token);
+        await localDataSource.clearCache();
+        await profileLocalDataSource.clearProfileCache();
       }
     } catch (e) {
-      await localDatasource.clearCache();
+      await localDataSource.clearCache();
+      await profileLocalDataSource.clearProfileCache();
     }
   }
 
   @override
   Future<User?> getCurrentUser() async {
 
-    final cachedUser = await localDatasource.getCachedUser();
+    final cachedUser = await localDataSource.getCachedUser();
 
-    if (cachedUser != null && await localDatasource.hasValidToken()) {
+    if (cachedUser != null && await localDataSource.hasValidToken()) {
       return cachedUser;
     } else {
-      await localDatasource.clearCache();
+      await localDataSource.clearCache();
       return null;
     }
   }
 
   @override
   Future<bool> hasToken() async {
-    return await localDatasource.hasValidToken();
+    return await localDataSource.hasValidToken();
   }
 }

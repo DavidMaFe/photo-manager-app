@@ -1,19 +1,26 @@
 
+
 class RouteNames {
   // Auth
   static const String login = 'login';
   static const String register = 'register';
 
   // Main
+  static const String shell = 'shell';
   static const String home = 'home';
-
-  // Other
-  static const String settings = 'settings';
+  static const String folders = 'folders';
+  static const String sync = 'sync';
+  static const String notifications = 'notifications';
+  static const String profile = 'profile';
 }
+
 
 class RoutePaths {
   static const String login = '/login';
   static const String register = '/register';
   static const String home = '/home';
-  static const String settings = '/settings';
+  static const String folders = '/folders';
+  static const String sync = '/sync';
+  static const String notifications = '/notifications';
+  static const String profile = '/profile';
 }

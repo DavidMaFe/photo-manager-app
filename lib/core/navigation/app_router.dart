@@ -1,23 +1,26 @@
 
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/navigation/auth_notifier.dart';
+import 'package:photo_manager_app/core/navigation/main_shell.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:photo_manager_app/features/auth/presentation/screens/login_screen.dart';
+import 'package:photo_manager_app/features/auth/presentation/pages/login_page.dart';
+import 'package:photo_manager_app/features/home/presentation/pages/home_page.dart';
+import 'package:photo_manager_app/features/profile/presentation/pages/profile_page.dart';
+import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
 
-import '../../features/home/presentation/screens/home_screen.dart';
+import '../injection_container.dart';
 
 class AppRouter {
 
   static GoRouter createRouter(AuthBloc authBloc) {
-
     final authNotifier = AuthNotifier(authBloc);
 
     return GoRouter(
         initialLocation: RoutePaths.login,
-
         refreshListenable: authNotifier,
-
         redirect: (context, state) {
           final isAuthenticated = authNotifier.isAuthenticated;
           final isLoading = authNotifier.isLoading;
@@ -41,14 +44,71 @@ class AppRouter {
           GoRoute(
               path: RoutePaths.login,
               name: RouteNames.login,
-              builder: (context, state) => const LoginScreen()
+              builder: (context, state) => const LoginPage()
           ),
+          StatefulShellRoute.indexedStack(
+            builder: (context, state, navigationShell) => MainShell(navigationShell: navigationShell, child: navigationShell),
+            branches: [
 
-          GoRoute(
-              path: '/home',
-              name: 'home',
-              builder: (context, state) => const HomeScreen()
-          ),
+              // Branch 0: Home
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: RoutePaths.home,
+                    name: RouteNames.home,
+                    builder: (context, state) => const HomePage(),
+                  ),
+                ],
+              ),
+
+              // Branch 1: Folders
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: RoutePaths.folders,
+                    name: RouteNames.folders,
+                    builder: (context, state) => const HomePage(), // TODO: crear
+                  ),
+                ],
+              ),
+
+              // Branch 2: Sync
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: RoutePaths.sync,
+                    name: RouteNames.sync,
+                    builder: (context, state) => const HomePage(), // TODO: crear
+                  ),
+                ],
+              ),
+
+              // Branch 3: Notifications
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: RoutePaths.notifications,
+                    name: RouteNames.notifications,
+                    builder: (context, state) => const HomePage(), // TODO: crear
+                  ),
+                ],
+              ),
+
+              // Branch 4: Profile
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: RoutePaths.profile,
+                    name: RouteNames.profile,
+                    builder: (context, state) => BlocProvider.value(
+                        value: sl<ProfileBloc>()..add(LoadProfileRequested()),
+                        child: const ProfilePage()
+                    )
+                  ),
+                ],
+              ),
+            ]
+          )
         ]
     );
   }

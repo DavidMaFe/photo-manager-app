@@ -5,9 +5,9 @@ import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomePage extends StatelessWidget {
 
-  const HomeScreen({super.key});
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
