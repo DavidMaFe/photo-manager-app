@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 
@@ -52,11 +51,11 @@ class _LoginInputsState extends State<LoginInputs> {
 
           validator: (value) {
             if(value == null || value.trim().isEmpty) {
-              return 'Please, write an email address';
+              return l10n.errorEmailRequired;
             }
 
             if(!value.contains('@') || !value.contains('.')) {
-              return 'Email address not valid';
+              return l10n.errorInvalidEmail;
             }
 
             return null;
@@ -117,7 +116,7 @@ class _LoginInputsState extends State<LoginInputs> {
 
           validator: (value) {
             if(value == null || value.trim().isEmpty) {
-              return 'Please, write a password';
+              return l10n.errorPasswordRequired;
             }
 
             return null;

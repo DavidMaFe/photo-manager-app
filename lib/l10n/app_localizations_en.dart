@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'File Manager';
 
   @override
+  String get welcome => 'Welcome';
+
+  @override
   String get loginTitle => 'Login';
 
   @override
@@ -33,9 +36,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logoutConfirmation => 'Are you sure to logout?';
 
   @override
-  String get cancel => 'Cancel';
-
-  @override
   String get forgotPassword => 'Forgot your password?';
 
   @override
@@ -45,21 +45,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signUp => 'Sign Up';
 
   @override
-  String get invalidEmail => 'Invalid email format';
-
-  @override
-  String get emptyField => 'This field cannot be empty';
-
-  @override
-  String get welcome => 'Welcome';
-
-  @override
-  String welcomeMessage(Object userName) {
-    return 'Hello $userName, welcome';
-  }
-
-  @override
   String get errorLoadingProfile => 'Error loading the profile';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get close => 'Close';
 
   @override
   String get tryAgain => 'Try again';
@@ -101,4 +93,89 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsSubtitle => 'Manage notifications';
+
+  @override
+  String get errorUnknownTitle => 'Unknown Error';
+
+  @override
+  String get errorUnknown => 'An unexpected error ocurred. Please, try again later.';
+
+  @override
+  String get errorNetworkTitle => 'Connection Error';
+
+  @override
+  String get errorNetwork => 'No internet connection. Check your connection and try again.';
+
+  @override
+  String get errorServerTitle => 'Server Error';
+
+  @override
+  String get errorServer => 'Server error. Please, try again later.';
+
+  @override
+  String get errorTimeout => 'The operation took too long. Please, try again.';
+
+  @override
+  String get errorUnauthorizedTitle => 'Unauthorized';
+
+  @override
+  String get errorUnauthorized => 'You are not authorized. Please, log in.';
+
+  @override
+  String get errorInvalidCredentials => 'Invalid email or password.';
+
+  @override
+  String get errorTokenExpired => 'Your session has expired. Please log in again.';
+
+  @override
+  String get errorValidationTitle => 'Invalid Data';
+
+  @override
+  String get errorValidation => 'The provided data is invalid.';
+
+  @override
+  String get errorInvalidEmail => 'The email format is invalid.';
+
+  @override
+  String get errorPasswordMismatch => 'Passwords do not match.';
+
+  @override
+  String errorRequiredField(Object fieldName) {
+    return 'The $fieldName field is required.';
+  }
+
+  @override
+  String get errorNotFoundTitle => 'Not Found';
+
+  @override
+  String get errorNotFound => 'The requested resource was not found.';
+
+  @override
+  String get errorAlreadyExists => 'The resource already exists.';
+
+  @override
+  String get errorEmailAlreadyExists => 'This email is already registered.';
+
+  @override
+  String get errorCache => 'Error accessing local data.';
+
+  @override
+  String get errorStorageSpaceExceededTitle => 'Storage Full';
+
+  @override
+  String get errorStorageSpaceExceeded => 'You have exceeded your personal storage limit.';
+
+  @override
+  String get errorPermissionDenied => 'You do not have permission to perform this action.';
+
+  @override
+  String errorCode(Object code) {
+    return 'Error code: $code';
+  }
+
+  @override
+  String get errorEmailRequired => 'Please enter an email address';
+
+  @override
+  String get errorPasswordRequired => 'Please enter a password';
 }

@@ -1,6 +1,5 @@
-
-
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/get_user_profile_use_case.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_state.dart';
@@ -21,7 +20,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final profile = await getUserProfileUseCase();
       emit(ProfileLoaded(profile));
     } catch (e) {
-      emit(ProfileError(e.toString()));
+      final failure = ErrorHandler.handleError(e);
+      emit(ProfileError(failure));
     }
   }
 
@@ -30,7 +30,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final profile = await getUserProfileUseCase();
       emit(ProfileLoaded(profile));
     } catch (e) {
-      emit(ProfileError(e.toString()));
+      final failure = ErrorHandler.handleError(e);
+      emit(ProfileError(failure));
     }
   }
 }

@@ -1,4 +1,5 @@
 
+import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 
 
@@ -22,7 +23,7 @@ class NotAuthenticated extends AuthState {}
 
 
 class AuthError extends AuthState {
-  final String message;
+  final Failure failure;
 
-  AuthError(this.message);
+  AuthError(this.failure);
 }

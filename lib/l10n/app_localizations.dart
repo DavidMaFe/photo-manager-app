@@ -101,6 +101,12 @@ abstract class AppLocalizations {
   /// **'File Manager'**
   String get appTitle;
 
+  /// No description provided for @welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get welcome;
+
   /// No description provided for @loginTitle.
   ///
   /// In en, this message translates to:
@@ -143,12 +149,6 @@ abstract class AppLocalizations {
   /// **'Are you sure to logout?'**
   String get logoutConfirmation;
 
-  /// No description provided for @cancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get cancel;
-
   /// No description provided for @forgotPassword.
   ///
   /// In en, this message translates to:
@@ -167,35 +167,23 @@ abstract class AppLocalizations {
   /// **'Sign Up'**
   String get signUp;
 
-  /// No description provided for @invalidEmail.
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid email format'**
-  String get invalidEmail;
-
-  /// No description provided for @emptyField.
-  ///
-  /// In en, this message translates to:
-  /// **'This field cannot be empty'**
-  String get emptyField;
-
-  /// No description provided for @welcome.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome'**
-  String get welcome;
-
-  /// No description provided for @welcomeMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Hello {userName}, welcome'**
-  String welcomeMessage(Object userName);
-
   /// No description provided for @errorLoadingProfile.
   ///
   /// In en, this message translates to:
   /// **'Error loading the profile'**
   String get errorLoadingProfile;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 
   /// No description provided for @tryAgain.
   ///
@@ -274,6 +262,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage notifications'**
   String get notificationsSubtitle;
+
+  /// No description provided for @errorUnknownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Error'**
+  String get errorUnknownTitle;
+
+  /// No description provided for @errorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error ocurred. Please, try again later.'**
+  String get errorUnknown;
+
+  /// No description provided for @errorNetworkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Error'**
+  String get errorNetworkTitle;
+
+  /// No description provided for @errorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Check your connection and try again.'**
+  String get errorNetwork;
+
+  /// No description provided for @errorServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Server Error'**
+  String get errorServerTitle;
+
+  /// No description provided for @errorServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error. Please, try again later.'**
+  String get errorServer;
+
+  /// No description provided for @errorTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The operation took too long. Please, try again.'**
+  String get errorTimeout;
+
+  /// No description provided for @errorUnauthorizedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unauthorized'**
+  String get errorUnauthorizedTitle;
+
+  /// No description provided for @errorUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not authorized. Please, log in.'**
+  String get errorUnauthorized;
+
+  /// No description provided for @errorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email or password.'**
+  String get errorInvalidCredentials;
+
+  /// No description provided for @errorTokenExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please log in again.'**
+  String get errorTokenExpired;
+
+  /// No description provided for @errorValidationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Data'**
+  String get errorValidationTitle;
+
+  /// No description provided for @errorValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'The provided data is invalid.'**
+  String get errorValidation;
+
+  /// No description provided for @errorInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'The email format is invalid.'**
+  String get errorInvalidEmail;
+
+  /// No description provided for @errorPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get errorPasswordMismatch;
+
+  /// No description provided for @errorRequiredField.
+  ///
+  /// In en, this message translates to:
+  /// **'The {fieldName} field is required.'**
+  String errorRequiredField(Object fieldName);
+
+  /// No description provided for @errorNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Found'**
+  String get errorNotFoundTitle;
+
+  /// No description provided for @errorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The requested resource was not found.'**
+  String get errorNotFound;
+
+  /// No description provided for @errorAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'The resource already exists.'**
+  String get errorAlreadyExists;
+
+  /// No description provided for @errorEmailAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered.'**
+  String get errorEmailAlreadyExists;
+
+  /// No description provided for @errorCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Error accessing local data.'**
+  String get errorCache;
+
+  /// No description provided for @errorStorageSpaceExceededTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage Full'**
+  String get errorStorageSpaceExceededTitle;
+
+  /// No description provided for @errorStorageSpaceExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'You have exceeded your personal storage limit.'**
+  String get errorStorageSpaceExceeded;
+
+  /// No description provided for @errorPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to perform this action.'**
+  String get errorPermissionDenied;
+
+  /// No description provided for @errorCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Error code: {code}'**
+  String errorCode(Object code);
+
+  /// No description provided for @errorEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter an email address'**
+  String get errorEmailRequired;
+
+  /// No description provided for @errorPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a password'**
+  String get errorPasswordRequired;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

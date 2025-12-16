@@ -1,8 +1,8 @@
 
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
@@ -28,45 +28,26 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SafeArea(
-        child: BlocBuilder<ProfileBloc, ProfileState>(
+        child: BlocConsumer<ProfileBloc, ProfileState>(
+          listener: (context, state) {
+            if (state is ProfileError) {
+              ErrorNotificationService.showError(
+                context,
+                state.failure,
+                config: ErrorDisplayConfig.snackBar,
+                onRetry: () {
+                  context.read<ProfileBloc>().add(LoadProfileRequested());
+                },
+              );
+            }
+          },
           builder: (context, state) {
             if (state is ProfileLoading) {
               return const Center(
                 child: CircularProgressIndicator()
               );
             }
-            
-            if (state is ProfileError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(l10n.errorLoadingProfile, style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 8),
-                    Text(
-                      state.errorMessage,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        context.read<ProfileBloc>().add(LoadProfileRequested());
-                      },
-                      icon: const Icon(Icons.refresh),
-                      label: Text(l10n.tryAgain)
-                    )
-                  ],
-                )
-              );
-            }
-        
+
             if (state is ProfileLoaded) {
               final profile = state.userProfile;
         

@@ -1,6 +1,5 @@
-
-
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
@@ -44,7 +43,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthSuccessful(user));
     } catch (e) {
       await _waitForLoading(stopwatch);
-      emit(AuthError(e.toString()));
+      final failure = ErrorHandler.handleError(e);
+      emit(AuthError(failure));
     }
   }
 
@@ -54,7 +54,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await logoutUseCase();
       emit(NotAuthenticated());
     } catch (e) {
-      emit(AuthError(e.toString()));
+      final failure = ErrorHandler.handleError(e);
+      emit(AuthError(failure));
     }
   }
 

@@ -1,0 +1,83 @@
+import 'package:flutter/cupertino.dart';
+import 'package:photo_manager_app/l10n/app_localizations.dart';
+import '../base/failures.dart';
+
+
+class FailureMessageHelper {
+
+  static String getMessage(BuildContext context, Failure failure) {
+    final l10n = AppLocalizations.of(context)!;
+    return _getLocalizedMessage(l10n, failure);
+  }
+
+  static String getTitle(BuildContext context, Failure failure) {
+    final l10n = AppLocalizations.of(context)!;
+
+    if (failure is NetworkFailure) return l10n.errorNetworkTitle;
+    if (failure is ServerFailure) return l10n.errorServerTitle;
+    if (failure is ValidationFailure) return l10n.errorValidationTitle;
+    if (failure is UnauthorizedFailure) return l10n.errorUnauthorizedTitle;
+    if (failure is NotFoundFailure) return l10n.errorNotFoundTitle;
+    if (failure is StorageSpaceExceededFailure) return l10n.errorStorageSpaceExceededTitle;
+
+    return l10n.errorUnknown;
+  }
+
+  static String _getLocalizedMessage(AppLocalizations l10n, Failure failure) {
+    switch (failure.messageKey) {
+    // Network
+      case 'errorNetwork':
+        return l10n.errorNetwork;
+      case 'errorServer':
+        return l10n.errorServer;
+      case 'errorTimeout':
+        return l10n.errorTimeout;
+
+    // Auth
+      case 'errorUnauthorized':
+        return l10n.errorUnauthorized;
+      case 'errorInvalidCredentials':
+        return l10n.errorInvalidCredentials;
+      case 'errorTokenExpired':
+        return l10n.errorTokenExpired;
+
+    // Validation
+      case 'errorValidation':
+        return l10n.errorValidation;
+      case 'errorInvalidEmail':
+        return l10n.errorInvalidEmail;
+      case 'errorPasswordMismatch':
+        return l10n.errorPasswordMismatch;
+      case 'errorRequiredField':
+        final fieldName = failure.messageParams?['fieldName'] as String? ?? '';
+        return l10n.errorRequiredField(fieldName);
+
+    // Data
+      case 'errorNotFound':
+        return l10n.errorNotFound;
+      case 'errorAlreadyExists':
+        return l10n.errorAlreadyExists;
+      case 'errorEmailAlreadyExists':
+        return l10n.errorEmailAlreadyExists;
+      case 'errorCache':
+        return l10n.errorCache;
+
+    // Permission
+      case 'errorStorageQuotaExceeded':
+        return l10n.errorStorageSpaceExceeded;
+      case 'errorPermissionDenied':
+        return l10n.errorPermissionDenied;
+
+    // Generic
+      case 'errorUnknown':
+      default:
+        return l10n.errorUnknown;
+    }
+  }
+
+  static String? getFormattedCode(BuildContext context, String? code) {
+    if (code == null) return null;
+    final l10n = AppLocalizations.of(context)!;
+    return l10n.errorCode(code);
+  }
+}

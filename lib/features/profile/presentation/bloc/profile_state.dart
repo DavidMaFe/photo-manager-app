@@ -1,5 +1,4 @@
-
-
+import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 
 abstract class ProfileState {}
@@ -18,6 +17,6 @@ class ProfileLoaded extends ProfileState {
 
 
 class ProfileError extends ProfileState {
-  final String errorMessage;
-  ProfileError(this.errorMessage);
+  final Failure failure;
+  ProfileError(this.failure);
 }

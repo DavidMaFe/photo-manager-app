@@ -1,7 +1,6 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
@@ -58,12 +57,12 @@ class _LoginPageState extends State<LoginPage> {
         body: SafeArea(
             child: BlocConsumer<AuthBloc, AuthState>(
               listener: (context, state) {
-               if (state is AuthError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: Colors.red,
-                    )
+                if (state is AuthError) {
+                  ErrorNotificationService.showError(
+                    context,
+                    state.failure,
+                    config: ErrorDisplayConfig.snackBar,
+                    onRetry: () => _handleLogin(),
                   );
                 }
               },
