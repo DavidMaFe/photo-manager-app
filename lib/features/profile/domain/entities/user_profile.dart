@@ -25,7 +25,7 @@ class UserProfile {
     required this.deviceCount
   });
 
-  String get fullName => '$name $surname';
+  String get fullName => '$name${surname != null ? " $surname" : ''}';
 
   double get storageUsedGb => storageUsedMb / 1024;
   double get storageTotalGb => storageTotalMb / 1024;

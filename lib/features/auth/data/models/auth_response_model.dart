@@ -23,7 +23,7 @@ class AuthResponseModel {
         id: json['id'].toString(),
         email: json['email'] as String,
         name: json['name'] as String,
-        surname: json['surname'] as String
+        surname: json['surname'] == null ? null : json['surname'] as String
     );
 
     return AuthResponseModel(
