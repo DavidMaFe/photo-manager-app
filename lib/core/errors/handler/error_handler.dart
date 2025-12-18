@@ -54,8 +54,7 @@ class ErrorHandler {
     }
 
     // Parse HTTP status codes from exception messages
-    if (exceptionString.contains('401') ||
-        exceptionString.toLowerCase().contains('unauthorized')) {
+    if (exceptionString.contains("AUTHENTICATION_ERROR")) {
       return InvalidCredentialsFailure();
     }
 

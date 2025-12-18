@@ -36,10 +36,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         return AuthResponseModel.fromJson(jsonData);
-      } else if (response.statusCode == 401) {
-        throw Exception('Email or password are not correct');
       } else {
-        throw Exception('Server error: ${response.statusCode}');
+        throw Exception(jsonDecode(response.body)["code"]);
       }
     } catch (e) {
       if (e is Exception) rethrow;

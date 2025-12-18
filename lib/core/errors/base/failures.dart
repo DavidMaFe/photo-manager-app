@@ -61,7 +61,7 @@ class UnauthorizedFailure extends Failure {
 }
 
 
-class InvalidCredentialsFailure extends Failure {
+class InvalidCredentialsFailure extends UnauthorizedFailure {
   const InvalidCredentialsFailure({
     super.messageKey = 'errorInvalidCredentials',
     super.messageParams,
@@ -71,7 +71,7 @@ class InvalidCredentialsFailure extends Failure {
 }
 
 
-class TokenExpiredFailure extends Failure {
+class TokenExpiredFailure extends UnauthorizedFailure {
   const TokenExpiredFailure({
     super.messageKey = 'errorTokenExpired',
     super.messageParams,
