@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 
+import '../base/failure_codes.dart';
+
 
 class ErrorHandler {
   static Failure handleError(dynamic error) {
@@ -54,7 +56,7 @@ class ErrorHandler {
     }
 
     // Parse HTTP status codes from exception messages
-    if (exceptionString.contains("AUTHENTICATION_ERROR")) {
+    if (exceptionString.contains(FailureCodes.authenticationErrorCode)) {
       return InvalidCredentialsFailure();
     }
 
