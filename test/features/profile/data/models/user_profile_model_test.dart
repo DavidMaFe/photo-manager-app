@@ -9,7 +9,7 @@ void main() {
     const testName = 'John';
     const testSurname = 'Doe';
     const testProfileImage = 'https://example.com/image.jpg';
-    const testStorageUsedMb = 500;
+    const double testStorageUsedMb = 500;
     const testStorageTotalMb = 1024;
     const testFileCount = 100;
     const testFolderCount = 10;

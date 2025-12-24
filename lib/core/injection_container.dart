@@ -1,4 +1,5 @@
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
@@ -14,7 +15,22 @@ import 'package:photo_manager_app/features/profile/data/repositories/profile_dat
 import 'package:photo_manager_app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/get_user_profile_use_case.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/data/data_sources/local/sync_device_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_device_remote_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_session_remote_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/data/repositories/sync_device_repository_impl.dart';
+import 'package:photo_manager_app/features/sync_session/data/repositories/sync_session_repository_impl.dart';
+import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_sync_session_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/register_sync_device_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_sync_session_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../features/sync_session/presentation/bloc/sync_session_bloc.dart';
 
 
 final sl = GetIt.instance;
@@ -23,9 +39,12 @@ Future<void> init() async {
 
   // GENERAL INJECTIONS
   sl.registerLazySingleton(() => http.Client());
+  sl.registerLazySingleton(() => DeviceInfoPlugin());
 
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
+
+
 
 
   // DATASOURCE'S
@@ -61,6 +80,45 @@ Future<void> init() async {
       }
   );
 
+  // sync session
+  sl.registerLazySingleton<SyncSessionRemoteDataSource>(
+      () {
+        final client = sl<http.Client>();
+        final authLocalDataSource = sl<AuthLocalDataSource>();
+        return SyncSessionRemoteDatasourceImpl(
+          client: client,
+          authLocalDataSource: authLocalDataSource
+        );
+      }
+  );
+
+  sl.registerLazySingleton<SyncDeviceRemoteDataSource>(
+      () {
+        final client = sl<http.Client>();
+        final authLocalDataSource = sl<AuthLocalDataSource>();
+        return SyncDeviceRemoteDataSourceImpl(
+            client: client,
+            authLocalDataSource: authLocalDataSource
+        );
+      }
+  );
+
+  sl.registerLazySingleton<SyncDeviceLocalDataSource>(
+      () {
+        final sharedPreferences = sl<SharedPreferences>();
+        final deviceInfo = sl<DeviceInfoPlugin>();
+        return SyncDeviceLocalDataSourceImpl(
+          sharedPreferences: sharedPreferences,
+          deviceInfo: deviceInfo
+        );
+      }
+  );
+
+  sl.registerLazySingleton<MediaLocalDataSource>(
+      () => MediaLocalDataSource()
+  );
+
+
   // REPOSITORIES
   // auth
   sl.registerLazySingleton<AuthRepository>(
@@ -88,6 +146,28 @@ Future<void> init() async {
       }
   );
 
+  // sync session
+  sl.registerLazySingleton<SyncSessionRepository>(
+      () {
+        final syncSessionRemoteDataSource = sl<SyncSessionRemoteDataSource>();
+        return SyncSessionRepositoryImpl(
+          remoteDataSource: syncSessionRemoteDataSource
+        );
+      }
+  );
+
+  sl.registerLazySingleton<SyncDeviceRepository>(
+      () {
+        final syncDeviceRemoteDataSource = sl<SyncDeviceRemoteDataSource>();
+        final syncDeviceLocalDataSource = sl<SyncDeviceLocalDataSource>();
+        return SyncDeviceRepositoryImpl(
+          remoteDataSource: syncDeviceRemoteDataSource,
+          localDataSource: syncDeviceLocalDataSource
+        );
+      }
+  );
+
+
   // USE CASES
   // auth
   sl.registerFactory(
@@ -112,15 +192,59 @@ Future<void> init() async {
       }
   );
 
+  // sync session
+  sl.registerFactory(
+      () {
+        final syncDeviceRepository = sl<SyncDeviceRepository>();
+        return RegisterSyncDeviceUseCase(syncDeviceRepository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final syncSessionRepository = sl<SyncSessionRepository>();
+        return StartSyncSessionUseCase(syncSessionRepository);
+      }
+  );
+
+  sl.registerFactory(
+          () {
+        final syncSessionRepository = sl<SyncSessionRepository>();
+        return CheckDuplicatedFilesUseCase(syncSessionRepository);
+      }
+  );
+
+  sl.registerFactory(
+          () {
+        final syncSessionRepository = sl<SyncSessionRepository>();
+        return UploadFileUseCase(syncSessionRepository);
+      }
+  );
+
+  sl.registerFactory(
+          () {
+        final syncSessionRepository = sl<SyncSessionRepository>();
+        return CompleteSyncSessionUseCase(syncSessionRepository);
+      }
+  );
+
+
   // BLOC'S
   // auth
   sl.registerFactory(
       () {
         final loginUseCase = sl<LoginUseCase>();
         final logoutUseCase = sl<LogoutUseCase>();
+        final registerSyncDeviceUseCase = sl<RegisterSyncDeviceUseCase>();
         final authRepository = sl<AuthRepository>();
-        return AuthBloc(loginUseCase: loginUseCase, logoutUseCase: logoutUseCase,
-            authRepository: authRepository);
+        final syncDeviceRepository = sl<SyncDeviceRepository>();
+        return AuthBloc(
+            loginUseCase: loginUseCase,
+            logoutUseCase: logoutUseCase,
+            registerSyncDeviceUseCase: registerSyncDeviceUseCase,
+            authRepository: authRepository,
+            syncDeviceRepository: syncDeviceRepository
+        );
       }
   );
 
@@ -129,6 +253,29 @@ Future<void> init() async {
       () {
         final getUserProfileUseCase = sl<GetUserProfileUseCase>();
         return ProfileBloc(getUserProfileUseCase);
+      }
+  );
+
+  // sync session
+  sl.registerFactory(
+      () {
+        final startSyncSessionUseCase = sl<StartSyncSessionUseCase>();
+        final checkDuplicatesUseCase = sl<CheckDuplicatedFilesUseCase>();
+        final uploadFilesUseCase = sl<UploadFileUseCase>();
+        final completeSyncSessionUseCase = sl<CompleteSyncSessionUseCase>();
+        final syncSessionRepository = sl<SyncSessionRepository>();
+        final syncDeviceRepository = sl<SyncDeviceRepository>();
+        final mediaLocalDataSource = sl<MediaLocalDataSource>();
+
+        return SyncSessionBloc(
+          startSyncSessionUseCase: startSyncSessionUseCase,
+          checkDuplicatedFilesUseCase: checkDuplicatesUseCase,
+          uploadFileUseCase: uploadFilesUseCase,
+          completeSyncSessionUseCase: completeSyncSessionUseCase,
+          syncSessionRepository: syncSessionRepository,
+          syncDeviceRepository: syncDeviceRepository,
+          mediaLocalDataSource: mediaLocalDataSource
+        );
       }
   );
 }

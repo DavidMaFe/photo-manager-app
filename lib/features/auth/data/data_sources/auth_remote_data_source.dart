@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:photo_manager_app/config/data_constants.dart';
 
 import '../models/auth_response_model.dart';
 
@@ -18,7 +19,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   AuthRemoteDataSourceImpl({
     required this.client,
-    this.baseUrl = 'http://10.0.2.2:8080'
+    this.baseUrl = DataConstants.backendBaseUrl
   });
 
   @override

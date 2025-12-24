@@ -9,27 +9,39 @@ import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/register_sync_device_use_case.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
+
+class MockRegisterSyncDeviceUseCase extends Mock implements RegisterSyncDeviceUseCase {}
 
 class MockLogoutUseCase extends Mock implements LogoutUseCase {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
+class MockSyncDeviceRepository extends Mock implements SyncDeviceRepository {}
+
 void main() {
   late AuthBloc authBloc;
   late MockLoginUseCase mockLoginUseCase;
+  late MockRegisterSyncDeviceUseCase mockRegisterSyncDeviceUseCase;
   late MockLogoutUseCase mockLogoutUseCase;
   late MockAuthRepository mockAuthRepository;
+  late MockSyncDeviceRepository mockSyncDeviceRepository;
 
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
+    mockRegisterSyncDeviceUseCase = MockRegisterSyncDeviceUseCase();
     mockLogoutUseCase = MockLogoutUseCase();
     mockAuthRepository = MockAuthRepository();
+    mockSyncDeviceRepository = MockSyncDeviceRepository();
     authBloc = AuthBloc(
       loginUseCase: mockLoginUseCase,
+      registerSyncDeviceUseCase: mockRegisterSyncDeviceUseCase,
       logoutUseCase: mockLogoutUseCase,
       authRepository: mockAuthRepository,
+      syncDeviceRepository: mockSyncDeviceRepository
     );
   });
 

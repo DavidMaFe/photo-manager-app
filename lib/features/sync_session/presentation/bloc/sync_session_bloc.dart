@@ -1,0 +1,215 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
+import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_sync_session_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_sync_session_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
+
+import '../../../../core/errors/base/failures.dart';
+import '../../../../core/errors/handler/error_handler.dart';
+
+
+class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
+
+  final StartSyncSessionUseCase startSyncSessionUseCase;
+  final CheckDuplicatedFilesUseCase checkDuplicatedFilesUseCase;
+  final UploadFileUseCase uploadFileUseCase;
+  final CompleteSyncSessionUseCase completeSyncSessionUseCase;
+  final SyncDeviceRepository syncDeviceRepository;
+  final SyncSessionRepository syncSessionRepository;
+  final MediaLocalDataSource mediaLocalDataSource;
+
+  String? _currentSessionId;
+  bool _isCancelled = false;
+
+  SyncSessionBloc({
+    required this.startSyncSessionUseCase,
+    required this.checkDuplicatedFilesUseCase,
+    required this.uploadFileUseCase,
+    required this.completeSyncSessionUseCase,
+    required this.syncDeviceRepository,
+    required this.syncSessionRepository,
+    required this.mediaLocalDataSource
+  }) : super(const SyncSessionInitial()) {
+
+    on<SyncSessionStarted>(_onSyncSessionStarted);
+    on<SyncSessionCancelled>(_onSyncSessionCancelled);
+    on<SyncSessionRetried>(_onSyncSessionRetried);
+  }
+
+  Future<void> _onSyncSessionStarted(SyncSessionStarted event, Emitter<SyncSessionState> emit) async {
+
+    _isCancelled = false;
+    _currentSessionId = null;
+
+    try {
+
+      emit(const SyncSessionStarting());
+      final startStopwatch = Stopwatch()..start();
+
+      final deviceUuid = await syncDeviceRepository.getDeviceUuid();
+      final session = await startSyncSessionUseCase(deviceUuid: deviceUuid);
+      _currentSessionId = session.id;
+
+      if (_isCancelled) {
+        await _handleCancellation(emit, null);
+        return;
+      }
+
+      await _waitForLoading(startStopwatch, 2000);
+
+      emit(const SyncSessionFetchingFiles());
+      final fetchingFilesStopwatch = Stopwatch()..start();
+
+      final hasPermission = await mediaLocalDataSource.requestPermission();
+      if (!hasPermission) {
+        Failure failure = ErrorHandler.handleError(Exception(FailureCodes.galleryPermissionErrorCode));
+        emit(SyncSessionError(failure));
+        return;
+      }
+
+      final scannedFiles = await mediaLocalDataSource.scanMediaFiles(
+        lastCompletedSyncAt: session.lastCompletedAt
+      );
+
+      await _waitForLoading(fetchingFilesStopwatch, 3000);
+      if (scannedFiles.isEmpty) {
+        await _completeSession(emit, session.id);
+        return;
+      }
+
+      if (_isCancelled) {
+        await _handleCancellation(emit, null);
+        return;
+      }
+
+      final fileHashes = scannedFiles.map((file) => file.hash).toList();
+      final duplicateCheckResult = await checkDuplicatedFilesUseCase(
+        sessionId: session.id, fileHashes: fileHashes
+      );
+
+      if (duplicateCheckResult.allFilesAreDuplicates) {
+        await _completeSession(emit, session.id);
+        return;
+      }
+
+      final filesToUpload = scannedFiles.where((file) {
+        return duplicateCheckResult.filesToUpload.contains(file.hash);
+      }).toList();
+
+      if (_isCancelled) {
+        await _handleCancellation(emit, null);
+        return;
+      }
+
+      int uploadedCount = 0;
+      int totalCount = duplicateCheckResult.totalFiles;
+
+      emit(SyncSessionUploading(uploadCount: uploadedCount, totalCount: totalCount));
+      for (final file in filesToUpload) {
+
+        final uploadingFileStopWatch = Stopwatch()..start();
+
+        if (_isCancelled) {
+          await _handleCancellation(emit, uploadedCount);
+          return;
+        }
+
+        final success = await uploadFileUseCase(sessionId: session.id, file: file);
+
+        if (success) {
+          uploadedCount++;
+        }
+
+        emit(SyncSessionUploading(uploadCount: uploadedCount,
+            totalCount: totalCount, currentFileName: file.fileName));
+
+        await _waitForLoading(uploadingFileStopWatch, 1000);
+      }
+
+      if (_isCancelled) {
+        await _handleCancellation(emit, uploadedCount);
+        return;
+      }
+
+      await _completeSession(emit, session.id);
+
+    } catch (e) {
+      if (_currentSessionId != null) {
+
+        try {
+
+          await syncSessionRepository.cancelSyncSession(sessionId: _currentSessionId!);
+        } catch (cancelError) {
+
+          final failure = ErrorHandler.handleError(cancelError);
+          emit(SyncSessionError(failure));
+        }
+      }
+
+      final failure = ErrorHandler.handleError(e);
+      emit(SyncSessionError(failure));
+    }
+
+  }
+
+  Future<void> _onSyncSessionCancelled(SyncSessionCancelled event, Emitter<SyncSessionState> emit) async {
+
+    _isCancelled = true;
+
+    if (state is SyncSessionSuccess || state is SyncSessionCancelling || state is SyncSessionError) {
+      return;
+    }
+  }
+
+  Future<void> _onSyncSessionRetried(SyncSessionRetried event, Emitter<SyncSessionState> emit) async {
+    await _onSyncSessionStarted(const SyncSessionStarted(), emit);
+  }
+
+  Future<void> _handleCancellation(Emitter<SyncSessionState> emit, int? uploadedCount) async {
+
+    if (_currentSessionId != null) {
+      try {
+        await syncSessionRepository.cancelSyncSession(sessionId: _currentSessionId!);
+      } catch (e) {
+        final failure = ErrorHandler.handleError(e);
+        emit(SyncSessionError(failure));
+      }
+    }
+
+    emit(SyncSessionCancelling(uploadedCount));
+  }
+
+  @override
+  Future<void> close() {
+    _currentSessionId = null;
+    _isCancelled = false;
+    return super.close();
+  }
+
+  Future<void> _completeSession(Emitter<SyncSessionState> emit, String sessionId) async {
+
+    emit(const SyncSessionCompleting());
+    final completeSessionStopWatch = Stopwatch()..start();
+    await _waitForLoading(completeSessionStopWatch, 2000);
+
+    final result = await completeSyncSessionUseCase(sessionId: sessionId);
+
+    emit(SyncSessionSuccess(result));
+  }
+
+  Future<void> _waitForLoading(Stopwatch stopwatch, int duration) async {
+    stopwatch.stop();
+    final elapsed = stopwatch.elapsedMilliseconds;
+    final remaining = duration - elapsed;
+
+    if (remaining > 0) {
+      await Future.delayed(Duration(milliseconds: remaining));
+    }
+  }
+}

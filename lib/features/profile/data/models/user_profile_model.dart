@@ -25,7 +25,7 @@ class UserProfileModel extends UserProfile {
       name: json['name'] as String,
       surname: json['surname'] as String?,
       profileImage: json['profileImage'] as String?,
-      storageUsedMb: json['storageUsedMb'] as int,
+      storageUsedMb: json['storageUsedMb'] as double,
       storageTotalMb: json['storageTotalMb'] as int,
       fileCount: stats['fileCount'] as int? ?? 0,
       folderCount: stats['folderCount'] as int? ?? 0,

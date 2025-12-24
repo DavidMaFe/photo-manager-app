@@ -5,19 +5,26 @@ import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/register_sync_device_use_case.dart';
+
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   final LoginUseCase loginUseCase;
+  final RegisterSyncDeviceUseCase registerSyncDeviceUseCase;
   final LogoutUseCase logoutUseCase;
   final AuthRepository authRepository;
+  final SyncDeviceRepository syncDeviceRepository;
 
   static const int minimumLoadingDuration = 800;
 
   AuthBloc({
     required this.loginUseCase,
+    required this.registerSyncDeviceUseCase,
     required this.logoutUseCase,
-    required this.authRepository
+    required this.authRepository,
+    required this.syncDeviceRepository
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<LogoutRequested>(_onLogoutRequested);
@@ -38,6 +45,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password
       );
       // Delay the promise response the remaining time
+      await _registerDevice();
       await _waitForLoading(stopwatch);
 
       emit(AuthSuccessful(user));
@@ -76,6 +84,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(NotAuthenticated());
     }
 
+  }
+
+  Future<void> _registerDevice() async {
+
+    try {
+
+      final deviceUuid = await syncDeviceRepository.getDeviceUuid();
+      final deviceInfo = await syncDeviceRepository.getCurrentDeviceInfo();
+
+      await registerSyncDeviceUseCase(
+        uuid: deviceUuid,
+        name: deviceInfo.name,
+        model: deviceInfo.model,
+        osType: deviceInfo.osType,
+        osVersion: deviceInfo.osVersion,
+        appVersion: deviceInfo.appVersion,
+        pushToken: null
+      );
+    } catch(e) {
+      // Ignore error
+    }
   }
 
   Future<void> _waitForLoading(Stopwatch stopwatch) async {

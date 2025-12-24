@@ -167,6 +167,138 @@ abstract class AppLocalizations {
   /// **'Sign Up'**
   String get signUp;
 
+  /// No description provided for @syncSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Synchronization'**
+  String get syncSessionTitle;
+
+  /// No description provided for @syncSessionInit.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting synchronization...'**
+  String get syncSessionInit;
+
+  /// No description provided for @syncSessionConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting with the server'**
+  String get syncSessionConnecting;
+
+  /// No description provided for @syncSessionFetchingFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching files from the gallery...'**
+  String get syncSessionFetchingFiles;
+
+  /// No description provided for @syncSessionWaitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This may take a few seconds'**
+  String get syncSessionWaitWarning;
+
+  /// No description provided for @syncSessionUploadingFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading files...'**
+  String get syncSessionUploadingFiles;
+
+  /// No description provided for @syncSessionFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{uploadedFiles}/{totalFiles} files'**
+  String syncSessionFiles(Object totalFiles, Object uploadedFiles);
+
+  /// No description provided for @syncSessionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel synchronization'**
+  String get syncSessionCancel;
+
+  /// No description provided for @syncSessionCancelWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel synchronization?'**
+  String get syncSessionCancelWarning;
+
+  /// No description provided for @syncSessionCancelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The current progress will be lost. The files uploaded will remain in the server.'**
+  String get syncSessionCancelDescription;
+
+  /// No description provided for @syncSessionCancelShortDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The synchronization is in progress. You want to cancel?'**
+  String get syncSessionCancelShortDescription;
+
+  /// No description provided for @syncSessionCancelConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, cancel'**
+  String get syncSessionCancelConfirm;
+
+  /// No description provided for @syncSessionCompleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Completing synchronization...'**
+  String get syncSessionCompleting;
+
+  /// No description provided for @syncSessionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving information'**
+  String get syncSessionSave;
+
+  /// No description provided for @syncSessionCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Synchronization completed'**
+  String get syncSessionCompleted;
+
+  /// No description provided for @syncSessionFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Synchronization finished'**
+  String get syncSessionFinished;
+
+  /// No description provided for @syncSessionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error in the synchronization'**
+  String get syncSessionError;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @uploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded'**
+  String get uploaded;
+
+  /// No description provided for @failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get failed;
+
+  /// No description provided for @infoFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{info} files'**
+  String infoFiles(Object info);
+
+  /// No description provided for @goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Return'**
+  String get goBack;
+
   /// No description provided for @errorLoadingProfile.
   ///
   /// In en, this message translates to:

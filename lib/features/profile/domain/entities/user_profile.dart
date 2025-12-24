@@ -6,7 +6,7 @@ class UserProfile {
   final String name;
   final String? surname;
   final String? profileImage;
-  final int storageUsedMb;
+  final double storageUsedMb;
   final int storageTotalMb;
   final int fileCount;
   final int folderCount;

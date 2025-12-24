@@ -1,9 +1,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/pages/sync_session_process_page.dart';
+
+import '../../../../core/injection_container.dart' as di;
 
 class HomePage extends StatelessWidget {
 
@@ -48,7 +54,26 @@ class HomePage extends StatelessWidget {
               ],
             ),
           )
+        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _openSyncProcess(context),
+        backgroundColor: PhotoManagerColors.primary,
+        child: const Icon(Icons.sync, color: Colors.white),
+        tooltip: 'Sincronizar',
+      ),
+    );
+  }
+
+  void _openSyncProcess(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => BlocProvider(
+          create: (context) => di.sl<SyncSessionBloc>()
+              ..add(const SyncSessionStarted()),
+          child: const SyncSessionProcessPage(),
         )
+      )
     );
   }
 }

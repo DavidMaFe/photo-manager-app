@@ -45,6 +45,76 @@ class AppLocalizationsEs extends AppLocalizations {
   String get signUp => 'Regístrate';
 
   @override
+  String get syncSessionTitle => 'Sincronización';
+
+  @override
+  String get syncSessionInit => 'Iniciando sincronización...';
+
+  @override
+  String get syncSessionConnecting => 'Conectando con el servidor';
+
+  @override
+  String get syncSessionFetchingFiles => 'Obteniendo archivos de la galería...';
+
+  @override
+  String get syncSessionWaitWarning => 'Esto puede tardar unos segundos';
+
+  @override
+  String get syncSessionUploadingFiles => 'Subiendo archivos...';
+
+  @override
+  String syncSessionFiles(Object totalFiles, Object uploadedFiles) {
+    return '$uploadedFiles/$totalFiles archivos';
+  }
+
+  @override
+  String get syncSessionCancel => 'Cancelar sincronización';
+
+  @override
+  String get syncSessionCancelWarning => '¿Cancelar sincronización?';
+
+  @override
+  String get syncSessionCancelDescription => 'Se perderá el progreso actual. Los archivos subidos se mantendrán en el servidor.';
+
+  @override
+  String get syncSessionCancelShortDescription => 'La sincronización está en progreso. ¿Deseas cancelar?';
+
+  @override
+  String get syncSessionCancelConfirm => 'Sí, cancelar';
+
+  @override
+  String get syncSessionCompleting => 'Completando sincronización...';
+
+  @override
+  String get syncSessionSave => 'Guardando información';
+
+  @override
+  String get syncSessionCompleted => 'Sincronización completada';
+
+  @override
+  String get syncSessionFinished => 'Sincronización finalizada';
+
+  @override
+  String get syncSessionError => 'Error en la sincronización';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get uploaded => 'Subidos';
+
+  @override
+  String get failed => 'Fallidos';
+
+  @override
+  String infoFiles(Object info) {
+    return '$info archivos';
+  }
+
+  @override
+  String get goBack => 'Volver';
+
+  @override
   String get errorLoadingProfile => 'Error al cargar el perfil';
 
   @override
