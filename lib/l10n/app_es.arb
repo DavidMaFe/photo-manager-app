@@ -14,6 +14,16 @@
   "notHaveAccount": "¿No tienes cuenta? ",
   "signUp": "Regístrate",
 
+  "gallery": "Galería",
+  "all": "Todos",
+  "photos": "Fotos",
+  "videos": "Vídeos",
+  "pending": "Pendientes",
+  "pendingFilesInfoSingle": "Tienes 1 archivo pendiente de gestionar",
+  "pendingFilesInfo": "Tienes {files} archivos pendientes de gestionar",
+  "noFiles": "No hay archivos que mostrar",
+  "syncToHaveFiles": "Sincroniza tus dispositivos para ver tus archivos",
+
   "syncSessionTitle": "Sincronización",
   "syncSessionInit": "Iniciando sincronización...",
   "syncSessionConnecting": "Conectando con el servidor",

@@ -167,6 +167,60 @@ abstract class AppLocalizations {
   /// **'Sign Up'**
   String get signUp;
 
+  /// No description provided for @gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @photos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get photos;
+
+  /// No description provided for @videos.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos'**
+  String get videos;
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pending;
+
+  /// No description provided for @pendingFilesInfoSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'You have 1 file pending to manage'**
+  String get pendingFilesInfoSingle;
+
+  /// No description provided for @pendingFilesInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {files} files pending to manage'**
+  String pendingFilesInfo(Object files);
+
+  /// No description provided for @noFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no files to show'**
+  String get noFiles;
+
+  /// No description provided for @syncToHaveFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Synchronize your devices to see your files'**
+  String get syncToHaveFiles;
+
   /// No description provided for @syncSessionTitle.
   ///
   /// In en, this message translates to:

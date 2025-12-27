@@ -45,6 +45,35 @@ class AppLocalizationsEs extends AppLocalizations {
   String get signUp => 'Regístrate';
 
   @override
+  String get gallery => 'Galería';
+
+  @override
+  String get all => 'Todos';
+
+  @override
+  String get photos => 'Fotos';
+
+  @override
+  String get videos => 'Vídeos';
+
+  @override
+  String get pending => 'Pendientes';
+
+  @override
+  String get pendingFilesInfoSingle => 'Tienes 1 archivo pendiente de gestionar';
+
+  @override
+  String pendingFilesInfo(Object files) {
+    return 'Tienes $files archivos pendientes de gestionar';
+  }
+
+  @override
+  String get noFiles => 'No hay archivos que mostrar';
+
+  @override
+  String get syncToHaveFiles => 'Sincroniza tus dispositivos para ver tus archivos';
+
+  @override
   String get syncSessionTitle => 'Sincronización';
 
   @override

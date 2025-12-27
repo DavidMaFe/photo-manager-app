@@ -9,6 +9,11 @@ import 'package:photo_manager_app/features/auth/domain/repositories/auth_reposit
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:photo_manager_app/features/gallery/data/data_sources/gallery_remote_data_source.dart';
+import 'package:photo_manager_app/features/gallery/data/repositories/gallery_repository_impl.dart';
+import 'package:photo_manager_app/features/gallery/domain/repositories/gallery_repository.dart';
+import 'package:photo_manager_app/features/gallery/domain/use_cases/get_files_use_case.dart';
+import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_local_data_source.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_remote_data_source.dart';
 import 'package:photo_manager_app/features/profile/data/repositories/profile_data_repository.dart';
@@ -43,8 +48,6 @@ Future<void> init() async {
 
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
-
-
 
 
   // DATASOURCE'S
@@ -118,6 +121,18 @@ Future<void> init() async {
       () => MediaLocalDataSource()
   );
 
+  // gallery
+  sl.registerLazySingleton<GalleryRemoteDataSource>(
+      () {
+        final client = sl<http.Client>();
+        final autLocalDataSource = sl<AuthLocalDataSource>();
+        return GalleryRemoteDataSourceImpl(
+          client: client,
+          authLocalDataSource: autLocalDataSource
+        );
+      }
+  );
+
 
   // REPOSITORIES
   // auth
@@ -164,6 +179,14 @@ Future<void> init() async {
           remoteDataSource: syncDeviceRemoteDataSource,
           localDataSource: syncDeviceLocalDataSource
         );
+      }
+  );
+
+  // gallery
+  sl.registerLazySingleton<GalleryRepository>(
+      () {
+        final remoteDataSource = sl<GalleryRemoteDataSource>();
+        return GalleryRepositoryImpl(remoteDataSource);
       }
   );
 
@@ -228,6 +251,14 @@ Future<void> init() async {
       }
   );
 
+  // gallery
+  sl.registerFactory(
+      () {
+        final repository = sl<GalleryRepository>();
+        return GetFilesUseCase(repository);
+      }
+  );
+
 
   // BLOC'S
   // auth
@@ -276,6 +307,14 @@ Future<void> init() async {
           syncDeviceRepository: syncDeviceRepository,
           mediaLocalDataSource: mediaLocalDataSource
         );
+      }
+  );
+
+  // gallery
+  sl.registerFactory(
+      () {
+        final getFileUseCase = sl<GetFilesUseCase>();
+        return GalleryBloc(getFilesUseCase: getFileUseCase);
       }
   );
 }
