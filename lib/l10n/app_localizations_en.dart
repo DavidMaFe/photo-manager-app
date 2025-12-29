@@ -57,7 +57,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get videos => 'Videos';
 
   @override
-  String get pending => 'Pending';
+  String get pendingSingular => 'pending';
+
+  @override
+  String get pendingPlural => 'Pending';
 
   @override
   String get pendingFilesInfoSingle => 'You have 1 file pending to manage';
@@ -72,6 +75,201 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncToHaveFiles => 'Synchronize your devices to see your files';
+
+  @override
+  String get selectedFilesSingle => '1 selected';
+
+  @override
+  String selectedFiles(Object files) {
+    return '$files selected';
+  }
+
+  @override
+  String get noFolders => 'You don\'t have any folder. Create a new one.';
+
+  @override
+  String get selectFolder => 'Select one folder';
+
+  @override
+  String get quickActionsTitle => 'QUICK ACTIONS';
+
+  @override
+  String get saveAndKeepTitle => 'Save';
+
+  @override
+  String get saveAndKeepSubtitle => 'Save and keep in the device';
+
+  @override
+  String get saveAndDeleteTitle => 'Save and free up space';
+
+  @override
+  String get saveAndDeleteSubtitle => 'Save and delete from the device';
+
+  @override
+  String get saveInFolderTitle => 'To folder';
+
+  @override
+  String get saveInFolderSubtitle => 'Save in a folder';
+
+  @override
+  String get deleteBothTitle => 'Delete all';
+
+  @override
+  String get deleteBothSubtitle => 'Delete from all places';
+
+  @override
+  String get advancedOptionsTitle => 'ADVANCED OPTIONS';
+
+  @override
+  String get nameFolder => 'Name of the folder';
+
+  @override
+  String get saveInRootTitle => 'Save in root';
+
+  @override
+  String get saveInRootSubtitle => 'Without specific folder';
+
+  @override
+  String get moveToFolderTitle => 'Move to existing folder';
+
+  @override
+  String get moveToFolderSubtitle => 'Select one folder';
+
+  @override
+  String get newFolderTitle => 'Create a new folder';
+
+  @override
+  String get newFolderSubtitle => 'Write the folder name';
+
+  @override
+  String get deleteTitle => 'Delete from server';
+
+  @override
+  String get deleteSubtitle => 'This action is permanent';
+
+  @override
+  String get keepInDeviceTitle => 'Keep file in my device';
+
+  @override
+  String get keepInDeviceSubtitle => 'The file will continue to occupy local storage space.';
+
+  @override
+  String get deleteFromDeviceDescription => 'The file will be removed from the device but will remain on the server';
+
+  @override
+  String manageMultipleFiles(Object files) {
+    return 'Manage $files files';
+  }
+
+  @override
+  String get manageSingleFile => 'What would you like to do with this file?';
+
+  @override
+  String get sameActionWarning => 'The same action will be applied to all the selected files';
+
+  @override
+  String applyMultiple(Object files) {
+    return 'Apply to $files';
+  }
+
+  @override
+  String get applySingle => 'Apply';
+
+  @override
+  String get selectAction => 'Please, select an action';
+
+  @override
+  String get partialManageTitle => 'Partial management';
+
+  @override
+  String correctManage(Object files) {
+    return '$files files were managed successfully';
+  }
+
+  @override
+  String failedManage(Object files) {
+    return '$files files failed';
+  }
+
+  @override
+  String get selectFolderError => 'You must select a folder';
+
+  @override
+  String get newFolderNameError => 'You must write a name for the new folder';
+
+  @override
+  String get invalidActionError => 'Invalid action';
+
+  @override
+  String fileCountLabel(Object currentFile, Object totalFiles) {
+    return '$currentFile of $totalFiles';
+  }
+
+  @override
+  String get fileTypeNotSupported => 'File type not supported';
+
+  @override
+  String get timePassedInMinutesSingular => '1 minute ago';
+
+  @override
+  String timePassedInMinutesPlural(Object minutes) {
+    return '$minutes minutes ago';
+  }
+
+  @override
+  String get timePassedInHoursSingular => '1 hour ago';
+
+  @override
+  String timePassedInHoursPlural(Object hours) {
+    return '$hours hours ago';
+  }
+
+  @override
+  String get timePassedInDaysSingular => '1 day ago';
+
+  @override
+  String timePassedInDaysPlural(Object days) {
+    return '$days days ago';
+  }
+
+  @override
+  String get fileProperties => 'File properties';
+
+  @override
+  String get filePropertyType => 'Type';
+
+  @override
+  String get filePropertyTypeImage => 'Image';
+
+  @override
+  String get filePropertyTypeVideo => 'Video';
+
+  @override
+  String get filePropertyStatus => 'Status';
+
+  @override
+  String get filePropertyStatusManaged => 'Managed';
+
+  @override
+  String get filePropertyStatusPending => 'Pending';
+
+  @override
+  String get filePropertyCapturedAt => 'Captured at';
+
+  @override
+  String get filePropertyDuration => 'Duration';
+
+  @override
+  String get fileDetailManageFile => 'Manage';
+
+  @override
+  String get fileShare => 'Share file';
+
+  @override
+  String get fileDownload => 'Download file';
+
+  @override
+  String get loadingVideoError => 'Error loading the video';
 
   @override
   String get syncSessionTitle => 'Synchronization';

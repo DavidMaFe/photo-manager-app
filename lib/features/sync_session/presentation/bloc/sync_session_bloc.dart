@@ -36,10 +36,10 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     required this.syncSessionRepository,
     required this.mediaLocalDataSource
   }) : super(const SyncSessionInitial()) {
-
     on<SyncSessionStarted>(_onSyncSessionStarted);
     on<SyncSessionCancelled>(_onSyncSessionCancelled);
     on<SyncSessionRetried>(_onSyncSessionRetried);
+    on<SyncSessionReset>(_onSyncSessionReset);
   }
 
   Future<void> _onSyncSessionStarted(SyncSessionStarted event, Emitter<SyncSessionState> emit) async {
@@ -169,6 +169,10 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
 
   Future<void> _onSyncSessionRetried(SyncSessionRetried event, Emitter<SyncSessionState> emit) async {
     await _onSyncSessionStarted(const SyncSessionStarted(), emit);
+  }
+
+  Future<void> _onSyncSessionReset(SyncSessionReset event, Emitter<SyncSessionState> emit) async {
+    emit(const SyncSessionStarting());
   }
 
   Future<void> _handleCancellation(Emitter<SyncSessionState> emit, int? uploadedCount) async {

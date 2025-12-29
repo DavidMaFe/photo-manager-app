@@ -191,11 +191,17 @@ abstract class AppLocalizations {
   /// **'Videos'**
   String get videos;
 
-  /// No description provided for @pending.
+  /// No description provided for @pendingSingular.
+  ///
+  /// In en, this message translates to:
+  /// **'pending'**
+  String get pendingSingular;
+
+  /// No description provided for @pendingPlural.
   ///
   /// In en, this message translates to:
   /// **'Pending'**
-  String get pending;
+  String get pendingPlural;
 
   /// No description provided for @pendingFilesInfoSingle.
   ///
@@ -220,6 +226,360 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Synchronize your devices to see your files'**
   String get syncToHaveFiles;
+
+  /// No description provided for @selectedFilesSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'1 selected'**
+  String get selectedFilesSingle;
+
+  /// No description provided for @selectedFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{files} selected'**
+  String selectedFiles(Object files);
+
+  /// No description provided for @noFolders.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have any folder. Create a new one.'**
+  String get noFolders;
+
+  /// No description provided for @selectFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Select one folder'**
+  String get selectFolder;
+
+  /// No description provided for @quickActionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'QUICK ACTIONS'**
+  String get quickActionsTitle;
+
+  /// No description provided for @saveAndKeepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveAndKeepTitle;
+
+  /// No description provided for @saveAndKeepSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and keep in the device'**
+  String get saveAndKeepSubtitle;
+
+  /// No description provided for @saveAndDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and free up space'**
+  String get saveAndDeleteTitle;
+
+  /// No description provided for @saveAndDeleteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and delete from the device'**
+  String get saveAndDeleteSubtitle;
+
+  /// No description provided for @saveInFolderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'To folder'**
+  String get saveInFolderTitle;
+
+  /// No description provided for @saveInFolderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save in a folder'**
+  String get saveInFolderSubtitle;
+
+  /// No description provided for @deleteBothTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all'**
+  String get deleteBothTitle;
+
+  /// No description provided for @deleteBothSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete from all places'**
+  String get deleteBothSubtitle;
+
+  /// No description provided for @advancedOptionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ADVANCED OPTIONS'**
+  String get advancedOptionsTitle;
+
+  /// No description provided for @nameFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Name of the folder'**
+  String get nameFolder;
+
+  /// No description provided for @saveInRootTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save in root'**
+  String get saveInRootTitle;
+
+  /// No description provided for @saveInRootSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Without specific folder'**
+  String get saveInRootSubtitle;
+
+  /// No description provided for @moveToFolderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to existing folder'**
+  String get moveToFolderTitle;
+
+  /// No description provided for @moveToFolderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select one folder'**
+  String get moveToFolderSubtitle;
+
+  /// No description provided for @newFolderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new folder'**
+  String get newFolderTitle;
+
+  /// No description provided for @newFolderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the folder name'**
+  String get newFolderSubtitle;
+
+  /// No description provided for @deleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete from server'**
+  String get deleteTitle;
+
+  /// No description provided for @deleteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This action is permanent'**
+  String get deleteSubtitle;
+
+  /// No description provided for @keepInDeviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep file in my device'**
+  String get keepInDeviceTitle;
+
+  /// No description provided for @keepInDeviceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The file will continue to occupy local storage space.'**
+  String get keepInDeviceSubtitle;
+
+  /// No description provided for @deleteFromDeviceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The file will be removed from the device but will remain on the server'**
+  String get deleteFromDeviceDescription;
+
+  /// No description provided for @manageMultipleFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage {files} files'**
+  String manageMultipleFiles(Object files);
+
+  /// No description provided for @manageSingleFile.
+  ///
+  /// In en, this message translates to:
+  /// **'What would you like to do with this file?'**
+  String get manageSingleFile;
+
+  /// No description provided for @sameActionWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The same action will be applied to all the selected files'**
+  String get sameActionWarning;
+
+  /// No description provided for @applyMultiple.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to {files}'**
+  String applyMultiple(Object files);
+
+  /// No description provided for @applySingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get applySingle;
+
+  /// No description provided for @selectAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Please, select an action'**
+  String get selectAction;
+
+  /// No description provided for @partialManageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial management'**
+  String get partialManageTitle;
+
+  /// No description provided for @correctManage.
+  ///
+  /// In en, this message translates to:
+  /// **'{files} files were managed successfully'**
+  String correctManage(Object files);
+
+  /// No description provided for @failedManage.
+  ///
+  /// In en, this message translates to:
+  /// **'{files} files failed'**
+  String failedManage(Object files);
+
+  /// No description provided for @selectFolderError.
+  ///
+  /// In en, this message translates to:
+  /// **'You must select a folder'**
+  String get selectFolderError;
+
+  /// No description provided for @newFolderNameError.
+  ///
+  /// In en, this message translates to:
+  /// **'You must write a name for the new folder'**
+  String get newFolderNameError;
+
+  /// No description provided for @invalidActionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid action'**
+  String get invalidActionError;
+
+  /// No description provided for @fileCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{currentFile} of {totalFiles}'**
+  String fileCountLabel(Object currentFile, Object totalFiles);
+
+  /// No description provided for @fileTypeNotSupported.
+  ///
+  /// In en, this message translates to:
+  /// **'File type not supported'**
+  String get fileTypeNotSupported;
+
+  /// No description provided for @timePassedInMinutesSingular.
+  ///
+  /// In en, this message translates to:
+  /// **'1 minute ago'**
+  String get timePassedInMinutesSingular;
+
+  /// No description provided for @timePassedInMinutesPlural.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} minutes ago'**
+  String timePassedInMinutesPlural(Object minutes);
+
+  /// No description provided for @timePassedInHoursSingular.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour ago'**
+  String get timePassedInHoursSingular;
+
+  /// No description provided for @timePassedInHoursPlural.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hours ago'**
+  String timePassedInHoursPlural(Object hours);
+
+  /// No description provided for @timePassedInDaysSingular.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day ago'**
+  String get timePassedInDaysSingular;
+
+  /// No description provided for @timePassedInDaysPlural.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days ago'**
+  String timePassedInDaysPlural(Object days);
+
+  /// No description provided for @fileProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'File properties'**
+  String get fileProperties;
+
+  /// No description provided for @filePropertyType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get filePropertyType;
+
+  /// No description provided for @filePropertyTypeImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get filePropertyTypeImage;
+
+  /// No description provided for @filePropertyTypeVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get filePropertyTypeVideo;
+
+  /// No description provided for @filePropertyStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get filePropertyStatus;
+
+  /// No description provided for @filePropertyStatusManaged.
+  ///
+  /// In en, this message translates to:
+  /// **'Managed'**
+  String get filePropertyStatusManaged;
+
+  /// No description provided for @filePropertyStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get filePropertyStatusPending;
+
+  /// No description provided for @filePropertyCapturedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Captured at'**
+  String get filePropertyCapturedAt;
+
+  /// No description provided for @filePropertyDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get filePropertyDuration;
+
+  /// No description provided for @fileDetailManageFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get fileDetailManageFile;
+
+  /// No description provided for @fileShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share file'**
+  String get fileShare;
+
+  /// No description provided for @fileDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download file'**
+  String get fileDownload;
+
+  /// No description provided for @loadingVideoError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading the video'**
+  String get loadingVideoError;
 
   /// No description provided for @syncSessionTitle.
   ///

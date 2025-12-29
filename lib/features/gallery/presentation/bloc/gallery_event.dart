@@ -17,23 +17,44 @@ class LoadGallery extends GalleryEvent {
 
   @override
   List<Object?> get props => [filter];
-
-  @override
-  String toString() => 'LoadGallery (filter: $filter)';
 }
 
 
 class LoadMoreFiles extends GalleryEvent {
   const LoadMoreFiles();
-
-  @override
-  String toString() => 'LoadMoreFiles';
 }
 
 
 class RefreshGallery extends GalleryEvent {
   const RefreshGallery();
+}
+
+
+class EnterSelectionMode extends GalleryEvent {
+  const EnterSelectionMode();
+}
+
+
+class ExitSelectionMode extends GalleryEvent {
+  const ExitSelectionMode();
+}
+
+
+class ToggleFileSelection extends GalleryEvent {
+  final String fileId;
+
+  const ToggleFileSelection(this.fileId);
 
   @override
-  String toString() => 'RefreshGallery';
+  List<Object?> get props => [fileId];
+}
+
+
+class SelectAllFiles extends GalleryEvent {
+  const SelectAllFiles();
+}
+
+
+class ClearSelection extends GalleryEvent {
+  const ClearSelection();
 }

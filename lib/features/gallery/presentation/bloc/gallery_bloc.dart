@@ -17,6 +17,11 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     on<LoadGallery>(_onLoadGallery);
     on<LoadMoreFiles>(_onLoadMoreFiles);
     on<RefreshGallery>(_onRefreshGallery);
+    on<EnterSelectionMode>(_onEnterSelectionMode);
+    on<ExitSelectionMode>(_onExitSelectionMode);
+    on<ToggleFileSelection>(_onToggleFileSelection);
+    on<SelectAllFiles>(_onSelectAllFiles);
+    on<ClearSelection>(_onClearSelection);
   }
 
   Future<void> _onLoadGallery(LoadGallery event, Emitter<GalleryState> emit) async {
@@ -26,8 +31,8 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     try {
 
       final result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: event.filter);
-      emit(GalleryLoaded(files: result.files, hasNext: result.hasNext,
-          currentPage: result.currentPage, filter: event.filter));
+      emit(GalleryLoaded(files: result.files, isSelectionMode: false, selectedFileIds: {},
+          hasNext: result.hasNext, currentPage: result.currentPage, filter: event.filter));
 
     } catch(e) {
       Failure failure = ErrorHandler.handleError(e);
@@ -42,8 +47,8 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     final currentState = state as GalleryLoaded;
     if(!currentState.hasNext) return;
 
-    emit(GalleryLoadingMore(files: currentState.files,
-        currentPage: currentState.currentPage, filter:  currentState.filter));
+    emit(GalleryLoadingMore(files: currentState.files, isSelectionMode: currentState.isSelectionMode,
+        selectedFileIds: currentState.selectedFileIds, currentPage: currentState.currentPage, filter:  currentState.filter));
 
     try {
 
@@ -54,8 +59,8 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
         ...result.files
       ];
 
-      emit(GalleryLoaded(files: updatedFiles, hasNext: result.hasNext,
-          currentPage: nextPage, filter: currentState.filter));
+      emit(GalleryLoaded(files: updatedFiles, isSelectionMode: currentState.isSelectionMode, selectedFileIds: currentState.selectedFileIds,
+          hasNext: result.hasNext, currentPage: nextPage, filter: currentState.filter));
 
     } catch(e) {
       Failure failure = ErrorHandler.handleError(e);
@@ -66,11 +71,23 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
   Future<void> _onRefreshGallery(RefreshGallery event, Emitter<GalleryState> emit) async {
 
     FileFilter currentFilter = FileFilter.all;
+    bool isSelectionMode = false;
+    Set<String> selectedFileIds = {};
 
     if (state is GalleryLoaded) {
-      currentFilter = (state as GalleryLoaded).filter;
+
+      GalleryLoaded currentState = state as GalleryLoaded;
+      currentFilter = currentState.filter;
+      isSelectionMode = currentState.isSelectionMode;
+      selectedFileIds = currentState.selectedFileIds;
+
     } else if (state is GalleryLoadingMore) {
+
+      GalleryLoadingMore currentState = state as GalleryLoadingMore;
       currentFilter = (state as GalleryLoadingMore).filter;
+      isSelectionMode = currentState.isSelectionMode;
+      selectedFileIds = currentState.selectedFileIds;
+
     }
 
     emit(GalleryLoading(filter: currentFilter));
@@ -78,12 +95,59 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     try {
 
       final result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: currentFilter);
-      emit(GalleryLoaded(files: result.files, hasNext: result.hasNext,
-          currentPage: result.currentPage, filter: currentFilter));
+      emit(GalleryLoaded(files: result.files, isSelectionMode: isSelectionMode, selectedFileIds: selectedFileIds,
+          hasNext: result.hasNext, currentPage: result.currentPage, filter: currentFilter));
 
     } catch(e) {
       Failure failure = ErrorHandler.handleError(e);
       emit(GalleryError(failure));
+    }
+  }
+
+  void _onEnterSelectionMode(EnterSelectionMode event, Emitter<GalleryState> emit) {
+    if (state is GalleryLoaded) {
+      final currentState = state as GalleryLoaded;
+      emit(currentState.copyWith(isSelectionMode: true));
+    }
+  }
+
+  void _onExitSelectionMode(ExitSelectionMode event, Emitter<GalleryState> emit) {
+    if (state is GalleryLoaded) {
+      final currentState = state as GalleryLoaded;
+      emit(currentState.copyWith(isSelectionMode: false, selectedFileIds: {}));
+    }
+  }
+
+  void _onToggleFileSelection(ToggleFileSelection event, Emitter<GalleryState> emit) {
+    if (state is GalleryLoaded) {
+      final currentState = state as GalleryLoaded;
+      final newSelection = Set<String>.from(currentState.selectedFileIds);
+
+      if (newSelection.contains(event.fileId)) {
+        newSelection.remove(event.fileId);
+      } else {
+        newSelection.add(event.fileId);
+      }
+
+      emit(currentState.copyWith(selectedFileIds: newSelection));
+    }
+  }
+
+  void _onSelectAllFiles(SelectAllFiles event, Emitter<GalleryState> emit) {
+    if (state is GalleryLoaded) {
+      final currentState = state as GalleryLoaded;
+      final allFileIds = currentState.files.map((file) => file.id).toSet();
+
+      emit(currentState.copyWith(
+        isSelectionMode: true, selectedFileIds: allFileIds
+      ));
+    }
+  }
+
+  void _onClearSelection(ClearSelection event, Emitter<GalleryState> emit) {
+    if (state is GalleryLoaded) {
+      final currentState = state as GalleryLoaded;
+      emit(currentState.copyWith(selectedFileIds: {}));
     }
   }
 }

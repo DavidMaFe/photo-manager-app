@@ -9,6 +9,13 @@ import 'package:photo_manager_app/features/auth/domain/repositories/auth_reposit
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:photo_manager_app/features/file_management/data/data_sources/file_management_remote_data_source.dart';
+import 'package:photo_manager_app/features/file_management/data/repositories/file_management_repository_impl.dart';
+import 'package:photo_manager_app/features/file_management/domain/repositories/file_management_repository.dart';
+import 'package:photo_manager_app/features/file_management/domain/use_cases/get_folders_use_case.dart';
+import 'package:photo_manager_app/features/file_management/domain/use_cases/manage_files_use_case.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
 import 'package:photo_manager_app/features/gallery/data/data_sources/gallery_remote_data_source.dart';
 import 'package:photo_manager_app/features/gallery/data/repositories/gallery_repository_impl.dart';
 import 'package:photo_manager_app/features/gallery/domain/repositories/gallery_repository.dart';
@@ -133,6 +140,18 @@ Future<void> init() async {
       }
   );
 
+  // file management
+  sl.registerLazySingleton<FileManagementRemoteDataSource>(
+      () {
+        final client = sl<http.Client>();
+        final authLocalDataSource = sl<AuthLocalDataSource>();
+        return FileManagementRemoteDataSourceImpl(
+          client: client,
+          authLocalDataSource: authLocalDataSource
+        );
+      }
+  );
+
 
   // REPOSITORIES
   // auth
@@ -187,6 +206,16 @@ Future<void> init() async {
       () {
         final remoteDataSource = sl<GalleryRemoteDataSource>();
         return GalleryRepositoryImpl(remoteDataSource);
+      }
+  );
+
+  // file management
+  sl.registerLazySingleton<FileManagementRepository>(
+      () {
+        final remoteDataSource = sl<FileManagementRemoteDataSource>();
+        return FileManagementRepositoryImpl(
+          remoteDataSource: remoteDataSource
+        );
       }
   );
 
@@ -259,6 +288,21 @@ Future<void> init() async {
       }
   );
 
+  // file management
+  sl.registerFactory(
+      () {
+        final repository = sl<FileManagementRepository>();
+        return ManageFilesUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<FileManagementRepository>();
+        return GetFoldersUseCase(repository);
+      }
+  );
+
 
   // BLOC'S
   // auth
@@ -288,7 +332,7 @@ Future<void> init() async {
   );
 
   // sync session
-  sl.registerFactory(
+  sl.registerLazySingleton(
       () {
         final startSyncSessionUseCase = sl<StartSyncSessionUseCase>();
         final checkDuplicatesUseCase = sl<CheckDuplicatedFilesUseCase>();
@@ -315,6 +359,21 @@ Future<void> init() async {
       () {
         final getFileUseCase = sl<GetFilesUseCase>();
         return GalleryBloc(getFilesUseCase: getFileUseCase);
+      }
+  );
+
+  // file management
+  sl.registerFactory(
+      () {
+        final manageFilesUseCase = sl<ManageFilesUseCase>();
+        return FileManagementBloc(manageFilesUseCase: manageFilesUseCase);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final getFoldersUseCase = sl<GetFoldersUseCase>();
+        return ManageFolderBloc(getFoldersUseCase: getFoldersUseCase);
       }
   );
 }

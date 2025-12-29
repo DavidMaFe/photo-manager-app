@@ -8,6 +8,7 @@ class RouteNames {
   // Main
   static const String shell = 'shell';
   static const String home = 'home';
+  static const String fileDetail = 'fileDetail';
   static const String folders = 'folders';
   static const String sync = 'sync';
   static const String notifications = 'notifications';
@@ -19,6 +20,7 @@ class RoutePaths {
   static const String login = '/login';
   static const String register = '/register';
   static const String home = '/home';
+  static const String fileDetail = '/home/file/:fileId';
   static const String folders = '/folders';
   static const String sync = '/sync';
   static const String notifications = '/notifications';

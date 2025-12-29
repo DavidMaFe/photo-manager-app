@@ -10,18 +10,24 @@ class FilesGrid extends StatefulWidget {
   final List<GalleryFile> files;
   final bool hasNext;
   final bool isLoadingMore;
+  final bool isSelectionMode;
+  final Set<String> selectedFileIds;
   final VoidCallback onLoadMore;
   final VoidCallback onRefresh;
   final ValueChanged<GalleryFile>? onFileTap;
+  final ValueChanged<GalleryFile>? onFileLongPress;
 
   const FilesGrid({
     super.key,
     required this.files,
     required this.hasNext,
     required this.isLoadingMore,
+    required this.isSelectionMode,
+    required this.selectedFileIds,
     required this.onLoadMore,
     required this.onRefresh,
-    this.onFileTap
+    this.onFileTap,
+    this.onFileLongPress
   });
 
   @override
@@ -54,7 +60,7 @@ class _FilesGridState extends State<FilesGrid> {
     final currentScroll = _scrollController.position.pixels;
 
     if (currentScroll >= maxScroll * 0.9) {
-      widget.onLoadMore;
+      widget.onLoadMore();
     }
   }
 
@@ -90,7 +96,10 @@ class _FilesGridState extends State<FilesGrid> {
           final file = widget.files[index];
           return FileThumbnailCard(
             file: file,
-            onTap: widget.onFileTap != null ? () => widget.onFileTap!(file) : null
+            isSelectionMode: widget.isSelectionMode,
+            isSelected: widget.selectedFileIds.contains(file.id),
+            onTap: widget.onFileTap != null ? () => widget.onFileTap!(file) : null,
+            onLongPress: widget.onFileLongPress != null ? () => widget.onFileLongPress!(file) : null,
           );
         },
       ),

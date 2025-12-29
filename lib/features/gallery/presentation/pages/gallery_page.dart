@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:photo_manager_app/core/navigation/route_names.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
@@ -8,6 +13,9 @@ import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_sta
 import 'package:photo_manager_app/features/gallery/presentation/widgets/files_grid.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/filter_chips.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/gallery_header.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
+import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 import '../widgets/pending_info_banner.dart';
 
@@ -18,21 +26,114 @@ class GalleryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const GalleryHeader(),
-      body: BlocConsumer<GalleryBloc, GalleryState>(
+
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<GalleryBloc, GalleryState>(
+          listener: _handleStateChanges,
+        ),
+        BlocListener<SyncSessionBloc, SyncSessionState>(
+          listener: (context, state) {
+            if (state is SyncSessionSuccess) {
+              context.read<GalleryBloc>().add(const RefreshGallery());
+            }
+          }
+        )
+      ],
+      child: BlocConsumer<GalleryBloc, GalleryState>(
         listener: _handleStateChanges,
         builder: (context, state) {
-          return Column(
-            children: [
-              _buildFilters(context, state),
-              _buildPendingBanner(state),
-              Expanded(child: _buildContent(context, state))
-            ],
+
+          final isSelectionMode = state is GalleryLoaded && state.isSelectionMode;
+          final selectedCount = isSelectionMode ? state.selectedFileIds.length : 0;
+
+          return Scaffold(
+            appBar: const GalleryHeader(),
+            body: Column(
+              children: [
+                _buildFilters(context, state),
+                _buildPendingBanner(state),
+                if (isSelectionMode) _buildSelectionBanner(context, selectedCount),
+                Expanded(child: _buildContent(context, state))
+              ],
+            ),
+            floatingActionButton: _buildFAB(context, state),
           );
         },
       )
     );
+  }
+
+  Widget _buildSelectionBanner(BuildContext context, int selectedCount) {
+
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      color: Colors.blue.withValues(alpha: 0.1),
+      child: Row(
+        children: [
+          Icon(Icons.check_circle, color: Colors.blue, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              selectedCount == 1
+                  ? l10n.selectedFilesSingle
+                  : l10n.selectedFiles(selectedCount),
+              style: TextStyle(
+                color: Colors.blue[700],
+                fontWeight: FontWeight.w600
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<GalleryBloc>().add(const ExitSelectionMode());
+            },
+            child: Text(l10n.cancel),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget? _buildFAB(BuildContext context, GalleryState state) {
+
+    if (state is! GalleryLoaded || !state.isSelectionMode) {
+      return null;
+    }
+
+    final selectedCount = state.selectedFileIds.length;
+
+    if (selectedCount == 0) {
+      return null;
+    }
+
+    final l10n = AppLocalizations.of(context)!;
+    return FloatingActionButton.extended(
+      onPressed: () => _showManageModal(context, state.selectedFileIds.toList()),
+      icon: const Icon(Icons.settings),
+      label: Text(selectedCount == 1 ? l10n.manageSingleFile : l10n.manageMultipleFiles(selectedCount))
+    );
+  }
+
+  void _showManageModal(BuildContext context, List<String> fileIds) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: context.read<FileManagementBloc>()),
+          BlocProvider.value(value: context.read<ManageFolderBloc>())
+        ],
+        child: ManageFileModal(fileIds: fileIds, isMultiple: fileIds.length > 1),
+      )
+    ).then((_) {
+      if (!context.mounted) return;
+      context.read<GalleryBloc>().add(const ExitSelectionMode());
+      context.read<GalleryBloc>().add(const RefreshGallery());
+    });
   }
 
   void _handleStateChanges(BuildContext context, GalleryState state) {
@@ -109,22 +210,29 @@ class GalleryPage extends StatelessWidget {
     List<GalleryFile> files = [];
     bool hasNext = false;
     bool isLoadingMore = false;
+    bool isSelectionMode = false;
+    Set<String> selectedFileIds = {};
 
     if (state is GalleryLoaded) {
       files = state.files;
       hasNext = state.hasNext;
       isLoadingMore = false;
+      isSelectionMode = state.isSelectionMode;
+      selectedFileIds = state.selectedFileIds;
     } else if (state is GalleryLoadingMore) {
       files = state.files;
       hasNext = true;
       isLoadingMore = true;
+      isSelectionMode = state.isSelectionMode;
+      selectedFileIds = state.selectedFileIds;
     }
 
     return FilesGrid(
-
       files: files,
       hasNext: hasNext,
       isLoadingMore: isLoadingMore,
+      isSelectionMode: isSelectionMode,
+      selectedFileIds: selectedFileIds,
       onLoadMore: () {
         context.read<GalleryBloc>().add(const LoadMoreFiles());
       },
@@ -132,7 +240,30 @@ class GalleryPage extends StatelessWidget {
         context.read<GalleryBloc>().add(const RefreshGallery());
       },
       onFileTap: (file) {
-        // TODO: Implementar detalle de imagen/video
+        if (isSelectionMode) {
+          context.read<GalleryBloc>().add(ToggleFileSelection(file.id));
+        } else {
+          final fileIndex = files.indexWhere((f) => f.id == file.id);
+
+          context.pushNamed(
+            RouteNames.fileDetail,
+            pathParameters: {'fileId': file.id},
+            extra: {
+              'files': files,
+              'initialIndex': fileIndex
+            }
+          ).then((result) {
+            if (result == true && context.mounted) {
+              context.read<GalleryBloc>().add(const RefreshGallery());
+            }
+          });
+        }
+      },
+      onFileLongPress: (file) {
+        if (!isSelectionMode) {
+          context.read<GalleryBloc>().add(const EnterSelectionMode());
+        }
+        context.read<GalleryBloc>().add(ToggleFileSelection(file.id));
       },
     );
   }

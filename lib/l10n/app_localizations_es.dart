@@ -57,7 +57,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get videos => 'Vídeos';
 
   @override
-  String get pending => 'Pendientes';
+  String get pendingSingular => 'pendiente';
+
+  @override
+  String get pendingPlural => 'Pendientes';
 
   @override
   String get pendingFilesInfoSingle => 'Tienes 1 archivo pendiente de gestionar';
@@ -72,6 +75,201 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get syncToHaveFiles => 'Sincroniza tus dispositivos para ver tus archivos';
+
+  @override
+  String get selectedFilesSingle => '1 seleccionado';
+
+  @override
+  String selectedFiles(Object files) {
+    return '$files seleccionados';
+  }
+
+  @override
+  String get noFolders => 'No tienes ninguna carpeta. Crea una nueva.';
+
+  @override
+  String get selectFolder => 'Selecciona una carpeta';
+
+  @override
+  String get quickActionsTitle => 'ACCIONES RÁPIDAS';
+
+  @override
+  String get saveAndKeepTitle => 'Guardar';
+
+  @override
+  String get saveAndKeepSubtitle => 'Guardar y mantener en dispositivo';
+
+  @override
+  String get saveAndDeleteTitle => 'Guardar y liberar espacio';
+
+  @override
+  String get saveAndDeleteSubtitle => 'Guardar y eliminar del dispositivo';
+
+  @override
+  String get saveInFolderTitle => 'A carpeta';
+
+  @override
+  String get saveInFolderSubtitle => 'Guardar en carpeta';
+
+  @override
+  String get deleteBothTitle => 'Eliminar todo';
+
+  @override
+  String get deleteBothSubtitle => 'Eliminar de todos los lugares';
+
+  @override
+  String get advancedOptionsTitle => 'OPCIONES AVANZADAS';
+
+  @override
+  String get nameFolder => 'Nombre de la carpeta';
+
+  @override
+  String get saveInRootTitle => 'Guardar en raíz';
+
+  @override
+  String get saveInRootSubtitle => 'Sin carpeta específica';
+
+  @override
+  String get moveToFolderTitle => 'Mover a carpeta existente';
+
+  @override
+  String get moveToFolderSubtitle => 'Selecciona una carpeta';
+
+  @override
+  String get newFolderTitle => 'Crear una nueva carpeta';
+
+  @override
+  String get newFolderSubtitle => 'Escribe el nombre de la carpeta';
+
+  @override
+  String get deleteTitle => 'Borrar del servidor';
+
+  @override
+  String get deleteSubtitle => 'Esta acción es permanente';
+
+  @override
+  String get keepInDeviceTitle => 'Mantener el archivo en mi dispositivo';
+
+  @override
+  String get keepInDeviceSubtitle => 'El archivo seguirá ocupando espacio local';
+
+  @override
+  String get deleteFromDeviceDescription => 'El archivo se eliminará de tu dispositivo pero seguirá en el servidor';
+
+  @override
+  String manageMultipleFiles(Object files) {
+    return 'Gestionar $files archivos';
+  }
+
+  @override
+  String get manageSingleFile => '¿Qué quieres hacer con este archivo?';
+
+  @override
+  String get sameActionWarning => 'La misma acción se aplicará a todos los ficheros seleccionados';
+
+  @override
+  String applyMultiple(Object files) {
+    return 'Aplicar a $files';
+  }
+
+  @override
+  String get applySingle => 'Aplicar';
+
+  @override
+  String get selectAction => 'Por favor, selecciona una acción';
+
+  @override
+  String get partialManageTitle => 'Gestión parcial';
+
+  @override
+  String correctManage(Object files) {
+    return '$files archivos gestionados correctamente.\n';
+  }
+
+  @override
+  String failedManage(Object files) {
+    return '$files archivos fallidos.';
+  }
+
+  @override
+  String get selectFolderError => 'Debes seleccionar una carpeta';
+
+  @override
+  String get newFolderNameError => 'Debes escribir un nombre para la nueva carpeta';
+
+  @override
+  String get invalidActionError => 'Acción inválida';
+
+  @override
+  String fileCountLabel(Object currentFile, Object totalFiles) {
+    return '$currentFile de $totalFiles';
+  }
+
+  @override
+  String get fileTypeNotSupported => 'Tipo de archivo no soportado';
+
+  @override
+  String get timePassedInMinutesSingular => 'Hace 1 minuto';
+
+  @override
+  String timePassedInMinutesPlural(Object minutes) {
+    return 'Hace $minutes minutos';
+  }
+
+  @override
+  String get timePassedInHoursSingular => 'Hace 1 hora';
+
+  @override
+  String timePassedInHoursPlural(Object hours) {
+    return 'Hace $hours horas';
+  }
+
+  @override
+  String get timePassedInDaysSingular => 'Hace 1 día';
+
+  @override
+  String timePassedInDaysPlural(Object days) {
+    return 'Hace $days días';
+  }
+
+  @override
+  String get fileProperties => 'Propiedades del archivo';
+
+  @override
+  String get filePropertyType => 'Tipo';
+
+  @override
+  String get filePropertyTypeImage => 'Imagen';
+
+  @override
+  String get filePropertyTypeVideo => 'Vídeo';
+
+  @override
+  String get filePropertyStatus => 'Estado';
+
+  @override
+  String get filePropertyStatusManaged => 'Gestionado';
+
+  @override
+  String get filePropertyStatusPending => 'Pendiente';
+
+  @override
+  String get filePropertyCapturedAt => 'Fecha de captura';
+
+  @override
+  String get filePropertyDuration => 'Duración';
+
+  @override
+  String get fileDetailManageFile => 'Gestionar';
+
+  @override
+  String get fileShare => 'Compartir archivo';
+
+  @override
+  String get fileDownload => 'Descargar archivo';
+
+  @override
+  String get loadingVideoError => 'Error al cargar el vídeo';
 
   @override
   String get syncSessionTitle => 'Sincronización';
