@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/folder_selector.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -116,56 +117,7 @@ class AdvancedOptionsSection extends StatelessWidget {
             ],
           ),
         ),
-
-        const SizedBox(height: 16),
-        _buildKeepOnDeviceCheckbox(context)
       ],
-    );
-  }
-
-  Widget _buildKeepOnDeviceCheckbox(BuildContext context) {
-
-    final l10n = AppLocalizations.of(context)!;
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8)
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CheckboxListTile(
-            value: keepOnDevice,
-            onChanged: (value) => onKeepOnDeviceChanged(value ?? true),
-            title: Text(l10n.keepInDeviceTitle),
-            subtitle: Text(l10n.keepInDeviceSubtitle),
-            controlAffinity: ListTileControlAffinity.leading,
-            contentPadding: EdgeInsets.zero,
-          ),
-
-          if (!keepOnDevice)
-            Padding(
-              padding: const EdgeInsets.only(left: 16, top: 8),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline, size: 16, color: Colors.blue[700]),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l10n.deleteFromDeviceDescription,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue[700]
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            )
-        ],
-      ),
     );
   }
 }
@@ -191,7 +143,7 @@ class _AdvancedOptionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isSelected ? Colors.blue.withValues(alpha: 0.2) : Colors.grey[50],
+      color: isSelected ? Colors.transparent : Colors.grey[50],
       borderRadius: BorderRadius.vertical(
         top: isFirst ? const Radius.circular(12) : Radius.zero,
         bottom: isLast ? const Radius.circular(12) : Radius.zero,
@@ -208,7 +160,7 @@ class _AdvancedOptionCard extends StatelessWidget {
             children: [
               Icon(
                 isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                color: isSelected ? Colors.blue : Colors.grey.shade400,
+                color: isSelected ? PhotoManagerColors.primary : Colors.grey.shade400,
                 size: 22,
               ),
               const SizedBox(width: 12),
@@ -221,7 +173,7 @@ class _AdvancedOptionCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: isSelected ? Colors.blue : Colors.black87
+                        color: isSelected ? PhotoManagerColors.primary : Colors.black87
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -262,7 +214,7 @@ class _AdvancedOptionItemExpandable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isSelected ? Colors.blue.withValues(alpha: 0.2) : Colors.grey[50],
+      color: isSelected ? Colors.transparent : Colors.grey[50],
       child: Column(
         children: [
           InkWell(
@@ -273,7 +225,7 @@ class _AdvancedOptionItemExpandable extends StatelessWidget {
                 children: [
                   Icon(
                     isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                    color: isSelected ? Colors.blue : Colors.grey.shade400,
+                    color: isSelected ? PhotoManagerColors.primary : Colors.grey.shade400,
                     size: 22,
                   ),
                   const SizedBox(width: 12),
@@ -286,7 +238,7 @@ class _AdvancedOptionItemExpandable extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
-                              color: isSelected ? Colors.blue : Colors.black87
+                              color: isSelected ? PhotoManagerColors.primary : Colors.black87
                           ),
                         ),
                         const SizedBox(height: 2),

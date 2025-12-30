@@ -15,7 +15,7 @@ abstract class SyncSessionRepository {
     required List<String> fileHashes
   });
 
-  Future<bool> uploadFile({
+  Future<String> uploadFile({
     required String sessionId,
     required SyncFile file
   });

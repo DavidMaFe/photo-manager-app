@@ -17,6 +17,13 @@ class ManageFilesUseCase {
       throw Exception('Too many files. Max 100 files per operation');
     }
 
-    return await repository.manageFiles(fileIds, action);
+    final result = await repository.manageFiles(fileIds, action);
+    if (!action.keepOnDevice && result.successfulIds.isNotEmpty) {
+      await repository.deleteLocalFiles(
+        result.successfulIds
+      );
+    }
+
+    return result.failedIds;
   }
 }

@@ -1,6 +1,6 @@
-
 import 'package:photo_manager_app/features/sync_session/domain/entities/sync_device.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
+
 
 class RegisterSyncDeviceUseCase {
 

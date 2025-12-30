@@ -31,6 +31,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
 
   late PageController _pageController;
   late int _currentIndex;
+  bool _videoControlsVisible = true;
 
   @override
   void initState() {
@@ -55,33 +56,25 @@ class _FileDetailPageState extends State<FileDetailPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: _buildAppBar(context, l10n),
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: widget.files.length,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                final file = widget.files[index];
-                return _buildMediaViewer(file, l10n);
-              },
-            ),
-          ),
-          _buildFileInfo(context, l10n),
-          if(_currentFile.isPending) _buildManageButton(context, l10n)
-        ],
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: widget.files.length,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        itemBuilder: (context, index) {
+          final file = widget.files[index];
+          return _buildMediaViewerWithOverlay(file, l10n);
+        },
       ),
     );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context, AppLocalizations l10n) {
     return AppBar(
-      backgroundColor: Colors.black.withValues(alpha: 0.7),
+      backgroundColor: Colors.black.withValues(alpha: 0.5),
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -135,21 +128,97 @@ class _FileDetailPageState extends State<FileDetailPage> {
       return InteractiveViewer(
         minScale: 0.5,
         maxScale: 4.0,
-        child: Center(
-          child: AuthenticatedImage(
-            imageUrl: fullUrl,
-            fit: BoxFit.contain,
+        child: Container(
+          color: Colors.black,
+          child: Center(
+            child: AuthenticatedImage(
+              imageUrl: fullUrl,
+              fit: BoxFit.cover,
+            ),
           )
         ),
       );
     } else if (file.isVideo) {
-      return VideoPlayerWidget(
-        videoUrl: fullUrl,
-        key: ValueKey(file.id)
+      return Container(
+        color: Colors.black,
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: VideoPlayerWidget(
+          videoUrl: fullUrl,
+          key: ValueKey(file.id),
+          onControlsVisibilityChanged: (visible) {
+            setState(() {
+              _videoControlsVisible = visible;
+            });
+          }
+        ),
       );
     } else {
      return _buildUnsupportedFileType(l10n);
     }
+  }
+
+  Widget _buildMediaViewerWithOverlay(GalleryFile file, AppLocalizations l10n) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _buildMediaViewer(file, l10n),
+        _buildFloatingActionsPositioned(file, context, l10n)
+      ],
+    );
+  }
+  
+  Widget _buildFloatingActionsPositioned(GalleryFile file, BuildContext context, AppLocalizations l10n) {
+    if (file.isVideo && !_videoControlsVisible) {
+      return const SizedBox.shrink();
+    }
+    
+    final bottomOffset = file.isVideo ? 80.0 : 40.0;
+    
+    return Positioned(
+      bottom: bottomOffset,
+      left: 20,
+      right: 20,
+      child: _buildFloatingActions(context, l10n),
+    );
+  }
+  
+  Widget _buildFloatingActions(BuildContext context, AppLocalizations l10n) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildFloatingActionButton(Icons.favorite_border, () {}),
+        _buildFloatingActionButton(Icons.settings, () => _showManageModal(context))
+      ],
+    );
+  }
+  
+  Widget _buildFloatingActionButton(IconData icon, VoidCallback onPressed) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.4),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2)
+              )
+            ],
+          ),
+          child: Icon(
+            icon, color: Colors.white,
+            size: 24,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildUnsupportedFileType(AppLocalizations l10n) {
@@ -175,85 +244,10 @@ class _FileDetailPageState extends State<FileDetailPage> {
       ),
     );
   }
-
-  Widget _buildFileInfo(BuildContext context, AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16))
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            _currentFile.isImage ? l10n.filePropertyTypeImage : l10n.filePropertyTypeVideo,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w600
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              _buildInfoItem(Icons.calendar_today, _formDate(_currentFile.capturedAt, l10n)),
-              const SizedBox(width: 24),
-              if (_currentFile.isVideo && _currentFile.durationSeconds != null)
-                _buildInfoItem(Icons.access_time, _formatDuration(_currentFile.durationSeconds!))
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _buildInfoItem(Icons.label, _currentFile.isPending ? l10n.filePropertyStatusPending : l10n.filePropertyStatusManaged)
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoItem(IconData icon, String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: Colors.white70, size: 16),
-        const SizedBox(width: 4),
-        Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 12
-          ),
-        )
-      ],
-    );
-  }
-  
-  Widget _buildManageButton(BuildContext context, AppLocalizations l10n) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      child: ElevatedButton.icon(
-        onPressed: () => _showManageModal(context),
-        icon: const Icon(Icons.settings),
-        label: Text(l10n.fileDetailManageFile),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: PhotoManagerColors.primary,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12)
-          )
-        ),
-      ),
-    );
-  }
   
   void _showManageModal(BuildContext context) {
     showModalBottomSheet(
+      useSafeArea: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -301,15 +295,6 @@ class _FileDetailPageState extends State<FileDetailPage> {
                 _showDetailsDialog(context, l10n);
               },
             ),
-            if (_currentFile.isPending)
-              ListTile(
-                leading: const Icon(Icons.settings, color: Colors.blue),
-                title: Text(l10n.fileDetailManageFile, style: TextStyle(color: Colors.blue)),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showManageModal(context);
-                },
-              ),
           ],
         ),
       )
@@ -319,48 +304,217 @@ class _FileDetailPageState extends State<FileDetailPage> {
   void _showDetailsDialog(BuildContext context, AppLocalizations l10n) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.fileProperties),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDetailRow(l10n.filePropertyType, _currentFile.isImage ? l10n.filePropertyTypeImage : l10n.filePropertyTypeVideo),
-            _buildDetailRow(l10n.filePropertyStatus, _currentFile.isPending ? l10n.filePropertyStatusPending :  l10n.filePropertyStatusManaged),
-            _buildDetailRow(l10n.filePropertyCapturedAt, _formDate(_currentFile.capturedAt, l10n)),
-            if(_currentFile.isVideo && _currentFile.durationSeconds != null)
-              _buildDetailRow(l10n.filePropertyDuration, _formatDuration(_currentFile.durationSeconds!)),
-            _buildDetailRow('ID', _currentFile.id)
-          ],
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                Colors.grey.shade50
+              ]
+            )
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: PhotoManagerColors.primary.withValues(alpha: 0.1),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20)
+                  )
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: PhotoManagerColors.primary,
+                        borderRadius: BorderRadius.circular(12)
+                      ),
+                      child: Icon(
+                        _currentFile.isImage ? Icons.image : Icons.videocam,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.fileProperties,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _currentFile.isImage ? l10n.filePropertyTypeImage : l10n.filePropertyTypeVideo,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    _buildModernDetailRow(
+                      icon: Icons.label_outline,
+                      label: l10n.filePropertyStatus,
+                      value: _currentFile.isPending
+                          ? l10n.filePropertyStatusPending
+                          : l10n.filePropertyStatusManaged,
+                      valueColor: _currentFile.isPending ? Colors.orange : Colors.green,
+                      showBadge: true
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildModernDetailRow(
+                        icon: Icons.calendar_today,
+                        label: l10n.filePropertyCapturedAt,
+                        value: _formDate(_currentFile.capturedAt, l10n)
+                    ),
+
+                    if(_currentFile.isVideo && _currentFile.durationSeconds != null) ...[
+                      const SizedBox(height: 16),
+                      _buildModernDetailRow(
+                          icon: Icons.access_time,
+                          label: l10n.filePropertyDuration,
+                          value: _formatDuration(_currentFile.durationSeconds!)
+                      ),
+                    ],
+
+                    const SizedBox(height: 16),
+                    _buildModernDetailRow(
+                        icon: Icons.fingerprint,
+                        label: 'ID',
+                        value: _currentFile.id,
+                        isMonospace: true
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: PhotoManagerColors.primary.withValues(alpha: 0.1),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+                    ),
+                    child: Text(
+                      l10n.close,
+                      style: TextStyle(
+                        color: PhotoManagerColors.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.close),
-          )
-        ],
-      )
+      ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+  Widget _buildModernDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    Color? valueColor,
+    bool showBadge = false,
+    bool isMonospace = false
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.grey.shade200,
+          width: 1
+        ),
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8)
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: PhotoManagerColors.primary
             ),
           ),
+          const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              value,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500
+                  ),
+                ),
+                const SizedBox(height: 4),
+                showBadge
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: (valueColor ?? Colors.grey).withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(6)
+                        ),
+                        child: Text(
+                          value,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: valueColor ?? Colors.black87
+                          ),
+                        ),
+                      )
+                    : Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: valueColor ?? Colors.black87,
+                          fontFamily: isMonospace ? 'monospace' : null
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      )
+              ],
             ),
           )
         ],

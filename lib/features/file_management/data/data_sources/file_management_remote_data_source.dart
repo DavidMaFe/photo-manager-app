@@ -5,13 +5,14 @@ import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_file_request_model.dart';
+import 'package:photo_manager_app/features/file_management/data/models/manage_file_response_model.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_folder_model.dart';
 
 import '../../../../core/errors/base/failure_codes.dart';
 
 
 abstract class FileManagementRemoteDataSource {
-  Future<List<String>> manageFiles(ManageFileRequestModel request);
+  Future<ManageFileResponseModel> manageFiles(ManageFileRequestModel request);
   Future<List<ManageFolderModel>> getFolders();
 }
 
@@ -29,7 +30,7 @@ class FileManagementRemoteDataSourceImpl implements FileManagementRemoteDataSour
   });
 
   @override
-  Future<List<String>> manageFiles(ManageFileRequestModel request) async {
+  Future<ManageFileResponseModel> manageFiles(ManageFileRequestModel request) async {
 
     try {
 
@@ -44,8 +45,7 @@ class FileManagementRemoteDataSourceImpl implements FileManagementRemoteDataSour
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> body = jsonDecode(response.body);
-        final List<dynamic> failedFiles = body['failedFiles'] ?? [];
-        return failedFiles.map((id) => id.toString()).toList();
+        return ManageFileResponseModel.fromJson(body);
       } else {
         throw HttpException(jsonDecode(response.body)["message"]);
       }

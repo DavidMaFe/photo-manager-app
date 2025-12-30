@@ -117,6 +117,7 @@ class MediaLocalDataSource {
       int? durationSeconds = asset.type == AssetType.video ? asset.duration : null;
 
       return SyncFileModel(
+        localId: asset.id,
         devicePath: path,
         hash: hash,
         fileName: fileName,

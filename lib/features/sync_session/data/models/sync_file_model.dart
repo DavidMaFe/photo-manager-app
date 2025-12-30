@@ -4,6 +4,7 @@ import 'package:photo_manager_app/features/sync_session/domain/entities/sync_fil
 class SyncFileModel extends SyncFile {
 
   SyncFileModel({
+    required super.localId,
     required super.devicePath,
     required super.hash,
     required super.fileName,
@@ -17,6 +18,7 @@ class SyncFileModel extends SyncFile {
 
   factory SyncFileModel.fromJson(Map<String, dynamic> json) {
     return SyncFileModel(
+      localId: '',
       devicePath: json['path'] as String,
       hash: json['hash'] as String,
       fileName: json['name'] as String,
@@ -31,6 +33,7 @@ class SyncFileModel extends SyncFile {
 
   Map<String, dynamic> toJson() {
     return {
+      'localId': localId,
       'path': devicePath,
       'hash': hash,
       'name': fileName,
@@ -45,6 +48,7 @@ class SyncFileModel extends SyncFile {
 
   factory SyncFileModel.fromEntity(SyncFile file) {
     return SyncFileModel(
+      localId: file.localId,
       devicePath: file.devicePath,
       hash: file.hash,
       fileName: file.fileName,

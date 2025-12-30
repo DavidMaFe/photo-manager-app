@@ -57,7 +57,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get videos => 'Vídeos';
 
   @override
-  String get pendingSingular => 'pendiente';
+  String get pendingSingular => 'Pendiente';
 
   @override
   String get pendingPlural => 'Pendientes';
@@ -157,12 +157,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deleteFromDeviceDescription => 'El archivo se eliminará de tu dispositivo pero seguirá en el servidor';
 
   @override
+  String get selectAll => 'Seleccionar todo';
+
+  @override
   String manageMultipleFiles(Object files) {
-    return 'Gestionar $files archivos';
+    return '$files archivos';
   }
 
   @override
-  String get manageSingleFile => '¿Qué quieres hacer con este archivo?';
+  String get manageSingleFile => '1 archivo';
 
   @override
   String get sameActionWarning => 'La misma acción se aplicará a todos los ficheros seleccionados';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_folder.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_event.dart';
@@ -120,7 +121,7 @@ class _FolderList extends StatelessWidget {
                       children: [
                         Icon(
                             isSelected ? Icons.check_circle : Icons.circle_outlined,
-                            color: isSelected ? Colors.blue : Colors.grey.shade400,
+                            color: isSelected ? PhotoManagerColors.primary : Colors.grey.shade400,
                             size: 20
                         ),
 
@@ -143,7 +144,7 @@ class _FolderList extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                    color: isSelected ? Colors.blue : Colors.black87
+                                    color: isSelected ? PhotoManagerColors.primary : Colors.black87
                                 ),
                               ),
                               if (folder.fileCount > 0)

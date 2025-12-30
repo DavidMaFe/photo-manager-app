@@ -2,6 +2,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repository.dart';
@@ -9,6 +10,7 @@ import 'package:photo_manager_app/features/auth/domain/repositories/auth_reposit
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:photo_manager_app/features/file_management/data/data_sources/file_deletion_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_management_remote_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/repositories/file_management_repository_impl.dart';
 import 'package:photo_manager_app/features/file_management/domain/repositories/file_management_repository.dart';
@@ -52,6 +54,7 @@ Future<void> init() async {
   // GENERAL INJECTIONS
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => DeviceInfoPlugin());
+  sl.registerLazySingleton(() => AppDatabase());
 
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
@@ -152,6 +155,12 @@ Future<void> init() async {
       }
   );
 
+  sl.registerLazySingleton<FileDeletionLocalDataSource>(
+      () {
+        return FileDeletionLocalDataSourceImpl();
+      }
+  );
+
 
   // REPOSITORIES
   // auth
@@ -213,8 +222,13 @@ Future<void> init() async {
   sl.registerLazySingleton<FileManagementRepository>(
       () {
         final remoteDataSource = sl<FileManagementRemoteDataSource>();
+        final deletionLocalDataSource = sl<FileDeletionLocalDataSource>();
+        final database = sl<AppDatabase>();
+
         return FileManagementRepositoryImpl(
-          remoteDataSource: remoteDataSource
+          remoteDataSource: remoteDataSource,
+          deletionLocalDataSource: deletionLocalDataSource,
+          database: database
         );
       }
   );

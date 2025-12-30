@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -8,9 +10,13 @@ import 'package:video_player/video_player.dart';
 class VideoPlayerWidget extends StatefulWidget {
 
   final String videoUrl;
+  final ValueChanged<bool>? onControlsVisibilityChanged;
 
-  const VideoPlayerWidget({super.key, required this.videoUrl});
-
+  const VideoPlayerWidget({
+    super.key,
+    required this.videoUrl,
+    required this.onControlsVisibilityChanged
+  });
 
   @override
   State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
@@ -24,6 +30,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   bool _hasError = false;
   String? _errorMessage;
   bool _showControls = true;
+  Timer? _hideControlsTimer;
 
   @override
   void initState() {
@@ -89,6 +96,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         _controller.pause();
       } else {
         _controller.play();
+        _startHideControlsTimer();
       }
     });
   }
@@ -96,6 +104,25 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void _toggleControls() {
     setState(() {
       _showControls = !_showControls;
+      widget.onControlsVisibilityChanged?.call(_showControls);
+
+      if (_showControls && _controller.value.isPlaying) {
+        _startHideControlsTimer();
+      } else {
+        _hideControlsTimer?.cancel();
+      }
+    });
+  }
+
+  void _startHideControlsTimer() {
+    _hideControlsTimer?.cancel();
+    _hideControlsTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted && _controller.value.isPlaying) {
+        setState(() {
+          _showControls = false;
+          widget.onControlsVisibilityChanged?.call(false);
+        });
+      }
     });
   }
 
@@ -135,10 +162,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.black.withValues(alpha: 0.5),
+            Colors.black.withValues(alpha: 0.3),
+            Colors.transparent,
             Colors.transparent,
             Colors.black.withValues(alpha: 0.5)
-          ]
+          ],
+          stops: const [0.0, 0.15, 0.75, 1.0]
         )
       ),
       child: Column(
@@ -146,14 +175,20 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         children: [
           const SizedBox(height: 40),
           Center(
-            child: IconButton(
-              onPressed: _togglePlayPause,
-              icon: Icon(
-                _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                size: 64,
-                color: Colors.white
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.5),
+                shape: BoxShape.circle
               ),
-            ),
+              child: IconButton(
+                onPressed: _togglePlayPause,
+                icon: Icon(
+                    _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                    size: 64,
+                    color: Colors.white
+                ),
+              ),
+            )
           ),
           _buildBottomControls()
         ],

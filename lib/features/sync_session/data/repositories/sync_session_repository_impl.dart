@@ -24,9 +24,10 @@ class SyncSessionRepositoryImpl implements SyncSessionRepository {
   }
 
   @override
-  Future<bool> uploadFile({required String sessionId, required SyncFile file}) async {
+  Future<String> uploadFile({required String sessionId, required SyncFile file}) async {
     final fileModel = SyncFileModel.fromEntity(file);
-    return await remoteDataSource.uploadFile(sessionId, fileModel);
+    final result = await remoteDataSource.uploadFile(sessionId, fileModel);
+    return result.fileId;
   }
 
   @override

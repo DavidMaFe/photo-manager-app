@@ -57,7 +57,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get videos => 'Videos';
 
   @override
-  String get pendingSingular => 'pending';
+  String get pendingSingular => 'Pending';
 
   @override
   String get pendingPlural => 'Pending';
@@ -155,6 +155,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteFromDeviceDescription => 'The file will be removed from the device but will remain on the server';
+
+  @override
+  String get selectAll => 'Select all';
 
   @override
   String manageMultipleFiles(Object files) {

@@ -6,6 +6,7 @@ import 'package:photo_manager_app/features/sync_session/data/models/duplicate_fi
 import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_result_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_session_model.dart';
+import 'package:photo_manager_app/features/sync_session/data/models/upload_result_model.dart';
 
 import '../../../../../config/data_constants.dart';
 import '../../../../../core/errors/base/failure_codes.dart';
@@ -15,7 +16,7 @@ import '../../../../auth/data/data_sources/auth_local_data_source.dart';
 abstract class SyncSessionRemoteDataSource {
   Future<SyncSessionModel> startSyncSession(String deviceUuid);
   Future<DuplicateFilesResultModel> checkDuplicates(String sessionId, List<String> fileHashes);
-  Future<bool> uploadFile(String sessionId, SyncFileModel file);
+  Future<UploadResultModel> uploadFile(String sessionId, SyncFileModel file);
   Future<SyncResultModel> completeSyncSession(String sessionId);
   Future<void> cancelSyncSession(String sessionId);
 }
@@ -91,7 +92,7 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
   }
   
   @override
-  Future<bool> uploadFile(String sessionId, SyncFileModel file) async {
+  Future<UploadResultModel> uploadFile(String sessionId, SyncFileModel file) async {
 
     try {
       
@@ -107,13 +108,15 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        return true;
+        final jsonResponse = json.decode(response.body);
+        return UploadResultModel.fromJson(jsonResponse);
       } else {
-        return false;
+        throw HttpException(jsonDecode(response.body)["message"]);
       }
       
     } catch (e) {
-      return false;
+      if (e is HttpException) rethrow;
+      throw Exception(FailureCodes.unknownErrorCode);
     }
   }
   

@@ -36,8 +36,8 @@ class FilterChips extends StatelessWidget {
       label: Text(filter.displayName),
       selected: isSelected,
       onSelected: (_) => onFilterSelected(filter),
-      selectedColor: Theme.of(context).colorScheme.primaryContainer,
-      checkmarkColor: PhotoManagerColors.primary,
+      selectedColor: PhotoManagerColors.primary,
+      checkmarkColor: isSelected ? Colors.white : PhotoManagerColors.primary,
       labelStyle: TextStyle(
         color: isSelected
             ? Colors.white

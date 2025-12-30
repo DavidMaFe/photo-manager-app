@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
+import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
-
-import '../../../../l10n/app_localizations.dart';
 
 
 class FileThumbnailCard extends StatelessWidget {
@@ -35,11 +34,16 @@ class FileThumbnailCard extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: AuthenticatedImage(
-              imageUrl: thumbnailUrl,
-              fit: BoxFit.cover,
+          AnimatedScale(
+            scale: isSelected ? 0.88 : 1.0,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: AuthenticatedImage(
+                imageUrl: thumbnailUrl,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
 
@@ -53,15 +57,16 @@ class FileThumbnailCard extends StatelessWidget {
   }
 
   Widget _buildSelectionOverlay() {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: isSelected
-            ? Colors.blue.withValues(alpha: 0.3)
-            : Colors.black.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
         border: isSelected
-            ? Border.all(color: Colors.blue, width: 3)
-            : null
+            ? Border.all(color: PhotoManagerColors.primary, width: 3)
+            : null,
+        color: isSelected
+            ? PhotoManagerColors.primary.withValues(alpha: 0.15)
+            : Colors.transparent
       ),
     );
   }
@@ -83,7 +88,7 @@ class FileThumbnailCard extends StatelessWidget {
         ),
         child: Icon(
           isSelected ? Icons.check_circle : Icons.circle_outlined,
-          color: isSelected ? Colors.blue : Colors.grey.shade400,
+          color: isSelected ? PhotoManagerColors.primary : Colors.grey.shade400,
           size: 24
         ),
       ),
@@ -91,9 +96,6 @@ class FileThumbnailCard extends StatelessWidget {
   }
 
   Widget _buildPendingBadge(BuildContext context) {
-
-    final l10n = AppLocalizations.of(context)!;
-
     return Positioned(
       top: 4,
       right: 4,
@@ -118,12 +120,6 @@ class FileThumbnailCard extends StatelessWidget {
               size: 12,
               color: Colors.white,
             ),
-            const SizedBox(width: 2),
-            Text(l10n.pendingSingular, style: TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-              fontWeight: FontWeight.bold
-            ))
           ],
         ),
       ),

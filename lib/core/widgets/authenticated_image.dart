@@ -46,9 +46,9 @@ class AuthenticatedImage extends StatelessWidget {
 
   Widget _defaultPlaceholder(BuildContext context, String url) {
     return Container(
-      color: Colors.grey.shade300,
+      color: Colors.black,
       child: const Center(
-        child: CircularProgressIndicator(strokeWidth: 2),
+        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
       )
     );
   }

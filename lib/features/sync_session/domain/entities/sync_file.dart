@@ -2,6 +2,7 @@ import 'dart:io';
 
 
 class SyncFile {
+  final String localId;
   final String devicePath;
   final String hash;
   final String fileName;
@@ -13,6 +14,7 @@ class SyncFile {
   final int? durationSeconds;
 
   SyncFile({
+    required this.localId,
     required this.devicePath,
     required this.hash,
     required this. fileName,

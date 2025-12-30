@@ -194,7 +194,7 @@ abstract class AppLocalizations {
   /// No description provided for @pendingSingular.
   ///
   /// In en, this message translates to:
-  /// **'pending'**
+  /// **'Pending'**
   String get pendingSingular;
 
   /// No description provided for @pendingPlural.
@@ -382,6 +382,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The file will be removed from the device but will remain on the server'**
   String get deleteFromDeviceDescription;
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get selectAll;
 
   /// No description provided for @manageMultipleFiles.
   ///

@@ -16,9 +16,13 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final currentLocation = GoRouterState.of(context).uri.toString();
+    final isFileDetailPage = currentLocation.contains('/file/');
+
     return Scaffold(
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: isFileDetailPage ? null : BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: navigationShell.currentIndex,
         onTap: (index) => navigationShell.goBranch(index),

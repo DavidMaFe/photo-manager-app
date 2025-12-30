@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
@@ -120,16 +121,22 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
           return;
         }
 
-        final success = await uploadFileUseCase(sessionId: session.id, file: file);
+        final uploadResult = await uploadFileUseCase(sessionId: session.id, file: file);
+        if(uploadResult.serverFileId != null) {
+          await AppDatabase().saveFileMapping(
+            serverId: uploadResult.serverFileId!,
+            localId: file.localId,
+            localPath: file.devicePath,
+            hash: file.hash,
+          );
 
-        if (success) {
           uploadedCount++;
         }
 
         emit(SyncSessionUploading(uploadCount: uploadedCount,
             totalCount: totalCount, currentFileName: file.fileName));
 
-        await _waitForLoading(uploadingFileStopWatch, 1000);
+        await _waitForLoading(uploadingFileStopWatch, 300);
       }
 
       if (_isCancelled) {

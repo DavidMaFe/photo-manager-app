@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
@@ -48,12 +49,20 @@ class GalleryPage extends StatelessWidget {
           final selectedCount = isSelectionMode ? state.selectedFileIds.length : 0;
 
           return Scaffold(
-            appBar: const GalleryHeader(),
+            appBar: GalleryHeader(
+              isSelectionMode: isSelectionMode,
+              selectedCount: selectedCount,
+              onCancelSelection: () {
+                context.read<GalleryBloc>().add(const ExitSelectionMode());
+              },
+              onSelectAll: () {
+                //context.read<GalleryBloc>().add(const SelectAllFiles());
+              },
+            ),
             body: Column(
               children: [
                 _buildFilters(context, state),
                 _buildPendingBanner(state),
-                if (isSelectionMode) _buildSelectionBanner(context, selectedCount),
                 Expanded(child: _buildContent(context, state))
               ],
             ),
@@ -61,39 +70,6 @@ class GalleryPage extends StatelessWidget {
           );
         },
       )
-    );
-  }
-
-  Widget _buildSelectionBanner(BuildContext context, int selectedCount) {
-
-    final l10n = AppLocalizations.of(context)!;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      color: Colors.blue.withValues(alpha: 0.1),
-      child: Row(
-        children: [
-          Icon(Icons.check_circle, color: Colors.blue, size: 20),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              selectedCount == 1
-                  ? l10n.selectedFilesSingle
-                  : l10n.selectedFiles(selectedCount),
-              style: TextStyle(
-                color: Colors.blue[700],
-                fontWeight: FontWeight.w600
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              context.read<GalleryBloc>().add(const ExitSelectionMode());
-            },
-            child: Text(l10n.cancel),
-          )
-        ],
-      ),
     );
   }
 
@@ -110,15 +86,42 @@ class GalleryPage extends StatelessWidget {
     }
 
     final l10n = AppLocalizations.of(context)!;
-    return FloatingActionButton.extended(
-      onPressed: () => _showManageModal(context, state.selectedFileIds.toList()),
-      icon: const Icon(Icons.settings),
-      label: Text(selectedCount == 1 ? l10n.manageSingleFile : l10n.manageMultipleFiles(selectedCount))
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: PhotoManagerColors.primary.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4)
+          )
+        ]
+      ),
+      child: FloatingActionButton.extended(
+        onPressed: () => _showManageModal(context, state.selectedFileIds.toList()),
+        backgroundColor: PhotoManagerColors.primary,
+        elevation: 0,
+        icon: const Icon(Icons.tune, size: 22, color: Colors.white),
+        label: Row(
+          children: [
+            Text(
+              selectedCount == 1 ? l10n.manageSingleFile : l10n.manageMultipleFiles(selectedCount),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                fontSize: 15
+              )
+            ),
+            const SizedBox(width: 4),
+          ],
+        ),
+      ),
     );
   }
 
   void _showManageModal(BuildContext context, List<String> fileIds) {
     showModalBottomSheet(
+      useSafeArea: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
