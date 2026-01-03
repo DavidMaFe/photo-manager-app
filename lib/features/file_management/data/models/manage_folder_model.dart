@@ -14,7 +14,7 @@ class ManageFolderModel extends ManageFolder {
     return ManageFolderModel(
       id: json['id'].toString(),
       name: json['name'] as String,
-      fileCount: json['filesQuantity'],
+      fileCount: json['fileCount'],
       createdAt: DateTime.parse(json['createdAt'] as String)
     );
   }
@@ -23,7 +23,7 @@ class ManageFolderModel extends ManageFolder {
     return {
       'id': id,
       'name': name,
-      'filesQuantity': fileCount,
+      'fileCount': fileCount,
       'createdAt': createdAt
     };
   }

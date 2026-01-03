@@ -10,6 +10,8 @@ class RouteNames {
   static const String home = 'home';
   static const String fileDetail = 'fileDetail';
   static const String folders = 'folders';
+  static const String folderContent = 'folder_content';
+  static const String fileDetailFromFolder = 'file_detail_from_folder';
   static const String sync = 'sync';
   static const String notifications = 'notifications';
   static const String profile = 'profile';

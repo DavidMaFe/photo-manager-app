@@ -18,6 +18,14 @@ import 'package:photo_manager_app/features/file_management/domain/use_cases/get_
 import 'package:photo_manager_app/features/file_management/domain/use_cases/manage_files_use_case.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
+import 'package:photo_manager_app/features/folders/data/data_sources/folder_remote_data_source.dart';
+import 'package:photo_manager_app/features/folders/data/repositories/folder_repository_impl.dart';
+import 'package:photo_manager_app/features/folders/domain/repositories/folder_repository.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/create_folder_use_case.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/delete_folder_use_case.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/get_folder_content_use_case.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/rename_folder_use_case.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_bloc.dart';
 import 'package:photo_manager_app/features/gallery/data/data_sources/gallery_remote_data_source.dart';
 import 'package:photo_manager_app/features/gallery/data/repositories/gallery_repository_impl.dart';
 import 'package:photo_manager_app/features/gallery/domain/repositories/gallery_repository.dart';
@@ -44,6 +52,8 @@ import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_s
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../features/folders/domain/use_cases/get_folders_list_use_case.dart';
+import '../features/folders/presentation/bloc/folder/folder_bloc.dart';
 import '../features/sync_session/presentation/bloc/sync_session_bloc.dart';
 
 
@@ -161,6 +171,18 @@ Future<void> init() async {
       }
   );
 
+  // folders
+  sl.registerLazySingleton<FolderRemoteDataSource>(
+      () {
+        final client = sl<http.Client>();
+        final authLocalDataSource = sl<AuthLocalDataSource>();
+        return FolderRemoteDataSourceImpl(
+            client: client,
+            authLocalDataSource: authLocalDataSource
+        );
+      }
+  ) ;
+
 
   // REPOSITORIES
   // auth
@@ -229,6 +251,16 @@ Future<void> init() async {
           remoteDataSource: remoteDataSource,
           deletionLocalDataSource: deletionLocalDataSource,
           database: database
+        );
+      }
+  );
+
+  // folders
+  sl.registerLazySingleton<FolderRepository>(
+      () {
+        final remoteDataSource = sl<FolderRemoteDataSource>();
+        return FolderRepositoryImpl(
+          remoteDataSource: remoteDataSource
         );
       }
   );
@@ -317,6 +349,42 @@ Future<void> init() async {
       }
   );
 
+  // folders
+  sl.registerFactory(
+      () {
+        final repository = sl<FolderRepository>();
+        return GetFoldersListUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+          () {
+        final repository = sl<FolderRepository>();
+        return GetFolderContentUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+          () {
+        final repository = sl<FolderRepository>();
+        return CreateFolderUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+          () {
+        final repository = sl<FolderRepository>();
+        return RenameFolderUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+          () {
+        final repository = sl<FolderRepository>();
+        return DeleteFolderUseCase(repository);
+      }
+  );
+
 
   // BLOC'S
   // auth
@@ -388,6 +456,31 @@ Future<void> init() async {
       () {
         final getFoldersUseCase = sl<GetFoldersUseCase>();
         return ManageFolderBloc(getFoldersUseCase: getFoldersUseCase);
+      }
+  );
+
+  // folders
+  sl.registerFactory(
+      () {
+        final getFoldersUseCase = sl<GetFoldersListUseCase>();
+        final createFolderUseCase = sl<CreateFolderUseCase>();
+        final renameFolderUseCase = sl<RenameFolderUseCase>();
+        final deleteFolderUseCase = sl<DeleteFolderUseCase>();
+
+        return FolderBloc(
+          getFoldersUseCase: getFoldersUseCase,
+          createFolderUseCase: createFolderUseCase,
+          renameFolderUseCase: renameFolderUseCase,
+          deleteFolderUseCase: deleteFolderUseCase
+        );
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final getFolderContentUseCase = sl<GetFolderContentUseCase>();
+
+        return FolderContentBloc(getFolderContentUseCase: getFolderContentUseCase);
       }
   );
 }

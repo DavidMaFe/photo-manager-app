@@ -14,9 +14,6 @@ abstract class GalleryState extends Equatable {
 
 class GalleryStarting extends GalleryState {
   const GalleryStarting();
-
-  @override
-  String toString() => 'GalleryStarting';
 }
 
 
@@ -27,9 +24,6 @@ class GalleryLoading extends GalleryState {
 
   @override
   List<Object?> get props => [filter];
-
-  @override
-  String toString() => 'GalleryLoading (filter: $filter)';
 }
 
 

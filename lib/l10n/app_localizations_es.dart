@@ -275,6 +275,92 @@ class AppLocalizationsEs extends AppLocalizations {
   String get loadingVideoError => 'Error al cargar el vídeo';
 
   @override
+  String get foldersTitle => 'Carpetas';
+
+  @override
+  String get folder => 'Carpeta';
+
+  @override
+  String get subfolders => 'Subcarpetas';
+
+  @override
+  String get rename => 'Renombrar';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get create => 'Crear';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get folderName => 'Nombre de la carpeta';
+
+  @override
+  String get hintFolderName => 'Ex: Vacaciones 2024';
+
+  @override
+  String get folderNameRequiredError => 'El nombre es obligatorio';
+
+  @override
+  String get folderMaxHundredCharactersError => 'Máximo 100 caracteres';
+
+  @override
+  String get renameFolder => 'Renombrar carpeta';
+
+  @override
+  String get newName => 'Nuevo nombre';
+
+  @override
+  String get creatingFolder => 'Creando carpeta...';
+
+  @override
+  String get renamingFolder => 'Renombrando carpeta...';
+
+  @override
+  String get deletingFolder => 'Eliminando carpeta...';
+
+  @override
+  String get processing => 'Procesando...';
+
+  @override
+  String get emptyFolders => 'No tienes carpetas';
+
+  @override
+  String get emptyFolder => 'Esta carpeta está vacía';
+
+  @override
+  String get emptyFolderDescription => 'Mueve archivos aquí para organizarlos';
+
+  @override
+  String get createFirstFolder => 'Toca el botón + para crear tu primera carpeta';
+
+  @override
+  String get deleteFolder => 'Eliminar carpeta';
+
+  @override
+  String deleteEmptyFolder(Object folderName) {
+    return '¿Estás seguro de que quieres eliminar la carpeta $folderName?';
+  }
+
+  @override
+  String deleteFolderWithFiles(Object files, Object folderName) {
+    return 'La carpeta $folderName contiene $files archivos. ¿Estás seguro de que quieres eliminar todo el contenido?';
+  }
+
+  @override
+  String deleteFolderWithSubfolders(Object folderName, Object subfolders) {
+    return 'La carpeta $folderName contiene $subfolders carpetas. ¿Estás seguro de que quieres eliminar todo el contenido?';
+  }
+
+  @override
+  String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders) {
+    return 'La carpeta $folderName contiene $files archivos y $subfolders carpetas. ¿Estás seguro de que quieres eliminar todo el contenido?';
+  }
+
+  @override
   String get syncSessionTitle => 'Sincronización';
 
   @override

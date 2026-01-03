@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
 
@@ -39,6 +41,19 @@ enum FileFilter {
         return 'Videos';
       case FileFilter.pending:
         return 'Pendientes';
+    }
+  }
+
+  IconData? get icon {
+    switch (this) {
+      case FileFilter.all:
+        return null;
+      case FileFilter.images:
+        return Icons.photo;
+      case FileFilter.videos:
+        return Icons.videocam;
+      case FileFilter.pending:
+        return Icons.schedule;
     }
   }
 }

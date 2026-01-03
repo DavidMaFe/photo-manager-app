@@ -31,6 +31,7 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     try {
 
       final result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: event.filter);
+      await Future.delayed(const Duration(milliseconds: 400));
       emit(GalleryLoaded(files: result.files, isSelectionMode: false, selectedFileIds: {},
           hasNext: result.hasNext, currentPage: result.currentPage, filter: event.filter));
 
@@ -59,6 +60,7 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
         ...result.files
       ];
 
+      await Future.delayed(const Duration(milliseconds: 400));
       emit(GalleryLoaded(files: updatedFiles, isSelectionMode: currentState.isSelectionMode, selectedFileIds: currentState.selectedFileIds,
           hasNext: result.hasNext, currentPage: nextPage, filter: currentState.filter));
 
@@ -87,7 +89,6 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
       currentFilter = (state as GalleryLoadingMore).filter;
       isSelectionMode = currentState.isSelectionMode;
       selectedFileIds = currentState.selectedFileIds;
-
     }
 
     emit(GalleryLoading(filter: currentFilter));
@@ -95,6 +96,7 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     try {
 
       final result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: currentFilter);
+      await Future.delayed(const Duration(milliseconds: 400));
       emit(GalleryLoaded(files: result.files, isSelectionMode: isSelectionMode, selectedFileIds: selectedFileIds,
           hasNext: result.hasNext, currentPage: result.currentPage, filter: currentFilter));
 

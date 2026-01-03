@@ -275,6 +275,92 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadingVideoError => 'Error loading the video';
 
   @override
+  String get foldersTitle => 'Folders';
+
+  @override
+  String get folder => 'Folder';
+
+  @override
+  String get subfolders => 'Subfolders';
+
+  @override
+  String get rename => 'Rename';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get folderName => 'Folder name';
+
+  @override
+  String get hintFolderName => 'Ex: Holidays 2024';
+
+  @override
+  String get folderNameRequiredError => 'Folder name is required';
+
+  @override
+  String get folderMaxHundredCharactersError => 'Max 100 characters';
+
+  @override
+  String get renameFolder => 'Rename folder';
+
+  @override
+  String get newName => 'New name';
+
+  @override
+  String get creatingFolder => 'Creating folder...';
+
+  @override
+  String get renamingFolder => 'Renaming folder...';
+
+  @override
+  String get deletingFolder => 'Deleting folder...';
+
+  @override
+  String get processing => 'Processing...';
+
+  @override
+  String get emptyFolders => 'You don\'t have folders';
+
+  @override
+  String get emptyFolder => 'This folder is empty';
+
+  @override
+  String get emptyFolderDescription => 'Move files here to organize them';
+
+  @override
+  String get createFirstFolder => 'Tap the + button to create your first folder';
+
+  @override
+  String get deleteFolder => 'Delete folder';
+
+  @override
+  String deleteEmptyFolder(Object folderName) {
+    return '¿Are you sure you want to delete the folder $folderName?';
+  }
+
+  @override
+  String deleteFolderWithFiles(Object files, Object folderName) {
+    return 'The folder $folderName contains $files files. Are you sure you want to delete all the content?';
+  }
+
+  @override
+  String deleteFolderWithSubfolders(Object folderName, Object subfolders) {
+    return 'The folder $folderName contains $subfolders folders. Are you sure you want to delete all the content?';
+  }
+
+  @override
+  String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders) {
+    return 'The folder $folderName contains $files files and $subfolders folders. Are you sure you want to delete all the content?';
+  }
+
+  @override
   String get syncSessionTitle => 'Synchronization';
 
   @override

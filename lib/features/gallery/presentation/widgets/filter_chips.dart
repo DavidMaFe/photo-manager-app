@@ -14,17 +14,21 @@ class FilterChips extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: FileFilter.values.map((filter) {
-            return Padding(
-              padding: const EdgeInsetsGeometry.only(right: 8),
-              child: _buildFilterChip(context, filter),
-            );
-          }).toList(),
-        ),
-      ),
+      child: Column(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: FileFilter.values.map((filter) {
+                return Padding(
+                  padding: const EdgeInsetsGeometry.only(right: 8),
+                  child: _buildFilterChip(context, filter),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      )
     );
   }
 
@@ -33,17 +37,38 @@ class FilterChips extends StatelessWidget {
     final isSelected = selectedFilter == filter;
 
     return FilterChip(
-      label: Text(filter.displayName),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (filter.icon != null) ...[
+            Icon(
+              filter.icon,
+              size: 18,
+              color: isSelected ? Colors.white : PhotoManagerColors.primary,
+            ),
+            const SizedBox(width: 6)
+          ],
+          Text(filter.displayName),
+        ],
+      ),
       selected: isSelected,
       onSelected: (_) => onFilterSelected(filter),
+      backgroundColor: Colors.white,
       selectedColor: PhotoManagerColors.primary,
-      checkmarkColor: isSelected ? Colors.white : PhotoManagerColors.primary,
+      checkmarkColor: Colors.white,
       labelStyle: TextStyle(
-        color: isSelected
-            ? Colors.white
-            : PhotoManagerColors.primary,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal
+        color: isSelected ? Colors.white : PhotoManagerColors.primary,
+        fontWeight: FontWeight.w600,
+        fontSize: 14
       ),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+              color: isSelected ? PhotoManagerColors.primary : Colors.grey.shade300,
+              width: 1.5
+          )
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 }

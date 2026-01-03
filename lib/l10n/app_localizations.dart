@@ -587,6 +587,162 @@ abstract class AppLocalizations {
   /// **'Error loading the video'**
   String get loadingVideoError;
 
+  /// No description provided for @foldersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Folders'**
+  String get foldersTitle;
+
+  /// No description provided for @folder.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder'**
+  String get folder;
+
+  /// No description provided for @subfolders.
+  ///
+  /// In en, this message translates to:
+  /// **'Subfolders'**
+  String get subfolders;
+
+  /// No description provided for @rename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get rename;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @folderName.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder name'**
+  String get folderName;
+
+  /// No description provided for @hintFolderName.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex: Holidays 2024'**
+  String get hintFolderName;
+
+  /// No description provided for @folderNameRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder name is required'**
+  String get folderNameRequiredError;
+
+  /// No description provided for @folderMaxHundredCharactersError.
+  ///
+  /// In en, this message translates to:
+  /// **'Max 100 characters'**
+  String get folderMaxHundredCharactersError;
+
+  /// No description provided for @renameFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename folder'**
+  String get renameFolder;
+
+  /// No description provided for @newName.
+  ///
+  /// In en, this message translates to:
+  /// **'New name'**
+  String get newName;
+
+  /// No description provided for @creatingFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating folder...'**
+  String get creatingFolder;
+
+  /// No description provided for @renamingFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Renaming folder...'**
+  String get renamingFolder;
+
+  /// No description provided for @deletingFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting folder...'**
+  String get deletingFolder;
+
+  /// No description provided for @processing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get processing;
+
+  /// No description provided for @emptyFolders.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have folders'**
+  String get emptyFolders;
+
+  /// No description provided for @emptyFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'This folder is empty'**
+  String get emptyFolder;
+
+  /// No description provided for @emptyFolderDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Move files here to organize them'**
+  String get emptyFolderDescription;
+
+  /// No description provided for @createFirstFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the + button to create your first folder'**
+  String get createFirstFolder;
+
+  /// No description provided for @deleteFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete folder'**
+  String get deleteFolder;
+
+  /// No description provided for @deleteEmptyFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'¿Are you sure you want to delete the folder {folderName}?'**
+  String deleteEmptyFolder(Object folderName);
+
+  /// No description provided for @deleteFolderWithFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'The folder {folderName} contains {files} files. Are you sure you want to delete all the content?'**
+  String deleteFolderWithFiles(Object files, Object folderName);
+
+  /// No description provided for @deleteFolderWithSubfolders.
+  ///
+  /// In en, this message translates to:
+  /// **'The folder {folderName} contains {subfolders} folders. Are you sure you want to delete all the content?'**
+  String deleteFolderWithSubfolders(Object folderName, Object subfolders);
+
+  /// No description provided for @deleteFolderWithFilesAndSubfoldersWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The folder {folderName} contains {files} files and {subfolders} folders. Are you sure you want to delete all the content?'**
+  String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders);
+
   /// No description provided for @syncSessionTitle.
   ///
   /// In en, this message translates to:
