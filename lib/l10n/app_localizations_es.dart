@@ -361,6 +361,41 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get syncCurrentState => 'Estado actual';
+
+  @override
+  String get syncLast => 'Última sincronización';
+
+  @override
+  String get syncEmpty => 'Sin sincronizaciones';
+
+  @override
+  String get syncNow => 'Sincronizar ahora';
+
+  @override
+  String get synchronized => 'Sicronizado';
+
+  @override
+  String get syncPending => 'Pendiente';
+
+  @override
+  String syncFiles(Object syncFiles) {
+    return '$syncFiles archivos sincronizados';
+  }
+
+  @override
+  String get notSyncYet => 'Aún no has sincronizado';
+
+  @override
+  String get syncStart => 'Presiona el botón de sincronizar para empezar';
+
+  @override
+  String get syncErrorLoad => 'Error al cargar las sincronizaciones';
+
+  @override
+  String get syncHistoric => 'Historial Reciente';
+
+  @override
   String get syncSessionTitle => 'Sincronización';
 
   @override
@@ -431,6 +466,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get goBack => 'Volver';
 
   @override
+  String get notificationsTitle => 'Notificaciones';
+
+  @override
+  String get emptyNotifications => 'Sin notificaciones';
+
+  @override
+  String get noNotificationsYet => 'Aún no tienes notificaciones';
+
+  @override
   String get errorLoadingProfile => 'Error al cargar el perfil';
 
   @override
@@ -479,6 +523,30 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get notificationsSubtitle => 'Gestionar notificaciones';
+
+  @override
+  String get timeLessThanAMinute => 'Hace un momento';
+
+  @override
+  String get timeOneMinute => 'Hace 1 minuto';
+
+  @override
+  String timeMoreThanOneMinute(Object minutes) {
+    return 'Hace $minutes minutos';
+  }
+
+  @override
+  String get timeOneHour => 'Hace 1 hora';
+
+  @override
+  String timeMoreThanOneHour(Object hours) {
+    return 'Hace $hours horas';
+  }
+
+  @override
+  String timeYesterday(Object hour) {
+    return 'Ayer a las $hour';
+  }
 
   @override
   String get errorUnknownTitle => 'Error Desconocido';

@@ -50,6 +50,11 @@ import 'package:photo_manager_app/features/sync_session/domain/use_cases/complet
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/register_sync_device_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_sync_session_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
+import 'package:photo_manager_app/features/synchronization/data/data_sources/synchronization_remote_data_source.dart';
+import 'package:photo_manager_app/features/synchronization/data/repositories/synchronization_repository_impl.dart';
+import 'package:photo_manager_app/features/synchronization/domain/repositories/synchronization_repository.dart';
+import 'package:photo_manager_app/features/synchronization/domain/use_cases/get_synchronizations_use_case.dart';
+import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../features/folders/domain/use_cases/get_folders_list_use_case.dart';
@@ -183,6 +188,18 @@ Future<void> init() async {
       }
   ) ;
 
+  // synchronization
+  sl.registerLazySingleton<SynchronizationRemoteDataSource>(
+      () {
+        final client = sl<http.Client>();
+        final authLocalDataSource = sl<AuthLocalDataSource>();
+        return SynchronizationRemoteDataSourceImpl(
+            client: client,
+            authLocalDataSource: authLocalDataSource
+        );
+      }
+  );
+
 
   // REPOSITORIES
   // auth
@@ -262,6 +279,14 @@ Future<void> init() async {
         return FolderRepositoryImpl(
           remoteDataSource: remoteDataSource
         );
+      }
+  );
+
+  // synchronization
+  sl.registerLazySingleton<SynchronizationRepository>(
+      () {
+        final remoteDatSource = sl<SynchronizationRemoteDataSource>();
+        return SynchronizationRepositoryImpl(remoteDataSource: remoteDatSource);
       }
   );
 
@@ -385,6 +410,14 @@ Future<void> init() async {
       }
   );
 
+  // synchronization
+  sl.registerFactory(
+      () {
+        final repository = sl<SynchronizationRepository>();
+        return GetSynchronizationsUseCase(repository);
+      }
+  );
+
 
   // BLOC'S
   // auth
@@ -481,6 +514,18 @@ Future<void> init() async {
         final getFolderContentUseCase = sl<GetFolderContentUseCase>();
 
         return FolderContentBloc(getFolderContentUseCase: getFolderContentUseCase);
+      }
+  );
+
+  // synchronization
+  sl.registerFactory(
+      () {
+        final getSynchronizationsUseCase = sl<GetSynchronizationsUseCase>();
+        final syncDeviceRepository = sl<SyncDeviceRepository>();
+        return SynchronizationBloc(
+            getSynchronizationsUseCase: getSynchronizationsUseCase,
+            syncDeviceRepository: syncDeviceRepository
+        );
       }
   );
 }

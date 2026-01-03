@@ -112,6 +112,18 @@
   "deleteFolderWithSubfolders": "The folder {folderName} contains {subfolders} folders. Are you sure you want to delete all the content?",
   "deleteFolderWithFilesAndSubfoldersWarning": "The folder {folderName} contains {files} files and {subfolders} folders. Are you sure you want to delete all the content?",
 
+  "syncCurrentState": "Current state",
+  "syncLast": "Last synchronization",
+  "syncEmpty": "Without synchronizations",
+  "syncNow": "Synchronize now",
+  "synchronized": "Synchronized",
+  "syncPending": "Pending",
+  "syncFiles": "{syncFiles} synchronized files",
+  "notSyncYet": "You have not synchronized yet",
+  "syncStart": "Press the synchronization button to start",
+  "syncErrorLoad": "Error loading synchronizations",
+  "syncHistoric": "Recent Activity",
+
   "syncSessionTitle": "Synchronization",
   "syncSessionInit": "Starting synchronization...",
   "syncSessionConnecting": "Connecting with the server",
@@ -135,6 +147,10 @@
   "infoFiles": "{info} files",
   "goBack": "Return",
 
+  "notificationsTitle": "Notifications",
+  "emptyNotifications": "Without notifications",
+  "noNotificationsYet": "You don't have notifications yet",
+
   "errorLoadingProfile": "Error loading the profile",
   "cancel": "Cancel",
   "close": "Close",
@@ -151,6 +167,13 @@
   "syncSettingsSubtitle": "Auto sync every 6 hours",
   "notifications": "Notifications",
   "notificationsSubtitle": "Manage notifications",
+
+  "timeLessThanAMinute": "Just now",
+  "timeOneMinute": "1 minute ago",
+  "timeMoreThanOneMinute": "{minutes} minutes ago",
+  "timeOneHour": "1 hour ago",
+  "timeMoreThanOneHour": "{hours} hours ago",
+  "timeYesterday": "Yesterday at {hour}",
 
   "errorUnknownTitle": "Unknown Error",
   "errorUnknown": "An unexpected error ocurred. Please, try again later.",

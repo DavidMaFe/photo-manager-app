@@ -15,9 +15,12 @@ import 'package:photo_manager_app/features/folders/presentation/pages/folders_pa
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/pages/gallery_page.dart';
+import 'package:photo_manager_app/features/notification/presentation/pages/notifications_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
+import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_bloc.dart';
+import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_event.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/pages/synchronization_page.dart';
 
 import '../../features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
@@ -152,7 +155,11 @@ class AppRouter {
                     GoRoute(
                       path: RoutePaths.sync,
                       name: RouteNames.sync,
-                      builder: (context, state) => const SynchronizationPage(),
+                      builder: (context, state) => BlocProvider(
+                        create: (context) => sl<SynchronizationBloc>()
+                          ..add(const LoadSynchronizations()),
+                        child: const SynchronizationPage(),
+                      )
                     ),
                   ],
                 ),
@@ -163,7 +170,7 @@ class AppRouter {
                     GoRoute(
                       path: RoutePaths.notifications,
                       name: RouteNames.notifications,
-                      builder: (context, state) => const GalleryPage(), // TODO: crear
+                      builder: (context, state) => const NotificationsPage()
                     ),
                   ],
                 ),

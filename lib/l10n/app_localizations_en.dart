@@ -361,6 +361,41 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get syncCurrentState => 'Current state';
+
+  @override
+  String get syncLast => 'Last synchronization';
+
+  @override
+  String get syncEmpty => 'Without synchronizations';
+
+  @override
+  String get syncNow => 'Synchronize now';
+
+  @override
+  String get synchronized => 'Synchronized';
+
+  @override
+  String get syncPending => 'Pending';
+
+  @override
+  String syncFiles(Object syncFiles) {
+    return '$syncFiles synchronized files';
+  }
+
+  @override
+  String get notSyncYet => 'You have not synchronized yet';
+
+  @override
+  String get syncStart => 'Press the synchronization button to start';
+
+  @override
+  String get syncErrorLoad => 'Error loading synchronizations';
+
+  @override
+  String get syncHistoric => 'Recent Activity';
+
+  @override
   String get syncSessionTitle => 'Synchronization';
 
   @override
@@ -431,6 +466,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goBack => 'Return';
 
   @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get emptyNotifications => 'Without notifications';
+
+  @override
+  String get noNotificationsYet => 'You don\'t have notifications yet';
+
+  @override
   String get errorLoadingProfile => 'Error loading the profile';
 
   @override
@@ -479,6 +523,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsSubtitle => 'Manage notifications';
+
+  @override
+  String get timeLessThanAMinute => 'Just now';
+
+  @override
+  String get timeOneMinute => '1 minute ago';
+
+  @override
+  String timeMoreThanOneMinute(Object minutes) {
+    return '$minutes minutes ago';
+  }
+
+  @override
+  String get timeOneHour => '1 hour ago';
+
+  @override
+  String timeMoreThanOneHour(Object hours) {
+    return '$hours hours ago';
+  }
+
+  @override
+  String timeYesterday(Object hour) {
+    return 'Yesterday at $hour';
+  }
 
   @override
   String get errorUnknownTitle => 'Unknown Error';

@@ -743,6 +743,72 @@ abstract class AppLocalizations {
   /// **'The folder {folderName} contains {files} files and {subfolders} folders. Are you sure you want to delete all the content?'**
   String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders);
 
+  /// No description provided for @syncCurrentState.
+  ///
+  /// In en, this message translates to:
+  /// **'Current state'**
+  String get syncCurrentState;
+
+  /// No description provided for @syncLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synchronization'**
+  String get syncLast;
+
+  /// No description provided for @syncEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Without synchronizations'**
+  String get syncEmpty;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Synchronize now'**
+  String get syncNow;
+
+  /// No description provided for @synchronized.
+  ///
+  /// In en, this message translates to:
+  /// **'Synchronized'**
+  String get synchronized;
+
+  /// No description provided for @syncPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get syncPending;
+
+  /// No description provided for @syncFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{syncFiles} synchronized files'**
+  String syncFiles(Object syncFiles);
+
+  /// No description provided for @notSyncYet.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not synchronized yet'**
+  String get notSyncYet;
+
+  /// No description provided for @syncStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Press the synchronization button to start'**
+  String get syncStart;
+
+  /// No description provided for @syncErrorLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading synchronizations'**
+  String get syncErrorLoad;
+
+  /// No description provided for @syncHistoric.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Activity'**
+  String get syncHistoric;
+
   /// No description provided for @syncSessionTitle.
   ///
   /// In en, this message translates to:
@@ -875,6 +941,24 @@ abstract class AppLocalizations {
   /// **'Return'**
   String get goBack;
 
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @emptyNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Without notifications'**
+  String get emptyNotifications;
+
+  /// No description provided for @noNotificationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have notifications yet'**
+  String get noNotificationsYet;
+
   /// No description provided for @errorLoadingProfile.
   ///
   /// In en, this message translates to:
@@ -970,6 +1054,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage notifications'**
   String get notificationsSubtitle;
+
+  /// No description provided for @timeLessThanAMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get timeLessThanAMinute;
+
+  /// No description provided for @timeOneMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'1 minute ago'**
+  String get timeOneMinute;
+
+  /// No description provided for @timeMoreThanOneMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} minutes ago'**
+  String timeMoreThanOneMinute(Object minutes);
+
+  /// No description provided for @timeOneHour.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour ago'**
+  String get timeOneHour;
+
+  /// No description provided for @timeMoreThanOneHour.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hours ago'**
+  String timeMoreThanOneHour(Object hours);
+
+  /// No description provided for @timeYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday at {hour}'**
+  String timeYesterday(Object hour);
 
   /// No description provided for @errorUnknownTitle.
   ///

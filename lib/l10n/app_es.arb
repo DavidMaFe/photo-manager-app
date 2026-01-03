@@ -112,6 +112,18 @@
   "deleteFolderWithSubfolders": "La carpeta {folderName} contiene {subfolders} carpetas. ¿Estás seguro de que quieres eliminar todo el contenido?",
   "deleteFolderWithFilesAndSubfoldersWarning": "La carpeta {folderName} contiene {files} archivos y {subfolders} carpetas. ¿Estás seguro de que quieres eliminar todo el contenido?",
 
+  "syncCurrentState": "Estado actual",
+  "syncLast": "Última sincronización",
+  "syncEmpty": "Sin sincronizaciones",
+  "syncNow": "Sincronizar ahora",
+  "synchronized": "Sicronizado",
+  "syncPending": "Pendiente",
+  "syncFiles": "{syncFiles} archivos sincronizados",
+  "notSyncYet": "Aún no has sincronizado",
+  "syncStart": "Presiona el botón de sincronizar para empezar",
+  "syncErrorLoad": "Error al cargar las sincronizaciones",
+  "syncHistoric": "Historial Reciente",
+
   "syncSessionTitle": "Sincronización",
   "syncSessionInit": "Iniciando sincronización...",
   "syncSessionConnecting": "Conectando con el servidor",
@@ -135,6 +147,10 @@
   "infoFiles": "{info} archivos",
   "goBack": "Volver",
 
+  "notificationsTitle": "Notificaciones",
+  "emptyNotifications": "Sin notificaciones",
+  "noNotificationsYet": "Aún no tienes notificaciones",
+
   "errorLoadingProfile": "Error al cargar el perfil",
   "cancel": "Cancelar",
   "close": "Cerrar",
@@ -151,6 +167,13 @@
   "syncSettingsSubtitle": "Sincronización automática cada 6 horas",
   "notifications": "Notificaciones",
   "notificationsSubtitle": "Gestionar notificaciones",
+
+  "timeLessThanAMinute": "Hace un momento",
+  "timeOneMinute": "Hace 1 minuto",
+  "timeMoreThanOneMinute": "Hace {minutes} minutos",
+  "timeOneHour": "Hace 1 hora",
+  "timeMoreThanOneHour": "Hace {hours} horas",
+  "timeYesterday": "Ayer a las {hour}",
 
   "errorUnknownTitle": "Error Desconocido",
   "errorUnknown": "Ocurrió un error inesperado. Por favor inténtalo más tarde.",
