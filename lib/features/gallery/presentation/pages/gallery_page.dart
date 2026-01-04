@@ -14,8 +14,6 @@ import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_sta
 import 'package:photo_manager_app/features/gallery/presentation/widgets/files_grid.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/filter_chips.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/gallery_header.dart';
-import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
-import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 import '../widgets/pending_info_banner.dart';
@@ -28,20 +26,7 @@ class GalleryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<GalleryBloc, GalleryState>(
-          listener: _handleStateChanges,
-        ),
-        BlocListener<SyncSessionBloc, SyncSessionState>(
-          listener: (context, state) {
-            if (state is SyncSessionSuccess) {
-              context.read<GalleryBloc>().add(const RefreshGallery());
-            }
-          }
-        )
-      ],
-      child: BlocConsumer<GalleryBloc, GalleryState>(
+    return BlocConsumer<GalleryBloc, GalleryState>(
         listener: _handleStateChanges,
         builder: (context, state) {
 
@@ -68,8 +53,7 @@ class GalleryPage extends StatelessWidget {
             ),
             floatingActionButton: _buildFAB(context, state),
           );
-        },
-      )
+        }
     );
   }
 
@@ -135,7 +119,6 @@ class GalleryPage extends StatelessWidget {
     ).then((_) {
       if (!context.mounted) return;
       context.read<GalleryBloc>().add(const ExitSelectionMode());
-      context.read<GalleryBloc>().add(const RefreshGallery());
     });
   }
 
@@ -255,11 +238,7 @@ class GalleryPage extends StatelessWidget {
               'files': files,
               'initialIndex': fileIndex
             }
-          ).then((result) {
-            if (result == true && context.mounted) {
-              context.read<GalleryBloc>().add(const RefreshGallery());
-            }
-          });
+          );
         }
       },
       onFileLongPress: (file) {

@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/events/app_event_bus.dart';
+import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/synchronization/domain/use_cases/get_synchronizations_use_case.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_event.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_state.dart';
@@ -12,16 +16,30 @@ class SynchronizationBloc extends Bloc<SynchronizationEvent, SynchronizationStat
 
   final GetSynchronizationsUseCase getSynchronizationsUseCase;
   final SyncDeviceRepository syncDeviceRepository;
+  final AppEventBus eventBus;
 
   String _deviceUuid = '';
+  StreamSubscription<SyncCompletedEvent>? _syncCompletedSubscription;
 
   SynchronizationBloc({
     required this.getSynchronizationsUseCase,
-    required this.syncDeviceRepository
+    required this.syncDeviceRepository,
+    required this.eventBus,
   }) : super(const SynchronizationStarting()) {
     on<LoadSynchronizations>(_onLoadSynchronizations);
     on<LoadMoreSynchronizations>(_onLoadMoreSynchronizations);
     on<RefreshSynchronizations>(_onRefreshSynchronizations);
+
+    // Listen to sync completion events and auto-refresh the sync history list
+    _syncCompletedSubscription = eventBus.on<SyncCompletedEvent>().listen((_) {
+      add(const RefreshSynchronizations());
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _syncCompletedSubscription?.cancel();
+    return super.close();
   }
 
   Future<void> _onLoadSynchronizations(LoadSynchronizations event, Emitter<SynchronizationState> emit) async {

@@ -258,10 +258,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
         ],
         child: ManageFileModal(fileIds: [_currentFile.id], isMultiple: false),
       )
-    ).then((_) {
-      if (!context.mounted) return;
-      Navigator.pop(context, true);
-    });
+    );
   }
 
   void _showOptionsMenu(BuildContext context, AppLocalizations l10n) {

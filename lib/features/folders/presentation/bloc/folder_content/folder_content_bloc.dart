@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/events/app_event_bus.dart';
+import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/folders/domain/use_cases/get_folder_content_use_case.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_event.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_state.dart';
@@ -12,12 +16,19 @@ import '../../../domain/entities/folder.dart';
 class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
 
   final GetFolderContentUseCase getFolderContentUseCase;
+  final AppEventBus eventBus;
 
   String? _currentFolderId;
   FileFilter _currentFilter = FileFilter.all;
   int _currentPage = 0;
 
-  FolderContentBloc({required this.getFolderContentUseCase}) : super(const FolderContentStarting()) {
+  StreamSubscription<FileUpdatedEvent>? _fileUpdateSubscription;
+  StreamSubscription<FolderUpdatedEvent>? _folderUpdateSubscription;
+
+  FolderContentBloc({
+    required this.getFolderContentUseCase,
+    required this.eventBus,
+  }) : super(const FolderContentStarting()) {
     on<LoadFolderContent>(_onLoadFolderContent);
     on<RefreshFolderContent>(_onRefreshFolderContent);
     on<LoadMoreFiles>(_onLoadMoreFiles);
@@ -25,6 +36,29 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
     on<EnterSelectionMode>(_onEnterSelectionMode);
     on<ExitSelectionMode>(_onExitSelectionMode);
     on<ToggleFileSelection>(_onToggleFileSelection);
+
+    // Listen to file updates (files moved in/out of this folder)
+    _fileUpdateSubscription = eventBus.on<FileUpdatedEvent>().listen((event) {
+      // Only refresh if files were moved or if this folder might be affected
+      if (event.updateType == FileUpdateType.moved ||
+          event.updateType == FileUpdateType.deleted ||
+          (event.affectedFolderIds != null &&
+              event.affectedFolderIds!.contains(_currentFolderId))) {
+        add(const RefreshFolderContent());
+      }
+    });
+
+    // Listen to folder updates (subfolders created/deleted/renamed)
+    _folderUpdateSubscription = eventBus.on<FolderUpdatedEvent>().listen((_) {
+      add(const RefreshFolderContent());
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _fileUpdateSubscription?.cancel();
+    _folderUpdateSubscription?.cancel();
+    return super.close();
   }
 
   Future<void> _onLoadFolderContent(LoadFolderContent event, Emitter<FolderContentState> emit) async {

@@ -3,6 +3,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/database/app_database.dart';
+import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repository.dart';
@@ -70,6 +71,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => DeviceInfoPlugin());
   sl.registerLazySingleton(() => AppDatabase());
+  sl.registerLazySingleton(() => AppEventBus());
 
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
@@ -442,7 +444,8 @@ Future<void> init() async {
   sl.registerLazySingleton(
       () {
         final getUserProfileUseCase = sl<GetUserProfileUseCase>();
-        return ProfileBloc(getUserProfileUseCase);
+        final eventBus = sl<AppEventBus>();
+        return ProfileBloc(getUserProfileUseCase, eventBus);
       }
   );
 
@@ -456,6 +459,7 @@ Future<void> init() async {
         final syncSessionRepository = sl<SyncSessionRepository>();
         final syncDeviceRepository = sl<SyncDeviceRepository>();
         final mediaLocalDataSource = sl<MediaLocalDataSource>();
+        final eventBus = sl<AppEventBus>();
 
         return SyncSessionBloc(
           startSyncSessionUseCase: startSyncSessionUseCase,
@@ -464,7 +468,8 @@ Future<void> init() async {
           completeSyncSessionUseCase: completeSyncSessionUseCase,
           syncSessionRepository: syncSessionRepository,
           syncDeviceRepository: syncDeviceRepository,
-          mediaLocalDataSource: mediaLocalDataSource
+          mediaLocalDataSource: mediaLocalDataSource,
+          eventBus: eventBus,
         );
       }
   );
@@ -473,7 +478,8 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final getFileUseCase = sl<GetFilesUseCase>();
-        return GalleryBloc(getFilesUseCase: getFileUseCase);
+        final eventBus = sl<AppEventBus>();
+        return GalleryBloc(getFilesUseCase: getFileUseCase, eventBus: eventBus);
       }
   );
 
@@ -481,14 +487,16 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final manageFilesUseCase = sl<ManageFilesUseCase>();
-        return FileManagementBloc(manageFilesUseCase: manageFilesUseCase);
+        final eventBus = sl<AppEventBus>();
+        return FileManagementBloc(manageFilesUseCase: manageFilesUseCase, eventBus: eventBus);
       }
   );
 
   sl.registerFactory(
       () {
         final getFoldersUseCase = sl<GetFoldersUseCase>();
-        return ManageFolderBloc(getFoldersUseCase: getFoldersUseCase);
+        final eventBus = sl<AppEventBus>();
+        return ManageFolderBloc(getFoldersUseCase: getFoldersUseCase, eventBus: eventBus);
       }
   );
 
@@ -499,12 +507,14 @@ Future<void> init() async {
         final createFolderUseCase = sl<CreateFolderUseCase>();
         final renameFolderUseCase = sl<RenameFolderUseCase>();
         final deleteFolderUseCase = sl<DeleteFolderUseCase>();
+        final eventBus = sl<AppEventBus>();
 
         return FolderBloc(
           getFoldersUseCase: getFoldersUseCase,
           createFolderUseCase: createFolderUseCase,
           renameFolderUseCase: renameFolderUseCase,
-          deleteFolderUseCase: deleteFolderUseCase
+          deleteFolderUseCase: deleteFolderUseCase,
+          eventBus: eventBus,
         );
       }
   );
@@ -512,8 +522,9 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final getFolderContentUseCase = sl<GetFolderContentUseCase>();
+        final eventBus = sl<AppEventBus>();
 
-        return FolderContentBloc(getFolderContentUseCase: getFolderContentUseCase);
+        return FolderContentBloc(getFolderContentUseCase: getFolderContentUseCase, eventBus: eventBus);
       }
   );
 
@@ -522,9 +533,11 @@ Future<void> init() async {
       () {
         final getSynchronizationsUseCase = sl<GetSynchronizationsUseCase>();
         final syncDeviceRepository = sl<SyncDeviceRepository>();
+        final eventBus = sl<AppEventBus>();
         return SynchronizationBloc(
             getSynchronizationsUseCase: getSynchronizationsUseCase,
-            syncDeviceRepository: syncDeviceRepository
+            syncDeviceRepository: syncDeviceRepository,
+            eventBus: eventBus,
         );
       }
   );

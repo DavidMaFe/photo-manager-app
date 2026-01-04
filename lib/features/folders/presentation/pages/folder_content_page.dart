@@ -6,7 +6,6 @@ import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
-import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_event.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_state.dart';
@@ -68,13 +67,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
   @override
   Widget build(BuildContext context) {
 
-    return BlocListener<FolderBloc, FolderState>(
-        listener: (context, state) {
-          if (state is FolderOperationSuccess) {
-            context.read<FolderContentBloc>().add(const RefreshFolderContent());
-          }
-        },
-        child: BlocBuilder<FolderContentBloc, FolderContentState>(
+    return BlocBuilder<FolderContentBloc, FolderContentState>(
           builder: (context, state) {
 
             final isSelectionMode = state is FolderContentLoaded && state.isSelectionMode;
@@ -91,8 +84,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
               ),
               floatingActionButton: _buildFAB(context, state, isSelectionMode, selectedCount),
             );
-          },
-        )
+          }
     );
   }
 
@@ -472,11 +464,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
           value: context.read<FolderBloc>(),
           child: CreateFolderModal(parentFolderId: widget.folderId),
         )
-    ).then((_) {
-      if (context.mounted) {
-        context.read<FolderContentBloc>().add(const RefreshFolderContent());
-      }
-    });
+    );
   }
 
   void _showManageModal(BuildContext context, List<String> fileIds) {
@@ -495,7 +483,6 @@ class _FolderContentPageState extends State<FolderContentPage> {
     ).then((_) {
       if (!context.mounted) return;
       context.read<FolderContentBloc>().add(const ExitSelectionMode());
-      context.read<FolderContentBloc>().add(const RefreshFolderContent());
     });
   }
 

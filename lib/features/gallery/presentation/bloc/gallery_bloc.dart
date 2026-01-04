@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
+import 'package:photo_manager_app/core/events/app_event_bus.dart';
+import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/gallery/domain/use_cases/get_files_use_case.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_state.dart';
@@ -11,9 +15,17 @@ import '../../domain/enums/file_filter.dart';
 class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
 
   final GetFilesUseCase getFilesUseCase;
+  final AppEventBus eventBus;
   static const int _pageSize = 50;
 
-  GalleryBloc({required this.getFilesUseCase}) : super(const GalleryStarting()) {
+  StreamSubscription<FileUpdatedEvent>? _fileUpdateSubscription;
+  StreamSubscription<FolderUpdatedEvent>? _folderUpdateSubscription;
+  StreamSubscription<SyncCompletedEvent>? _syncCompletedSubscription;
+
+  GalleryBloc({
+    required this.getFilesUseCase,
+    required this.eventBus,
+  }) : super(const GalleryStarting()) {
     on<LoadGallery>(_onLoadGallery);
     on<LoadMoreFiles>(_onLoadMoreFiles);
     on<RefreshGallery>(_onRefreshGallery);
@@ -22,6 +34,29 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     on<ToggleFileSelection>(_onToggleFileSelection);
     on<SelectAllFiles>(_onSelectAllFiles);
     on<ClearSelection>(_onClearSelection);
+
+    // Listen to file updates and auto-refresh
+    _fileUpdateSubscription = eventBus.on<FileUpdatedEvent>().listen((_) {
+      add(const RefreshGallery());
+    });
+
+    // Listen to folder updates (files might have been moved to folders)
+    _folderUpdateSubscription = eventBus.on<FolderUpdatedEvent>().listen((_) {
+      add(const RefreshGallery());
+    });
+
+    // Listen to sync completion (new files added)
+    _syncCompletedSubscription = eventBus.on<SyncCompletedEvent>().listen((_) {
+      add(const RefreshGallery());
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _fileUpdateSubscription?.cancel();
+    _folderUpdateSubscription?.cancel();
+    _syncCompletedSubscription?.cancel();
+    return super.close();
   }
 
   Future<void> _onLoadGallery(LoadGallery event, Emitter<GalleryState> emit) async {

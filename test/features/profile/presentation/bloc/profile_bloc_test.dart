@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/get_user_profile_use_case.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
@@ -11,13 +12,17 @@ import 'package:photo_manager_app/features/profile/presentation/bloc/profile_sta
 class MockGetUserProfileUseCase extends Mock
     implements GetUserProfileUseCase {}
 
+class MockAppEventBus extends Mock implements AppEventBus {}
+
 void main() {
   late ProfileBloc profileBloc;
   late MockGetUserProfileUseCase mockGetUserProfileUseCase;
+  late MockAppEventBus mockEventBus;
 
   setUp(() {
     mockGetUserProfileUseCase = MockGetUserProfileUseCase();
-    profileBloc = ProfileBloc(mockGetUserProfileUseCase);
+    mockEventBus = MockAppEventBus();
+    profileBloc = ProfileBloc(mockGetUserProfileUseCase, mockEventBus);
   });
 
   tearDown(() {

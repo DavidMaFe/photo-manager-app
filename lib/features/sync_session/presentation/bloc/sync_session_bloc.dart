@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
+import 'package:photo_manager_app/core/events/app_event_bus.dart';
+import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
@@ -24,6 +26,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
   final SyncDeviceRepository syncDeviceRepository;
   final SyncSessionRepository syncSessionRepository;
   final MediaLocalDataSource mediaLocalDataSource;
+  final AppEventBus eventBus;
 
   String? _currentSessionId;
   bool _isCancelled = false;
@@ -35,7 +38,8 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     required this.completeSyncSessionUseCase,
     required this.syncDeviceRepository,
     required this.syncSessionRepository,
-    required this.mediaLocalDataSource
+    required this.mediaLocalDataSource,
+    required this.eventBus,
   }) : super(const SyncSessionInitial()) {
     on<SyncSessionStarted>(_onSyncSessionStarted);
     on<SyncSessionCancelled>(_onSyncSessionCancelled);
@@ -212,6 +216,18 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     final result = await completeSyncSessionUseCase(sessionId: sessionId);
 
     emit(SyncSessionSuccess(result));
+
+    // Broadcast sync completed event
+    eventBus.fire(SyncCompletedEvent(
+      syncSessionId: sessionId,
+      newFilesCount: result.uploadedFiles,
+      completedAt: DateTime.now(),
+    ));
+
+    // Invalidate related caches
+    eventBus.fire(const CacheInvalidationEvent(type: CacheInvalidationType.syncHistory));
+    eventBus.fire(const CacheInvalidationEvent(type: CacheInvalidationType.files));
+    eventBus.fire(const CacheInvalidationEvent(type: CacheInvalidationType.gallery));
   }
 
   Future<void> _waitForLoading(Stopwatch stopwatch, int duration) async {
