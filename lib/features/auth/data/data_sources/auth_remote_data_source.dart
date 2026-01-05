@@ -1,14 +1,17 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/config/data_constants.dart';
 
+import '../../../../core/errors/base/failure_codes.dart';
 import '../models/auth_response_model.dart';
 
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponseModel> login(String email, String password);
   Future<void> logout(String token);
+  Future<void> register(String email, String password, String name, String? surname);
 }
 
 
@@ -62,5 +65,40 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e){
       // Ignore the error, the token will be cleared anyways
     }
+  }
+  
+  @override
+  Future<void> register(String email, String password, String name, String? surname) async {
+    
+    final url = Uri.parse('$baseUrl/api/register/');
+
+    try {
+
+      final Map<String, dynamic> body = {
+        'email': email,
+        'password': password,
+        'name': name
+      };
+
+      if (surname != null) {
+        body['surname'] = surname;
+      }
+
+      final response = await client.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body)
+      );
+
+      if ( response.statusCode == 200) {
+        return;
+      } else {
+        throw HttpException(jsonDecode(response.body)["message"]);
+      }
+    } catch (e) {
+      if (e is HttpException) rethrow;
+      throw Exception(FailureCodes.unknownErrorCode);
+    }
+    
   }
 }

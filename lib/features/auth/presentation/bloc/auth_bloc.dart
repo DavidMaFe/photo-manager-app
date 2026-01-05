@@ -3,6 +3,7 @@ import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
@@ -12,6 +13,7 @@ import 'package:photo_manager_app/features/sync_session/domain/use_cases/registe
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
   final RegisterSyncDeviceUseCase registerSyncDeviceUseCase;
   final LogoutUseCase logoutUseCase;
   final AuthRepository authRepository;
@@ -21,12 +23,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   AuthBloc({
     required this.loginUseCase,
+    required this.registerUseCase,
     required this.registerSyncDeviceUseCase,
     required this.logoutUseCase,
     required this.authRepository,
     required this.syncDeviceRepository
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
+    on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<CheckAuthStatus>(_onCheckAuthStatus);
   }
@@ -49,6 +53,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _waitForLoading(stopwatch);
 
       emit(AuthSuccessful(user));
+    } catch (e) {
+      await _waitForLoading(stopwatch);
+      final failure = ErrorHandler.handleError(e);
+      emit(AuthError(failure));
+    }
+  }
+
+  Future<void> _onRegisterRequested(RegisterRequested event, Emitter<AuthState> emit) async {
+
+    emit(AuthLoading());
+    final stopwatch = Stopwatch()..start();
+
+    try {
+
+      await registerUseCase(email: event.email, password: event.password,
+          name: event.name, surname: event.surname);
+      await _waitForLoading(stopwatch);
+      emit(RegisterSuccessful());
+
     } catch (e) {
       await _waitForLoading(stopwatch);
       final failure = ErrorHandler.handleError(e);

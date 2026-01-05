@@ -45,6 +45,51 @@ class AppLocalizationsEs extends AppLocalizations {
   String get signUp => 'Regístrate';
 
   @override
+  String get createAccount => 'Crear Cuenta';
+
+  @override
+  String get accountCreated => '¡Cuenta creada! Por favor inicia sesión';
+
+  @override
+  String get registerTitle => 'Regístrate para comenzar';
+
+  @override
+  String get nameLabel => 'Nombre';
+
+  @override
+  String get namePlaceholder => 'Juan';
+
+  @override
+  String get surnameLabel => 'Apellido (opcional)';
+
+  @override
+  String get surnamePlaceholder => 'Pérez';
+
+  @override
+  String get confirmPasswordLabel => 'Confirmar Contraseña';
+
+  @override
+  String get errorNameRequired => 'El nombre es requerido';
+
+  @override
+  String get errorConfirmPasswordRequired => 'Confirma tu contraseña';
+
+  @override
+  String get errorPasswordsDoNotMatch => 'Las contraseñas no coinciden';
+
+  @override
+  String get registerButton => 'Crear Cuenta';
+
+  @override
+  String get alreadyHaveAccount => '¿Ya tienes cuenta? ';
+
+  @override
+  String get signIn => 'Inicia sesión';
+
+  @override
+  String get registerTermsDisclaimer => 'Al registrarte, aceptas nuestros Términos y Condiciones';
+
+  @override
   String get gallery => 'Galería';
 
   @override

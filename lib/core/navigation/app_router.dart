@@ -5,6 +5,7 @@ import 'package:photo_manager_app/core/navigation/main_shell.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/pages/login_page.dart';
+import 'package:photo_manager_app/features/auth/presentation/pages/register_page.dart';
 import 'package:photo_manager_app/features/file_management/presentation/pages/file_detail_page.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_event.dart';
@@ -42,15 +43,17 @@ class AppRouter {
           final isAuthenticated = authNotifier.isAuthenticated;
           final isLoading = authNotifier.isLoading;
           final isGoingToLogin = state.matchedLocation == RoutePaths.login;
+          final isGoingToRegister = state.matchedLocation == RoutePaths.register;
+
 
           if (isLoading) {
             return null;
           }
 
-          if (!isAuthenticated && !isGoingToLogin) {
+          if (!isAuthenticated && !isGoingToLogin && !isGoingToRegister) {
             return RoutePaths.login;
           }
-          if (isAuthenticated && isGoingToLogin) {
+          if (isAuthenticated && (isGoingToLogin || isGoingToRegister)) {
             return RoutePaths.home;
           }
 
@@ -63,7 +66,11 @@ class AppRouter {
               name: RouteNames.login,
               builder: (context, state) => const LoginPage()
           ),
-
+          GoRoute(
+            path: RoutePaths.register,
+            name: RouteNames.register,
+            builder: (context, state) => const RegisterPage()
+          ),
           GoRoute(
               path: '/file/:fileId',
               name: RouteNames.fileDetail,

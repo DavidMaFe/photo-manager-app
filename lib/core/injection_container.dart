@@ -3,13 +3,13 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/database/app_database.dart';
-import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_deletion_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_management_remote_data_source.dart';
@@ -61,6 +61,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../features/folders/domain/use_cases/get_folders_list_use_case.dart';
 import '../features/folders/presentation/bloc/folder/folder_bloc.dart';
 import '../features/sync_session/presentation/bloc/sync_session_bloc.dart';
+import 'events/app_event_bus.dart';
 
 
 final sl = GetIt.instance;
@@ -309,6 +310,13 @@ Future<void> init() async {
       }
   );
 
+  sl.registerFactory(
+      () {
+        final repository = sl<AuthRepository>();
+        return RegisterUseCase(repository);
+      }
+  );
+
   // profile
   sl.registerFactory(
       () {
@@ -426,12 +434,14 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final loginUseCase = sl<LoginUseCase>();
+        final registerUseCase = sl<RegisterUseCase>();
         final logoutUseCase = sl<LogoutUseCase>();
         final registerSyncDeviceUseCase = sl<RegisterSyncDeviceUseCase>();
         final authRepository = sl<AuthRepository>();
         final syncDeviceRepository = sl<SyncDeviceRepository>();
         return AuthBloc(
             loginUseCase: loginUseCase,
+            registerUseCase: registerUseCase,
             logoutUseCase: logoutUseCase,
             registerSyncDeviceUseCase: registerSyncDeviceUseCase,
             authRepository: authRepository,

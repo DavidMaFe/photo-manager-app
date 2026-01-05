@@ -19,6 +19,9 @@ class AuthSuccessful extends AuthState {
 }
 
 
+class RegisterSuccessful extends AuthState {}
+
+
 class NotAuthenticated extends AuthState {}
 
 

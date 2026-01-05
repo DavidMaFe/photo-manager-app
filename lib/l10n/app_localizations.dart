@@ -167,6 +167,96 @@ abstract class AppLocalizations {
   /// **'Sign Up'**
   String get signUp;
 
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// No description provided for @accountCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created! Please sign in'**
+  String get accountCreated;
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to get started'**
+  String get registerTitle;
+
+  /// No description provided for @nameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get nameLabel;
+
+  /// No description provided for @namePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'John'**
+  String get namePlaceholder;
+
+  /// No description provided for @surnameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name (optional)'**
+  String get surnameLabel;
+
+  /// No description provided for @surnamePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Doe'**
+  String get surnamePlaceholder;
+
+  /// No description provided for @confirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirmPasswordLabel;
+
+  /// No description provided for @errorNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get errorNameRequired;
+
+  /// No description provided for @errorConfirmPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your password'**
+  String get errorConfirmPasswordRequired;
+
+  /// No description provided for @errorPasswordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get errorPasswordsDoNotMatch;
+
+  /// No description provided for @registerButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get registerButton;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? '**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signIn;
+
+  /// No description provided for @registerTermsDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'By signing up, you agree to our Terms and Conditions'**
+  String get registerTermsDisclaimer;
+
   /// No description provided for @gallery.
   ///
   /// In en, this message translates to:

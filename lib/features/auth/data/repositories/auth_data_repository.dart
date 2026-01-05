@@ -48,6 +48,16 @@ class AuthDataRepository implements AuthRepository {
   }
 
   @override
+  Future<void> register({
+    required String email,
+    required String password,
+    required String name,
+    String? surname
+  }) async {
+    await remoteDataSource.register(email, password, name, surname);
+  }
+
+  @override
   Future<User?> getCurrentUser() async {
 
     final cachedUser = await localDataSource.getCachedUser();
