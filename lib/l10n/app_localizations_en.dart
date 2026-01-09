@@ -677,4 +677,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorPasswordRequired => 'Please enter a password';
+
+  @override
+  String get forgotPasswordTitle => 'Recover password';
+
+  @override
+  String get forgotPasswordSubtitle => 'Enter your email to receive a verification code';
+
+  @override
+  String get sendCodeButton => 'Send code';
+
+  @override
+  String get emailSentSuccess => 'Code sent to your email';
+
+  @override
+  String get validateCodeTitle => 'Verify code';
+
+  @override
+  String validateCodeSubtitle(String email) {
+    return 'Enter the 6-digit code sent to $email';
+  }
+
+  @override
+  String get codeLabel => 'Verification code';
+
+  @override
+  String get codePlaceholder => '123456';
+
+  @override
+  String get validateCodeButton => 'Validate code';
+
+  @override
+  String get resendCodeButton => 'Resend code';
+
+  @override
+  String get codeResent => 'Code resent successfully';
+
+  @override
+  String get errorCodeRequired => 'Code is required';
+
+  @override
+  String get errorCodeInvalid => 'Code must be 6 digits';
+
+  @override
+  String get resetPasswordTitle => 'New password';
+
+  @override
+  String get resetPasswordSubtitle => 'Enter your new password';
+
+  @override
+  String get newPasswordLabel => 'New password';
+
+  @override
+  String get confirmNewPasswordLabel => 'Confirm new password';
+
+  @override
+  String get resetPasswordButton => 'Reset password';
+
+  @override
+  String get passwordResetSuccess => 'Password reset successfully';
+
+  @override
+  String get errorNewPasswordRequired => 'New password is required';
+
+  @override
+  String get backToLogin => 'Back to login';
 }

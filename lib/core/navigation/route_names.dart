@@ -4,6 +4,9 @@ class RouteNames {
   // Auth
   static const String login = 'login';
   static const String register = 'register';
+  static const String requestPasswordReset = 'request_password_reset';
+  static const String validateResetCode = 'validate_reset_code';
+  static const String resetPassword = 'reset_password';
 
   // Main
   static const String shell = 'shell';
@@ -21,6 +24,9 @@ class RouteNames {
 class RoutePaths {
   static const String login = '/login';
   static const String register = '/register';
+  static const String requestPasswordReset = '/request-password-reset';
+  static const String validateResetCode = '/validate-reset-code';
+  static const String resetPassword = '/reset-password';
   static const String home = '/home';
   static const String fileDetail = '/home/file/:fileId';
   static const String folders = '/folders';

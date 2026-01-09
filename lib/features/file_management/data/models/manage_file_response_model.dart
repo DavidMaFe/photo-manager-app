@@ -8,11 +8,11 @@ class ManageFileResponseModel {
 
   factory ManageFileResponseModel.fromJson(Map<String, dynamic> json) {
     return ManageFileResponseModel(
-      successfulIds: (json['successfulIds'] as List<dynamic>?)
+      successfulIds: (json['successfulFiles'] as List<dynamic>?)
           ?.map((fileId) => fileId.toString())
           .toList() ?? [],
 
-      failedIds: (json['failedIds'] as List<dynamic>?)
+      failedIds: (json['failedFiles'] as List<dynamic>?)
         ?.map((fileId) => fileId.toString())
         .toList() ?? []
     );

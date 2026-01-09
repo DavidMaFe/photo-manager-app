@@ -45,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleForgotPassword() {
-    print("Forgot password pressed");
+    context.go(RoutePaths.requestPasswordReset);
   }
 
   void _handleRegister() {

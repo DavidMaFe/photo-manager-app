@@ -74,4 +74,19 @@ class AuthDataRepository implements AuthRepository {
   Future<bool> hasToken() async {
     return await localDataSource.hasValidToken();
   }
+
+  @override
+  Future<void> requestPasswordReset(String email) async {
+    await remoteDataSource.requestPasswordReset(email);
+  }
+
+  @override
+  Future<void> validateResetCode(String email, String code) async {
+    await remoteDataSource.validateResetCode(email, code);
+  }
+
+  @override
+  Future<void> resetPassword(String email, String code, String newPassword) async {
+    await remoteDataSource.resetPassword(email, code, newPassword);
+  }
 }

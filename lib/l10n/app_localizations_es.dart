@@ -677,4 +677,69 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorPasswordRequired => 'Por favor ingresa una contraseña';
+
+  @override
+  String get forgotPasswordTitle => 'Recuperar contraseña';
+
+  @override
+  String get forgotPasswordSubtitle => 'Ingresa tu correo electrónico para recibir un código de verificación';
+
+  @override
+  String get sendCodeButton => 'Enviar código';
+
+  @override
+  String get emailSentSuccess => 'Código enviado a tu correo electrónico';
+
+  @override
+  String get validateCodeTitle => 'Verificar código';
+
+  @override
+  String validateCodeSubtitle(String email) {
+    return 'Ingresa el código de 6 dígitos enviado a $email';
+  }
+
+  @override
+  String get codeLabel => 'Código de verificación';
+
+  @override
+  String get codePlaceholder => '123456';
+
+  @override
+  String get validateCodeButton => 'Validar código';
+
+  @override
+  String get resendCodeButton => 'Reenviar código';
+
+  @override
+  String get codeResent => 'Código reenviado exitosamente';
+
+  @override
+  String get errorCodeRequired => 'El código es requerido';
+
+  @override
+  String get errorCodeInvalid => 'El código debe tener 6 dígitos';
+
+  @override
+  String get resetPasswordTitle => 'Nueva contraseña';
+
+  @override
+  String get resetPasswordSubtitle => 'Ingresa tu nueva contraseña';
+
+  @override
+  String get newPasswordLabel => 'Nueva contraseña';
+
+  @override
+  String get confirmNewPasswordLabel => 'Confirmar nueva contraseña';
+
+  @override
+  String get resetPasswordButton => 'Restablecer contraseña';
+
+  @override
+  String get passwordResetSuccess => 'Contraseña restablecida exitosamente';
+
+  @override
+  String get errorNewPasswordRequired => 'La nueva contraseña es requerida';
+
+  @override
+  String get backToLogin => 'Volver al inicio de sesión';
 }

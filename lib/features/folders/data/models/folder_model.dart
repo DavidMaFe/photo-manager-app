@@ -20,7 +20,7 @@ class FolderModel extends Folder {
       parentFolderId: json['parentFolderId']?.toString(),
       path: json['path'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      fileCount: json['fileCount'] as int? ?? 0,
+      fileCount: json['filesQuantity'] as int? ?? 0,
       subfolderCount: json['subfolderCount'] as int? ?? 0
     );
   }
@@ -32,7 +32,7 @@ class FolderModel extends Folder {
       'parentFolderId': parentFolderId,
       'path': path,
       'createdAt': createdAt,
-      'fileCount': fileCount,
+      'filesQuantity': fileCount,
       'subfolderCount': subfolderCount
     };
   }

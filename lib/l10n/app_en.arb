@@ -219,5 +219,36 @@
   "errorCode": "Error code: {code}",
 
   "errorEmailRequired": "Please enter an email address",
-  "errorPasswordRequired": "Please enter a password"
+  "errorPasswordRequired": "Please enter a password",
+
+  "forgotPasswordTitle": "Recover password",
+  "forgotPasswordSubtitle": "Enter your email to receive a verification code",
+  "sendCodeButton": "Send code",
+  "emailSentSuccess": "Code sent to your email",
+
+  "validateCodeTitle": "Verify code",
+  "validateCodeSubtitle": "Enter the 6-digit code sent to {email}",
+  "@validateCodeSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "codeLabel": "Verification code",
+  "codePlaceholder": "123456",
+  "validateCodeButton": "Validate code",
+  "resendCodeButton": "Resend code",
+  "codeResent": "Code resent successfully",
+  "errorCodeRequired": "Code is required",
+  "errorCodeInvalid": "Code must be 6 digits",
+
+  "resetPasswordTitle": "New password",
+  "resetPasswordSubtitle": "Enter your new password",
+  "newPasswordLabel": "New password",
+  "confirmNewPasswordLabel": "Confirm new password",
+  "resetPasswordButton": "Reset password",
+  "passwordResetSuccess": "Password reset successfully",
+  "errorNewPasswordRequired": "New password is required",
+  "backToLogin": "Back to login"
 }

@@ -24,6 +24,9 @@ import 'package:photo_manager_app/features/synchronization/presentation/bloc/syn
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_event.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/pages/synchronization_page.dart';
 
+import '../../features/auth/presentation/pages/request_password_reset_page.dart';
+import '../../features/auth/presentation/pages/reset_password_page.dart';
+import '../../features/auth/presentation/pages/validate_reset_code_page.dart';
 import '../../features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import '../../features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
 import '../../features/gallery/domain/entities/gallery_file.dart';
@@ -44,16 +47,19 @@ class AppRouter {
           final isLoading = authNotifier.isLoading;
           final isGoingToLogin = state.matchedLocation == RoutePaths.login;
           final isGoingToRegister = state.matchedLocation == RoutePaths.register;
+          final isGoingToPasswordReset = state.matchedLocation == RoutePaths.requestPasswordReset ||
+              state.matchedLocation == RoutePaths.validateResetCode ||
+              state.matchedLocation == RoutePaths.resetPassword;
 
 
           if (isLoading) {
             return null;
           }
 
-          if (!isAuthenticated && !isGoingToLogin && !isGoingToRegister) {
+          if (!isAuthenticated && !isGoingToLogin && !isGoingToRegister && !isGoingToPasswordReset) {
             return RoutePaths.login;
           }
-          if (isAuthenticated && (isGoingToLogin || isGoingToRegister)) {
+          if (isAuthenticated && (isGoingToLogin || isGoingToRegister || isGoingToPasswordReset)) {
             return RoutePaths.home;
           }
 
@@ -70,6 +76,30 @@ class AppRouter {
             path: RoutePaths.register,
             name: RouteNames.register,
             builder: (context, state) => const RegisterPage()
+          ),
+          GoRoute(
+            path: RoutePaths.requestPasswordReset,
+            name: RouteNames.requestPasswordReset,
+            builder: (context, state) => const RequestPasswordResetPage(),
+          ),
+          GoRoute(
+            path: RoutePaths.validateResetCode,
+            name: RouteNames.validateResetCode,
+            builder: (context, state) {
+              final email = state.extra as String;
+              return ValidateResetCodePage(email: email);
+            },
+          ),
+          GoRoute(
+            path: RoutePaths.resetPassword,
+            name: RouteNames.resetPassword,
+            builder: (context, state) {
+              final params = state.extra as Map<String, dynamic>;
+              return ResetPasswordPage(
+                email: params['email'] as String,
+                code: params['code'] as String,
+              );
+            },
           ),
           GoRoute(
               path: '/file/:fileId',

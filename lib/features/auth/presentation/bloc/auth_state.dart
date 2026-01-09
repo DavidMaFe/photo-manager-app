@@ -30,3 +30,21 @@ class AuthError extends AuthState {
 
   AuthError(this.failure);
 }
+
+
+class PasswordResetEmailSent extends AuthState {
+  final String email;
+
+  PasswordResetEmailSent(this.email);
+}
+
+
+class ResetCodeValidated extends AuthState {
+  final String email;
+  final String code;
+
+  ResetCodeValidated(this.email, this.code);
+}
+
+
+class PasswordResetSuccessful extends AuthState {}

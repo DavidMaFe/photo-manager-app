@@ -4,6 +4,9 @@ import 'package:photo_manager_app/features/auth/domain/repositories/auth_reposit
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/request_password_reset_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/validate_reset_code_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
@@ -16,6 +19,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterUseCase registerUseCase;
   final RegisterSyncDeviceUseCase registerSyncDeviceUseCase;
   final LogoutUseCase logoutUseCase;
+  final RequestPasswordResetUseCase requestPasswordResetUseCase;
+  final ValidateResetCodeUseCase validateResetCodeUseCase;
+  final ResetPasswordUseCase resetPasswordUseCase;
   final AuthRepository authRepository;
   final SyncDeviceRepository syncDeviceRepository;
 
@@ -26,6 +32,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.registerUseCase,
     required this.registerSyncDeviceUseCase,
     required this.logoutUseCase,
+    required this.requestPasswordResetUseCase,
+    required this.validateResetCodeUseCase,
+    required this.resetPasswordUseCase,
     required this.authRepository,
     required this.syncDeviceRepository
   }) : super(AuthInitial()) {
@@ -33,6 +42,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<CheckAuthStatus>(_onCheckAuthStatus);
+    on<PasswordResetRequested>(_onPasswordResetRequested);
+    on<ResetCodeValidationRequested>(_onResetCodeValidationRequested);
+    on<PasswordResetCodeResendRequested>(_onPasswordResetCodeResendRequested);
+    on<NewPasswordSubmitted>(_onNewPasswordSubmitted);
   }
 
   Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
@@ -137,6 +150,74 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     if (remaining > 0) {
       await Future.delayed(Duration(milliseconds: remaining));
+    }
+  }
+
+  Future<void> _onPasswordResetRequested(PasswordResetRequested event, Emitter<AuthState> emit) async {
+
+    emit(AuthLoading());
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      await requestPasswordResetUseCase(email: event.email);
+      await _waitForLoading(stopwatch);
+      emit(PasswordResetEmailSent(event.email));
+    } catch (e) {
+      await _waitForLoading(stopwatch);
+      final failure = ErrorHandler.handleError(e);
+      emit(AuthError(failure));
+    }
+  }
+
+  Future<void> _onResetCodeValidationRequested(ResetCodeValidationRequested event, Emitter<AuthState> emit) async {
+
+    emit(AuthLoading());
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      await validateResetCodeUseCase(email: event.email, code: event.code);
+      await _waitForLoading(stopwatch);
+      emit(ResetCodeValidated(event.email, event.code));
+    } catch (e) {
+      await _waitForLoading(stopwatch);
+      final failure = ErrorHandler.handleError(e);
+      emit(AuthError(failure));
+    }
+  }
+
+  Future<void> _onPasswordResetCodeResendRequested(PasswordResetCodeResendRequested event, Emitter<AuthState> emit) async {
+
+    emit(AuthLoading());
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      await requestPasswordResetUseCase(email: event.email);
+      await _waitForLoading(stopwatch);
+      emit(PasswordResetEmailSent(event.email));
+    } catch (e) {
+      await _waitForLoading(stopwatch);
+      final failure = ErrorHandler.handleError(e);
+      emit(AuthError(failure));
+    }
+  }
+
+  Future<void> _onNewPasswordSubmitted(NewPasswordSubmitted event, Emitter<AuthState> emit) async {
+
+    emit(AuthLoading());
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      await resetPasswordUseCase(
+        email: event.email,
+        code: event.code,
+        newPassword: event.newPassword
+      );
+      await _waitForLoading(stopwatch);
+      emit(PasswordResetSuccessful());
+    } catch (e) {
+      await _waitForLoading(stopwatch);
+      final failure = ErrorHandler.handleError(e);
+      emit(AuthError(failure));
     }
   }
 }

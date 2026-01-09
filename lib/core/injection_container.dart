@@ -58,6 +58,9 @@ import 'package:photo_manager_app/features/synchronization/domain/use_cases/get_
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../features/auth/domain/use_cases/request_password_reset_use_case.dart';
+import '../features/auth/domain/use_cases/reset_password_use_case.dart';
+import '../features/auth/domain/use_cases/validate_reset_code_use_case.dart';
 import '../features/folders/domain/use_cases/get_folders_list_use_case.dart';
 import '../features/folders/presentation/bloc/folder/folder_bloc.dart';
 import '../features/sync_session/presentation/bloc/sync_session_bloc.dart';
@@ -317,6 +320,27 @@ Future<void> init() async {
       }
   );
 
+  sl.registerFactory(
+      () {
+        final repository = sl<AuthRepository>();
+        return RequestPasswordResetUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<AuthRepository>();
+        return ValidateResetCodeUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<AuthRepository>();
+        return ResetPasswordUseCase(repository);
+      }
+  );
+
   // profile
   sl.registerFactory(
       () {
@@ -437,6 +461,9 @@ Future<void> init() async {
         final registerUseCase = sl<RegisterUseCase>();
         final logoutUseCase = sl<LogoutUseCase>();
         final registerSyncDeviceUseCase = sl<RegisterSyncDeviceUseCase>();
+        final requestPasswordResetUseCase = sl<RequestPasswordResetUseCase>();
+        final validateResetCodeUseCase = sl<ValidateResetCodeUseCase>();
+        final resetPasswordUseCase = sl<ResetPasswordUseCase>();
         final authRepository = sl<AuthRepository>();
         final syncDeviceRepository = sl<SyncDeviceRepository>();
         return AuthBloc(
@@ -444,6 +471,9 @@ Future<void> init() async {
             registerUseCase: registerUseCase,
             logoutUseCase: logoutUseCase,
             registerSyncDeviceUseCase: registerSyncDeviceUseCase,
+            requestPasswordResetUseCase: requestPasswordResetUseCase,
+            validateResetCodeUseCase: validateResetCodeUseCase,
+            resetPasswordUseCase: resetPasswordUseCase,
             authRepository: authRepository,
             syncDeviceRepository: syncDeviceRepository
         );

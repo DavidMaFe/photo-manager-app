@@ -1342,6 +1342,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter a password'**
   String get errorPasswordRequired;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover password'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email to receive a verification code'**
+  String get forgotPasswordSubtitle;
+
+  /// No description provided for @sendCodeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get sendCodeButton;
+
+  /// No description provided for @emailSentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Code sent to your email'**
+  String get emailSentSuccess;
+
+  /// No description provided for @validateCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify code'**
+  String get validateCodeTitle;
+
+  /// No description provided for @validateCodeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code sent to {email}'**
+  String validateCodeSubtitle(String email);
+
+  /// No description provided for @codeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get codeLabel;
+
+  /// No description provided for @codePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'123456'**
+  String get codePlaceholder;
+
+  /// No description provided for @validateCodeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate code'**
+  String get validateCodeButton;
+
+  /// No description provided for @resendCodeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get resendCodeButton;
+
+  /// No description provided for @codeResent.
+  ///
+  /// In en, this message translates to:
+  /// **'Code resent successfully'**
+  String get codeResent;
+
+  /// No description provided for @errorCodeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Code is required'**
+  String get errorCodeRequired;
+
+  /// No description provided for @errorCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Code must be 6 digits'**
+  String get errorCodeInvalid;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @resetPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your new password'**
+  String get resetPasswordSubtitle;
+
+  /// No description provided for @newPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPasswordLabel;
+
+  /// No description provided for @confirmNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get confirmNewPasswordLabel;
+
+  /// No description provided for @resetPasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetPasswordButton;
+
+  /// No description provided for @passwordResetSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset successfully'**
+  String get passwordResetSuccess;
+
+  /// No description provided for @errorNewPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'New password is required'**
+  String get errorNewPasswordRequired;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to login'**
+  String get backToLogin;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
