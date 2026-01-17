@@ -92,25 +92,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           delete-old-comments: true
 
-  integration-test:
-    name: Integration Tests Status
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Check integration tests
-        run: |
-          echo "ℹ️  Integration tests are skeleton tests"
-          echo "📋 Total test cases documented: 48"
-          echo "⏳ Awaiting test backend infrastructure"
-          echo ""
-          echo "Integration test files:"
-          ls -1 integration_test/*.dart | grep -v README
-          echo ""
-          echo "✅ Integration test documentation is complete"
-
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
