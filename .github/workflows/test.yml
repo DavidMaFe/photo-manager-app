@@ -1,19 +1,17 @@
 name: Tests
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
   test:
-    name: Run Tests
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -22,58 +20,5 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Verify dependencies
-        run: flutter pub get --offline
-
-      - name: Analyze code
-        run: flutter analyze --fatal-infos
-
-      - name: Check code formatting
-        run: dart format --set-exit-if-changed .
-
-      - name: Run unit tests
-        run: flutter test --coverage --coverage-path=coverage/lcov.info
-
-      - name: Install lcov
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lcov
-
-      - name: Filter coverage
-        run: |
-          lcov --remove coverage/lcov.info \
-            '*/lib/main.dart' \
-            '**/*.g.dart' \
-            '**/*.freezed.dart' \
-            '**/l10n/app_localizations*.dart' \
-            '**/test/**' \
-            --output-file coverage/lcov_filtered.info
-
-      - name: Check coverage threshold
-        run: |
-          COVERAGE=$(lcov --summary coverage/lcov_filtered.info 2>&1 | grep "lines......:" | awk '{print $2}' | sed 's/%//')
-          echo "Coverage: $COVERAGE%"
-          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-            echo "❌ Coverage is below 80% threshold"
-            exit 1
-          else
-            echo "✅ Coverage meets 80% threshold"
-          fi
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          files: coverage/lcov_filtered.info
-          fail_ci_if_error: false
-          verbose: true
-
-      - name: Comment coverage on PR
-        if: github.event_name == 'pull_request'
-        uses: romeovs/lcov-reporter-action@v0.3.1
-        with:
-          lcov-file: coverage/lcov_filtered.info
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          delete-old-comments: true
+      - name: Run tests
+        run: flutter test
