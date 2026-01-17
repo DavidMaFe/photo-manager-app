@@ -1468,6 +1468,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to login'**
   String get backToLogin;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfileTitle;
+
+  /// No description provided for @currentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPasswordLabel;
+
+  /// No description provided for @currentPasswordPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current password'**
+  String get currentPasswordPlaceholder;
+
+  /// No description provided for @errorCurrentPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password is required'**
+  String get errorCurrentPasswordRequired;
+
+  /// No description provided for @errorCurrentPasswordIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password is incorrect'**
+  String get errorCurrentPasswordIncorrect;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @profileUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdatedSuccessfully;
+
+  /// No description provided for @passwordChangedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully'**
+  String get passwordChangedSuccessfully;
+
+  /// No description provided for @selectProfilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Select profile photo'**
+  String get selectProfilePhoto;
+
+  /// No description provided for @changePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get changePhoto;
+
+  /// No description provided for @basicInfoSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get basicInfoSection;
+
+  /// No description provided for @passwordSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get passwordSection;
+
+  /// No description provided for @leavePasswordEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank if you don\'t want to change the password'**
+  String get leavePasswordEmptyHint;
+
+  /// No description provided for @savingChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving changes...'**
+  String get savingChanges;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

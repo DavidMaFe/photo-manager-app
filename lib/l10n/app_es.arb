@@ -250,5 +250,20 @@
   "resetPasswordButton": "Restablecer contraseña",
   "passwordResetSuccess": "Contraseña restablecida exitosamente",
   "errorNewPasswordRequired": "La nueva contraseña es requerida",
-  "backToLogin": "Volver al inicio de sesión"
+  "backToLogin": "Volver al inicio de sesión",
+
+  "editProfileTitle": "Editar Perfil",
+  "currentPasswordLabel": "Contraseña actual",
+  "currentPasswordPlaceholder": "Tu contraseña actual",
+  "errorCurrentPasswordRequired": "La contraseña actual es requerida",
+  "errorCurrentPasswordIncorrect": "La contraseña actual es incorrecta",
+  "saveChanges": "Guardar cambios",
+  "profileUpdatedSuccessfully": "Perfil actualizado exitosamente",
+  "passwordChangedSuccessfully": "Contraseña cambiada exitosamente",
+  "selectProfilePhoto": "Seleccionar foto de perfil",
+  "changePhoto": "Cambiar foto",
+  "basicInfoSection": "Información básica",
+  "passwordSection": "Cambiar contraseña",
+  "leavePasswordEmptyHint": "Deja en blanco si no quieres cambiar la contraseña",
+  "savingChanges": "Guardando cambios..."
 }

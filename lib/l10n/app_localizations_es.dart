@@ -742,4 +742,46 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get backToLogin => 'Volver al inicio de sesión';
+
+  @override
+  String get editProfileTitle => 'Editar Perfil';
+
+  @override
+  String get currentPasswordLabel => 'Contraseña actual';
+
+  @override
+  String get currentPasswordPlaceholder => 'Tu contraseña actual';
+
+  @override
+  String get errorCurrentPasswordRequired => 'La contraseña actual es requerida';
+
+  @override
+  String get errorCurrentPasswordIncorrect => 'La contraseña actual es incorrecta';
+
+  @override
+  String get saveChanges => 'Guardar cambios';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Perfil actualizado exitosamente';
+
+  @override
+  String get passwordChangedSuccessfully => 'Contraseña cambiada exitosamente';
+
+  @override
+  String get selectProfilePhoto => 'Seleccionar foto de perfil';
+
+  @override
+  String get changePhoto => 'Cambiar foto';
+
+  @override
+  String get basicInfoSection => 'Información básica';
+
+  @override
+  String get passwordSection => 'Cambiar contraseña';
+
+  @override
+  String get leavePasswordEmptyHint => 'Deja en blanco si no quieres cambiar la contraseña';
+
+  @override
+  String get savingChanges => 'Guardando cambios...';
 }

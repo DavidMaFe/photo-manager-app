@@ -6,6 +6,8 @@ import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/get_user_profile_use_case.dart';
+import 'package:photo_manager_app/features/profile/domain/use_cases/update_user_profile_use_case.dart';
+import 'package:photo_manager_app/features/profile/domain/use_cases/change_password_use_case.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_state.dart';
@@ -13,14 +15,24 @@ import 'package:photo_manager_app/features/profile/presentation/bloc/profile_sta
 class MockGetUserProfileUseCase extends Mock
     implements GetUserProfileUseCase {}
 
+class MockUpdateUserProfileUseCase extends Mock
+    implements UpdateUserProfileUseCase {}
+
+class MockChangePasswordUseCase extends Mock
+    implements ChangePasswordUseCase {}
+
 class MockAppEventBus extends Mock implements AppEventBus {}
 
 void main() {
   late MockGetUserProfileUseCase mockGetUserProfileUseCase;
+  late MockUpdateUserProfileUseCase mockUpdateUserProfileUseCase;
+  late MockChangePasswordUseCase mockChangePasswordUseCase;
   late MockAppEventBus mockEventBus;
 
   setUp(() {
     mockGetUserProfileUseCase = MockGetUserProfileUseCase();
+    mockUpdateUserProfileUseCase = MockUpdateUserProfileUseCase();
+    mockChangePasswordUseCase = MockChangePasswordUseCase();
     mockEventBus = MockAppEventBus();
 
     when(() => mockEventBus.on<FileUpdatedEvent>())
@@ -50,6 +62,8 @@ void main() {
     test('initial state should be ProfileInitial', () {
       final bloc = ProfileBloc(
         mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
         mockEventBus,
       );
 
@@ -63,9 +77,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -84,9 +100,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         verify: (_) {
@@ -100,9 +118,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Network error'));
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -121,9 +141,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Invalid or expired token'));
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -141,9 +163,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -160,9 +184,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
@@ -180,9 +206,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
@@ -199,9 +227,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         verify: (_) {
@@ -215,9 +245,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Network error'));
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
@@ -235,9 +267,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Timeout'));
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
@@ -253,9 +287,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) async {
           bloc.add(LoadProfileRequested());
@@ -281,9 +317,11 @@ void main() {
             return testProfile;
           });
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) async {
           bloc.add(LoadProfileRequested());
@@ -305,9 +343,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Invalid or expired token'));
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -322,9 +362,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Server error'));
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -339,9 +381,11 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Timeout'));
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
@@ -357,14 +401,483 @@ void main() {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Network error'));
           return ProfileBloc(
-            mockGetUserProfileUseCase,
-            mockEventBus,
-          );
+        mockGetUserProfileUseCase,
+        mockUpdateUserProfileUseCase,
+        mockChangePasswordUseCase,
+        mockEventBus,
+      );
         },
         seed: () => ProfileLoaded(testProfile),
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
           isA<ProfileError>(),
+        ],
+      );
+    });
+
+    group('UpdateProfileRequested', () {
+      final updatedProfile = UserProfile(
+        id: '1',
+        email: 'test@example.com',
+        name: 'Jane',
+        surname: 'Smith',
+        profileImage: 'https://example.com/new-image.jpg',
+        storageUsedMb: 500,
+        storageTotalMb: 1024,
+        fileCount: 100,
+        folderCount: 10,
+        deviceCount: 2,
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should emit [ProfileUpdating, ProfileUpdateSuccess, ProfileLoaded] when update succeeds',
+        build: () {
+          when(() => mockUpdateUserProfileUseCase(
+                name: any(named: 'name'),
+                surname: any(named: 'surname'),
+                profileImage: any(named: 'profileImage'),
+              )).thenAnswer((_) async => updatedProfile);
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(UpdateProfileRequested(
+          name: 'Jane',
+          surname: 'Smith',
+        )),
+        expect: () => [
+          isA<ProfileUpdating>(),
+          isA<ProfileUpdateSuccess>().having(
+            (state) => state.userProfile,
+            'userProfile',
+            updatedProfile,
+          ),
+          isA<ProfileLoaded>().having(
+            (state) => state.userProfile,
+            'userProfile',
+            updatedProfile,
+          ),
+        ],
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should call updateUserProfileUseCase with correct parameters',
+        build: () {
+          when(() => mockUpdateUserProfileUseCase(
+                name: any(named: 'name'),
+                surname: any(named: 'surname'),
+                profileImage: any(named: 'profileImage'),
+              )).thenAnswer((_) async => updatedProfile);
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(UpdateProfileRequested(
+          name: 'Jane',
+          surname: 'Smith',
+        )),
+        verify: (_) {
+          verify(() => mockUpdateUserProfileUseCase(
+                name: 'Jane',
+                surname: 'Smith',
+                profileImage: null,
+              )).called(1);
+        },
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should update only name when surname and profileImage are null',
+        build: () {
+          when(() => mockUpdateUserProfileUseCase(
+                name: any(named: 'name'),
+                surname: any(named: 'surname'),
+                profileImage: any(named: 'profileImage'),
+              )).thenAnswer((_) async => updatedProfile);
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(UpdateProfileRequested(name: 'Jane')),
+        verify: (_) {
+          verify(() => mockUpdateUserProfileUseCase(
+                name: 'Jane',
+                surname: null,
+                profileImage: null,
+              )).called(1);
+        },
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should update profile image when provided',
+        build: () {
+          when(() => mockUpdateUserProfileUseCase(
+                name: any(named: 'name'),
+                surname: any(named: 'surname'),
+                profileImage: any(named: 'profileImage'),
+              )).thenAnswer((_) async => updatedProfile);
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(UpdateProfileRequested(
+          profileImage: 'base64encodedimage',
+        )),
+        verify: (_) {
+          verify(() => mockUpdateUserProfileUseCase(
+                name: null,
+                surname: null,
+                profileImage: 'base64encodedimage',
+              )).called(1);
+        },
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should emit [ProfileUpdating, ProfileUpdateError] when update fails',
+        build: () {
+          when(() => mockUpdateUserProfileUseCase(
+                name: any(named: 'name'),
+                surname: any(named: 'surname'),
+                profileImage: any(named: 'profileImage'),
+              )).thenThrow(Exception('Network error'));
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(UpdateProfileRequested(name: 'Jane')),
+        expect: () => [
+          isA<ProfileUpdating>(),
+          isA<ProfileUpdateError>().having(
+            (state) => state.failure,
+            'failure',
+            isA<Failure>(),
+          ),
+        ],
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should handle unauthorized error during update',
+        build: () {
+          when(() => mockUpdateUserProfileUseCase(
+                name: any(named: 'name'),
+                surname: any(named: 'surname'),
+                profileImage: any(named: 'profileImage'),
+              )).thenThrow(Exception('Invalid or expired token'));
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(UpdateProfileRequested(name: 'Jane')),
+        expect: () => [
+          isA<ProfileUpdating>(),
+          isA<ProfileUpdateError>(),
+        ],
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should handle validation error during update',
+        build: () {
+          when(() => mockUpdateUserProfileUseCase(
+                name: any(named: 'name'),
+                surname: any(named: 'surname'),
+                profileImage: any(named: 'profileImage'),
+              )).thenThrow(Exception('Invalid profile data'));
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(UpdateProfileRequested(name: '')),
+        expect: () => [
+          isA<ProfileUpdating>(),
+          isA<ProfileUpdateError>(),
+        ],
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should update all fields when all parameters are provided',
+        build: () {
+          when(() => mockUpdateUserProfileUseCase(
+                name: any(named: 'name'),
+                surname: any(named: 'surname'),
+                profileImage: any(named: 'profileImage'),
+              )).thenAnswer((_) async => updatedProfile);
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(UpdateProfileRequested(
+          name: 'Jane',
+          surname: 'Smith',
+          profileImage: 'base64encodedimage',
+        )),
+        verify: (_) {
+          verify(() => mockUpdateUserProfileUseCase(
+                name: 'Jane',
+                surname: 'Smith',
+                profileImage: 'base64encodedimage',
+              )).called(1);
+        },
+      );
+    });
+
+    group('ChangePasswordRequested', () {
+      blocTest<ProfileBloc, ProfileState>(
+        'should emit [PasswordChanging, PasswordChangeSuccess] when password change succeeds',
+        build: () {
+          when(() => mockChangePasswordUseCase(
+                currentPassword: any(named: 'currentPassword'),
+                newPassword: any(named: 'newPassword'),
+              )).thenAnswer((_) async => Future.value());
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(ChangePasswordRequested(
+          currentPassword: 'oldPassword123',
+          newPassword: 'newPassword456',
+        )),
+        expect: () => [
+          isA<PasswordChanging>(),
+          isA<PasswordChangeSuccess>(),
+        ],
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should call changePasswordUseCase with correct parameters',
+        build: () {
+          when(() => mockChangePasswordUseCase(
+                currentPassword: any(named: 'currentPassword'),
+                newPassword: any(named: 'newPassword'),
+              )).thenAnswer((_) async => Future.value());
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(ChangePasswordRequested(
+          currentPassword: 'oldPassword123',
+          newPassword: 'newPassword456',
+        )),
+        verify: (_) {
+          verify(() => mockChangePasswordUseCase(
+                currentPassword: 'oldPassword123',
+                newPassword: 'newPassword456',
+              )).called(1);
+        },
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should emit [PasswordChanging, PasswordChangeError] when password change fails',
+        build: () {
+          when(() => mockChangePasswordUseCase(
+                currentPassword: any(named: 'currentPassword'),
+                newPassword: any(named: 'newPassword'),
+              )).thenThrow(Exception('Invalid current password'));
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(ChangePasswordRequested(
+          currentPassword: 'wrongPassword',
+          newPassword: 'newPassword456',
+        )),
+        expect: () => [
+          isA<PasswordChanging>(),
+          isA<PasswordChangeError>().having(
+            (state) => state.failure,
+            'failure',
+            isA<Failure>(),
+          ),
+        ],
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should handle incorrect current password error',
+        build: () {
+          when(() => mockChangePasswordUseCase(
+                currentPassword: any(named: 'currentPassword'),
+                newPassword: any(named: 'newPassword'),
+              )).thenThrow(Exception('Invalid current password'));
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(ChangePasswordRequested(
+          currentPassword: 'wrongPassword',
+          newPassword: 'newPassword456',
+        )),
+        expect: () => [
+          isA<PasswordChanging>(),
+          isA<PasswordChangeError>(),
+        ],
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should handle unauthorized error during password change',
+        build: () {
+          when(() => mockChangePasswordUseCase(
+                currentPassword: any(named: 'currentPassword'),
+                newPassword: any(named: 'newPassword'),
+              )).thenThrow(Exception('Invalid or expired token'));
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(ChangePasswordRequested(
+          currentPassword: 'oldPassword123',
+          newPassword: 'newPassword456',
+        )),
+        expect: () => [
+          isA<PasswordChanging>(),
+          isA<PasswordChangeError>(),
+        ],
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should handle network error during password change',
+        build: () {
+          when(() => mockChangePasswordUseCase(
+                currentPassword: any(named: 'currentPassword'),
+                newPassword: any(named: 'newPassword'),
+              )).thenThrow(Exception('Network error'));
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) => bloc.add(ChangePasswordRequested(
+          currentPassword: 'oldPassword123',
+          newPassword: 'newPassword456',
+        )),
+        expect: () => [
+          isA<PasswordChanging>(),
+          isA<PasswordChangeError>(),
+        ],
+      );
+    });
+
+    group('Combined update and password change', () {
+      final updatedProfile = UserProfile(
+        id: '1',
+        email: 'test@example.com',
+        name: 'Jane',
+        surname: 'Smith',
+        profileImage: 'https://example.com/new-image.jpg',
+        storageUsedMb: 500,
+        storageTotalMb: 1024,
+        fileCount: 100,
+        folderCount: 10,
+        deviceCount: 2,
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should handle profile update followed by password change',
+        build: () {
+          when(() => mockUpdateUserProfileUseCase(
+                name: any(named: 'name'),
+                surname: any(named: 'surname'),
+                profileImage: any(named: 'profileImage'),
+              )).thenAnswer((_) async => updatedProfile);
+          when(() => mockChangePasswordUseCase(
+                currentPassword: any(named: 'currentPassword'),
+                newPassword: any(named: 'newPassword'),
+              )).thenAnswer((_) async => Future.value());
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) async {
+          bloc.add(UpdateProfileRequested(name: 'Jane', surname: 'Smith'));
+          await Future.delayed(const Duration(milliseconds: 100));
+          bloc.add(ChangePasswordRequested(
+            currentPassword: 'oldPassword123',
+            newPassword: 'newPassword456',
+          ));
+        },
+        expect: () => [
+          isA<ProfileUpdating>(),
+          isA<ProfileUpdateSuccess>(),
+          isA<ProfileLoaded>(),
+          isA<PasswordChanging>(),
+          isA<PasswordChangeSuccess>(),
+        ],
+      );
+
+      blocTest<ProfileBloc, ProfileState>(
+        'should handle profile update success and password change failure',
+        build: () {
+          when(() => mockUpdateUserProfileUseCase(
+                name: any(named: 'name'),
+                surname: any(named: 'surname'),
+                profileImage: any(named: 'profileImage'),
+              )).thenAnswer((_) async => updatedProfile);
+          when(() => mockChangePasswordUseCase(
+                currentPassword: any(named: 'currentPassword'),
+                newPassword: any(named: 'newPassword'),
+              )).thenThrow(Exception('Invalid current password'));
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockUpdateUserProfileUseCase,
+            mockChangePasswordUseCase,
+            mockEventBus,
+          );
+        },
+        act: (bloc) async {
+          bloc.add(UpdateProfileRequested(name: 'Jane'));
+          await Future.delayed(const Duration(milliseconds: 100));
+          bloc.add(ChangePasswordRequested(
+            currentPassword: 'wrongPassword',
+            newPassword: 'newPassword456',
+          ));
+        },
+        expect: () => [
+          isA<ProfileUpdating>(),
+          isA<ProfileUpdateSuccess>(),
+          isA<ProfileLoaded>(),
+          isA<PasswordChanging>(),
+          isA<PasswordChangeError>(),
         ],
       );
     });

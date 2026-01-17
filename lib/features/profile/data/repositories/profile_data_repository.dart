@@ -37,4 +37,30 @@ class ProfileDataRepository implements ProfileRepository {
   Future<UserProfile?> getCachedProfile() async {
     return await profileLocalDataSource.getCachedProfile();
   }
+
+  @override
+  Future<UserProfile> updateUserProfile({
+    String? name,
+    String? surname,
+    String? profileImage,
+  }) async {
+    final profileModel = await profileRemoteDatasource.updateUserProfile(
+      name: name,
+      surname: surname,
+      profileImage: profileImage,
+    );
+    await profileLocalDataSource.cacheProfile(profileModel);
+    return profileModel;
+  }
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await profileRemoteDatasource.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+  }
 }

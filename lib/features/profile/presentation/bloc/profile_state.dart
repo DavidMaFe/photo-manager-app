@@ -20,3 +20,30 @@ class ProfileError extends ProfileState {
   final Failure failure;
   ProfileError(this.failure);
 }
+
+
+class ProfileUpdating extends ProfileState {}
+
+
+class ProfileUpdateSuccess extends ProfileState {
+  final UserProfile userProfile;
+  ProfileUpdateSuccess(this.userProfile);
+}
+
+
+class ProfileUpdateError extends ProfileState {
+  final Failure failure;
+  ProfileUpdateError(this.failure);
+}
+
+
+class PasswordChanging extends ProfileState {}
+
+
+class PasswordChangeSuccess extends ProfileState {}
+
+
+class PasswordChangeError extends ProfileState {
+  final Failure failure;
+  PasswordChangeError(this.failure);
+}

@@ -37,6 +37,8 @@ import 'package:photo_manager_app/features/profile/data/data_sources/profile_rem
 import 'package:photo_manager_app/features/profile/data/repositories/profile_data_repository.dart';
 import 'package:photo_manager_app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/get_user_profile_use_case.dart';
+import 'package:photo_manager_app/features/profile/domain/use_cases/update_user_profile_use_case.dart';
+import 'package:photo_manager_app/features/profile/domain/use_cases/change_password_use_case.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/sync_device_local_data_source.dart';
@@ -349,6 +351,20 @@ Future<void> init() async {
       }
   );
 
+  sl.registerFactory(
+      () {
+        final repository = sl<ProfileRepository>();
+        return UpdateUserProfileUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<ProfileRepository>();
+        return ChangePasswordUseCase(repository);
+      }
+  );
+
   // sync session
   sl.registerFactory(
       () {
@@ -484,8 +500,15 @@ Future<void> init() async {
   sl.registerLazySingleton(
       () {
         final getUserProfileUseCase = sl<GetUserProfileUseCase>();
+        final updateUserProfileUseCase = sl<UpdateUserProfileUseCase>();
+        final changePasswordUseCase = sl<ChangePasswordUseCase>();
         final eventBus = sl<AppEventBus>();
-        return ProfileBloc(getUserProfileUseCase, eventBus);
+        return ProfileBloc(
+          getUserProfileUseCase,
+          updateUserProfileUseCase,
+          changePasswordUseCase,
+          eventBus,
+        );
       }
   );
 

@@ -18,6 +18,7 @@ import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_eve
 import 'package:photo_manager_app/features/gallery/presentation/pages/gallery_page.dart';
 import 'package:photo_manager_app/features/notification/presentation/pages/notifications_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/pages/profile_page.dart';
+import 'package:photo_manager_app/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_bloc.dart';
@@ -221,7 +222,17 @@ class AppRouter {
                         builder: (context, state) => BlocProvider.value(
                             value: sl<ProfileBloc>()..add(LoadProfileRequested()),
                             child: const ProfilePage()
-                        )
+                        ),
+                        routes: [
+                          GoRoute(
+                            path: 'edit',
+                            name: RouteNames.editProfile,
+                            builder: (context, state) => BlocProvider.value(
+                              value: sl<ProfileBloc>(),
+                              child: const EditProfilePage(),
+                            ),
+                          ),
+                        ]
                     ),
                   ],
                 ),

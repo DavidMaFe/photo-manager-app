@@ -362,5 +362,446 @@ void main() {
             )).called(1);
       });
     });
+
+    group('updateUserProfile', () {
+      final updatedProfileResponse = {
+        'id': '1',
+        'email': 'test@example.com',
+        'name': 'Jane',
+        'surname': 'Smith',
+        'profileImage': 'https://example.com/new-image.jpg',
+        'storageUsedMb': 500,
+        'storageTotalMb': 1024,
+        'stats': {
+          'fileCount': 100,
+          'folderCount': 10,
+          'deviceCount': 2,
+        }
+      };
+
+      test('should retrieve token from auth local data source', () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.patch(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response(jsonEncode(updatedProfileResponse), 200),
+        );
+
+        // Act
+        await dataSource.updateUserProfile(name: 'Jane', surname: 'Smith');
+
+        // Assert
+        verify(() => mockAuthLocalDataSource.getToken()).called(1);
+      });
+
+      test('should perform PATCH request to correct endpoint', () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.patch(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response(jsonEncode(updatedProfileResponse), 200),
+        );
+
+        // Act
+        await dataSource.updateUserProfile(name: 'Jane');
+
+        // Assert
+        verify(() => mockHttpClient.patch(
+              Uri.parse('$baseUrl/api/profile/'),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $testToken',
+              },
+              body: any(named: 'body'),
+            )).called(1);
+      });
+
+      test('should send only name in request body when only name is provided',
+          () async {
+        // Arrange
+        String? capturedBody;
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.patch(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer((invocation) async {
+          capturedBody = invocation.namedArguments[#body] as String;
+          return http.Response(jsonEncode(updatedProfileResponse), 200);
+        });
+
+        // Act
+        await dataSource.updateUserProfile(name: 'Jane');
+
+        // Assert
+        final bodyMap = jsonDecode(capturedBody!);
+        expect(bodyMap['name'], 'Jane');
+        expect(bodyMap.containsKey('surname'), false);
+        expect(bodyMap.containsKey('profileImage'), false);
+      });
+
+      test('should send all fields in request body when all are provided',
+          () async {
+        // Arrange
+        String? capturedBody;
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.patch(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer((invocation) async {
+          capturedBody = invocation.namedArguments[#body] as String;
+          return http.Response(jsonEncode(updatedProfileResponse), 200);
+        });
+
+        // Act
+        await dataSource.updateUserProfile(
+          name: 'Jane',
+          surname: 'Smith',
+          profileImage: 'base64image',
+        );
+
+        // Assert
+        final bodyMap = jsonDecode(capturedBody!);
+        expect(bodyMap['name'], 'Jane');
+        expect(bodyMap['surname'], 'Smith');
+        expect(bodyMap['profileImage'], 'base64image');
+      });
+
+      test('should return updated UserProfileModel on successful request (200)',
+          () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.patch(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response(jsonEncode(updatedProfileResponse), 200),
+        );
+
+        // Act
+        final result = await dataSource.updateUserProfile(
+          name: 'Jane',
+          surname: 'Smith',
+        );
+
+        // Assert
+        expect(result.id, '1');
+        expect(result.name, 'Jane');
+        expect(result.surname, 'Smith');
+        expect(result.email, 'test@example.com');
+      });
+
+      test('should throw exception on 401 Unauthorized', () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.patch(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response('Unauthorized', 401),
+        );
+
+        // Act & Assert
+        expect(
+          () => dataSource.updateUserProfile(name: 'Jane'),
+          throwsA(
+            predicate((e) =>
+                e is Exception &&
+                e.toString().contains('Invalid or expired token')),
+          ),
+        );
+      });
+
+      test('should throw exception on 400 Bad Request', () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.patch(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response('Invalid profile data', 400),
+        );
+
+        // Act & Assert
+        expect(
+          () => dataSource.updateUserProfile(name: ''),
+          throwsA(
+            predicate((e) =>
+                e is Exception && e.toString().contains('Invalid profile data')),
+          ),
+        );
+      });
+
+      test('should throw exception on server error (500)', () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.patch(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response('Internal Server Error', 500),
+        );
+
+        // Act & Assert
+        expect(
+          () => dataSource.updateUserProfile(name: 'Jane'),
+          throwsA(
+            predicate((e) =>
+                e is Exception &&
+                e.toString()
+                    .contains('Error when trying to update the user profile')),
+          ),
+        );
+      });
+
+      test('should handle profile image update only', () async {
+        // Arrange
+        String? capturedBody;
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.patch(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer((invocation) async {
+          capturedBody = invocation.namedArguments[#body] as String;
+          return http.Response(jsonEncode(updatedProfileResponse), 200);
+        });
+
+        // Act
+        await dataSource.updateUserProfile(profileImage: 'base64image');
+
+        // Assert
+        final bodyMap = jsonDecode(capturedBody!);
+        expect(bodyMap['profileImage'], 'base64image');
+        expect(bodyMap.containsKey('name'), false);
+        expect(bodyMap.containsKey('surname'), false);
+      });
+    });
+
+    group('changePassword', () {
+      test('should retrieve token from auth local data source', () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response('', 200),
+        );
+
+        // Act
+        await dataSource.changePassword(
+          currentPassword: 'oldPass123',
+          newPassword: 'newPass456',
+        );
+
+        // Assert
+        verify(() => mockAuthLocalDataSource.getToken()).called(1);
+      });
+
+      test('should perform POST request to correct endpoint', () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response('', 200),
+        );
+
+        // Act
+        await dataSource.changePassword(
+          currentPassword: 'oldPass123',
+          newPassword: 'newPass456',
+        );
+
+        // Assert
+        verify(() => mockHttpClient.post(
+              Uri.parse('$baseUrl/api/password-change/'),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $testToken',
+              },
+              body: any(named: 'body'),
+            )).called(1);
+      });
+
+      test('should send correct passwords in request body', () async {
+        // Arrange
+        String? capturedBody;
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer((invocation) async {
+          capturedBody = invocation.namedArguments[#body] as String;
+          return http.Response('', 200);
+        });
+
+        // Act
+        await dataSource.changePassword(
+          currentPassword: 'oldPass123',
+          newPassword: 'newPass456',
+        );
+
+        // Assert
+        final bodyMap = jsonDecode(capturedBody!);
+        expect(bodyMap['currentPassword'], 'oldPass123');
+        expect(bodyMap['newPassword'], 'newPass456');
+      });
+
+      test('should complete successfully on 200 response', () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response('', 200),
+        );
+
+        // Act & Assert
+        await expectLater(
+          dataSource.changePassword(
+            currentPassword: 'oldPass123',
+            newPassword: 'newPass456',
+          ),
+          completes,
+        );
+      });
+
+      test('should throw exception on 401 Unauthorized', () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response('Unauthorized', 401),
+        );
+
+        // Act & Assert
+        expect(
+          () => dataSource.changePassword(
+            currentPassword: 'oldPass123',
+            newPassword: 'newPass456',
+          ),
+          throwsA(
+            predicate((e) =>
+                e is Exception &&
+                e.toString().contains('Invalid or expired token')),
+          ),
+        );
+      });
+
+      test('should throw exception on 400 Bad Request (wrong password)',
+          () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response('Invalid current password', 400),
+        );
+
+        // Act & Assert
+        expect(
+          () => dataSource.changePassword(
+            currentPassword: 'wrongPass',
+            newPassword: 'newPass456',
+          ),
+          throwsA(
+            predicate((e) =>
+                e is Exception &&
+                e.toString().contains('Invalid current password')),
+          ),
+        );
+      });
+
+      test('should throw exception on server error (500)', () async {
+        // Arrange
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer(
+          (_) async => http.Response('Internal Server Error', 500),
+        );
+
+        // Act & Assert
+        expect(
+          () => dataSource.changePassword(
+            currentPassword: 'oldPass123',
+            newPassword: 'newPass456',
+          ),
+          throwsA(
+            predicate((e) =>
+                e is Exception &&
+                e.toString().contains('Error when trying to change password')),
+          ),
+        );
+      });
+
+      test('should handle complex password formats', () async {
+        // Arrange
+        String? capturedBody;
+        when(() => mockAuthLocalDataSource.getToken())
+            .thenAnswer((_) async => testToken);
+        when(() => mockHttpClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            )).thenAnswer((invocation) async {
+          capturedBody = invocation.namedArguments[#body] as String;
+          return http.Response('', 200);
+        });
+
+        // Act
+        await dataSource.changePassword(
+          currentPassword: 'Complex!Pass@123',
+          newPassword: 'NewComplex!Pass@456',
+        );
+
+        // Assert
+        final bodyMap = jsonDecode(capturedBody!);
+        expect(bodyMap['currentPassword'], 'Complex!Pass@123');
+        expect(bodyMap['newPassword'], 'NewComplex!Pass@456');
+      });
+    });
   });
 }

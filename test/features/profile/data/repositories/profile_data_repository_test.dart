@@ -323,5 +323,316 @@ void main() {
         verify(() => mockLocalDataSource.cacheProfile(freshProfile)).called(1);
       });
     });
+
+    group('updateUserProfile', () {
+      final updatedProfile = UserProfileModel(
+        id: '1',
+        email: 'test@example.com',
+        name: 'Jane',
+        surname: 'Smith',
+        profileImage: 'https://example.com/new-image.jpg',
+        storageUsedMb: 500,
+        storageTotalMb: 1024,
+        fileCount: 100,
+        folderCount: 10,
+        deviceCount: 2,
+      );
+
+      test('should call remote data source with all parameters', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.updateUserProfile(
+              name: any(named: 'name'),
+              surname: any(named: 'surname'),
+              profileImage: any(named: 'profileImage'),
+            )).thenAnswer((_) async => updatedProfile);
+        when(() => mockLocalDataSource.cacheProfile(any()))
+            .thenAnswer((_) async => {});
+
+        // Act
+        await repository.updateUserProfile(
+          name: 'Jane',
+          surname: 'Smith',
+          profileImage: 'base64image',
+        );
+
+        // Assert
+        verify(() => mockRemoteDataSource.updateUserProfile(
+              name: 'Jane',
+              surname: 'Smith',
+              profileImage: 'base64image',
+            )).called(1);
+      });
+
+      test('should cache updated profile after successful update', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.updateUserProfile(
+              name: any(named: 'name'),
+              surname: any(named: 'surname'),
+              profileImage: any(named: 'profileImage'),
+            )).thenAnswer((_) async => updatedProfile);
+        when(() => mockLocalDataSource.cacheProfile(any()))
+            .thenAnswer((_) async => {});
+
+        // Act
+        await repository.updateUserProfile(name: 'Jane');
+
+        // Assert
+        verify(() => mockLocalDataSource.cacheProfile(updatedProfile)).called(1);
+      });
+
+      test('should return updated profile from remote data source', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.updateUserProfile(
+              name: any(named: 'name'),
+              surname: any(named: 'surname'),
+              profileImage: any(named: 'profileImage'),
+            )).thenAnswer((_) async => updatedProfile);
+        when(() => mockLocalDataSource.cacheProfile(any()))
+            .thenAnswer((_) async => {});
+
+        // Act
+        final result = await repository.updateUserProfile(
+          name: 'Jane',
+          surname: 'Smith',
+        );
+
+        // Assert
+        expect(result, updatedProfile);
+        expect(result.name, 'Jane');
+        expect(result.surname, 'Smith');
+      });
+
+      test('should update cache before returning profile', () async {
+        // Arrange
+        final callOrder = <String>[];
+        when(() => mockRemoteDataSource.updateUserProfile(
+              name: any(named: 'name'),
+              surname: any(named: 'surname'),
+              profileImage: any(named: 'profileImage'),
+            )).thenAnswer((_) async => updatedProfile);
+        when(() => mockLocalDataSource.cacheProfile(any()))
+            .thenAnswer((_) async {
+          callOrder.add('cache');
+        });
+
+        // Act
+        await repository.updateUserProfile(name: 'Jane');
+        callOrder.add('return');
+
+        // Assert
+        expect(callOrder, ['cache', 'return']);
+      });
+
+      test('should propagate exceptions from remote data source', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.updateUserProfile(
+              name: any(named: 'name'),
+              surname: any(named: 'surname'),
+              profileImage: any(named: 'profileImage'),
+            )).thenThrow(Exception('Network error'));
+
+        // Act & Assert
+        expect(
+          () => repository.updateUserProfile(name: 'Jane'),
+          throwsA(
+            predicate((e) =>
+                e is Exception && e.toString().contains('Network error')),
+          ),
+        );
+      });
+
+      test('should not cache when update fails', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.updateUserProfile(
+              name: any(named: 'name'),
+              surname: any(named: 'surname'),
+              profileImage: any(named: 'profileImage'),
+            )).thenThrow(Exception('Update failed'));
+
+        // Act & Assert
+        try {
+          await repository.updateUserProfile(name: 'Jane');
+        } catch (e) {
+          // Expected exception
+        }
+
+        // Assert
+        verifyNever(() => mockLocalDataSource.cacheProfile(any()));
+      });
+
+      test('should handle unauthorized error during update', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.updateUserProfile(
+              name: any(named: 'name'),
+              surname: any(named: 'surname'),
+              profileImage: any(named: 'profileImage'),
+            )).thenThrow(Exception('Invalid or expired token'));
+
+        // Act & Assert
+        expect(
+          () => repository.updateUserProfile(name: 'Jane'),
+          throwsA(
+            predicate((e) => e is Exception &&
+                e.toString().contains('Invalid or expired token')),
+          ),
+        );
+      });
+
+      test('should handle validation error during update', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.updateUserProfile(
+              name: any(named: 'name'),
+              surname: any(named: 'surname'),
+              profileImage: any(named: 'profileImage'),
+            )).thenThrow(Exception('Invalid profile data'));
+
+        // Act & Assert
+        expect(
+          () => repository.updateUserProfile(name: ''),
+          throwsA(
+            predicate((e) =>
+                e is Exception && e.toString().contains('Invalid profile data')),
+          ),
+        );
+      });
+
+      test('should pass through null parameters correctly', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.updateUserProfile(
+              name: any(named: 'name'),
+              surname: any(named: 'surname'),
+              profileImage: any(named: 'profileImage'),
+            )).thenAnswer((_) async => updatedProfile);
+        when(() => mockLocalDataSource.cacheProfile(any()))
+            .thenAnswer((_) async => {});
+
+        // Act
+        await repository.updateUserProfile(name: 'Jane');
+
+        // Assert
+        verify(() => mockRemoteDataSource.updateUserProfile(
+              name: 'Jane',
+              surname: null,
+              profileImage: null,
+            )).called(1);
+      });
+    });
+
+    group('changePassword', () {
+      test('should call remote data source with correct parameters', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.changePassword(
+              currentPassword: any(named: 'currentPassword'),
+              newPassword: any(named: 'newPassword'),
+            )).thenAnswer((_) async => Future.value());
+
+        // Act
+        await repository.changePassword(
+          currentPassword: 'oldPass123',
+          newPassword: 'newPass456',
+        );
+
+        // Assert
+        verify(() => mockRemoteDataSource.changePassword(
+              currentPassword: 'oldPass123',
+              newPassword: 'newPass456',
+            )).called(1);
+      });
+
+      test('should complete successfully when remote succeeds', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.changePassword(
+              currentPassword: any(named: 'currentPassword'),
+              newPassword: any(named: 'newPassword'),
+            )).thenAnswer((_) async => Future.value());
+
+        // Act & Assert
+        await expectLater(
+          repository.changePassword(
+            currentPassword: 'oldPass123',
+            newPassword: 'newPass456',
+          ),
+          completes,
+        );
+      });
+
+      test('should propagate exceptions from remote data source', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.changePassword(
+              currentPassword: any(named: 'currentPassword'),
+              newPassword: any(named: 'newPassword'),
+            )).thenThrow(Exception('Invalid current password'));
+
+        // Act & Assert
+        expect(
+          () => repository.changePassword(
+            currentPassword: 'wrongPass',
+            newPassword: 'newPass456',
+          ),
+          throwsA(
+            predicate((e) => e is Exception &&
+                e.toString().contains('Invalid current password')),
+          ),
+        );
+      });
+
+      test('should handle network errors', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.changePassword(
+              currentPassword: any(named: 'currentPassword'),
+              newPassword: any(named: 'newPassword'),
+            )).thenThrow(Exception('Network error'));
+
+        // Act & Assert
+        expect(
+          () => repository.changePassword(
+            currentPassword: 'oldPass123',
+            newPassword: 'newPass456',
+          ),
+          throwsA(
+            predicate((e) =>
+                e is Exception && e.toString().contains('Network error')),
+          ),
+        );
+      });
+
+      test('should handle unauthorized errors', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.changePassword(
+              currentPassword: any(named: 'currentPassword'),
+              newPassword: any(named: 'newPassword'),
+            )).thenThrow(Exception('Invalid or expired token'));
+
+        // Act & Assert
+        expect(
+          () => repository.changePassword(
+            currentPassword: 'oldPass123',
+            newPassword: 'newPass456',
+          ),
+          throwsA(
+            predicate((e) => e is Exception &&
+                e.toString().contains('Invalid or expired token')),
+          ),
+        );
+      });
+
+      test('should not affect cache when changing password', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.changePassword(
+              currentPassword: any(named: 'currentPassword'),
+              newPassword: any(named: 'newPassword'),
+            )).thenAnswer((_) async => Future.value());
+
+        // Act
+        await repository.changePassword(
+          currentPassword: 'oldPass123',
+          newPassword: 'newPass456',
+        );
+
+        // Assert
+        verifyNever(() => mockLocalDataSource.cacheProfile(any()));
+        verifyNever(() => mockLocalDataSource.getCachedProfile());
+      });
+    });
   });
 }

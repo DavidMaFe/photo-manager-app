@@ -2,7 +2,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
+import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
@@ -104,7 +106,9 @@ class ProfilePage extends StatelessWidget {
                               icon: Icons.person_outline,
                               title: l10n.editProfile,
                               subtitle: l10n.editProfileSubtitle,
-                              onTap: () {},
+                              onTap: () {
+                                context.goNamed(RouteNames.editProfile);
+                              },
                             ),
                             const Divider(height: 1, indent: 60),
         

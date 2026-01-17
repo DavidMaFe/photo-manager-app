@@ -18,6 +18,7 @@ class RouteNames {
   static const String sync = 'sync';
   static const String notifications = 'notifications';
   static const String profile = 'profile';
+  static const String editProfile = 'edit_profile';
 }
 
 
@@ -33,4 +34,5 @@ class RoutePaths {
   static const String sync = '/sync';
   static const String notifications = '/notifications';
   static const String profile = '/profile';
+  static const String editProfile = '/profile/edit';
 }

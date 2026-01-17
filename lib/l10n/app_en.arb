@@ -250,5 +250,20 @@
   "resetPasswordButton": "Reset password",
   "passwordResetSuccess": "Password reset successfully",
   "errorNewPasswordRequired": "New password is required",
-  "backToLogin": "Back to login"
+  "backToLogin": "Back to login",
+
+  "editProfileTitle": "Edit Profile",
+  "currentPasswordLabel": "Current password",
+  "currentPasswordPlaceholder": "Your current password",
+  "errorCurrentPasswordRequired": "Current password is required",
+  "errorCurrentPasswordIncorrect": "Current password is incorrect",
+  "saveChanges": "Save changes",
+  "profileUpdatedSuccessfully": "Profile updated successfully",
+  "passwordChangedSuccessfully": "Password changed successfully",
+  "selectProfilePhoto": "Select profile photo",
+  "changePhoto": "Change photo",
+  "basicInfoSection": "Basic information",
+  "passwordSection": "Change password",
+  "leavePasswordEmptyHint": "Leave blank if you don't want to change the password",
+  "savingChanges": "Saving changes..."
 }
