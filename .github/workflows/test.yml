@@ -37,10 +37,13 @@ jobs:
       - name: Run unit tests
         run: flutter test --coverage --coverage-path=coverage/lcov.info
 
-      - name: Filter coverage
+      - name: Install lcov
         run: |
           sudo apt-get update
           sudo apt-get install -y lcov
+
+      - name: Filter coverage
+        run: |
           lcov --remove coverage/lcov.info \
             '*/lib/main.dart' \
             '**/*.g.dart' \
