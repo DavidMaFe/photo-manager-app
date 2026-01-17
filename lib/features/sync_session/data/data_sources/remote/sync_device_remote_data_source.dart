@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/config/data_constants.dart';
@@ -89,10 +90,11 @@ class SyncDeviceRemoteDataSourceImpl implements SyncDeviceRemoteDataSource {
           userId: userId
         );
       } else {
-        throw Exception(jsonDecode(response.body)["code"]);
+        throw HttpException(jsonDecode(response.body)["message"]);
       }
-      
+
     } catch (e) {
+      if (e is HttpException) rethrow;
       throw Exception(FailureCodes.unknownErrorCode);
     }
   }

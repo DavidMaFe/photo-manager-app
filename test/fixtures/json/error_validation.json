@@ -1,0 +1,8 @@
+{
+  "error": "Validation Error",
+  "message": "The provided data is invalid",
+  "errors": {
+    "email": ["Email format is invalid"],
+    "password": ["Password must be at least 8 characters"]
+  }
+}

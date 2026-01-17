@@ -50,13 +50,13 @@ class SyncSessionProcessPage extends StatelessWidget {
   }
 
   bool _canPopDirectly(SyncSessionState state) {
-    return state is SyncSessionSuccess || state is SyncSessionCancelled ||
+    return state is SyncSessionSuccess || state is SyncSessionCancelling ||
         state is SyncSessionError || state is SyncSessionInitial;
   }
 
   Future<void> _handleBackPressed(BuildContext context, SyncSessionState state, AppLocalizations l10n) async {
 
-    if(state is SyncSessionStarting || state is SyncSessionFetchingFiles || state is SyncSessionUploadingFiles || state is SyncSessionCompleting) {
+    if(state is SyncSessionStarting || state is SyncSessionFetchingFiles || state is SyncSessionUploading || state is SyncSessionCompleting) {
 
       final shouldCancel = await showDialog<bool>(
           context: context,

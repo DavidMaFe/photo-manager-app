@@ -8,7 +8,7 @@ import '../../domain/entities/folder.dart';
 class FolderCard extends StatelessWidget {
 
   final Folder folder;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final VoidCallback? onRename;
   final VoidCallback? onDelete;
 

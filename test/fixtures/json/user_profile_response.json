@@ -1,0 +1,12 @@
+{
+  "id": "1",
+  "email": "john.doe@example.com",
+  "name": "John",
+  "surname": "Doe",
+  "profileImage": "https://example.com/images/john.jpg",
+  "storageUsedMb": 512.5,
+  "storageTotalMb": 1024,
+  "fileCount": 150,
+  "folderCount": 10,
+  "deviceCount": 2
+}

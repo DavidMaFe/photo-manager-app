@@ -113,9 +113,10 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
       } else {
         throw HttpException(jsonDecode(response.body)["message"]);
       }
-      
+
     } catch (e) {
       if (e is HttpException) rethrow;
+      if (e is FileSystemException) rethrow;
       throw Exception(FailureCodes.unknownErrorCode);
     }
   }

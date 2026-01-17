@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
+import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/get_user_profile_use_case.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
@@ -15,18 +16,21 @@ class MockGetUserProfileUseCase extends Mock
 class MockAppEventBus extends Mock implements AppEventBus {}
 
 void main() {
-  late ProfileBloc profileBloc;
   late MockGetUserProfileUseCase mockGetUserProfileUseCase;
   late MockAppEventBus mockEventBus;
 
   setUp(() {
     mockGetUserProfileUseCase = MockGetUserProfileUseCase();
     mockEventBus = MockAppEventBus();
-    profileBloc = ProfileBloc(mockGetUserProfileUseCase, mockEventBus);
-  });
 
-  tearDown(() {
-    profileBloc.close();
+    when(() => mockEventBus.on<FileUpdatedEvent>())
+        .thenAnswer((_) => Stream<FileUpdatedEvent>.empty());
+
+    when(() => mockEventBus.on<FolderUpdatedEvent>())
+        .thenAnswer((_) => Stream<FolderUpdatedEvent>.empty());
+
+    when(() => mockEventBus.on<SyncCompletedEvent>())
+        .thenAnswer((_) => Stream<SyncCompletedEvent>.empty());
   });
 
   group('ProfileBloc', () {
@@ -44,7 +48,12 @@ void main() {
     );
 
     test('initial state should be ProfileInitial', () {
-      expect(profileBloc.state, isA<ProfileInitial>());
+      final bloc = ProfileBloc(
+        mockGetUserProfileUseCase,
+        mockEventBus,
+      );
+
+      expect(bloc.state, isA<ProfileInitial>());
     });
 
     group('LoadProfileRequested', () {
@@ -53,7 +62,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -71,7 +83,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         verify: (_) {
@@ -84,7 +99,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Network error'));
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -102,7 +120,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Invalid or expired token'));
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -119,7 +140,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -135,7 +159,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
@@ -152,7 +179,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
@@ -168,7 +198,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         verify: (_) {
@@ -181,7 +214,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Network error'));
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
@@ -198,7 +234,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Timeout'));
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
@@ -213,7 +252,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenAnswer((_) async => testProfile);
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) async {
           bloc.add(LoadProfileRequested());
@@ -238,7 +280,10 @@ void main() {
             }
             return testProfile;
           });
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) async {
           bloc.add(LoadProfileRequested());
@@ -259,7 +304,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Invalid or expired token'));
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -273,7 +321,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Server error'));
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(LoadProfileRequested()),
         expect: () => [
@@ -287,7 +338,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Timeout'));
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         act: (bloc) => bloc.add(RefreshProfileRequested()),
         expect: () => [
@@ -302,7 +356,10 @@ void main() {
         build: () {
           when(() => mockGetUserProfileUseCase())
               .thenThrow(Exception('Network error'));
-          return profileBloc;
+          return ProfileBloc(
+            mockGetUserProfileUseCase,
+            mockEventBus,
+          );
         },
         seed: () => ProfileLoaded(testProfile),
         act: (bloc) => bloc.add(RefreshProfileRequested()),

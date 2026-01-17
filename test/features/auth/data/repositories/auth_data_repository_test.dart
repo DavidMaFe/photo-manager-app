@@ -468,5 +468,308 @@ void main() {
         verify(() => mockLocalDataSource.hasValidToken()).called(1);
       });
     });
+
+    group('requestPasswordReset', () {
+      test('should delegate to remote data source with email', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.requestPasswordReset(any()))
+            .thenAnswer((_) async => {});
+
+        // Act
+        await repository.requestPasswordReset(testEmail);
+
+        // Assert
+        verify(() => mockRemoteDataSource.requestPasswordReset(testEmail))
+            .called(1);
+      });
+
+      test('should complete successfully when remote call succeeds', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.requestPasswordReset(any()))
+            .thenAnswer((_) async => {});
+
+        // Act & Assert - should not throw
+        await expectLater(
+            repository.requestPasswordReset(testEmail), completes);
+      });
+
+      test('should propagate exceptions from remote data source', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.requestPasswordReset(any()))
+            .thenThrow(Exception('Email not found'));
+
+        // Act & Assert
+        expect(
+          () => repository.requestPasswordReset(testEmail),
+          throwsA(
+            predicate((e) =>
+                e is Exception && e.toString().contains('Email not found')),
+          ),
+        );
+      });
+    });
+
+    group('validateResetCode', () {
+      const testCode = '123456';
+
+      test('should delegate to remote data source with email and code',
+          () async {
+        // Arrange
+        when(() => mockRemoteDataSource.validateResetCode(any(), any()))
+            .thenAnswer((_) async => {});
+
+        // Act
+        await repository.validateResetCode(testEmail, testCode);
+
+        // Assert
+        verify(() =>
+                mockRemoteDataSource.validateResetCode(testEmail, testCode))
+            .called(1);
+      });
+
+      test('should complete successfully when remote call succeeds', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.validateResetCode(any(), any()))
+            .thenAnswer((_) async => {});
+
+        // Act & Assert - should not throw
+        await expectLater(
+            repository.validateResetCode(testEmail, testCode), completes);
+      });
+
+      test('should propagate exceptions from remote data source', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.validateResetCode(any(), any()))
+            .thenThrow(Exception('Invalid code'));
+
+        // Act & Assert
+        expect(
+          () => repository.validateResetCode(testEmail, testCode),
+          throwsA(
+            predicate(
+                (e) => e is Exception && e.toString().contains('Invalid code')),
+          ),
+        );
+      });
+    });
+
+    group('resetPassword', () {
+      const testCode = '123456';
+      const testNewPassword = 'newPassword123';
+
+      test('should delegate to remote data source with all parameters',
+          () async {
+        // Arrange
+        when(() => mockRemoteDataSource.resetPassword(any(), any(), any()))
+            .thenAnswer((_) async => {});
+
+        // Act
+        await repository.resetPassword(testEmail, testCode, testNewPassword);
+
+        // Assert
+        verify(() => mockRemoteDataSource.resetPassword(
+            testEmail, testCode, testNewPassword)).called(1);
+      });
+
+      test('should complete successfully when remote call succeeds', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.resetPassword(any(), any(), any()))
+            .thenAnswer((_) async => {});
+
+        // Act & Assert - should not throw
+        await expectLater(
+            repository.resetPassword(testEmail, testCode, testNewPassword),
+            completes);
+      });
+
+      test('should propagate exceptions from remote data source', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.resetPassword(any(), any(), any()))
+            .thenThrow(Exception('Password reset failed'));
+
+        // Act & Assert
+        expect(
+          () => repository.resetPassword(testEmail, testCode, testNewPassword),
+          throwsA(
+            predicate((e) =>
+                e is Exception &&
+                e.toString().contains('Password reset failed')),
+          ),
+        );
+      });
+    });
+
+    group('register', () {
+      const testName = 'John';
+      const testSurname = 'Doe';
+
+      test('should delegate to remote data source with all parameters',
+          () async {
+        // Arrange
+        when(() => mockRemoteDataSource.register(
+              any(),
+              any(),
+              any(),
+              any(),
+            )).thenAnswer((_) async => {});
+
+        // Act
+        await repository.register(
+          email: testEmail,
+          password: testPassword,
+          name: testName,
+          surname: testSurname,
+        );
+
+        // Assert
+        verify(() => mockRemoteDataSource.register(
+              testEmail,
+              testPassword,
+              testName,
+              testSurname,
+            )).called(1);
+      });
+
+      test('should delegate to remote data source without surname', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.register(
+              any(),
+              any(),
+              any(),
+              any(),
+            )).thenAnswer((_) async => {});
+
+        // Act
+        await repository.register(
+          email: testEmail,
+          password: testPassword,
+          name: testName,
+          surname: null,
+        );
+
+        // Assert
+        verify(() => mockRemoteDataSource.register(
+              testEmail,
+              testPassword,
+              testName,
+              null,
+            )).called(1);
+      });
+
+      test('should complete successfully when remote call succeeds', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.register(
+              any(),
+              any(),
+              any(),
+              any(),
+            )).thenAnswer((_) async => {});
+
+        // Act & Assert - should not throw
+        await expectLater(
+            repository.register(
+              email: testEmail,
+              password: testPassword,
+              name: testName,
+              surname: testSurname,
+            ),
+            completes);
+      });
+
+      test('should NOT cache token after successful registration', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.register(
+              any(),
+              any(),
+              any(),
+              any(),
+            )).thenAnswer((_) async => {});
+
+        // Act
+        await repository.register(
+          email: testEmail,
+          password: testPassword,
+          name: testName,
+          surname: testSurname,
+        );
+
+        // Assert - no caching should occur
+        verifyNever(() => mockLocalDataSource.cacheToken(any()));
+      });
+
+      test('should NOT cache user after successful registration', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.register(
+              any(),
+              any(),
+              any(),
+              any(),
+            )).thenAnswer((_) async => {});
+
+        // Act
+        await repository.register(
+          email: testEmail,
+          password: testPassword,
+          name: testName,
+          surname: testSurname,
+        );
+
+        // Assert - no caching should occur
+        verifyNever(() => mockLocalDataSource.cacheUser(any()));
+      });
+
+      test('should propagate exceptions from remote data source', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.register(
+              any(),
+              any(),
+              any(),
+              any(),
+            )).thenThrow(Exception('Email already registered'));
+
+        // Act & Assert
+        expect(
+          () => repository.register(
+            email: testEmail,
+            password: testPassword,
+            name: testName,
+            surname: testSurname,
+          ),
+          throwsA(
+            predicate((e) =>
+                e is Exception &&
+                e.toString().contains('Email already registered')),
+          ),
+        );
+
+        // Ensure no caching occurs on error
+        verifyNever(() => mockLocalDataSource.cacheToken(any()));
+        verifyNever(() => mockLocalDataSource.cacheUser(any()));
+      });
+
+      test('should not cache anything if remote call fails', () async {
+        // Arrange
+        when(() => mockRemoteDataSource.register(
+              any(),
+              any(),
+              any(),
+              any(),
+            )).thenThrow(Exception('Network error'));
+
+        // Act & Assert
+        await expectLater(
+          repository.register(
+            email: testEmail,
+            password: testPassword,
+            name: testName,
+            surname: testSurname,
+          ),
+          throwsException,
+        );
+
+        verifyNever(() => mockLocalDataSource.cacheToken(any()));
+        verifyNever(() => mockLocalDataSource.cacheUser(any()));
+      });
+    });
   });
 }
