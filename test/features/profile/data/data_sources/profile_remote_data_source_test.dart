@@ -12,6 +12,8 @@ class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 
 class FakeUri extends Fake implements Uri {}
 
+class FakeRequest extends Fake implements http.Request {}
+
 void main() {
   late ProfileRemoteDataSourceImpl dataSource;
   late MockHttpClient mockHttpClient;
@@ -19,6 +21,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(FakeUri());
+    registerFallbackValue(FakeRequest());
   });
 
   setUp(() {
@@ -39,7 +42,7 @@ void main() {
       'email': 'test@example.com',
       'name': 'John',
       'surname': 'Doe',
-      'profileImage': 'https://example.com/image.jpg',
+      'hasProfileImage': true,
       'storageUsedMb': 500,
       'storageTotalMb': 1024,
       'stats': {
@@ -173,7 +176,7 @@ void main() {
         final result = await dataSource.getUserProfile();
 
         // Assert
-        expect(result.profileImage, 'https://example.com/image.jpg');
+        expect(result.hasProfileImage, true);
         expect(result.storageTotalMb, 1024);
         expect(result.folderCount, 10);
         expect(result.deviceCount, 2);
@@ -277,6 +280,7 @@ void main() {
           'id': '1',
           'email': 'test@example.com',
           'name': 'John',
+          'hasProfileImage': false,
           'storageUsedMb': 500,
           'storageTotalMb': 1024,
           'stats': {
@@ -301,7 +305,6 @@ void main() {
         // Assert
         expect(result.id, '1');
         expect(result.surname, isNull);
-        expect(result.profileImage, isNull);
       });
 
       test('should handle missing stats in response', () async {
@@ -310,6 +313,7 @@ void main() {
           'id': '1',
           'email': 'test@example.com',
           'name': 'John',
+          'hasProfileImage': false,
           'storageUsedMb': 500,
           'storageTotalMb': 1024,
         };
@@ -369,7 +373,7 @@ void main() {
         'email': 'test@example.com',
         'name': 'Jane',
         'surname': 'Smith',
-        'profileImage': 'https://example.com/new-image.jpg',
+        'hasProfileImage': true,
         'storageUsedMb': 500,
         'storageTotalMb': 1024,
         'stats': {
@@ -383,7 +387,7 @@ void main() {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.patch(
+        when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
@@ -398,11 +402,11 @@ void main() {
         verify(() => mockAuthLocalDataSource.getToken()).called(1);
       });
 
-      test('should perform PATCH request to correct endpoint', () async {
+      test('should perform PUT request to correct endpoint', () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.patch(
+        when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
@@ -414,7 +418,7 @@ void main() {
         await dataSource.updateUserProfile(name: 'Jane');
 
         // Assert
-        verify(() => mockHttpClient.patch(
+        verify(() => mockHttpClient.put(
               Uri.parse('$baseUrl/api/profile/'),
               headers: {
                 'Content-Type': 'application/json',
@@ -430,7 +434,7 @@ void main() {
         String? capturedBody;
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.patch(
+        when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
@@ -455,7 +459,7 @@ void main() {
         String? capturedBody;
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.patch(
+        when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
@@ -483,7 +487,7 @@ void main() {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.patch(
+        when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
@@ -508,7 +512,7 @@ void main() {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.patch(
+        when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
@@ -531,7 +535,7 @@ void main() {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.patch(
+        when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
@@ -553,7 +557,7 @@ void main() {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.patch(
+        when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
@@ -578,7 +582,7 @@ void main() {
         String? capturedBody;
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.patch(
+        when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
               body: any(named: 'body'),

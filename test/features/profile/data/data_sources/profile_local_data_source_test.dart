@@ -25,7 +25,7 @@ void main() {
       email: 'test@example.com',
       name: 'John',
       surname: 'Doe',
-      profileImage: 'https://example.com/image.jpg',
+      hasProfileImage: true,
       storageUsedMb: 500,
       storageTotalMb: 1024,
       fileCount: 100,
@@ -130,6 +130,7 @@ void main() {
           'email': 'cached@example.com',
           'name': 'Cached',
           'surname': 'User',
+          'hasProfileImage': false,
           'storageUsedMb': 1000,
           'storageTotalMb': 2048,
           'stats': {
@@ -163,6 +164,7 @@ void main() {
           fileCount: 100,
           folderCount: 10,
           deviceCount: 2,
+          hasProfileImage: false,
         );
         final profileJson = jsonEncode(minimalProfile.toJson());
         when(() => mockSharedPreferences.getString(cachedProfileKey))
@@ -173,7 +175,6 @@ void main() {
 
         // Assert
         expect(result!.surname, isNull);
-        expect(result.profileImage, isNull);
       });
 
       test('should correctly parse stats from cached JSON', () async {
@@ -237,7 +238,7 @@ void main() {
         expect(result.email, testProfile.email);
         expect(result.name, testProfile.name);
         expect(result.surname, testProfile.surname);
-        expect(result.profileImage, testProfile.profileImage);
+        expect(result.hasProfileImage, testProfile.hasProfileImage);
         expect(result.storageUsedMb, testProfile.storageUsedMb);
         expect(result.storageTotalMb, testProfile.storageTotalMb);
         expect(result.fileCount, testProfile.fileCount);

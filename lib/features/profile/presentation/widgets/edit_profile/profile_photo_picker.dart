@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
+import '../../../../../core/widgets/authenticated_image.dart';
+
 class ProfilePhotoPicker extends StatefulWidget {
   final String? currentPhotoUrl;
   final String fullName;
@@ -81,15 +83,6 @@ class _ProfilePhotoPickerState extends State<ProfilePhotoPicker> {
     return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
   }
 
-  ImageProvider? _getImageProvider() {
-    if (_selectedImageFile != null) {
-      return FileImage(_selectedImageFile!);
-    } else if (widget.currentPhotoUrl != null && widget.currentPhotoUrl!.isNotEmpty) {
-      return NetworkImage(widget.currentPhotoUrl!);
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -99,20 +92,33 @@ class _ProfilePhotoPickerState extends State<ProfilePhotoPicker> {
         children: [
           Stack(
             children: [
-              CircleAvatar(
+              _selectedImageFile != null || (widget.currentPhotoUrl != null && widget.currentPhotoUrl!.isNotEmpty)
+                  ? SizedBox(
+                width: 120,
+                height: 120,
+                child: ClipOval(
+                  child: _selectedImageFile != null
+                      ? Image.file(
+                    _selectedImageFile!,
+                    fit: BoxFit.cover,
+                  )
+                      : AuthenticatedImage(
+                    imageUrl: widget.currentPhotoUrl!,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
+                  : CircleAvatar(
                 radius: 60,
                 backgroundColor: PhotoManagerColors.primary,
-                backgroundImage: _getImageProvider(),
-                child: _getImageProvider() == null
-                    ? Text(
-                        _getInitials(widget.fullName),
-                        style: const TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      )
-                    : null,
+                child: Text(
+                  _getInitials(widget.fullName),
+                  style: const TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
               Positioned(
                 bottom: 0,
@@ -122,7 +128,7 @@ class _ProfilePhotoPickerState extends State<ProfilePhotoPicker> {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: PhotoManagerColors.primary,
+                      color: Colors.white,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
@@ -132,10 +138,10 @@ class _ProfilePhotoPickerState extends State<ProfilePhotoPicker> {
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.camera_alt,
                       size: 20,
-                      color: Colors.white,
+                      color: Colors.grey[700],
                     ),
                   ),
                 ),

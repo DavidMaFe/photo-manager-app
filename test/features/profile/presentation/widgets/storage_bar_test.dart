@@ -27,6 +27,7 @@ void main() {
         id: '1',
         email: 'test@example.com',
         name: 'John',
+        hasProfileImage: false,
         storageUsedMb: 512,  // 0.5 GB
         storageTotalMb: 1024, // 1.0 GB
         fileCount: 100,
@@ -47,6 +48,7 @@ void main() {
         id: '1',
         email: 'test@example.com',
         name: 'John',
+        hasProfileImage: false,
         storageUsedMb: 512,  // 50% of 1024
         storageTotalMb: 1024,
         fileCount: 100,
@@ -70,6 +72,7 @@ void main() {
         id: '1',
         email: 'test@example.com',
         name: 'John',
+        hasProfileImage: false,
         storageUsedMb: 256,  // 25% of 1024
         storageTotalMb: 1024,
         fileCount: 100,
@@ -94,6 +97,7 @@ void main() {
         id: '1',
         email: 'test@example.com',
         name: 'John',
+        hasProfileImage: false,
         storageUsedMb: 640,  // 62.5% of 1024
         storageTotalMb: 1024,
         fileCount: 100,
@@ -118,6 +122,7 @@ void main() {
         id: '1',
         email: 'test@example.com',
         name: 'John',
+        hasProfileImage: false,
         storageUsedMb: 819,  // 80% of 1024
         storageTotalMb: 1024,
         fileCount: 100,
@@ -142,6 +147,7 @@ void main() {
         id: '1',
         email: 'test@example.com',
         name: 'John',
+        hasProfileImage: false,
         storageUsedMb: 922,  // 90% of 1024
         storageTotalMb: 1024,
         fileCount: 100,

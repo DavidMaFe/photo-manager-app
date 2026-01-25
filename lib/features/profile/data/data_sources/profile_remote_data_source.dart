@@ -66,7 +66,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     if (surname != null) body['surname'] = surname;
     if (profileImage != null) body['profileImage'] = profileImage;
 
-    final response = await client.patch(
+    final response = await client.put(
       Uri.parse('$baseUrl/api/profile/'),
       headers: {
         'Content-Type': 'application/json',

@@ -1,11 +1,13 @@
 
+import 'package:photo_manager_app/config/data_constants.dart';
+
 class UserProfile {
 
   final String id;
   final String email;
   final String name;
   final String? surname;
-  final String? profileImage;
+  final bool hasProfileImage;
   final double storageUsedMb;
   final int storageTotalMb;
   final int fileCount;
@@ -17,7 +19,7 @@ class UserProfile {
     required this.email,
     required this.name,
     this.surname,
-    this.profileImage,
+    required this.hasProfileImage,
     required this.storageUsedMb,
     required this.storageTotalMb,
     required this.fileCount,
@@ -33,5 +35,7 @@ class UserProfile {
   double get storageUsedPercentage => storageTotalMb > 0
       ? (storageUsedMb/storageTotalMb) : 0;
 
-  bool get hasProfileImage => profileImage != null && profileImage!.isNotEmpty;
+  String? get profileImageUrl => hasProfileImage
+      ? '${DataConstants.backendBaseUrl}/api/profile/profile-image/'
+      : null;
 }

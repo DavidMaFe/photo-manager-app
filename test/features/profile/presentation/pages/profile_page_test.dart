@@ -24,6 +24,7 @@ void main() {
     name: 'John',
     surname: 'Doe',
     // No profileImage to avoid network image loading in tests
+    hasProfileImage: false,
     storageUsedMb: 500,
     storageTotalMb: 1024,
     fileCount: 100,

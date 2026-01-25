@@ -21,7 +21,7 @@ void main() {
       email: 'test@example.com',
       name: 'Jane',
       surname: 'Smith',
-      profileImage: 'https://example.com/new-image.jpg',
+      hasProfileImage: true,
       storageUsedMb: 500,
       storageTotalMb: 1024,
       fileCount: 100,

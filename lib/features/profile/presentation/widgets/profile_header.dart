@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 
+import '../../../../core/widgets/authenticated_image.dart';
+
 
 class ProfileHeader extends StatelessWidget {
 
@@ -15,37 +17,24 @@ class ProfileHeader extends StatelessWidget {
       children: [
         Stack(
           children: [
-            CircleAvatar(
+            profile.hasProfileImage
+                ? SizedBox(
+              width: 100,
+              height: 100,
+              child: ClipOval(
+                child: AuthenticatedImage(
+                  imageUrl: profile.profileImageUrl!,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )
+                : CircleAvatar(
               radius: 50,
               backgroundColor: PhotoManagerColors.primary,
-              backgroundImage: profile.hasProfileImage ? NetworkImage(profile.profileImage!) : null,
-              child: !profile.hasProfileImage
-                  ? Text(_getInitials(profile.fullName), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white))
-                  : null
-            ),
-
-            Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2)
-                      )
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.camera_alt,
-                    size: 20,
-                    color: Colors.grey[700],
-                  ),
-                )
+              child: Text(
+                  _getInitials(profile.fullName),
+                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)
+              ),
             ),
           ],
         ),

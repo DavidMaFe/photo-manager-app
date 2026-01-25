@@ -10,7 +10,7 @@ void main() {
         email: 'test@example.com',
         name: 'John',
         surname: 'Doe',
-        profileImage: 'https://example.com/image.jpg',
+        hasProfileImage: true,
         storageUsedMb: 500,
         storageTotalMb: 1024,
         fileCount: 100,
@@ -23,7 +23,7 @@ void main() {
       expect(profile.email, 'test@example.com');
       expect(profile.name, 'John');
       expect(profile.surname, 'Doe');
-      expect(profile.profileImage, 'https://example.com/image.jpg');
+      expect(profile.hasProfileImage, true);
       expect(profile.storageUsedMb, 500);
       expect(profile.storageTotalMb, 1024);
       expect(profile.fileCount, 100);
@@ -37,6 +37,7 @@ void main() {
         id: '1',
         email: 'test@example.com',
         name: 'John',
+        hasProfileImage: false,
         storageUsedMb: 500,
         storageTotalMb: 1024,
         fileCount: 100,
@@ -46,7 +47,6 @@ void main() {
 
       // Assert
       expect(profile.surname, isNull);
-      expect(profile.profileImage, isNull);
     });
 
     group('fullName getter', () {
@@ -57,6 +57,7 @@ void main() {
           email: 'test@example.com',
           name: 'John',
           surname: 'Doe',
+          hasProfileImage: false,
           storageUsedMb: 500,
           storageTotalMb: 1024,
           fileCount: 100,
@@ -74,6 +75,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 500,
           storageTotalMb: 1024,
           fileCount: 100,
@@ -93,6 +95,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 2048,
           storageTotalMb: 10240,
           fileCount: 100,
@@ -110,6 +113,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 2048,
           storageTotalMb: 10240,
           fileCount: 100,
@@ -127,6 +131,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 1536,
           storageTotalMb: 5120,
           fileCount: 100,
@@ -145,6 +150,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 0,
           storageTotalMb: 1024,
           fileCount: 0,
@@ -164,6 +170,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 512,
           storageTotalMb: 1024,
           fileCount: 100,
@@ -181,6 +188,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 100,
           storageTotalMb: 0,
           fileCount: 100,
@@ -198,6 +206,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 1024,
           storageTotalMb: 1024,
           fileCount: 100,
@@ -215,6 +224,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 256,
           storageTotalMb: 1024,
           fileCount: 100,
@@ -232,6 +242,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 1,
           storageTotalMb: 10240,
           fileCount: 1,
@@ -249,6 +260,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
+          hasProfileImage: false,
           storageUsedMb: 0,
           storageTotalMb: 0,
           fileCount: 0,
@@ -268,7 +280,7 @@ void main() {
           id: '1',
           email: 'test@example.com',
           name: 'John',
-          profileImage: 'https://example.com/image.jpg',
+          hasProfileImage: true,
           storageUsedMb: 500,
           storageTotalMb: 1024,
           fileCount: 100,
@@ -277,59 +289,6 @@ void main() {
         );
 
         // Assert
-        expect(profile.hasProfileImage, isTrue);
-      });
-
-      test('should return false when profile image is null', () {
-        // Arrange
-        final profile = UserProfile(
-          id: '1',
-          email: 'test@example.com',
-          name: 'John',
-          storageUsedMb: 500,
-          storageTotalMb: 1024,
-          fileCount: 100,
-          folderCount: 10,
-          deviceCount: 2,
-        );
-
-        // Assert
-        expect(profile.hasProfileImage, isFalse);
-      });
-
-      test('should return false when profile image is empty string', () {
-        // Arrange
-        final profile = UserProfile(
-          id: '1',
-          email: 'test@example.com',
-          name: 'John',
-          profileImage: '',
-          storageUsedMb: 500,
-          storageTotalMb: 1024,
-          fileCount: 100,
-          folderCount: 10,
-          deviceCount: 2,
-        );
-
-        // Assert
-        expect(profile.hasProfileImage, isFalse);
-      });
-
-      test('should return true for whitespace-only profile image', () {
-        // Arrange
-        final profile = UserProfile(
-          id: '1',
-          email: 'test@example.com',
-          name: 'John',
-          profileImage: '   ',
-          storageUsedMb: 500,
-          storageTotalMb: 1024,
-          fileCount: 100,
-          folderCount: 10,
-          deviceCount: 2,
-        );
-
-        // Assert - isEmpty returns false for whitespace strings
         expect(profile.hasProfileImage, isTrue);
       });
     });

@@ -8,7 +8,6 @@ void main() {
     const testEmail = 'test@example.com';
     const testName = 'John';
     const testSurname = 'Doe';
-    const testProfileImage = 'https://example.com/image.jpg';
     const double testStorageUsedMb = 500;
     const testStorageTotalMb = 1024;
     const testFileCount = 100;
@@ -23,7 +22,7 @@ void main() {
           'email': testEmail,
           'name': testName,
           'surname': testSurname,
-          'profileImage': testProfileImage,
+          'hasProfileImage': true,
           'storageUsedMb': testStorageUsedMb,
           'storageTotalMb': testStorageTotalMb,
           'stats': {
@@ -41,7 +40,7 @@ void main() {
         expect(result.email, testEmail);
         expect(result.name, testName);
         expect(result.surname, testSurname);
-        expect(result.profileImage, testProfileImage);
+        expect(result.hasProfileImage, true);
         expect(result.storageUsedMb, testStorageUsedMb);
         expect(result.storageTotalMb, testStorageTotalMb);
         expect(result.fileCount, testFileCount);
@@ -57,7 +56,7 @@ void main() {
           'email': testEmail,
           'name': testName,
           'surname': null,
-          'profileImage': null,
+          'hasProfileImage': false,
           'storageUsedMb': testStorageUsedMb,
           'storageTotalMb': testStorageTotalMb,
           'stats': {
@@ -72,7 +71,7 @@ void main() {
 
         // Assert
         expect(result.surname, isNull);
-        expect(result.profileImage, isNull);
+        expect(result.hasProfileImage, false);
       });
 
       test('should convert integer id to string', () {
@@ -81,6 +80,7 @@ void main() {
           'id': 123,
           'email': testEmail,
           'name': testName,
+          'hasProfileImage': false,
           'storageUsedMb': testStorageUsedMb,
           'storageTotalMb': testStorageTotalMb,
           'stats': {
@@ -104,6 +104,7 @@ void main() {
           'id': testId,
           'email': testEmail,
           'name': testName,
+          'hasProfileImage': false,
           'storageUsedMb': testStorageUsedMb,
           'storageTotalMb': testStorageTotalMb,
         };
@@ -123,6 +124,7 @@ void main() {
           'id': testId,
           'email': testEmail,
           'name': testName,
+          'hasProfileImage': false,
           'storageUsedMb': testStorageUsedMb,
           'storageTotalMb': testStorageTotalMb,
           'stats': <String, dynamic>{},
@@ -143,6 +145,7 @@ void main() {
           'id': testId,
           'email': testEmail,
           'name': testName,
+          'hasProfileImage': false,
           'storageUsedMb': testStorageUsedMb,
           'storageTotalMb': testStorageTotalMb,
           'stats': {
@@ -165,6 +168,7 @@ void main() {
           'id': testId,
           'email': testEmail,
           'name': testName,
+          'hasProfileImage': false,
           'storageUsedMb': testStorageUsedMb,
           'storageTotalMb': testStorageTotalMb,
           'stats': <String, dynamic>{}
@@ -186,7 +190,7 @@ void main() {
           email: testEmail,
           name: testName,
           surname: testSurname,
-          profileImage: testProfileImage,
+          hasProfileImage: true,
           storageUsedMb: testStorageUsedMb,
           storageTotalMb: testStorageTotalMb,
           fileCount: testFileCount,
@@ -202,7 +206,7 @@ void main() {
         expect(result['email'], testEmail);
         expect(result['name'], testName);
         expect(result['surname'], testSurname);
-        expect(result['profileImage'], testProfileImage);
+        expect(result['hasProfileImage'], true);
         expect(result['storageUsedMb'], testStorageUsedMb);
         expect(result['storageTotalMb'], testStorageTotalMb);
         expect(result['stats']['fileCount'], testFileCount);
@@ -216,6 +220,7 @@ void main() {
           id: testId,
           email: testEmail,
           name: testName,
+          hasProfileImage: false,
           storageUsedMb: testStorageUsedMb,
           storageTotalMb: testStorageTotalMb,
           fileCount: testFileCount,
@@ -237,6 +242,7 @@ void main() {
           id: testId,
           email: testEmail,
           name: testName,
+          hasProfileImage: false,
           storageUsedMb: testStorageUsedMb,
           storageTotalMb: testStorageTotalMb,
           fileCount: testFileCount,
@@ -263,7 +269,7 @@ void main() {
           email: testEmail,
           name: testName,
           surname: testSurname,
-          profileImage: testProfileImage,
+          hasProfileImage: true,
           storageUsedMb: testStorageUsedMb,
           storageTotalMb: testStorageTotalMb,
           fileCount: testFileCount,
@@ -279,7 +285,7 @@ void main() {
         expect(result.email, entity.email);
         expect(result.name, entity.name);
         expect(result.surname, entity.surname);
-        expect(result.profileImage, entity.profileImage);
+        expect(result.hasProfileImage, entity.hasProfileImage);
         expect(result.storageUsedMb, entity.storageUsedMb);
         expect(result.storageTotalMb, entity.storageTotalMb);
         expect(result.fileCount, entity.fileCount);
@@ -295,7 +301,7 @@ void main() {
           email: 'different@example.com',
           name: 'Jane',
           surname: 'Smith',
-          profileImage: 'https://example.com/other.jpg',
+          hasProfileImage: true,
           storageUsedMb: 1000,
           storageTotalMb: 2048,
           fileCount: 200,
@@ -322,7 +328,7 @@ void main() {
           'email': testEmail,
           'name': testName,
           'surname': testSurname,
-          'profileImage': testProfileImage,
+          'hasProfileImage': true,
           'storageUsedMb': testStorageUsedMb,
           'storageTotalMb': testStorageTotalMb,
           'stats': {
@@ -355,6 +361,7 @@ void main() {
           email: testEmail,
           name: testName,
           surname: testSurname,
+          hasProfileImage: false,
           storageUsedMb: 512,
           storageTotalMb: 1024,
           fileCount: testFileCount,

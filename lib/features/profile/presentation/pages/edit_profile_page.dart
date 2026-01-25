@@ -200,7 +200,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 children: [
                   // Profile Photo Picker
                   ProfilePhotoPicker(
-                    currentPhotoUrl: profile.profileImage,
+                    currentPhotoUrl: profile.profileImageUrl,
                     fullName: profile.fullName,
                     onPhotoSelected: (base64Image) {
                       setState(() {
