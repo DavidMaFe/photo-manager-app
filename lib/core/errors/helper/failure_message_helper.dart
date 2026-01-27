@@ -5,7 +5,16 @@ import '../base/failures.dart';
 
 class FailureMessageHelper {
 
+  /// Gets the error message using hybrid localization:
+  /// 1. First priority: Use backend-provided message (from errorResponse)
+  /// 2. Fallback: Use Flutter localization (ARB files)
   static String getMessage(BuildContext context, Failure failure) {
+    // Priority 1: Use backend message if available
+    if (failure.errorResponse != null && failure.errorResponse!.message.isNotEmpty) {
+      return failure.errorResponse!.message;
+    }
+
+    // Priority 2: Fallback to Flutter localization
     final l10n = AppLocalizations.of(context)!;
     return _getLocalizedMessage(l10n, failure);
   }

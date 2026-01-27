@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_management_remote_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_file_request_model.dart';
@@ -83,14 +84,17 @@ void main() {
       await dataSource.manageFiles(request);
 
       // Assert
-      verify(() => mockClient.post(
+      final captured = verify(() => mockClient.post(
             Uri.parse('$baseUrl/api/file/manage/'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $token',
-            },
+            headers: captureAny(named: 'headers'),
             body: any(named: 'body'),
-          )).called(1);
+          ));
+      captured.called(1);
+
+      final headers = captured.captured.last as Map<String, String>;
+      expect(headers['Content-Type'], 'application/json');
+      expect(headers['Authorization'], 'Bearer $token');
+      expect(headers.containsKey('Accept-Language'), true);
     });
 
     test('should include request body in POST', () async {
@@ -143,72 +147,103 @@ void main() {
       expect(result.failedIds, ['file-3']);
     });
 
-    test('should throw HttpException on 400 error', () async {
+    test('should throw ApiException on 400 error', () async {
       // Arrange
       when(() => mockClient.post(
             any(),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response(
-            jsonEncode({'message': 'Bad request'}),
+            jsonEncode({
+              'code': 'BAD_REQUEST',
+              'message': 'Bad request',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/file/manage/',
+            }),
             400,
           ));
 
       // Act & Assert
       expect(
         () => dataSource.manageFiles(request),
-        throwsA(isA<HttpException>()),
+        throwsA(
+          predicate((e) =>
+              e is ApiException &&
+              e.code == 'BAD_REQUEST' &&
+              e.message == 'Bad request'),
+        ),
       );
     });
 
-    test('should throw HttpException on 404 error', () async {
+    test('should throw ApiException on 404 error', () async {
       // Arrange
       when(() => mockClient.post(
             any(),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response(
-            jsonEncode({'message': 'Files not found'}),
+            jsonEncode({
+              'code': 'FILES_NOT_FOUND',
+              'message': 'Files not found',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/file/manage/',
+            }),
             404,
           ));
 
       // Act & Assert
       expect(
         () => dataSource.manageFiles(request),
-        throwsA(isA<HttpException>()),
+        throwsA(
+          predicate((e) =>
+              e is ApiException &&
+              e.code == 'FILES_NOT_FOUND' &&
+              e.message == 'Files not found'),
+        ),
       );
     });
 
-    test('should throw HttpException on 500 error', () async {
+    test('should throw ApiException on 500 error', () async {
       // Arrange
       when(() => mockClient.post(
             any(),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response(
-            jsonEncode({'message': 'Server error'}),
+            jsonEncode({
+              'code': 'INTERNAL_SERVER_ERROR',
+              'message': 'Server error',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/file/manage/',
+            }),
             500,
           ));
 
       // Act & Assert
       expect(
         () => dataSource.manageFiles(request),
-        throwsA(isA<HttpException>()),
+        throwsA(
+          predicate((e) =>
+              e is ApiException &&
+              e.code == 'INTERNAL_SERVER_ERROR' &&
+              e.message == 'Server error'),
+        ),
       );
     });
 
-    test('should throw Exception on network error', () async {
+    test('should rethrow SocketException on network error', () async {
       // Arrange
+      const exception = SocketException('Network error');
       when(() => mockClient.post(
             any(),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
-          )).thenThrow(const SocketException('Network error'));
+          )).thenThrow(exception);
 
       // Act & Assert
       expect(
         () => dataSource.manageFiles(request),
-        throwsA(isA<Exception>()),
+        throwsA(exception),
       );
     });
 
@@ -229,14 +264,17 @@ void main() {
       await dataSource.manageFiles(request);
 
       // Assert
-      verify(() => mockClient.post(
+      final captured = verify(() => mockClient.post(
             any(),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $token',
-            },
+            headers: captureAny(named: 'headers'),
             body: any(named: 'body'),
-          )).called(1);
+          ));
+      captured.called(1);
+
+      final headers = captured.captured.last as Map<String, String>;
+      expect(headers['Content-Type'], 'application/json');
+      expect(headers['Authorization'], 'Bearer $token');
+      expect(headers.containsKey('Accept-Language'), true);
     });
   });
 
@@ -290,10 +328,16 @@ void main() {
       await dataSource.getFolders();
 
       // Assert
-      verify(() => mockClient.get(
+      final captured = verify(() => mockClient.get(
             Uri.parse('$baseUrl/api/folder/list/'),
-            headers: {'Authorization': 'Bearer $token'},
-          )).called(1);
+            headers: captureAny(named: 'headers'),
+          ));
+      captured.called(1);
+
+      final headers = captured.captured.last as Map<String, String>;
+      expect(headers['Content-Type'], 'application/json');
+      expect(headers['Authorization'], 'Bearer $token');
+      expect(headers.containsKey('Accept-Language'), true);
     });
 
     test('should return empty list when no folders', () async {
@@ -328,51 +372,72 @@ void main() {
       expect(result, isEmpty);
     });
 
-    test('should throw HttpException on 401 error', () async {
+    test('should throw ApiException on 401 error', () async {
       // Arrange
       when(() => mockClient.get(
             any(),
             headers: any(named: 'headers'),
           )).thenAnswer((_) async => http.Response(
-            jsonEncode({'message': 'Unauthorized'}),
+            jsonEncode({
+              'code': 'UNAUTHORIZED',
+              'message': 'Unauthorized',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/folder/list/',
+            }),
             401,
           ));
 
       // Act & Assert
       expect(
         () => dataSource.getFolders(),
-        throwsA(isA<HttpException>()),
+        throwsA(
+          predicate((e) =>
+              e is ApiException &&
+              e.code == 'UNAUTHORIZED' &&
+              e.message == 'Unauthorized'),
+        ),
       );
     });
 
-    test('should throw HttpException on 500 error', () async {
+    test('should throw ApiException on 500 error', () async {
       // Arrange
       when(() => mockClient.get(
             any(),
             headers: any(named: 'headers'),
           )).thenAnswer((_) async => http.Response(
-            jsonEncode({'message': 'Server error'}),
+            jsonEncode({
+              'code': 'INTERNAL_SERVER_ERROR',
+              'message': 'Server error',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/folder/list/',
+            }),
             500,
           ));
 
       // Act & Assert
       expect(
         () => dataSource.getFolders(),
-        throwsA(isA<HttpException>()),
+        throwsA(
+          predicate((e) =>
+              e is ApiException &&
+              e.code == 'INTERNAL_SERVER_ERROR' &&
+              e.message == 'Server error'),
+        ),
       );
     });
 
-    test('should throw Exception on network error', () async {
+    test('should rethrow SocketException on network error', () async {
       // Arrange
+      const exception = SocketException('Network error');
       when(() => mockClient.get(
             any(),
             headers: any(named: 'headers'),
-          )).thenThrow(const SocketException('Network error'));
+          )).thenThrow(exception);
 
       // Act & Assert
       expect(
         () => dataSource.getFolders(),
-        throwsA(isA<Exception>()),
+        throwsA(exception),
       );
     });
 
@@ -389,10 +454,16 @@ void main() {
       await dataSource.getFolders();
 
       // Assert
-      verify(() => mockClient.get(
+      final captured = verify(() => mockClient.get(
             any(),
-            headers: {'Authorization': 'Bearer $token'},
-          )).called(1);
+            headers: captureAny(named: 'headers'),
+          ));
+      captured.called(1);
+
+      final headers = captured.captured.last as Map<String, String>;
+      expect(headers['Content-Type'], 'application/json');
+      expect(headers['Authorization'], 'Bearer $token');
+      expect(headers.containsKey('Accept-Language'), true);
     });
   });
 }

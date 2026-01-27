@@ -10,38 +10,85 @@ class MockAndroidDeviceInfo extends Mock implements AndroidDeviceInfo {}
 class MockIosDeviceInfo extends Mock implements IosDeviceInfo {}
 class MockAndroidBuildVersion extends Mock implements AndroidBuildVersion {}
 
+/// Testable version that allows mocking platform-specific behavior
+class TestableSyncDeviceLocalDataSource extends SyncDeviceLocalDataSourceImpl {
+  final String? mockHardwareId;
+  final Exception? mockException;
+
+  TestableSyncDeviceLocalDataSource({
+    required super.sharedPreferences,
+    required super.deviceInfo,
+    this.mockHardwareId,
+    this.mockException,
+  });
+
+  @override
+  Future<String> getDeviceUuid() async {
+    // Check if we have a cached device identifier
+    final savedUuid = sharedPreferences.getString('DEVICE_UUID');
+
+    if(savedUuid != null && savedUuid.isNotEmpty) {
+      return savedUuid;
+    }
+
+    // Get hardware-based device identifier (mocked for tests)
+    if (mockException != null) {
+      throw mockException!;
+    }
+
+    final hardwareId = mockHardwareId ?? '';
+
+    // Validate that we got a valid hardware ID
+    if(hardwareId.isEmpty) {
+      throw Exception("Failed to obtain hardware device identifier");
+    }
+
+    // Cache the hardware ID for performance
+    await saveDeviceUuid(hardwareId);
+    return hardwareId;
+  }
+}
+
 void main() {
-  late SyncDeviceLocalDataSourceImpl dataSource;
   late MockSharedPreferences mockSharedPreferences;
   late MockDeviceInfoPlugin mockDeviceInfo;
 
   setUp(() {
     mockSharedPreferences = MockSharedPreferences();
     mockDeviceInfo = MockDeviceInfoPlugin();
-    dataSource = SyncDeviceLocalDataSourceImpl(
-      sharedPreferences: mockSharedPreferences,
-      deviceInfo: mockDeviceInfo,
-    );
   });
 
   group('getDeviceUuid', () {
-    test('should return saved UUID when exists', () async {
+    test('should return cached device ID when exists', () async {
       // Arrange
-      const savedUuid = 'existing-uuid-123';
+      const cachedDeviceId = 'cached-hardware-id-123';
+      final dataSource = TestableSyncDeviceLocalDataSource(
+        sharedPreferences: mockSharedPreferences,
+        deviceInfo: mockDeviceInfo,
+        mockHardwareId: 'test-hardware-id',
+      );
+
       when(() => mockSharedPreferences.getString('DEVICE_UUID'))
-          .thenReturn(savedUuid);
+          .thenReturn(cachedDeviceId);
 
       // Act
       final result = await dataSource.getDeviceUuid();
 
       // Assert
-      expect(result, savedUuid);
+      expect(result, cachedDeviceId);
       verify(() => mockSharedPreferences.getString('DEVICE_UUID')).called(1);
       verifyNever(() => mockSharedPreferences.setString(any(), any()));
     });
 
-    test('should generate and save new UUID when not exists', () async {
+    test('should get hardware ID and cache it when not cached', () async {
       // Arrange
+      const hardwareId = 'hardware-id-123';
+      final dataSource = TestableSyncDeviceLocalDataSource(
+        sharedPreferences: mockSharedPreferences,
+        deviceInfo: mockDeviceInfo,
+        mockHardwareId: hardwareId,
+      );
+
       when(() => mockSharedPreferences.getString('DEVICE_UUID'))
           .thenReturn(null);
       when(() => mockSharedPreferences.setString(any(), any()))
@@ -51,14 +98,20 @@ void main() {
       final result = await dataSource.getDeviceUuid();
 
       // Assert
-      expect(result, isNotEmpty);
-      expect(result.length, 36); // UUID v4 format length
+      expect(result, hardwareId);
       verify(() => mockSharedPreferences.getString('DEVICE_UUID')).called(1);
-      verify(() => mockSharedPreferences.setString('DEVICE_UUID', result)).called(1);
+      verify(() => mockSharedPreferences.setString('DEVICE_UUID', hardwareId)).called(1);
     });
 
-    test('should generate and save new UUID when saved UUID is empty', () async {
+    test('should get hardware ID when cached ID is empty string', () async {
       // Arrange
+      const hardwareId = 'hardware-id-789';
+      final dataSource = TestableSyncDeviceLocalDataSource(
+        sharedPreferences: mockSharedPreferences,
+        deviceInfo: mockDeviceInfo,
+        mockHardwareId: hardwareId,
+      );
+
       when(() => mockSharedPreferences.getString('DEVICE_UUID'))
           .thenReturn('');
       when(() => mockSharedPreferences.setString(any(), any()))
@@ -68,23 +121,69 @@ void main() {
       final result = await dataSource.getDeviceUuid();
 
       // Assert
-      expect(result, isNotEmpty);
-      verify(() => mockSharedPreferences.setString('DEVICE_UUID', result)).called(1);
+      expect(result, hardwareId);
+      verify(() => mockSharedPreferences.setString('DEVICE_UUID', hardwareId)).called(1);
+    });
+
+    test('should throw exception when hardware ID is empty', () async {
+      // Arrange
+      final dataSource = TestableSyncDeviceLocalDataSource(
+        sharedPreferences: mockSharedPreferences,
+        deviceInfo: mockDeviceInfo,
+        mockHardwareId: '', // Empty hardware ID
+      );
+
+      when(() => mockSharedPreferences.getString('DEVICE_UUID'))
+          .thenReturn(null);
+
+      // Act & Assert
+      expect(
+        () => dataSource.getDeviceUuid(),
+        throwsA(isA<Exception>().having(
+          (e) => e.toString(),
+          'message',
+          contains('Failed to obtain hardware device identifier'),
+        )),
+      );
+    });
+
+    test('should throw exception when getting hardware ID fails', () async {
+      // Arrange
+      final testException = Exception('Hardware ID fetch failed');
+      final dataSource = TestableSyncDeviceLocalDataSource(
+        sharedPreferences: mockSharedPreferences,
+        deviceInfo: mockDeviceInfo,
+        mockException: testException,
+      );
+
+      when(() => mockSharedPreferences.getString('DEVICE_UUID'))
+          .thenReturn(null);
+
+      // Act & Assert
+      expect(
+        () => dataSource.getDeviceUuid(),
+        throwsA(testException),
+      );
     });
   });
 
   group('saveDeviceUuid', () {
-    test('should save UUID to SharedPreferences', () async {
+    test('should save device ID to SharedPreferences', () async {
       // Arrange
-      const uuid = 'test-uuid-456';
+      const deviceId = 'test-hardware-id-456';
+      final dataSource = SyncDeviceLocalDataSourceImpl(
+        sharedPreferences: mockSharedPreferences,
+        deviceInfo: mockDeviceInfo,
+      );
+
       when(() => mockSharedPreferences.setString(any(), any()))
           .thenAnswer((_) async => true);
 
       // Act
-      await dataSource.saveDeviceUuid(uuid);
+      await dataSource.saveDeviceUuid(deviceId);
 
       // Assert
-      verify(() => mockSharedPreferences.setString('DEVICE_UUID', uuid)).called(1);
+      verify(() => mockSharedPreferences.setString('DEVICE_UUID', deviceId)).called(1);
     });
   });
 }

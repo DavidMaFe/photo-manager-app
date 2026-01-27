@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_device_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
 
 abstract class SyncDeviceLocalDataSource {
@@ -27,15 +26,39 @@ class SyncDeviceLocalDataSourceImpl implements SyncDeviceLocalDataSource {
 
   @override
   Future<String> getDeviceUuid() async {
+    // Check if we have a cached device identifier
     final savedUuid = sharedPreferences.getString(_keyDeviceUuid);
 
     if(savedUuid != null && savedUuid.isNotEmpty) {
       return savedUuid;
     }
 
-    final newUuid = const Uuid().v4();
-    await saveDeviceUuid(newUuid);
-    return newUuid;
+    // Get hardware-based device identifier that persists across reinstalls
+    final hardwareId = await _getHardwareDeviceId();
+
+    // Validate that we got a valid hardware ID
+    if(hardwareId.isEmpty) {
+      throw Exception("Failed to obtain hardware device identifier");
+    }
+
+    // Cache the hardware ID for performance
+    await saveDeviceUuid(hardwareId);
+    return hardwareId;
+  }
+
+  /// Gets a hardware-based device identifier that persists across app reinstalls
+  /// For Android: Uses ANDROID_ID (persists across reinstalls but not factory resets)
+  /// For iOS: Uses identifierForVendor (persists across reinstalls for same vendor)
+  Future<String> _getHardwareDeviceId() async {
+    if(Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.id;
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.identifierForVendor ?? '';
+    } else {
+      throw Exception("Platform not supported: ${Platform.operatingSystem}");
+    }
   }
 
   @override

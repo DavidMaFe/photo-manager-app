@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
+import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
+import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
@@ -123,8 +125,14 @@ class GalleryPage extends StatelessWidget {
   }
 
   void _handleStateChanges(BuildContext context, GalleryState state) {
-    // TODO: Implementar al final
-    if (state is GalleryError) {}
+    if (state is GalleryError) {
+      ErrorNotificationService.showError(
+        context,
+        state.failure,
+        config: ErrorDisplayConfig.snackBar,
+        onRetry: () => context.read<GalleryBloc>().add(const LoadGallery()),
+      );
+    }
   }
 
   Widget _buildFilters(BuildContext context, GalleryState state) {
@@ -184,8 +192,10 @@ class GalleryPage extends StatelessWidget {
     }
 
     if (state is GalleryError) {
-      // TODO: Implementar después
-      return const SizedBox.shrink();
+      return ErrorDisplay(
+        failure: state.failure,
+        onRetry: () => context.read<GalleryBloc>().add(const LoadGallery()),
+      );
     }
 
     return const SizedBox.shrink();

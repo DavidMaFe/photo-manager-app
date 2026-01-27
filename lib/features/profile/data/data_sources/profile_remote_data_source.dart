@@ -1,6 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
+import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
+import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/profile/data/models/user_profile_model.dart';
 
@@ -33,23 +37,28 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
   @override
   Future<UserProfileModel> getUserProfile() async {
+    try {
+      final token = await authLocalDataSource.getToken();
+      final response = await client.get(
+        Uri.parse('$baseUrl/api/profile/'),
+        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+      );
 
-    final token = await authLocalDataSource.getToken();
-    final response = await client.get(
-      Uri.parse('$baseUrl/api/profile/'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        return UserProfileModel.fromJson(jsonData);
+      } else {
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
       }
-    );
-
-    if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body);
-      return UserProfileModel.fromJson(jsonData);
-    } else if (response.statusCode == 401) {
-      throw Exception('Invalid or expired token');
-    } else {
-      throw Exception('Error when trying to get the user profile');
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw Exception('Connection error: $e');
     }
   }
 
@@ -59,31 +68,35 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     String? surname,
     String? profileImage,
   }) async {
-    final token = await authLocalDataSource.getToken();
+    try {
+      final token = await authLocalDataSource.getToken();
 
-    final Map<String, dynamic> body = {};
-    if (name != null) body['name'] = name;
-    if (surname != null) body['surname'] = surname;
-    if (profileImage != null) body['profileImage'] = profileImage;
+      final Map<String, dynamic> body = {};
+      if (name != null) body['name'] = name;
+      if (surname != null) body['surname'] = surname;
+      if (profileImage != null) body['profileImage'] = profileImage;
 
-    final response = await client.put(
-      Uri.parse('$baseUrl/api/profile/'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      },
-      body: jsonEncode(body),
-    );
+      final response = await client.put(
+        Uri.parse('$baseUrl/api/profile/'),
+        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        body: jsonEncode(body),
+      );
 
-    if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body);
-      return UserProfileModel.fromJson(jsonData);
-    } else if (response.statusCode == 401) {
-      throw Exception('Invalid or expired token');
-    } else if (response.statusCode == 400) {
-      throw Exception('Invalid profile data');
-    } else {
-      throw Exception('Error when trying to update the user profile');
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        return UserProfileModel.fromJson(jsonData);
+      } else {
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
+      }
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw Exception('Connection error: $e');
     }
   }
 
@@ -92,28 +105,32 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     required String currentPassword,
     required String newPassword,
   }) async {
-    final token = await authLocalDataSource.getToken();
+    try {
+      final token = await authLocalDataSource.getToken();
 
-    final response = await client.post(
-      Uri.parse('$baseUrl/api/password-change/'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      },
-      body: jsonEncode({
-        'currentPassword': currentPassword,
-        'newPassword': newPassword,
-      }),
-    );
+      final response = await client.post(
+        Uri.parse('$baseUrl/api/password-change/'),
+        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        body: jsonEncode({
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      return;
-    } else if (response.statusCode == 401) {
-      throw Exception('Invalid or expired token');
-    } else if (response.statusCode == 400) {
-      throw Exception('Invalid current password');
-    } else {
-      throw Exception('Error when trying to change password');
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
+      }
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw Exception('Connection error: $e');
     }
   }
 }

@@ -88,14 +88,14 @@ void main() {
       expect(find.text('2 archivos'), findsOneWidget);
     });
 
-    testWidgets('should render SyncSessionErrorView widget when state is SyncSessionError', (tester) async {
+    testWidgets('should render ErrorDisplay widget when state is SyncSessionError', (tester) async {
       // Arrange
       const failure = NetworkFailure(code: 'network_failure');
       const state = SyncSessionError(failure);
       await tester.pumpWidget(createWidgetUnderTest(state));
 
-      // Assert
-      expect(find.text('network_failure'), findsOneWidget);
+      // Assert - Should show localized error message for NetworkFailure
+      expect(find.text('Sin conexión a internet. Verifica tu conexión e inténtalo de nuevo.'), findsOneWidget);
     });
 
     testWidgets('should show cancel dialog when back button pressed during upload', (tester) async {

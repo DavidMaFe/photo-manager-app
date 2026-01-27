@@ -1,17 +1,21 @@
-
+import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 
 abstract class Failure {
-
   final String messageKey;
   final Map<String, dynamic>? messageParams;
   final String? code;
   final dynamic data;
 
+  /// The complete error response from the backend (if this failure originated from an API error)
+  /// Used for debugging, logging, and accessing additional error details
+  final ErrorResponseModel? errorResponse;
+
   const Failure({
     required this.messageKey,
     this.messageParams,
     this.code,
-    this.data
+    this.data,
+    this.errorResponse,
   });
 
   @override
@@ -25,27 +29,28 @@ class ServerFailure extends Failure {
     super.messageKey = 'errorServer',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class NetworkFailure extends Failure {
   const NetworkFailure({
     super.messageKey = 'errorNetwork',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class TimeoutFailure extends Failure {
   const TimeoutFailure({
     super.messageKey = 'errorTimeout',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
 
@@ -56,27 +61,28 @@ class UnauthorizedFailure extends Failure {
     super.messageKey = 'errorUnauthorized',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class InvalidCredentialsFailure extends UnauthorizedFailure {
   const InvalidCredentialsFailure({
     super.messageKey = 'errorInvalidCredentials',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class TokenExpiredFailure extends UnauthorizedFailure {
   const TokenExpiredFailure({
     super.messageKey = 'errorTokenExpired',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
 
@@ -87,30 +93,30 @@ class ValidationFailure extends Failure {
     super.messageKey = 'errorValidation',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class InvalidEmailFailure extends ValidationFailure {
   const InvalidEmailFailure({
     super.messageKey = 'errorInvalidEmail',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class PasswordMismatchFailure extends ValidationFailure {
   const PasswordMismatchFailure({
     super.messageKey = 'errorPasswordMismatch',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class RequiredFieldFailure extends ValidationFailure {
   RequiredFieldFailure({
@@ -118,9 +124,10 @@ class RequiredFieldFailure extends ValidationFailure {
     super.messageKey = 'errorRequiredField',
     super.code,
     super.data,
+    super.errorResponse,
   }) : super(
-    messageParams: {'fieldName': fieldName},
-  );
+          messageParams: {'fieldName': fieldName},
+        );
 }
 
 // ============= DATA ERRORS =============
@@ -130,37 +137,38 @@ class NotFoundFailure extends Failure {
     super.messageKey = 'errorNotFound',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class AlreadyExistsFailure extends Failure {
   const AlreadyExistsFailure({
     super.messageKey = 'errorAlreadyExists',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class EmailAlreadyExistsFailure extends Failure {
   const EmailAlreadyExistsFailure({
     super.messageKey = 'errorEmailAlreadyExists',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class CacheFailure extends Failure {
   const CacheFailure({
     super.messageKey = 'errorCache',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
 
@@ -171,17 +179,18 @@ class StorageSpaceExceededFailure extends Failure {
     super.messageKey = 'errorStorageSpaceExceeded',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
-
 
 class PermissionDeniedFailure extends Failure {
   const PermissionDeniedFailure({
     super.messageKey = 'errorPermissionDenied',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }
 
@@ -192,6 +201,7 @@ class UnknownFailure extends Failure {
     super.messageKey = 'errorUnknown',
     super.messageParams,
     super.code,
-    super.data
+    super.data,
+    super.errorResponse,
   });
 }

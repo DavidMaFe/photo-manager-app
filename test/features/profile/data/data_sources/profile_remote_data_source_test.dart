@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_remote_data_source.dart';
 
@@ -86,13 +87,16 @@ void main() {
         await dataSource.getUserProfile();
 
         // Assert
-        verify(() => mockHttpClient.get(
+        final captured = verify(() => mockHttpClient.get(
               Uri.parse('$baseUrl/api/profile/'),
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer $testToken',
-              },
-            )).called(1);
+              headers: captureAny(named: 'headers'),
+            ));
+        captured.called(1);
+
+        final headers = captured.captured.last as Map<String, String>;
+        expect(headers['Content-Type'], 'application/json');
+        expect(headers['Authorization'], 'Bearer $testToken');
+        expect(headers.containsKey('Accept-Language'), true);
       });
 
       test('should include Bearer token in Authorization header', () async {
@@ -114,6 +118,7 @@ void main() {
 
         // Assert
         expect(capturedHeaders!['Authorization'], 'Bearer $testToken');
+        expect(capturedHeaders!.containsKey('Accept-Language'), true);
       });
 
       test('should set correct Content-Type header', () async {
@@ -135,6 +140,7 @@ void main() {
 
         // Assert
         expect(capturedHeaders!['Content-Type'], 'application/json');
+        expect(capturedHeaders!.containsKey('Accept-Language'), true);
       });
 
       test('should return UserProfileModel on successful request (200)',
@@ -182,8 +188,7 @@ void main() {
         expect(result.deviceCount, 2);
       });
 
-      test('should throw exception with specific message on 401 Unauthorized',
-          () async {
+      test('should throw ApiException on 401 Unauthorized', () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
@@ -191,7 +196,15 @@ void main() {
               any(),
               headers: any(named: 'headers'),
             )).thenAnswer(
-          (_) async => http.Response('Unauthorized', 401),
+          (_) async => http.Response(
+            jsonEncode({
+              'code': 'UNAUTHORIZED',
+              'message': 'Invalid or expired token',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/profile/',
+            }),
+            401,
+          ),
         );
 
         // Act & Assert
@@ -199,13 +212,14 @@ void main() {
           () => dataSource.getUserProfile(),
           throwsA(
             predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Invalid or expired token')),
+                e is ApiException &&
+                e.code == 'UNAUTHORIZED' &&
+                e.message == 'Invalid or expired token'),
           ),
         );
       });
 
-      test('should throw exception on 404 Not Found', () async {
+      test('should throw ApiException on 404 Not Found', () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
@@ -213,7 +227,15 @@ void main() {
               any(),
               headers: any(named: 'headers'),
             )).thenAnswer(
-          (_) async => http.Response('Not Found', 404),
+          (_) async => http.Response(
+            jsonEncode({
+              'code': 'PROFILE_NOT_FOUND',
+              'message': 'User profile not found',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/profile/',
+            }),
+            404,
+          ),
         );
 
         // Act & Assert
@@ -221,14 +243,14 @@ void main() {
           () => dataSource.getUserProfile(),
           throwsA(
             predicate((e) =>
-                e is Exception &&
-                e.toString()
-                    .contains('Error when trying to get the user profile')),
+                e is ApiException &&
+                e.code == 'PROFILE_NOT_FOUND' &&
+                e.message == 'User profile not found'),
           ),
         );
       });
 
-      test('should throw exception on server error (500)', () async {
+      test('should throw ApiException on server error (500)', () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
@@ -236,7 +258,15 @@ void main() {
               any(),
               headers: any(named: 'headers'),
             )).thenAnswer(
-          (_) async => http.Response('Internal Server Error', 500),
+          (_) async => http.Response(
+            jsonEncode({
+              'code': 'INTERNAL_SERVER_ERROR',
+              'message': 'Internal server error',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/profile/',
+            }),
+            500,
+          ),
         );
 
         // Act & Assert
@@ -244,14 +274,14 @@ void main() {
           () => dataSource.getUserProfile(),
           throwsA(
             predicate((e) =>
-                e is Exception &&
-                e.toString()
-                    .contains('Error when trying to get the user profile')),
+                e is ApiException &&
+                e.code == 'INTERNAL_SERVER_ERROR' &&
+                e.message == 'Internal server error'),
           ),
         );
       });
 
-      test('should throw exception on 503 Service Unavailable', () async {
+      test('should throw ApiException on 503 Service Unavailable', () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
@@ -259,7 +289,15 @@ void main() {
               any(),
               headers: any(named: 'headers'),
             )).thenAnswer(
-          (_) async => http.Response('Service Unavailable', 503),
+          (_) async => http.Response(
+            jsonEncode({
+              'code': 'SERVICE_UNAVAILABLE',
+              'message': 'Service temporarily unavailable',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/profile/',
+            }),
+            503,
+          ),
         );
 
         // Act & Assert
@@ -267,9 +305,9 @@ void main() {
           () => dataSource.getUserProfile(),
           throwsA(
             predicate((e) =>
-                e is Exception &&
-                e.toString()
-                    .contains('Error when trying to get the user profile')),
+                e is ApiException &&
+                e.code == 'SERVICE_UNAVAILABLE' &&
+                e.message == 'Service temporarily unavailable'),
           ),
         );
       });
@@ -418,14 +456,17 @@ void main() {
         await dataSource.updateUserProfile(name: 'Jane');
 
         // Assert
-        verify(() => mockHttpClient.put(
+        final captured = verify(() => mockHttpClient.put(
               Uri.parse('$baseUrl/api/profile/'),
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer $testToken',
-              },
+              headers: captureAny(named: 'headers'),
               body: any(named: 'body'),
-            )).called(1);
+            ));
+        captured.called(1);
+
+        final headers = captured.captured.last as Map<String, String>;
+        expect(headers['Content-Type'], 'application/json');
+        expect(headers['Authorization'], 'Bearer $testToken');
+        expect(headers.containsKey('Accept-Language'), true);
       });
 
       test('should send only name in request body when only name is provided',
@@ -508,7 +549,7 @@ void main() {
         expect(result.email, 'test@example.com');
       });
 
-      test('should throw exception on 401 Unauthorized', () async {
+      test('should throw ApiException on 401 Unauthorized', () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
@@ -517,7 +558,15 @@ void main() {
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             )).thenAnswer(
-          (_) async => http.Response('Unauthorized', 401),
+          (_) async => http.Response(
+            jsonEncode({
+              'code': 'UNAUTHORIZED',
+              'message': 'Invalid or expired token',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/profile/',
+            }),
+            401,
+          ),
         );
 
         // Act & Assert
@@ -525,13 +574,14 @@ void main() {
           () => dataSource.updateUserProfile(name: 'Jane'),
           throwsA(
             predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Invalid or expired token')),
+                e is ApiException &&
+                e.code == 'UNAUTHORIZED' &&
+                e.message == 'Invalid or expired token'),
           ),
         );
       });
 
-      test('should throw exception on 400 Bad Request', () async {
+      test('should throw ApiException on 400 Bad Request', () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
@@ -540,7 +590,15 @@ void main() {
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             )).thenAnswer(
-          (_) async => http.Response('Invalid profile data', 400),
+          (_) async => http.Response(
+            jsonEncode({
+              'code': 'INVALID_PROFILE_DATA',
+              'message': 'Invalid profile data',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/profile/',
+            }),
+            400,
+          ),
         );
 
         // Act & Assert
@@ -548,12 +606,14 @@ void main() {
           () => dataSource.updateUserProfile(name: ''),
           throwsA(
             predicate((e) =>
-                e is Exception && e.toString().contains('Invalid profile data')),
+                e is ApiException &&
+                e.code == 'INVALID_PROFILE_DATA' &&
+                e.message == 'Invalid profile data'),
           ),
         );
       });
 
-      test('should throw exception on server error (500)', () async {
+      test('should throw ApiException on server error (500)', () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
@@ -562,7 +622,15 @@ void main() {
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             )).thenAnswer(
-          (_) async => http.Response('Internal Server Error', 500),
+          (_) async => http.Response(
+            jsonEncode({
+              'code': 'INTERNAL_SERVER_ERROR',
+              'message': 'Internal server error',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/profile/',
+            }),
+            500,
+          ),
         );
 
         // Act & Assert
@@ -570,9 +638,9 @@ void main() {
           () => dataSource.updateUserProfile(name: 'Jane'),
           throwsA(
             predicate((e) =>
-                e is Exception &&
-                e.toString()
-                    .contains('Error when trying to update the user profile')),
+                e is ApiException &&
+                e.code == 'INTERNAL_SERVER_ERROR' &&
+                e.message == 'Internal server error'),
           ),
         );
       });
@@ -644,14 +712,17 @@ void main() {
         );
 
         // Assert
-        verify(() => mockHttpClient.post(
+        final captured = verify(() => mockHttpClient.post(
               Uri.parse('$baseUrl/api/password-change/'),
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer $testToken',
-              },
+              headers: captureAny(named: 'headers'),
               body: any(named: 'body'),
-            )).called(1);
+            ));
+        captured.called(1);
+
+        final headers = captured.captured.last as Map<String, String>;
+        expect(headers['Content-Type'], 'application/json');
+        expect(headers['Authorization'], 'Bearer $testToken');
+        expect(headers.containsKey('Accept-Language'), true);
       });
 
       test('should send correct passwords in request body', () async {
@@ -702,7 +773,7 @@ void main() {
         );
       });
 
-      test('should throw exception on 401 Unauthorized', () async {
+      test('should throw ApiException on 401 Unauthorized', () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
@@ -711,7 +782,15 @@ void main() {
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             )).thenAnswer(
-          (_) async => http.Response('Unauthorized', 401),
+          (_) async => http.Response(
+            jsonEncode({
+              'code': 'UNAUTHORIZED',
+              'message': 'Invalid or expired token',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/password-change/',
+            }),
+            401,
+          ),
         );
 
         // Act & Assert
@@ -722,13 +801,14 @@ void main() {
           ),
           throwsA(
             predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Invalid or expired token')),
+                e is ApiException &&
+                e.code == 'UNAUTHORIZED' &&
+                e.message == 'Invalid or expired token'),
           ),
         );
       });
 
-      test('should throw exception on 400 Bad Request (wrong password)',
+      test('should throw ApiException on 400 Bad Request (wrong password)',
           () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
@@ -738,7 +818,15 @@ void main() {
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             )).thenAnswer(
-          (_) async => http.Response('Invalid current password', 400),
+          (_) async => http.Response(
+            jsonEncode({
+              'code': 'INVALID_PASSWORD',
+              'message': 'Invalid current password',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/password-change/',
+            }),
+            400,
+          ),
         );
 
         // Act & Assert
@@ -749,13 +837,14 @@ void main() {
           ),
           throwsA(
             predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Invalid current password')),
+                e is ApiException &&
+                e.code == 'INVALID_PASSWORD' &&
+                e.message == 'Invalid current password'),
           ),
         );
       });
 
-      test('should throw exception on server error (500)', () async {
+      test('should throw ApiException on server error (500)', () async {
         // Arrange
         when(() => mockAuthLocalDataSource.getToken())
             .thenAnswer((_) async => testToken);
@@ -764,7 +853,15 @@ void main() {
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             )).thenAnswer(
-          (_) async => http.Response('Internal Server Error', 500),
+          (_) async => http.Response(
+            jsonEncode({
+              'code': 'INTERNAL_SERVER_ERROR',
+              'message': 'Internal server error',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/password-change/',
+            }),
+            500,
+          ),
         );
 
         // Act & Assert
@@ -775,8 +872,9 @@ void main() {
           ),
           throwsA(
             predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Error when trying to change password')),
+                e is ApiException &&
+                e.code == 'INTERNAL_SERVER_ERROR' &&
+                e.message == 'Internal server error'),
           ),
         );
       });

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
+import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
+import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_event.dart';
@@ -76,18 +78,11 @@ class FoldersPage extends StatelessWidget {
       );
     }
     if (state is FolderOperationError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(state.failure.messageKey)
-              ],
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          )
+      ErrorNotificationService.showError(
+        context,
+        state.failure,
+        config: ErrorDisplayConfig.snackBar,
+        onRetry: () => context.read<FolderBloc>().add(const LoadFolders()),
       );
     }
   }
@@ -126,51 +121,9 @@ class FoldersPage extends StatelessWidget {
   }
 
   Widget _buildErrorState(BuildContext context, FolderError state, AppLocalizations l10n) {
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red.shade400,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Error",
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold
-              )
-            ),
-            const SizedBox(height: 8),
-            Text(
-              state.failure.messageKey,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                context.read<FolderBloc>().add(const LoadFolders());
-              },
-              icon: const Icon(Icons.refresh),
-              label: Text(l10n.tryAgain),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: PhotoManagerColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
-              ),
-            )
-          ],
-        ),
-      ),
+    return ErrorDisplay(
+      failure: state.failure,
+      onRetry: () => context.read<FolderBloc>().add(const LoadFolders()),
     );
   }
 

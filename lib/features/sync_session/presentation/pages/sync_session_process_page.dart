@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
+import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/widgets/sync_session_complete.dart';
-import 'package:photo_manager_app/features/sync_session/presentation/widgets/sync_session_error_view.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/widgets/sync_session_fetch_files.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/widgets/sync_session_init.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/widgets/sync_session_uploading_files.dart';
@@ -119,8 +119,8 @@ class SyncSessionProcessPage extends StatelessWidget {
     }
 
     if (state is SyncSessionError) {
-      return SyncSessionErrorView(
-        message: state.failure.code!,
+      return ErrorDisplay(
+        failure: state.failure,
         onRetry: () {
           context.read<SyncSessionBloc>().add(const SyncSessionRetried());
         },

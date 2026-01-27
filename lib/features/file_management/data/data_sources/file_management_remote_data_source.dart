@@ -3,12 +3,13 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/config/data_constants.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
+import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
+import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_file_request_model.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_file_response_model.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_folder_model.dart';
-
-import '../../../../core/errors/base/failure_codes.dart';
 
 
 abstract class FileManagementRemoteDataSource {
@@ -31,41 +32,39 @@ class FileManagementRemoteDataSourceImpl implements FileManagementRemoteDataSour
 
   @override
   Future<ManageFileResponseModel> manageFiles(ManageFileRequestModel request) async {
-
     try {
-
+      final token = await authLocalDataSource.getToken();
       final response = await client.post(
         Uri.parse('$baseUrl/api/file/manage/'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${await authLocalDataSource.getToken()}'
-        },
-        body: jsonEncode(request.toJson())
+        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        body: jsonEncode(request.toJson()),
       );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> body = jsonDecode(response.body);
         return ManageFileResponseModel.fromJson(body);
       } else {
-        throw HttpException(jsonDecode(response.body)["message"]);
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
       }
-
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      if (e is HttpException) rethrow;
-      throw Exception(FailureCodes.unknownErrorCode);
+      throw Exception('Connection error: $e');
     }
-
   }
 
   @override
   Future<List<ManageFolderModel>> getFolders() async {
     try {
-
+      final token = await authLocalDataSource.getToken();
       final response = await client.get(
         Uri.parse('$baseUrl/api/folder/list/'),
-        headers: {
-          'Authorization': 'Bearer ${await authLocalDataSource.getToken()}'
-        },
+        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
       );
 
       if (response.statusCode == 200) {
@@ -76,11 +75,17 @@ class FileManagementRemoteDataSourceImpl implements FileManagementRemoteDataSour
             .map((json) => ManageFolderModel.fromJson(json as Map<String, dynamic>))
             .toList();
       } else {
-        throw HttpException(jsonDecode(response.body)["message"]);
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
       }
-    } catch(e) {
-      if (e is HttpException) rethrow;
-      throw Exception(FailureCodes.unknownErrorCode);
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw Exception('Connection error: $e');
     }
   }
 }

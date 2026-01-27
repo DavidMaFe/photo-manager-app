@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_session_remote_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
@@ -62,46 +63,60 @@ void main() {
 
       // Assert
       expect(result.id, sessionId);
-      verify(() => mockClient.post(
+      final captured = verify(() => mockClient.post(
             Uri.parse('$baseUrl/api/sync_session/start/'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $token',
-            },
+            headers: captureAny(named: 'headers'),
             body: jsonEncode({'deviceUuid': deviceUuid}),
-          )).called(1);
+          ));
+      captured.called(1);
+
+      final headers = captured.captured.last as Map<String, String>;
+      expect(headers['Content-Type'], 'application/json');
+      expect(headers['Authorization'], 'Bearer $token');
+      expect(headers.containsKey('Accept-Language'), true);
     });
 
-    test('should throw HttpException on non-200 response', () async {
+    test('should throw ApiException on non-200 response', () async {
       // Arrange
       when(() => mockClient.post(
             any(),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response(
-            jsonEncode({'message': 'Session creation failed'}),
+            jsonEncode({
+              'code': 'SESSION_CREATION_FAILED',
+              'message': 'Session creation failed',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/sync_session/start/',
+            }),
             400,
           ));
 
       // Act & Assert
       expect(
         () => dataSource.startSyncSession(deviceUuid),
-        throwsA(isA<HttpException>()),
+        throwsA(
+          predicate((e) =>
+              e is ApiException &&
+              e.code == 'SESSION_CREATION_FAILED' &&
+              e.message == 'Session creation failed'),
+        ),
       );
     });
 
-    test('should throw Exception on network error', () async {
+    test('should rethrow SocketException on network error', () async {
       // Arrange
+      const exception = SocketException('Network error');
       when(() => mockClient.post(
             any(),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
-          )).thenThrow(const SocketException('Network error'));
+          )).thenThrow(exception);
 
       // Act & Assert
       expect(
         () => dataSource.startSyncSession(deviceUuid),
-        throwsA(isA<Exception>()),
+        throwsA(exception),
       );
     });
   });
@@ -140,21 +155,31 @@ void main() {
           )).called(1);
     });
 
-    test('should throw HttpException on error response', () async {
+    test('should throw ApiException on error response', () async {
       // Arrange
       when(() => mockClient.post(
             any(),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response(
-            jsonEncode({'message': 'Invalid session'}),
+            jsonEncode({
+              'code': 'INVALID_SESSION',
+              'message': 'Invalid session',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/sync_session/check_duplicates/',
+            }),
             404,
           ));
 
       // Act & Assert
       expect(
         () => dataSource.checkDuplicates(sessionId, fileHashes),
-        throwsA(isA<HttpException>()),
+        throwsA(
+          predicate((e) =>
+              e is ApiException &&
+              e.code == 'INVALID_SESSION' &&
+              e.message == 'Invalid session'),
+        ),
       );
     });
   });
@@ -190,21 +215,31 @@ void main() {
           )).called(1);
     });
 
-    test('should throw HttpException on error', () async {
+    test('should throw ApiException on error', () async {
       // Arrange
       when(() => mockClient.post(
             any(),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response(
-            jsonEncode({'message': 'Session not found'}),
+            jsonEncode({
+              'code': 'SESSION_NOT_FOUND',
+              'message': 'Session not found',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/sync_session/complete/',
+            }),
             404,
           ));
 
       // Act & Assert
       expect(
         () => dataSource.completeSyncSession(sessionId),
-        throwsA(isA<HttpException>()),
+        throwsA(
+          predicate((e) =>
+              e is ApiException &&
+              e.code == 'SESSION_NOT_FOUND' &&
+              e.message == 'Session not found'),
+        ),
       );
     });
   });
@@ -232,21 +267,31 @@ void main() {
           )).called(1);
     });
 
-    test('should throw HttpException on error', () async {
+    test('should throw ApiException on error', () async {
       // Arrange
       when(() => mockClient.post(
             any(),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response(
-            jsonEncode({'message': 'Cannot cancel'}),
+            jsonEncode({
+              'code': 'CANNOT_CANCEL_SESSION',
+              'message': 'Cannot cancel',
+              'timestamp': '2025-01-26T10:30:45.123456',
+              'path': '/api/sync_session/cancel/',
+            }),
             400,
           ));
 
       // Act & Assert
       expect(
         () => dataSource.cancelSyncSession(sessionId),
-        throwsA(isA<HttpException>()),
+        throwsA(
+          predicate((e) =>
+              e is ApiException &&
+              e.code == 'CANNOT_CANCEL_SESSION' &&
+              e.message == 'Cannot cancel'),
+        ),
       );
     });
   });
@@ -279,9 +324,14 @@ void main() {
       expect(result.fileId, 'server-file-456');
     }, skip: 'Cannot be tested as a unit test: http.MultipartFile.fromPath() performs real file I/O that blocks in test environment. The implementation uses MultipartFile.fromPath() which reads the file from disk and auto-detects MIME types - these operations cannot be mocked without violating the "Don\'t Mock What You Don\'t Own" principle. This functionality is adequately covered by repository-level tests where the data source is mocked. To properly test this, consider: (1) refactoring to use a file upload abstraction, or (2) creating integration tests with a real HTTP mock server.');
 
-    test('should throw HttpException on upload failure', () async {
+    test('should throw ApiException on upload failure', () async {
       // Arrange
-      final errorBody = jsonEncode({'message': 'Upload failed'});
+      final errorBody = jsonEncode({
+        'code': 'UPLOAD_FAILED',
+        'message': 'Upload failed',
+        'timestamp': '2025-01-26T10:30:45.123456',
+        'path': '/api/sync_session/upload/',
+      });
       final controller = StreamController<List<int>>();
       final streamedResponse = http.StreamedResponse(controller.stream, 500);
 
@@ -294,7 +344,12 @@ void main() {
       // Act & Assert
       await expectLater(
         () => dataSource.uploadFile(sessionId, file),
-        throwsA(isA<HttpException>()),
+        throwsA(
+          predicate((e) =>
+              e is ApiException &&
+              e.code == 'UPLOAD_FAILED' &&
+              e.message == 'Upload failed'),
+        ),
       );
     }, skip: 'Cannot be tested as a unit test: http.MultipartFile.fromPath() performs real file I/O that blocks in test environment. See the skip message on the success test for full explanation.');
   });

@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
+import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
+import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/duplicate_files_result_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_result_model.dart';
@@ -9,7 +12,6 @@ import 'package:photo_manager_app/features/sync_session/data/models/sync_session
 import 'package:photo_manager_app/features/sync_session/data/models/upload_result_model.dart';
 
 import '../../../../../config/data_constants.dart';
-import '../../../../../core/errors/base/failure_codes.dart';
 import '../../../../auth/data/data_sources/auth_local_data_source.dart';
 
 
@@ -36,69 +38,69 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
 
   Future<Map<String, String>> _headers() async {
     String? token = await authLocalDataSource.getToken();
-
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token!}'
-    };
+    return HttpHeadersUtil.getAuthJsonHeaders(token!);
   }
   
   @override
   Future<SyncSessionModel> startSyncSession(String deviceUuid) async {
-    
     try {
-      
       final response = await client.post(
         Uri.parse('$baseUrl/api/sync_session/start/'),
         headers: await _headers(),
-        body: jsonEncode({'deviceUuid': deviceUuid})
+        body: jsonEncode({'deviceUuid': deviceUuid}),
       );
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         return SyncSessionModel.fromJson(json);
       } else {
-        throw HttpException(jsonDecode(response.body)["message"]);
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
       }
-      
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      if (e is HttpException) rethrow;
-      throw Exception(FailureCodes.unknownErrorCode);
+      throw Exception('Connection error: $e');
     }
   }
   
   @override
   Future<DuplicateFilesResultModel> checkDuplicates(String sessionId, List<String> fileHashes) async {
-
     try {
-
       final response = await client.post(
-          Uri.parse('$baseUrl/api/sync_session/check_duplicates/'),
-          headers: await _headers(),
-          body: jsonEncode({'sessionId': sessionId, 'fileHashes': fileHashes})
+        Uri.parse('$baseUrl/api/sync_session/check_duplicates/'),
+        headers: await _headers(),
+        body: jsonEncode({'sessionId': sessionId, 'fileHashes': fileHashes}),
       );
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         return DuplicateFilesResultModel.fromJson(json);
       } else {
-        throw HttpException(jsonDecode(response.body)["message"]);
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
       }
-
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      if (e is HttpException) rethrow;
-      throw Exception(FailureCodes.unknownErrorCode);
+      throw Exception('Connection error: $e');
     }
   }
   
   @override
   Future<UploadResultModel> uploadFile(String sessionId, SyncFileModel file) async {
-
     try {
-      
       final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/api/sync_session/upload/'));
-      String? token = await authLocalDataSource.getToken();
-      request.headers.addAll({'Authorization': 'Bearer ${token!}'});
+      final token = await authLocalDataSource.getToken();
+      request.headers.addAll({'Authorization': 'Bearer $token'});
 
       request.fields['sessionId'] = sessionId;
       request.fields['metadata'] = jsonEncode(file.uploadMetadata);
@@ -111,58 +113,72 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
         final jsonResponse = json.decode(response.body);
         return UploadResultModel.fromJson(jsonResponse);
       } else {
-        throw HttpException(jsonDecode(response.body)["message"]);
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
       }
-
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on FileSystemException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      if (e is HttpException) rethrow;
-      if (e is FileSystemException) rethrow;
-      throw Exception(FailureCodes.unknownErrorCode);
+      throw Exception('Connection error: $e');
     }
   }
   
   @override
   Future<SyncResultModel> completeSyncSession(String sessionId) async {
-
     try {
-
       final response = await client.post(
-          Uri.parse('$baseUrl/api/sync_session/complete/'),
-          headers: await _headers(),
-          body: jsonEncode({'sessionId': sessionId})
+        Uri.parse('$baseUrl/api/sync_session/complete/'),
+        headers: await _headers(),
+        body: jsonEncode({'sessionId': sessionId}),
       );
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         return SyncResultModel.fromJson(json);
       } else {
-        throw HttpException(jsonDecode(response.body)["message"]);
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
       }
-
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      if (e is HttpException) rethrow;
-      throw Exception(FailureCodes.unknownErrorCode);
+      throw Exception('Connection error: $e');
     }
   }
-  
+
   @override
   Future<void> cancelSyncSession(String sessionId) async {
-
     try {
-
       final response = await client.post(
-          Uri.parse('$baseUrl/api/sync_session/cancel/'),
-          headers: await _headers(),
-          body: jsonEncode({'sessionId': sessionId})
+        Uri.parse('$baseUrl/api/sync_session/cancel/'),
+        headers: await _headers(),
+        body: jsonEncode({'sessionId': sessionId}),
       );
 
-      if (response.statusCode != 200) {
-        throw HttpException(jsonDecode(response.body)["message"]);
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
       }
-
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      if (e is HttpException) rethrow;
-      throw Exception(FailureCodes.unknownErrorCode);
+      throw Exception('Connection error: $e');
     }
   }
 }

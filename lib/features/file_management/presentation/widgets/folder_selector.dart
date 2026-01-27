@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
+import 'package:photo_manager_app/core/errors/widgets/error_banner.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_folder.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_event.dart';
@@ -41,11 +42,12 @@ class FolderSelector extends StatelessWidget {
         }
 
         if (state is ManageFolderError) {
-          return _ErrorWidget(
-            message: state.failure.messageKey,
+          return ErrorBanner(
+            failure: state.failure,
             onRetry: () {
               context.read<ManageFolderBloc>().add(const LoadFolders());
-            }
+            },
+            margin: const EdgeInsets.symmetric(vertical: 8),
           );
         }
         
@@ -168,40 +170,6 @@ class _FolderList extends StatelessWidget {
             ],
           );
         }).toList(),
-      ),
-    );
-  }
-}
-
-
-class _ErrorWidget extends StatelessWidget {
-
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorWidget({
-    required this.message,
-    required this.onRetry
-  });
-
-  @override
-  Widget build(BuildContext context) {
-
-    final l10n = AppLocalizations.of(context)!;
-
-    return Padding(
-      padding: const EdgeInsetsGeometry.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(message, style: TextStyle(color: Colors.red[700]), textAlign: TextAlign.center),
-          const SizedBox(height: 8),
-          TextButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: Text(l10n.tryAgain),
-          )
-        ],
       ),
     );
   }

@@ -2,24 +2,40 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/errors/base/generic_failure.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
+import 'package:photo_manager_app/core/errors/utils/error_logger.dart';
 
 import '../base/failure_codes.dart';
 
-
+/// Centralized error handling that converts exceptions to Failure objects
+///
+/// Priority order:
+/// 1. ApiException (from backend) → Map error code to specific Failure
+/// 2. Network exceptions (SocketException, TimeoutException) → Network Failures
+/// 3. Other exceptions (FormatException, etc.) → Generic Failures
 class ErrorHandler {
-  static Failure handleError(dynamic error) {
+  static Failure handleError(dynamic error, {String? context}) {
     // If already a Failure, return as-is
     if (error is Failure) {
+      ErrorLogger.logFailure(error, context: context);
       return error;
     }
 
     // Handle Exception types
     if (error is Exception) {
-      return _handleException(error);
+      final failure = _handleException(error);
+      ErrorLogger.logFailure(failure, context: context);
+      return failure;
     }
 
     // Handle Error types
     if (error is Error) {
+      ErrorLogger.logException(
+        Exception('Dart Error: ${error.toString()}'),
+        error.stackTrace,
+        context: context,
+      );
       return UnknownFailure(
         code: 'ERROR',
         data: {'type': error.runtimeType.toString(), 'message': error.toString()},
@@ -33,85 +49,39 @@ class ErrorHandler {
   }
 
   static Failure _handleException(Exception exception) {
-    final exceptionString = exception.toString();
+    // Priority 1: Handle ApiException (from backend)
+    if (exception is ApiException) {
+      ErrorLogger.logApiError(exception);
+      return _mapApiExceptionToFailure(exception);
+    }
 
-    // Network-related exceptions
+    // Priority 2: Handle network-related exceptions
     if (exception is SocketException) {
-      return NetworkFailure();
+      ErrorLogger.logNetworkError(exception);
+      return const NetworkFailure();
     }
 
     if (exception is TimeoutException) {
-      return TimeoutFailure();
+      ErrorLogger.logNetworkError(exception);
+      return const TimeoutFailure();
     }
 
     if (exception is HttpException) {
+      ErrorLogger.logNetworkError(exception);
       return ServerFailure(code: exception.message);
     }
 
-    // Format exceptions (JSON parsing, etc.)
+    // Priority 3: Handle format exceptions (JSON parsing, etc.)
     if (exception is FormatException) {
       return ValidationFailure(
         data: {'message': exception.message},
       );
     }
 
-    // Parse HTTP status codes from exception messages
-    if (exceptionString.contains(FailureCodes.authenticationErrorCode)) {
-      return InvalidCredentialsFailure();
-    }
-
-    if (exceptionString.contains('403')) {
-      return PermissionDeniedFailure();
-    }
-
-    if (exceptionString.contains('404')) {
-      return NotFoundFailure();
-    }
-
-    if (exceptionString.contains('409') ||
-        exceptionString.toLowerCase().contains('already exists')) {
-      return AlreadyExistsFailure();
-    }
-
-    if (exceptionString.contains('422') ||
-        exceptionString.toLowerCase().contains('validation')) {
-      return ValidationFailure();
-    }
-
-    if (exceptionString.contains('500') ||
-        exceptionString.contains('502') ||
-        exceptionString.contains('503') ||
-        exceptionString.contains('504') ||
-        exceptionString.toLowerCase().contains('server error')) {
-      return ServerFailure(
-        code: _extractStatusCode(exceptionString),
-      );
-    }
-
-    // Email-specific errors (server-side only)
-    if (exceptionString.toLowerCase().contains('email') &&
-        (exceptionString.toLowerCase().contains('exists') ||
-         exceptionString.toLowerCase().contains('already'))) {
-      return EmailAlreadyExistsFailure();
-    }
-
-    // Token/Auth errors
-    if (exceptionString.toLowerCase().contains('token') &&
-        (exceptionString.toLowerCase().contains('expired') ||
-         exceptionString.toLowerCase().contains('invalid'))) {
-      return TokenExpiredFailure();
-    }
-
-    // Cache errors
+    // Priority 4: Handle cache errors
+    final exceptionString = exception.toString();
     if (exceptionString.toLowerCase().contains('cache')) {
-      return CacheFailure();
-    }
-
-    // Storage errors
-    if (exceptionString.toLowerCase().contains('storage') &&
-        (exceptionString.toLowerCase().contains('full') ||
-         exceptionString.toLowerCase().contains('exceeded'))) {
-      return StorageSpaceExceededFailure();
+      return const CacheFailure();
     }
 
     // Default to UnknownFailure with exception details
@@ -120,9 +90,175 @@ class ErrorHandler {
     );
   }
 
-  static String? _extractStatusCode(String message) {
-    final regex = RegExp(r'\b[45]\d{2}\b');
-    final match = regex.firstMatch(message);
-    return match?.group(0);
+  /// Maps ApiException (from backend) to specific Failure types based on error code
+  static Failure _mapApiExceptionToFailure(ApiException exception) {
+    final errorResponse = exception.errorResponse;
+    final code = errorResponse.code;
+
+    // Map backend error codes to specific Failure types
+    switch (code) {
+      // ==================== User Domain Errors ====================
+      case FailureCodes.emailAlreadyUsed:
+        return EmailAlreadyExistsFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.userNotFound:
+        return NotFoundFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.incorrectPassword:
+        return InvalidCredentialsFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.userDoesNotHaveStorageSpace:
+        return StorageSpaceExceededFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.updateUserError:
+        return ServerFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      // ==================== Device Domain Errors ====================
+      case FailureCodes.deviceNotFound:
+      case FailureCodes.deviceLinkedToAnotherUser:
+      case FailureCodes.deviceNotLinkedToUser:
+        return NotFoundFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      // ==================== File Domain Errors ====================
+      case FailureCodes.fileNotFound:
+        return NotFoundFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.fileSizeNotAccepted:
+        return ValidationFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.invalidFileMimeType:
+        return ValidationFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.deleteFileError:
+        return ServerFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      // ==================== Sync Session Domain Errors ====================
+      case FailureCodes.syncSessionNotFound:
+        return NotFoundFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.syncSessionAlreadyInProgress:
+      case FailureCodes.syncSessionNotInProgress:
+        return AlreadyExistsFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.uploadFileError:
+        return ServerFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      // ==================== Folder Domain Errors ====================
+      case FailureCodes.folderNotFound:
+        return NotFoundFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.folderAlreadyExists:
+        return AlreadyExistsFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      // ==================== Password Reset Domain Errors ====================
+      case FailureCodes.expiredResetCode:
+      case FailureCodes.invalidResetCode:
+        return TokenExpiredFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.resetCodeNotFound:
+        return NotFoundFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.tooManyResetAttempts:
+        return PermissionDeniedFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      // ==================== JWT/Token Errors ====================
+      case FailureCodes.invalidTokenFormat:
+      case FailureCodes.invalidTokenSignature:
+        return InvalidCredentialsFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.tokenExpired:
+        return TokenExpiredFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.unauthorized:
+        return UnauthorizedFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      // ==================== General Errors ====================
+      case FailureCodes.authenticationError:
+        return InvalidCredentialsFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.validationError:
+        // Extract field-level validation errors from errorResponse.details
+        return ValidationFailure(
+          code: code,
+          data: errorResponse.details,
+          errorResponse: errorResponse,
+        );
+
+      // ==================== Unknown Backend Error ====================
+      default:
+        // Use GenericFailure for unknown backend error codes
+        // This preserves the backend code and message for debugging
+        return GenericFailure(
+          backendCode: code,
+          backendMessage: errorResponse.message,
+          errorResponse: errorResponse,
+        );
+    }
   }
 }

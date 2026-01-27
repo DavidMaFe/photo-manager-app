@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
+import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
@@ -402,7 +403,17 @@ class _ManageFileModalState extends State<ManageFileModal> {
       Navigator.pop(context);
       _showPartialSuccessDialog(state, l10n);
     } else if (state is FileManagementError) {
-      _showError(state.failure.messageKey);
+      ErrorNotificationService.showError(
+        context,
+        state.failure,
+        config: ErrorDisplayConfig.snackBar,
+        onRetry: () => _dispatchManageEvent(ManageAction(
+          serverAction: _selectedAction!,
+          folderId: _selectedFolderId,
+          folderName: _newFolderName,
+          keepOnDevice: _keepOnDevice
+        )),
+      );
     }
   }
 
