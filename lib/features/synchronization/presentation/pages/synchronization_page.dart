@@ -86,10 +86,6 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
 
     if (state is SynchronizationsLoaded) {
 
-      if (state.sessions.isEmpty) {
-        return const EmptySynchronizationState();
-      }
-
       return RefreshIndicator(
         onRefresh: () async {
           context.read<SynchronizationBloc>().add(const RefreshSynchronizations());
@@ -100,45 +96,52 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
           slivers: [
             SliverToBoxAdapter(
               child: SynchronizationStatusCard(
-                latestSync: state.sessions.first,
+                latestSync: state.sessions.isNotEmpty ? state.sessions.first : null,
                 onSyncNowPressed: () => _openSyncProcess(context),
               ),
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                child: Text(
-                  l10n.syncHistoric,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF111111)
-                  ),
-                ),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final session = state.sessions[index];
-                      return SynchronizationListItem(session: session);
-                    },
-                  childCount: state.sessions.length
-                ),
-              ),
-            ),
-            if (state.hasMore)
+            if (state.sessions.isEmpty)
+              const SliverFillRemaining(
+                hasScrollBody: false,
+                child: EmptySynchronizationState(),
+              )
+            else ...[
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Center(
-                    child: state.isLoadingMore ? const CircularProgressIndicator(strokeWidth: 2) : const SizedBox.shrink(),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                  child: Text(
+                    l10n.syncHistoric,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111111)
+                    ),
                   ),
                 ),
               ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16))
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final session = state.sessions[index];
+                        return SynchronizationListItem(session: session);
+                      },
+                    childCount: state.sessions.length
+                  ),
+                ),
+              ),
+              if (state.hasMore)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: state.isLoadingMore ? const CircularProgressIndicator(strokeWidth: 2) : const SizedBox.shrink(),
+                    ),
+                  ),
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: 16))
+            ],
           ],
         ),
       );
