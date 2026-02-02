@@ -19,6 +19,8 @@ class RouteNames {
   static const String notifications = 'notifications';
   static const String profile = 'profile';
   static const String editProfile = 'edit_profile';
+  static const String trash = 'trash';
+  static const String trashFileDetail = 'trash_file_detail';
 }
 
 
@@ -35,4 +37,6 @@ class RoutePaths {
   static const String notifications = '/notifications';
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
+  static const String trash = '/profile/trash';
+  static const String trashFileDetail = '/profile/trash/file/:fileId';
 }

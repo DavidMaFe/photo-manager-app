@@ -3,6 +3,7 @@ import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/widgets/permission/permission_helper.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
@@ -12,6 +13,7 @@ import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_s
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
+import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 import '../../../../core/errors/base/failures.dart';
 import '../../../../core/errors/handler/error_handler.dart';
@@ -71,9 +73,36 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
       emit(const SyncSessionFetchingFiles());
       final fetchingFilesStopwatch = Stopwatch()..start();
 
-      final hasPermission = await mediaLocalDataSource.requestPermission();
+      // Request permission with education and denial dialogs
+      if (!event.context.mounted) {
+        emit(SyncSessionError(ErrorHandler.handleError(Exception('Context not mounted'))));
+        return;
+      }
+
+      final l10n = AppLocalizations.of(event.context)!;
+      final hasPermission = await PermissionHelper.requestPhotoAccess(
+        context: event.context,
+        educationTitle: l10n.permissionPhotoAccessTitle,
+        educationMessage: l10n.permissionPhotoAccessMessage,
+        deniedTitle: l10n.permissionPhotoAccessDeniedTitle,
+        deniedMessage: l10n.permissionPhotoAccessDeniedMessage,
+        continueText: l10n.permissionPhotoAccessContinue,
+        settingsText: l10n.permissionOpenSettings,
+        cancelText: l10n.cancel,
+      );
+
       if (!hasPermission) {
-        Failure failure = ErrorHandler.handleError(Exception(FailureCodes.galleryPermissionErrorCode));
+        // Cancel the session on the server since permission was denied
+        if (_currentSessionId != null) {
+          try {
+            await syncSessionRepository.cancelSyncSession(sessionId: _currentSessionId!);
+          } catch (e) {
+            // Log error but continue with permission failure
+            // The permission error is more important to show to the user
+          }
+        }
+
+        Failure failure = ErrorHandler.handleError(Exception(FailureCodes.galleryPermissionError));
         emit(SyncSessionError(failure));
         return;
       }
@@ -179,7 +208,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
   }
 
   Future<void> _onSyncSessionRetried(SyncSessionRetried event, Emitter<SyncSessionState> emit) async {
-    await _onSyncSessionStarted(const SyncSessionStarted(), emit);
+    await _onSyncSessionStarted(SyncSessionStarted(event.context), emit);
   }
 
   Future<void> _onSyncSessionReset(SyncSessionReset event, Emitter<SyncSessionState> emit) async {

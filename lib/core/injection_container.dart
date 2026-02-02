@@ -58,6 +58,14 @@ import 'package:photo_manager_app/features/synchronization/data/repositories/syn
 import 'package:photo_manager_app/features/synchronization/domain/repositories/synchronization_repository.dart';
 import 'package:photo_manager_app/features/synchronization/domain/use_cases/get_synchronizations_use_case.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_bloc.dart';
+import 'package:photo_manager_app/features/trash/data/data_sources/trash_remote_data_source.dart';
+import 'package:photo_manager_app/features/trash/data/repositories/trash_repository_impl.dart';
+import 'package:photo_manager_app/features/trash/domain/repositories/trash_repository.dart';
+import 'package:photo_manager_app/features/trash/domain/use_cases/empty_trash_use_case.dart';
+import 'package:photo_manager_app/features/trash/domain/use_cases/get_trash_files_use_case.dart';
+import 'package:photo_manager_app/features/trash/domain/use_cases/permanently_delete_files_use_case.dart';
+import 'package:photo_manager_app/features/trash/domain/use_cases/restore_files_use_case.dart';
+import 'package:photo_manager_app/features/trash/presentation/bloc/trash_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../features/auth/domain/use_cases/request_password_reset_use_case.dart';
@@ -208,6 +216,18 @@ Future<void> init() async {
       }
   );
 
+  // trash
+  sl.registerLazySingleton<TrashRemoteDataSource>(
+      () {
+        final client = sl<http.Client>();
+        final authLocalDataSource = sl<AuthLocalDataSource>();
+        return TrashRemoteDataSourceImpl(
+          client: client,
+          authLocalDataSource: authLocalDataSource
+        );
+      }
+  );
+
 
   // REPOSITORIES
   // auth
@@ -295,6 +315,14 @@ Future<void> init() async {
       () {
         final remoteDatSource = sl<SynchronizationRemoteDataSource>();
         return SynchronizationRepositoryImpl(remoteDataSource: remoteDatSource);
+      }
+  );
+
+  // trash
+  sl.registerLazySingleton<TrashRepository>(
+      () {
+        final remoteDataSource = sl<TrashRemoteDataSource>();
+        return TrashRepositoryImpl(remoteDataSource: remoteDataSource);
       }
   );
 
@@ -468,6 +496,35 @@ Future<void> init() async {
       }
   );
 
+  // trash
+  sl.registerFactory(
+      () {
+        final repository = sl<TrashRepository>();
+        return GetTrashFilesUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<TrashRepository>();
+        return RestoreFilesUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<TrashRepository>();
+        return PermanentlyDeleteFilesUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<TrashRepository>();
+        return EmptyTrashUseCase(repository);
+      }
+  );
+
 
   // BLOC'S
   // auth
@@ -601,6 +658,24 @@ Future<void> init() async {
             getSynchronizationsUseCase: getSynchronizationsUseCase,
             syncDeviceRepository: syncDeviceRepository,
             eventBus: eventBus,
+        );
+      }
+  );
+
+  // trash
+  sl.registerFactory(
+      () {
+        final getTrashFilesUseCase = sl<GetTrashFilesUseCase>();
+        final restoreFilesUseCase = sl<RestoreFilesUseCase>();
+        final permanentlyDeleteFilesUseCase = sl<PermanentlyDeleteFilesUseCase>();
+        final emptyTrashUseCase = sl<EmptyTrashUseCase>();
+        final eventBus = sl<AppEventBus>();
+        return TrashBloc(
+          getTrashFilesUseCase: getTrashFilesUseCase,
+          restoreFilesUseCase: restoreFilesUseCase,
+          permanentlyDeleteFilesUseCase: permanentlyDeleteFilesUseCase,
+          emptyTrashUseCase: emptyTrashUseCase,
+          eventBus: eventBus,
         );
       }
   );

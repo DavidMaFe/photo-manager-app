@@ -473,12 +473,6 @@ abstract class AppLocalizations {
   /// **'The file will be removed from the device but will remain on the server'**
   String get deleteFromDeviceDescription;
 
-  /// No description provided for @selectAll.
-  ///
-  /// In en, this message translates to:
-  /// **'Select all'**
-  String get selectAll;
-
   /// No description provided for @manageMultipleFiles.
   ///
   /// In en, this message translates to:
@@ -700,12 +694,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rename'**
   String get rename;
-
-  /// No description provided for @delete.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get delete;
 
   /// No description provided for @create.
   ///
@@ -1055,12 +1043,6 @@ abstract class AppLocalizations {
   /// **'Error loading the profile'**
   String get errorLoadingProfile;
 
-  /// No description provided for @cancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get cancel;
-
   /// No description provided for @close.
   ///
   /// In en, this message translates to:
@@ -1121,6 +1103,18 @@ abstract class AppLocalizations {
   /// **'{devices} linked devices'**
   String myDevicesSubtitle(Object devices);
 
+  /// No description provided for @trash.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash'**
+  String get trash;
+
+  /// No description provided for @trashSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View deleted files'**
+  String get trashSubtitle;
+
   /// No description provided for @syncSettings.
   ///
   /// In en, this message translates to:
@@ -1144,6 +1138,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage notifications'**
   String get notificationsSubtitle;
+
+  /// No description provided for @trashIsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash is empty'**
+  String get trashIsEmpty;
+
+  /// No description provided for @trashEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted files will appear here and be permanently deleted after 30 days'**
+  String get trashEmptyDescription;
+
+  /// No description provided for @daysRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}d'**
+  String daysRemaining(Object days);
+
+  /// No description provided for @filesSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String filesSelected(Object count);
+
+  /// No description provided for @emptyTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty trash'**
+  String get emptyTrash;
+
+  /// No description provided for @emptyTrashConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to permanently delete all files in trash? This action cannot be undone.'**
+  String get emptyTrashConfirmation;
+
+  /// No description provided for @restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restore;
+
+  /// No description provided for @restoreFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore {count} files'**
+  String restoreFiles(Object count);
+
+  /// No description provided for @restoreFileConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to restore this file to its original location?'**
+  String get restoreFileConfirmation;
+
+  /// No description provided for @restoreFilesConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to restore {count} files to their original locations?'**
+  String restoreFilesConfirmation(Object count);
+
+  /// No description provided for @deletePermanently.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete permanently'**
+  String get deletePermanently;
+
+  /// No description provided for @deleteFilesPermanently.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {count} permanently'**
+  String deleteFilesPermanently(Object count);
+
+  /// No description provided for @deletePermanentlyConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to permanently delete this file? This action cannot be undone.'**
+  String get deletePermanentlyConfirmation;
+
+  /// No description provided for @deleteFilesPermanentlyConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to permanently delete {count} files? This action cannot be undone.'**
+  String deleteFilesPermanentlyConfirmation(Object count);
+
+  /// No description provided for @filesRestoredSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} files restored successfully'**
+  String filesRestoredSuccessfully(Object count);
+
+  /// No description provided for @filesDeletedPermanently.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} files permanently deleted'**
+  String filesDeletedPermanently(Object count);
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get selectAll;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @permissionPhotoAccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo Access'**
+  String get permissionPhotoAccessTitle;
+
+  /// No description provided for @permissionPhotoAccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This app needs access to your photos to sync and manage your gallery. Your photos will remain private and secure.'**
+  String get permissionPhotoAccessMessage;
+
+  /// No description provided for @permissionPhotoAccessContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get permissionPhotoAccessContinue;
+
+  /// No description provided for @permissionPhotoAccessDeniedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission Denied'**
+  String get permissionPhotoAccessDeniedTitle;
+
+  /// No description provided for @permissionPhotoAccessDeniedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We can\'t access your photos without permission. Please enable photo access in Settings to use this feature.'**
+  String get permissionPhotoAccessDeniedMessage;
+
+  /// No description provided for @permissionOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get permissionOpenSettings;
 
   /// No description provided for @timeLessThanAMinute.
   ///

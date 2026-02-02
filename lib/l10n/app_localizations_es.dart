@@ -202,9 +202,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deleteFromDeviceDescription => 'El archivo se eliminará de tu dispositivo pero seguirá en el servidor';
 
   @override
-  String get selectAll => 'Seleccionar todo';
-
-  @override
   String manageMultipleFiles(Object files) {
     return '$files archivos';
   }
@@ -330,9 +327,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get rename => 'Renombrar';
-
-  @override
-  String get delete => 'Eliminar';
 
   @override
   String get create => 'Crear';
@@ -523,9 +517,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get errorLoadingProfile => 'Error al cargar el perfil';
 
   @override
-  String get cancel => 'Cancelar';
-
-  @override
   String get close => 'Cerrar';
 
   @override
@@ -558,6 +549,12 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get trash => 'Papelera';
+
+  @override
+  String get trashSubtitle => 'Ver archivos eliminados';
+
+  @override
   String get syncSettings => 'Ajustes de sincronización';
 
   @override
@@ -568,6 +565,97 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get notificationsSubtitle => 'Gestionar notificaciones';
+
+  @override
+  String get trashIsEmpty => 'La papelera está vacía';
+
+  @override
+  String get trashEmptyDescription => 'Los archivos eliminados aparecerán aquí y se borrarán permanentemente después de 30 días';
+
+  @override
+  String daysRemaining(Object days) {
+    return '${days}d';
+  }
+
+  @override
+  String filesSelected(Object count) {
+    return '$count seleccionados';
+  }
+
+  @override
+  String get emptyTrash => 'Vaciar papelera';
+
+  @override
+  String get emptyTrashConfirmation => '¿Estás seguro de que quieres eliminar permanentemente todos los archivos de la papelera? Esta acción no se puede deshacer.';
+
+  @override
+  String get restore => 'Restaurar';
+
+  @override
+  String restoreFiles(Object count) {
+    return 'Restaurar $count archivos';
+  }
+
+  @override
+  String get restoreFileConfirmation => '¿Quieres restaurar este archivo a su ubicación original?';
+
+  @override
+  String restoreFilesConfirmation(Object count) {
+    return '¿Quieres restaurar $count archivos a sus ubicaciones originales?';
+  }
+
+  @override
+  String get deletePermanently => 'Eliminar permanentemente';
+
+  @override
+  String deleteFilesPermanently(Object count) {
+    return 'Eliminar $count permanentemente';
+  }
+
+  @override
+  String get deletePermanentlyConfirmation => '¿Estás seguro de que quieres eliminar permanentemente este archivo? Esta acción no se puede deshacer.';
+
+  @override
+  String deleteFilesPermanentlyConfirmation(Object count) {
+    return '¿Estás seguro de que quieres eliminar permanentemente $count archivos? Esta acción no se puede deshacer.';
+  }
+
+  @override
+  String filesRestoredSuccessfully(Object count) {
+    return '$count archivos restaurados correctamente';
+  }
+
+  @override
+  String filesDeletedPermanently(Object count) {
+    return '$count archivos eliminados permanentemente';
+  }
+
+  @override
+  String get selectAll => 'Seleccionar todo';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get permissionPhotoAccessTitle => 'Acceso a Fotos';
+
+  @override
+  String get permissionPhotoAccessMessage => 'Esta aplicación necesita acceso a tus fotos para sincronizar y administrar tu galería. Tus fotos permanecerán privadas y seguras.';
+
+  @override
+  String get permissionPhotoAccessContinue => 'Continuar';
+
+  @override
+  String get permissionPhotoAccessDeniedTitle => 'Permiso Denegado';
+
+  @override
+  String get permissionPhotoAccessDeniedMessage => 'No podemos acceder a tus fotos sin permiso. Por favor, habilita el acceso a fotos en Configuración para usar esta función.';
+
+  @override
+  String get permissionOpenSettings => 'Abrir Configuración';
 
   @override
   String get timeLessThanAMinute => 'Hace un momento';

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import '../../../../../l10n/app_localizations.dart';
 
 
@@ -15,18 +14,10 @@ class ResetPasswordHeader extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          width: 88,
-          height: 88,
-          decoration: BoxDecoration(
-            gradient: RadialGradient(colors: [PhotoManagerColors.primary, Color(0xFF6F58ED), Color(0xFF7556EE)]),
-            borderRadius: BorderRadius.circular(20)
-          ),
-          child: Icon(
-            Icons.lock_open,
-            color: Colors.white,
-            size: 48
-          ),
+        Image.asset(
+          'assets/images/photo_manager_logo_cut.png',
+          width: 180,
+          height: 180,
         ),
 
         SizedBox(height: 16),

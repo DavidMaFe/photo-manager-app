@@ -202,9 +202,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteFromDeviceDescription => 'The file will be removed from the device but will remain on the server';
 
   @override
-  String get selectAll => 'Select all';
-
-  @override
   String manageMultipleFiles(Object files) {
     return 'Manage $files files';
   }
@@ -330,9 +327,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rename => 'Rename';
-
-  @override
-  String get delete => 'Delete';
 
   @override
   String get create => 'Create';
@@ -523,9 +517,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorLoadingProfile => 'Error loading the profile';
 
   @override
-  String get cancel => 'Cancel';
-
-  @override
   String get close => 'Close';
 
   @override
@@ -558,6 +549,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get trash => 'Trash';
+
+  @override
+  String get trashSubtitle => 'View deleted files';
+
+  @override
   String get syncSettings => 'Sync Settings';
 
   @override
@@ -568,6 +565,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsSubtitle => 'Manage notifications';
+
+  @override
+  String get trashIsEmpty => 'Trash is empty';
+
+  @override
+  String get trashEmptyDescription => 'Deleted files will appear here and be permanently deleted after 30 days';
+
+  @override
+  String daysRemaining(Object days) {
+    return '${days}d';
+  }
+
+  @override
+  String filesSelected(Object count) {
+    return '$count selected';
+  }
+
+  @override
+  String get emptyTrash => 'Empty trash';
+
+  @override
+  String get emptyTrashConfirmation => 'Are you sure you want to permanently delete all files in trash? This action cannot be undone.';
+
+  @override
+  String get restore => 'Restore';
+
+  @override
+  String restoreFiles(Object count) {
+    return 'Restore $count files';
+  }
+
+  @override
+  String get restoreFileConfirmation => 'Do you want to restore this file to its original location?';
+
+  @override
+  String restoreFilesConfirmation(Object count) {
+    return 'Do you want to restore $count files to their original locations?';
+  }
+
+  @override
+  String get deletePermanently => 'Delete permanently';
+
+  @override
+  String deleteFilesPermanently(Object count) {
+    return 'Delete $count permanently';
+  }
+
+  @override
+  String get deletePermanentlyConfirmation => 'Are you sure you want to permanently delete this file? This action cannot be undone.';
+
+  @override
+  String deleteFilesPermanentlyConfirmation(Object count) {
+    return 'Are you sure you want to permanently delete $count files? This action cannot be undone.';
+  }
+
+  @override
+  String filesRestoredSuccessfully(Object count) {
+    return '$count files restored successfully';
+  }
+
+  @override
+  String filesDeletedPermanently(Object count) {
+    return '$count files permanently deleted';
+  }
+
+  @override
+  String get selectAll => 'Select all';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get permissionPhotoAccessTitle => 'Photo Access';
+
+  @override
+  String get permissionPhotoAccessMessage => 'This app needs access to your photos to sync and manage your gallery. Your photos will remain private and secure.';
+
+  @override
+  String get permissionPhotoAccessContinue => 'Continue';
+
+  @override
+  String get permissionPhotoAccessDeniedTitle => 'Permission Denied';
+
+  @override
+  String get permissionPhotoAccessDeniedMessage => 'We can\'t access your photos without permission. Please enable photo access in Settings to use this feature.';
+
+  @override
+  String get permissionOpenSettings => 'Open Settings';
 
   @override
   String get timeLessThanAMinute => 'Just now';

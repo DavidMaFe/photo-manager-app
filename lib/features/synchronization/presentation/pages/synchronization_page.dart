@@ -155,7 +155,7 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
     syncBloc.add(const SyncSessionReset());
 
     Future.delayed(const Duration(milliseconds: 50), () {
-      syncBloc.add(const SyncSessionStarted());
+      syncBloc.add(SyncSessionStarted(context));
     });
 
     Navigator.of(context).push(

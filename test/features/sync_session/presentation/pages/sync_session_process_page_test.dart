@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/widgets/modern_dialog.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/sync_result.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
@@ -109,9 +110,8 @@ void main() {
       await tester.pump();
       await tester.pump();
 
-      // Assert
-      expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.text('No'), findsOneWidget);
+      // Assert - ModernDialog is used instead of AlertDialog
+      expect(find.byType(ModernDialog), findsOneWidget);
     });
   });
 }

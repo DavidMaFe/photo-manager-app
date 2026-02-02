@@ -7,6 +7,7 @@ import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_s
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/widgets/sync_session_complete.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/widgets/sync_session_fetch_files.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/widgets/dialogs/cancel_sync_confirmation_dialog.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/widgets/sync_session_init.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/widgets/sync_session_uploading_files.dart';
 
@@ -58,33 +59,14 @@ class SyncSessionProcessPage extends StatelessWidget {
 
     if(state is SyncSessionStarting || state is SyncSessionFetchingFiles || state is SyncSessionUploading || state is SyncSessionCompleting) {
 
-      final shouldCancel = await showDialog<bool>(
-          context: context,
-          barrierDismissible: false,
-          builder: (dialogContext) => AlertDialog(
-            title: Text(l10n.syncSessionCancelWarning),
-            content: Text(
-              state is SyncSessionUploading
-                ? l10n.syncSessionCancelDescription
-                : l10n.syncSessionCancelShortDescription
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text('No')
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                style: TextButton.styleFrom(foregroundColor: Color(0xFFF44336)),
-                child: Text(l10n.syncSessionCancelConfirm),
-              )
-            ],
-          )
+      CancelSyncConfirmationDialog.show(
+        context: context,
+        onConfirm: () {
+          if (context.mounted) {
+            context.read<SyncSessionBloc>().add(const SyncSessionCancelled());
+          }
+        },
       );
-
-      if(shouldCancel == true && context.mounted) {
-        context.read<SyncSessionBloc>().add(const SyncSessionCancelled());
-      }
 
     }
   }
@@ -122,7 +104,7 @@ class SyncSessionProcessPage extends StatelessWidget {
       return ErrorDisplay(
         failure: state.failure,
         onRetry: () {
-          context.read<SyncSessionBloc>().add(const SyncSessionRetried());
+          context.read<SyncSessionBloc>().add(SyncSessionRetried(context));
         },
       );
     }

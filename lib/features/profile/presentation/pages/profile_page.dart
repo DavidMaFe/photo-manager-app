@@ -8,6 +8,7 @@ import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
+import 'package:photo_manager_app/features/profile/presentation/widgets/dialogs/logout_confirmation_dialog.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_header.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_menu_item.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_stats.dart';
@@ -119,7 +120,17 @@ class ProfilePage extends StatelessWidget {
                               onTap: () {},
                             ),
                             const Divider(height: 1, indent: 60),
-        
+
+                            ProfileMenuItem(
+                              icon: Icons.delete_outline,
+                              title: l10n.trash,
+                              subtitle: l10n.trashSubtitle,
+                              onTap: () {
+                                context.goNamed(RouteNames.trash);
+                              },
+                            ),
+                            const Divider(height: 1, indent: 60),
+
                             ProfileMenuItem(
                               icon: Icons.sync_outlined,
                               title: l10n.syncSettings,
@@ -172,26 +183,11 @@ class ProfilePage extends StatelessWidget {
   }
   
   void _showLogoutDialog(BuildContext context, AppLocalizations l10n) {
-    showDialog(
+    LogoutConfirmationDialog.show(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.logoutButton),
-        content: Text(l10n.logoutConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              context.read<AuthBloc>().add(LogoutRequested());
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.logoutButton)
-          )
-        ]
-      )
+      onConfirm: () {
+        context.read<AuthBloc>().add(LogoutRequested());
+      },
     );
   }
 }

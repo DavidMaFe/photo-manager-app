@@ -9,6 +9,7 @@ import 'package:photo_manager_app/features/folders/presentation/bloc/folder/fold
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_event.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/create_folder_modal.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/dialogs/delete_folder_confirmation_dialog.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/rename_folder_modal.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -233,35 +234,16 @@ class FoldersPage extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context, Folder folder) {
-
-    final l10n = AppLocalizations.of(context)!;
-
-    showDialog(
+    DeleteFolderConfirmationDialog.show(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.deleteFolder),
-        content: Text(          
-          folder.isEmpty
-            ? l10n.deleteEmptyFolder(folder.name)
-            : folder.fileCount == 0
-            ? l10n.deleteFolderWithSubfolders(folder.name, folder.subfolderCount)
-            : folder.subfolderCount == 0
-            ? l10n.deleteFolderWithFiles(folder.fileCount, folder.name)
-            : l10n.deleteFolderWithFilesAndSubfoldersWarning(folder.fileCount, folder.name, folder.subfolderCount),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              context.read<FolderBloc>().add(
-                DeleteFolderRequested(folderId: folder.id)
-              );
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.delete),
-          )
-        ],
-      )
+      folderName: folder.name,
+      filesCount: folder.fileCount > 0 ? folder.fileCount : null,
+      subfoldersCount: folder.subfolderCount > 0 ? folder.subfolderCount : null,
+      onConfirm: () {
+        context.read<FolderBloc>().add(
+          DeleteFolderRequested(folderId: folder.id)
+        );
+      },
     );
   }
 }

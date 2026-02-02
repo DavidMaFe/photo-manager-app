@@ -20,6 +20,10 @@ import 'package:photo_manager_app/features/notification/presentation/pages/notif
 import 'package:photo_manager_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:photo_manager_app/features/trash/presentation/pages/trash_page.dart';
+import 'package:photo_manager_app/features/trash/presentation/pages/trash_file_detail_page.dart';
+import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
+import 'package:photo_manager_app/features/trash/presentation/bloc/trash_bloc.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_bloc.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_event.dart';
@@ -231,6 +235,30 @@ class AppRouter {
                               value: sl<ProfileBloc>(),
                               child: const EditProfilePage(),
                             ),
+                          ),
+                          GoRoute(
+                            path: 'trash',
+                            name: RouteNames.trash,
+                            builder: (context, state) => const TrashPage(),
+                            routes: [
+                              GoRoute(
+                                path: 'file/:fileId',
+                                name: RouteNames.trashFileDetail,
+                                builder: (context, state) {
+                                  final extra = state.extra as Map<String, dynamic>?;
+                                  final files = extra?['files'] as List<TrashFile>? ?? [];
+                                  final initialIndex = extra?['initialIndex'] ?? 0;
+
+                                  return BlocProvider.value(
+                                    value: sl<TrashBloc>(),
+                                    child: TrashFileDetailPage(
+                                      files: files,
+                                      initialIndex: initialIndex
+                                    ),
+                                  );
+                                }
+                              ),
+                            ],
                           ),
                         ]
                     ),

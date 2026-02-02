@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 
 abstract class SyncSessionEvent extends Equatable {
@@ -10,7 +11,12 @@ abstract class SyncSessionEvent extends Equatable {
 
 
 class SyncSessionStarted extends SyncSessionEvent {
-  const SyncSessionStarted();
+  final BuildContext context;
+
+  const SyncSessionStarted(this.context);
+
+  @override
+  List<Object?> get props => [context];
 }
 
 
@@ -20,7 +26,12 @@ class SyncSessionCancelled extends SyncSessionEvent {
 
 
 class SyncSessionRetried extends SyncSessionEvent {
-  const SyncSessionRetried();
+  final BuildContext context;
+
+  const SyncSessionRetried(this.context);
+
+  @override
+  List<Object?> get props => [context];
 }
 
 
