@@ -5,6 +5,7 @@ import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
 import 'package:photo_manager_app/features/gallery/domain/use_cases/get_files_use_case.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_state.dart';
@@ -66,9 +67,17 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     try {
 
       final result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: event.filter);
+      final groupedFiles = DateGroupingUtil.groupFilesByDate(result.files);
       await Future.delayed(const Duration(milliseconds: 400));
-      emit(GalleryLoaded(files: result.files, isSelectionMode: false, selectedFileIds: {},
-          hasNext: result.hasNext, currentPage: result.currentPage, filter: event.filter));
+      emit(GalleryLoaded(
+        files: result.files,
+        groupedFiles: groupedFiles,
+        isSelectionMode: false,
+        selectedFileIds: const {},
+        hasNext: result.hasNext,
+        currentPage: result.currentPage,
+        filter: event.filter
+      ));
 
     } catch(e) {
       Failure failure = ErrorHandler.handleError(e);
@@ -83,8 +92,14 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     final currentState = state as GalleryLoaded;
     if(!currentState.hasNext) return;
 
-    emit(GalleryLoadingMore(files: currentState.files, isSelectionMode: currentState.isSelectionMode,
-        selectedFileIds: currentState.selectedFileIds, currentPage: currentState.currentPage, filter:  currentState.filter));
+    emit(GalleryLoadingMore(
+      files: currentState.files,
+      groupedFiles: currentState.groupedFiles,
+      isSelectionMode: currentState.isSelectionMode,
+      selectedFileIds: currentState.selectedFileIds,
+      currentPage: currentState.currentPage,
+      filter:  currentState.filter
+    ));
 
     try {
 
@@ -94,10 +109,21 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
         ...currentState.files,
         ...result.files
       ];
+      final updatedGroupedFiles = DateGroupingUtil.mergeFilesIntoGroups(
+        currentState.groupedFiles,
+        result.files,
+      );
 
       await Future.delayed(const Duration(milliseconds: 400));
-      emit(GalleryLoaded(files: updatedFiles, isSelectionMode: currentState.isSelectionMode, selectedFileIds: currentState.selectedFileIds,
-          hasNext: result.hasNext, currentPage: nextPage, filter: currentState.filter));
+      emit(GalleryLoaded(
+        files: updatedFiles,
+        groupedFiles: updatedGroupedFiles,
+        isSelectionMode: currentState.isSelectionMode,
+        selectedFileIds: currentState.selectedFileIds,
+        hasNext: result.hasNext,
+        currentPage: nextPage,
+        filter: currentState.filter
+      ));
 
     } catch(e) {
       Failure failure = ErrorHandler.handleError(e);
@@ -131,9 +157,25 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     try {
 
       final result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: currentFilter);
+      final groupedFiles = DateGroupingUtil.groupFilesByDate(result.files);
+
+      // Clean up selectedFileIds - remove any IDs that no longer exist in the file list
+      final currentFileIds = result.files.map((f) => f.id).toSet();
+      final cleanedSelectedIds = selectedFileIds.where((id) => currentFileIds.contains(id)).toSet();
+
+      // Exit selection mode if no files remain selected
+      final shouldExitSelectionMode = isSelectionMode && cleanedSelectedIds.isEmpty;
+
       await Future.delayed(const Duration(milliseconds: 400));
-      emit(GalleryLoaded(files: result.files, isSelectionMode: isSelectionMode, selectedFileIds: selectedFileIds,
-          hasNext: result.hasNext, currentPage: result.currentPage, filter: currentFilter));
+      emit(GalleryLoaded(
+        files: result.files,
+        groupedFiles: groupedFiles,
+        isSelectionMode: shouldExitSelectionMode ? false : isSelectionMode,
+        selectedFileIds: cleanedSelectedIds,
+        hasNext: result.hasNext,
+        currentPage: result.currentPage,
+        filter: currentFilter
+      ));
 
     } catch(e) {
       Failure failure = ErrorHandler.handleError(e);

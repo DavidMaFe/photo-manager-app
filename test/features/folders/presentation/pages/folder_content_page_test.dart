@@ -4,10 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
+import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/pages/folder_content_page.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -36,6 +38,11 @@ void main() {
       fileCount: 2,
       subfolderCount: 1,
     );
+
+    // Helper to create grouped files for tests
+    List<FileDateGroup> groupTestFiles(List<GalleryFile> files) {
+      return DateGroupingUtil.groupFilesByDate(files);
+    }
 
     Widget createWidgetUnderTest({required String folderId}) {
       return MaterialApp(
@@ -80,6 +87,7 @@ void main() {
           currentFolder: testFolder,
           subfolders: [],
           files: files,
+          groupedFiles: groupTestFiles(files),
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
@@ -91,6 +99,7 @@ void main() {
             currentFolder: testFolder,
             subfolders: [],
             files: files,
+            groupedFiles: groupTestFiles(files),
             hasMoreFiles: false,
             selectedFileIds: const {},
             isSelectionMode: false,
@@ -132,6 +141,7 @@ void main() {
           currentFolder: testFolder,
           subfolders: [],
           files: [],
+          groupedFiles: const [],
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
@@ -143,6 +153,7 @@ void main() {
             currentFolder: testFolder,
             subfolders: [],
             files: [],
+            groupedFiles: const [],
             hasMoreFiles: false,
             selectedFileIds: const {},
             isSelectionMode: false,
@@ -188,6 +199,7 @@ void main() {
           currentFolder: testFolder,
           subfolders: subfolders,
           files: [],
+          groupedFiles: const [],
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
@@ -199,6 +211,7 @@ void main() {
             currentFolder: testFolder,
             subfolders: subfolders,
             files: [],
+            groupedFiles: const [],
             hasMoreFiles: false,
             selectedFileIds: const {},
             isSelectionMode: false,
@@ -231,6 +244,7 @@ void main() {
           currentFolder: testFolder,
           subfolders: [],
           files: manyFiles,
+          groupedFiles: groupTestFiles(manyFiles),
           hasMoreFiles: true,
           selectedFileIds: const {},
           isSelectionMode: false,
@@ -242,6 +256,7 @@ void main() {
             currentFolder: testFolder,
             subfolders: [],
             files: manyFiles,
+            groupedFiles: groupTestFiles(manyFiles),
             hasMoreFiles: true,
             selectedFileIds: const {},
             isSelectionMode: false,

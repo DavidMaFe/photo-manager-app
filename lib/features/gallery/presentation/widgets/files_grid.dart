@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/date_section_header.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/file_thumbnail_card.dart';
 
 import '../../../../l10n/app_localizations.dart';
@@ -7,7 +10,7 @@ import '../../../../l10n/app_localizations.dart';
 
 class FilesGrid extends StatefulWidget {
 
-  final List<GalleryFile> files;
+  final List<FileDateGroup> groupedFiles;
   final bool hasNext;
   final bool isLoadingMore;
   final bool isSelectionMode;
@@ -19,7 +22,7 @@ class FilesGrid extends StatefulWidget {
 
   const FilesGrid({
     super.key,
-    required this.files,
+    required this.groupedFiles,
     required this.hasNext,
     required this.isLoadingMore,
     required this.isSelectionMode,
@@ -69,40 +72,89 @@ class _FilesGridState extends State<FilesGrid> {
 
     final l10n = AppLocalizations.of(context)!;
 
-    if(widget.files.isEmpty) {
+    if(widget.groupedFiles.isEmpty) {
       return _buildEmptyState(l10n);
     }
+
+    // Build month names array
+    final monthNames = [
+      l10n.january, l10n.february, l10n.march, l10n.april,
+      l10n.may, l10n.june, l10n.july, l10n.august,
+      l10n.september, l10n.october, l10n.november, l10n.december,
+    ];
+
+    // Relabel groups with localized strings
+    final localizedGroups = DateGroupingUtil.relabelGroups(
+      widget.groupedFiles,
+      todayLabel: l10n.today,
+      yesterdayLabel: l10n.yesterday,
+      thisWeekLabel: l10n.thisWeek,
+      lastWeekLabel: l10n.lastWeek,
+      monthNames: monthNames,
+    );
 
     return RefreshIndicator(
       onRefresh: () async {
         widget.onRefresh();
         await Future.delayed(const Duration(milliseconds: 500));
       },
-      child: GridView.builder(
+      child: CustomScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.all(4),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 4,
-          mainAxisSpacing: 4,
-          childAspectRatio: 1
-        ),
-        itemCount: widget.files.length + (widget.hasNext ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == widget.files.length) {
-            return _buildLoadingIndicator();
-          }
-
-          final file = widget.files[index];
-          return FileThumbnailCard(
-            file: file,
-            isSelectionMode: widget.isSelectionMode,
-            isSelected: widget.selectedFileIds.contains(file.id),
-            onTap: widget.onFileTap != null ? () => widget.onFileTap!(file) : null,
-            onLongPress: widget.onFileLongPress != null ? () => widget.onFileLongPress!(file) : null,
-          );
-        },
+        slivers: [
+          ..._buildGroupedSlivers(localizedGroups),
+          if (widget.hasNext) _buildLoadingSliver(),
+        ],
       ),
+    );
+  }
+
+  List<Widget> _buildGroupedSlivers(List<FileDateGroup> groups) {
+    final slivers = <Widget>[];
+
+    for (final group in groups) {
+      // Add header for the date
+      slivers.add(
+        SliverPersistentHeader(
+          pinned: false,
+          delegate: DateSectionHeaderDelegate(label: group.label),
+        ),
+      );
+
+      // Add grid for files in this date group
+      slivers.add(
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 4,
+              mainAxisSpacing: 4,
+              childAspectRatio: 1,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final file = group.files[index];
+                return FileThumbnailCard(
+                  file: file,
+                  isSelectionMode: widget.isSelectionMode,
+                  isSelected: widget.selectedFileIds.contains(file.id),
+                  onTap: widget.onFileTap != null ? () => widget.onFileTap!(file) : null,
+                  onLongPress: widget.onFileLongPress != null ? () => widget.onFileLongPress!(file) : null,
+                );
+              },
+              childCount: group.files.length,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return slivers;
+  }
+
+  Widget _buildLoadingSliver() {
+    return SliverToBoxAdapter(
+      child: _buildLoadingIndicator(),
     );
   }
 

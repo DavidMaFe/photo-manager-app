@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
+import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
 import 'package:photo_manager_app/features/folders/domain/use_cases/get_folder_content_use_case.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_event.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_state.dart';
-
-import '../../../../../core/errors/base/failures.dart';
-import '../../../../../core/errors/handler/error_handler.dart';
-import '../../../../gallery/domain/enums/file_filter.dart';
-import '../../../domain/entities/folder.dart';
+import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
 
 
 class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
@@ -36,6 +36,8 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
     on<EnterSelectionMode>(_onEnterSelectionMode);
     on<ExitSelectionMode>(_onExitSelectionMode);
     on<ToggleFileSelection>(_onToggleFileSelection);
+    on<SelectAllFiles>(_onSelectAllFiles);
+    on<DeselectAllFiles>(_onDeselectAllFiles);
 
     // Listen to file updates (files moved in/out of this folder)
     _fileUpdateSubscription = eventBus.on<FileUpdatedEvent>().listen((event) {
@@ -78,11 +80,13 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
     try {
 
       final content = await getFolderContentUseCase(folderId: event.folderId, filter: _currentFilter);
+      final groupedFiles = DateGroupingUtil.groupFilesByDate(content.files);
       await Future.delayed(const Duration(milliseconds: 400));
       emit(FolderContentLoaded(
         currentFolder: content.folder,
         subfolders: content.subfolders,
         files: content.files,
+        groupedFiles: groupedFiles,
         hasMoreFiles: content.hasMoreFiles,
         currentFilter: _currentFilter
       ));
@@ -97,18 +101,40 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
     if (_currentFolderId == null) return;
     _currentPage = 0;
 
+    // Preserve selection mode state
+    bool isSelectionMode = false;
+    Set<String> selectedFileIds = {};
+
+    if (state is FolderContentLoaded) {
+      final currentState = state as FolderContentLoaded;
+      isSelectionMode = currentState.isSelectionMode;
+      selectedFileIds = currentState.selectedFileIds;
+    }
+
     try {
 
       final content = await getFolderContentUseCase(
         folderId: _currentFolderId!, filter: _currentFilter
       );
+      final groupedFiles = DateGroupingUtil.groupFilesByDate(content.files);
+
+      // Clean up selectedFileIds - remove any IDs that no longer exist in the file list
+      final currentFileIds = content.files.map((f) => f.id).toSet();
+      final cleanedSelectedIds = selectedFileIds.where((id) => currentFileIds.contains(id)).toSet();
+
+      // Exit selection mode if no files remain selected
+      final shouldExitSelectionMode = isSelectionMode && cleanedSelectedIds.isEmpty;
+
       await Future.delayed(const Duration(milliseconds: 400));
       emit(FolderContentLoaded(
           currentFolder: content.folder,
           subfolders: content.subfolders,
           files: content.files,
+          groupedFiles: groupedFiles,
           hasMoreFiles: content.hasMoreFiles,
-          currentFilter: _currentFilter
+          currentFilter: _currentFilter,
+          isSelectionMode: shouldExitSelectionMode ? false : isSelectionMode,
+          selectedFileIds: cleanedSelectedIds
       ));
     } catch(e) {
       Failure failure = ErrorHandler.handleError(e);
@@ -126,6 +152,7 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
         currentFolder: currentState.currentFolder,
         subfolders: currentState.subfolders,
         files: currentState.files,
+        groupedFiles: currentState.groupedFiles,
         currentFilter: currentState.currentFilter
     ));
 
@@ -140,11 +167,16 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
       );
 
       final allFiles = [...currentState.files, ...content.files];
+      final updatedGroupedFiles = DateGroupingUtil.mergeFilesIntoGroups(
+        currentState.groupedFiles,
+        content.files,
+      );
       await Future.delayed(const Duration(milliseconds: 400));
       emit(FolderContentLoaded(
         currentFolder: content.folder,
         subfolders: content.subfolders,
         files: allFiles,
+        groupedFiles: updatedGroupedFiles,
         hasMoreFiles: content.hasMoreFiles,
         currentFilter: _currentFilter
       ));
@@ -178,11 +210,13 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
         folderId: _currentFolderId!,
         filter: _currentFilter
       );
+      final groupedFiles = DateGroupingUtil.groupFilesByDate(content.files);
       await Future.delayed(const Duration(milliseconds: 400));
       emit(FolderContentLoaded(
           currentFolder: content.folder,
           subfolders: content.subfolders,
           files: content.files,
+          groupedFiles: groupedFiles,
           hasMoreFiles: content.hasMoreFiles,
           currentFilter: _currentFilter
       ));
@@ -222,6 +256,25 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
       }
 
       emit(currentState.copyWith(selectedFileIds: newSelectedIds));
+    }
+  }
+
+  void _onSelectAllFiles(SelectAllFiles event, Emitter<FolderContentState> emit) {
+    if (state is FolderContentLoaded) {
+      final currentState = state as FolderContentLoaded;
+      final allFileIds = currentState.files.map((file) => file.id).toSet();
+
+      emit(currentState.copyWith(
+        isSelectionMode: true,
+        selectedFileIds: allFileIds
+      ));
+    }
+  }
+
+  void _onDeselectAllFiles(DeselectAllFiles event, Emitter<FolderContentState> emit) {
+    if (state is FolderContentLoaded) {
+      final currentState = state as FolderContentLoaded;
+      emit(currentState.copyWith(selectedFileIds: {}));
     }
   }
 }

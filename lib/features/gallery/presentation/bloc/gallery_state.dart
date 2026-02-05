@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
 
@@ -30,6 +31,7 @@ class GalleryLoading extends GalleryState {
 class GalleryLoaded extends GalleryState {
 
   final List<GalleryFile> files;
+  final List<FileDateGroup> groupedFiles;
   final bool isSelectionMode;
   final Set<String> selectedFileIds;
   final bool hasNext;
@@ -38,6 +40,7 @@ class GalleryLoaded extends GalleryState {
 
   const GalleryLoaded({
     required this.files,
+    required this.groupedFiles,
     required this.isSelectionMode,
     required this.selectedFileIds,
     required this.hasNext,
@@ -48,9 +51,11 @@ class GalleryLoaded extends GalleryState {
   int get pendingCount => files.where((f) => f.isPending).length;
   bool get hasPendingFiles => pendingCount > 0;
   bool get isEmpty => files.isEmpty;
+  bool get areAllFilesSelected => files.isNotEmpty && selectedFileIds.length == files.length;
 
   GalleryLoaded copyWith({
     List<GalleryFile>? files,
+    List<FileDateGroup>? groupedFiles,
     bool? isSelectionMode,
     Set<String>? selectedFileIds,
     bool? hasNext,
@@ -59,6 +64,7 @@ class GalleryLoaded extends GalleryState {
   }) {
     return GalleryLoaded(
       files: files ?? this.files,
+      groupedFiles: groupedFiles ?? this.groupedFiles,
       isSelectionMode: isSelectionMode ?? this.isSelectionMode,
       selectedFileIds: selectedFileIds ?? this.selectedFileIds,
       hasNext: hasNext ?? this.hasNext,
@@ -68,7 +74,7 @@ class GalleryLoaded extends GalleryState {
   }
 
   @override
-  List<Object?> get props => [files, isSelectionMode, selectedFileIds, hasNext,
+  List<Object?> get props => [files, groupedFiles, isSelectionMode, selectedFileIds, hasNext,
     currentPage, filter];
 }
 
@@ -76,6 +82,7 @@ class GalleryLoaded extends GalleryState {
 class GalleryLoadingMore extends GalleryState {
 
   final List<GalleryFile> files;
+  final List<FileDateGroup> groupedFiles;
   final bool isSelectionMode;
   final Set<String> selectedFileIds;
   final int currentPage;
@@ -83,6 +90,7 @@ class GalleryLoadingMore extends GalleryState {
 
   const GalleryLoadingMore({
     required this.files,
+    required this.groupedFiles,
     required this.isSelectionMode,
     required this.selectedFileIds,
     required this.currentPage,
@@ -94,6 +102,7 @@ class GalleryLoadingMore extends GalleryState {
 
   GalleryLoadingMore copyWith({
     List<GalleryFile>? files,
+    List<FileDateGroup>? groupedFiles,
     bool? isSelectionMode,
     Set<String>? selectedFileIds,
     int? currentPage,
@@ -101,6 +110,7 @@ class GalleryLoadingMore extends GalleryState {
   }) {
     return GalleryLoadingMore(
         files: files ?? this.files,
+        groupedFiles: groupedFiles ?? this.groupedFiles,
         isSelectionMode: isSelectionMode ?? this.isSelectionMode,
         selectedFileIds: selectedFileIds ?? this.selectedFileIds,
         currentPage: currentPage ?? this.currentPage,
@@ -109,7 +119,7 @@ class GalleryLoadingMore extends GalleryState {
   }
 
   @override
-  List<Object?> get props => [files, isSelectionMode, selectedFileIds, currentPage, filter];
+  List<Object?> get props => [files, groupedFiles, isSelectionMode, selectedFileIds, currentPage, filter];
 }
 
 

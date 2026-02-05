@@ -135,7 +135,7 @@ void main() {
       );
 
       blocTest<FileManagementBloc, FileManagementState>(
-        'works with delete action',
+        'works with delete action and sets mayHaveLocalFiles flag',
         setUp: () {
           when(() => mockUseCase.call(any(), any()))
               .thenAnswer((_) async => []);
@@ -153,6 +153,7 @@ void main() {
           const FileManagementSuccess(
             message: '3 files managed',
             processedCount: 3,
+            mayHaveLocalFiles: true,  // Set to true when keepOnDevice is false
           ),
         ],
       );

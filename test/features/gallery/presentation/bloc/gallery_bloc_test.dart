@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
+import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_page.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
@@ -77,6 +79,11 @@ void main() {
     pageSize: 50,
     hasNext: true,
   );
+
+  // Helper to create grouped files for tests
+  List<FileDateGroup> groupTestFiles(List<GalleryFile> files) {
+    return DateGroupingUtil.groupFilesByDate(files);
+  }
 
   group('GalleryBloc', () {
     test('initial state should be GalleryStarting', () {
@@ -185,6 +192,7 @@ void main() {
       },
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: false,
         selectedFileIds: const {},
         hasNext: true,
@@ -195,13 +203,10 @@ void main() {
       act: (bloc) => bloc.add(const LoadMoreFiles()),
       wait: const Duration(milliseconds: 500),
       expect: () => [
-        GalleryLoadingMore(
-          files: testFiles,
-          isSelectionMode: false,
-          selectedFileIds: const {},
-          currentPage: 0,
-          filter: FileFilter.all,
-        ),
+        isA<GalleryLoadingMore>()
+            .having((s) => s.files.length, 'files count', 2)
+            .having((s) => s.currentPage, 'current page', 0)
+            .having((s) => s.filter, 'filter', FileFilter.all),
         isA<GalleryLoaded>()
             .having((s) => s.files.length, 'files count', 3)
             .having((s) => s.currentPage, 'current page', 1)
@@ -213,6 +218,7 @@ void main() {
       'does not load more when hasNext is false',
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: false,
         selectedFileIds: const {},
         hasNext: false,
@@ -235,6 +241,7 @@ void main() {
       },
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: false,
         selectedFileIds: const {},
         hasNext: true,
@@ -261,6 +268,7 @@ void main() {
       },
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: false,
         selectedFileIds: const {},
         hasNext: true,
@@ -289,6 +297,7 @@ void main() {
       'enters selection mode',
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: false,
         selectedFileIds: const {},
         hasNext: true,
@@ -307,6 +316,7 @@ void main() {
       'exits selection mode and clears selection',
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: true,
         selectedFileIds: {'file-1', 'file-2'},
         hasNext: true,
@@ -326,6 +336,7 @@ void main() {
       'toggles file selection - adds file',
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: true,
         selectedFileIds: const {},
         hasNext: true,
@@ -344,6 +355,7 @@ void main() {
       'toggles file selection - removes file',
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: true,
         selectedFileIds: {'file-1'},
         hasNext: true,
@@ -362,6 +374,7 @@ void main() {
       'selects all files',
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: false,
         selectedFileIds: const {},
         hasNext: true,
@@ -381,6 +394,7 @@ void main() {
       'clears selection',
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: true,
         selectedFileIds: {'file-1', 'file-2'},
         hasNext: true,
@@ -406,6 +420,7 @@ void main() {
       },
       seed: () => GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: true,
         selectedFileIds: {'file-1'},
         hasNext: true,

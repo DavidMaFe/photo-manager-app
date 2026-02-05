@@ -175,7 +175,7 @@ void main() {
         verifyNever(() => mockRepository.deleteLocalFiles(any()));
       });
 
-      test('should delete local files when keepOnDevice is false and operation succeeded', () async {
+      test('should delete local files AFTER server operation when keepOnDevice is false', () async {
         // Arrange
         const actionWithoutKeep = ManageAction(
           serverAction: ServerAction.save,
@@ -195,11 +195,13 @@ void main() {
         // Act
         await useCase.call(fileIds, actionWithoutKeep);
 
-        // Assert
+        // Assert - verify server operation happens first
+        verify(() => mockRepository.manageFiles(fileIds, actionWithoutKeep)).called(1);
+        // Then verify local deletion happens only for successful server deletions
         verify(() => mockRepository.deleteLocalFiles(successfulIds)).called(1);
       });
 
-      test('should NOT delete local files when keepOnDevice is false but all files failed', () async {
+      test('should NOT delete local files when keepOnDevice is false but all server operations failed', () async {
         // Arrange
         const actionWithoutKeep = ManageAction(
           serverAction: ServerAction.delete,
@@ -216,18 +218,18 @@ void main() {
         // Act
         await useCase.call(fileIds, actionWithoutKeep);
 
-        // Assert
+        // Assert - local deletion should not be attempted since server failed
         verifyNever(() => mockRepository.deleteLocalFiles(any()));
       });
 
-      test('should delete only successful files when keepOnDevice is false', () async {
+      test('should delete only successful server files locally when keepOnDevice is false', () async {
         // Arrange
         const actionWithoutKeep = ManageAction(
           serverAction: ServerAction.folder,
           folderId: 'folder-123',
           keepOnDevice: false,
         );
-        const successfulIds = ['file-1', 'file-3'];
+        const successfulIds = ['file-1', 'file-3']; // Only 2 out of 3 succeeded on server
         const result = ManageFileResult(
           successfulIds: successfulIds,
           failedIds: ['file-2'],
@@ -241,7 +243,9 @@ void main() {
         // Act
         await useCase.call(fileIds, actionWithoutKeep);
 
-        // Assert
+        // Assert - server operation happens with all files
+        verify(() => mockRepository.manageFiles(fileIds, actionWithoutKeep)).called(1);
+        // But local deletion only for files that succeeded on server
         verify(() => mockRepository.deleteLocalFiles(successfulIds)).called(1);
       });
     });
@@ -259,7 +263,7 @@ void main() {
         );
       });
 
-      test('should propagate exception from deleteLocalFiles', () async {
+      test('should not propagate exception from deleteLocalFiles when it throws', () async {
         // Arrange
         const actionWithoutKeep = ManageAction(
           serverAction: ServerAction.save,
@@ -275,11 +279,13 @@ void main() {
         when(() => mockRepository.deleteLocalFiles(any()))
             .thenThrow(Exception('Deletion failed'));
 
-        // Act & Assert
-        expect(
-          () => useCase.call(fileIds, actionWithoutKeep),
-          throwsA(isA<Exception>()),
-        );
+        // Act - should not throw even if local deletion fails
+        final failedIds = await useCase.call(fileIds, actionWithoutKeep);
+
+        // Assert - server operation should complete successfully
+        expect(failedIds, isEmpty);
+        verify(() => mockRepository.manageFiles(fileIds, actionWithoutKeep)).called(1);
+        verify(() => mockRepository.deleteLocalFiles(fileIds)).called(1);
       });
     });
 
@@ -302,7 +308,7 @@ void main() {
         verify(() => mockRepository.manageFiles(fileIds, saveAction)).called(1);
       });
 
-      test('should work with delete action', () async {
+      test('should work with delete action and delete local files after server', () async {
         // Arrange
         const deleteAction = ManageAction(
           serverAction: ServerAction.delete,
@@ -318,7 +324,7 @@ void main() {
         // Act
         await useCase.call(fileIds, deleteAction);
 
-        // Assert
+        // Assert - server deletion happens first
         verify(() => mockRepository.manageFiles(fileIds, deleteAction)).called(1);
         verify(() => mockRepository.deleteLocalFiles(fileIds)).called(1);
       });

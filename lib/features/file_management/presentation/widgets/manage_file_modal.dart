@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
+import 'package:photo_manager_app/core/injection_container.dart';
+import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
+import 'package:photo_manager_app/core/widgets/modern_dialog.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_event.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_state.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/advanced_options_section.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/local_deletion_warning_dialog.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/quick_actions_section.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -35,6 +39,15 @@ class _ManageFileModalState extends State<ManageFileModal> {
   String? _newFolderName;
   bool _keepOnDevice = true;
 
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _advancedOptionsKey = GlobalKey();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<FileManagementBloc, FileManagementState>(
@@ -58,12 +71,14 @@ class _ManageFileModalState extends State<ManageFileModal> {
               _buildHeader(context),
               const SizedBox(height: 24),
               Flexible(child: SingleChildScrollView(
+                controller: _scrollController,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     QuickActionsSection(onActionSelected: _handleQuickAction),
                     const Divider(height: 32),
                     AdvancedOptionsSection(
+                      key: _advancedOptionsKey,
                       selectedAction: _selectedAction,
                       onActionChanged: (action) {
                         setState(() => _selectedAction = action);
@@ -359,10 +374,31 @@ class _ManageFileModalState extends State<ManageFileModal> {
     });
 
     if (action.serverAction == ServerAction.folder || action.serverAction == ServerAction.newFolder) {
+      // Scroll to the advanced options section to help user find the folder selector
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToAdvancedOptions();
+      });
       return;
     }
 
     _dispatchManageEvent(action);
+  }
+
+  void _scrollToAdvancedOptions() {
+    if (_advancedOptionsKey.currentContext != null) {
+      final RenderBox renderBox = _advancedOptionsKey.currentContext!.findRenderObject() as RenderBox;
+      final position = renderBox.localToGlobal(Offset.zero, ancestor: context.findRenderObject());
+
+      // Calculate the scroll offset needed to bring the advanced options into view
+      // Subtract some offset to account for the header and provide padding
+      final targetScrollOffset = _scrollController.offset + position.dy - 100;
+
+      _scrollController.animateTo(
+        targetScrollOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   void _handleApply(AppLocalizations l10n) {
@@ -397,10 +433,22 @@ class _ManageFileModalState extends State<ManageFileModal> {
     final l10n = AppLocalizations.of(context)!;
 
     if (state is FileManagementSuccess) {
-      Navigator.pop(context);
-      _showSuccessSnackBar(state.message);
+      // Close modal first
+      Navigator.pop(context, true);
+
+      // Show appropriate message based on whether local files may remain
+      if (state.mayHaveLocalFiles) {
+        // Files removed from server but may remain locally - show dialog after closing modal
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (!context.mounted) return;
+          _showSuccessWithWarningDialog(state.message, l10n);
+        });
+      } else {
+        // Everything went perfectly - show success snackbar
+        _showSuccessSnackBar(state.message);
+      }
     } else if (state is FileManagementPartialSuccess) {
-      Navigator.pop(context);
+      Navigator.pop(context, true); // Return true to indicate success
       _showPartialSuccessDialog(state, l10n);
     } else if (state is FileManagementError) {
       ErrorNotificationService.showError(
@@ -441,19 +489,25 @@ class _ManageFileModalState extends State<ManageFileModal> {
     );
   }
 
-  void _showPartialSuccessDialog(FileManagementPartialSuccess state, AppLocalizations l10n) {
-    showDialog(
+  Future<void> _showSuccessWithWarningDialog(String message, AppLocalizations l10n) async {
+    // Show warning dialog about files potentially remaining on device
+    // This dialog includes a "Don't show again" checkbox
+    await LocalDeletionWarningDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.partialManageTitle),
-        content: Text('${l10n.correctManage(state.successCount)} ${l10n.failedManage(state.failedFiles.length)}'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          )
-        ],
-      ),
+      message: '$message\n\n${l10n.filesRemovedFromServerLocalMayRemain}',
+      preferencesService: sl<UiPreferencesService>(),
+    );
+  }
+
+  void _showPartialSuccessDialog(FileManagementPartialSuccess state, AppLocalizations l10n) {
+    ModernDialog.show(
+      context: context,
+      type: DialogType.warning,
+      icon: Icons.warning_amber,
+      title: l10n.partialManageTitle,
+      message: '${l10n.correctManage(state.successCount)} ${l10n.failedManage(state.failedFiles.length)}',
+      cancelText: '',
+      confirmText: l10n.ok,
     );
   }
 

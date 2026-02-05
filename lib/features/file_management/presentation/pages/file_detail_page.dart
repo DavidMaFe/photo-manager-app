@@ -245,8 +245,8 @@ class _FileDetailPageState extends State<FileDetailPage> {
     );
   }
   
-  void _showManageModal(BuildContext context) {
-    showModalBottomSheet(
+  void _showManageModal(BuildContext context) async {
+    final result = await showModalBottomSheet<bool>(
       useSafeArea: true,
       context: context,
       isScrollControlled: true,
@@ -259,6 +259,12 @@ class _FileDetailPageState extends State<FileDetailPage> {
         child: ManageFileModal(fileIds: [_currentFile.id], isMultiple: false),
       )
     );
+
+    // If the file was successfully managed (deleted, moved, etc.), close the detail page
+    // and return to the previous page (gallery or folder content)
+    if (result == true && context.mounted) {
+      Navigator.pop(context, true);
+    }
   }
 
   void _showOptionsMenu(BuildContext context, AppLocalizations l10n) {

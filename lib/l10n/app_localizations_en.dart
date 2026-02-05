@@ -102,6 +102,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get videos => 'Videos';
 
   @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get thisWeek => 'This Week';
+
+  @override
+  String get lastWeek => 'Last Week';
+
+  @override
   String get pendingSingular => 'Pending';
 
   @override
@@ -225,6 +237,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get partialManageTitle => 'Partial management';
+
+  @override
+  String get filesRemovedFromServerLocalMayRemain => 'Some files may still exist on this device if they were uploaded from another device.';
+
+  @override
+  String get filesManaged => 'Files Managed';
+
+  @override
+  String get success => 'Success';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get dontShowAgain => 'Don\'t show this again';
 
   @override
   String correctManage(Object files) {
@@ -634,6 +661,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectAll => 'Select all';
 
   @override
+  String get deselectAll => 'Deselect all';
+
+  @override
   String get cancel => 'Cancel';
 
   @override
@@ -872,4 +902,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savingChanges => 'Saving changes...';
+
+  @override
+  String get january => 'January';
+
+  @override
+  String get february => 'February';
+
+  @override
+  String get march => 'March';
+
+  @override
+  String get april => 'April';
+
+  @override
+  String get may => 'May';
+
+  @override
+  String get june => 'June';
+
+  @override
+  String get july => 'July';
+
+  @override
+  String get august => 'August';
+
+  @override
+  String get september => 'September';
+
+  @override
+  String get october => 'October';
+
+  @override
+  String get november => 'November';
+
+  @override
+  String get december => 'December';
 }

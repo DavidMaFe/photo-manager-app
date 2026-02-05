@@ -210,38 +210,43 @@ class _ModernDialogState extends State<ModernDialog> {
   }
 
   Widget _buildActions() {
+    // Check if we should show cancel button (only if cancelText is not empty)
+    final showCancelButton = widget.cancelText.isNotEmpty;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: showCancelButton ? MainAxisAlignment.end : MainAxisAlignment.center,
         children: [
-          Flexible(
-            child: OutlinedButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-                widget.onCancel?.call();
-              },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          if (showCancelButton) ...[
+            Flexible(
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                  widget.onCancel?.call();
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: BorderSide(
+                    color: Colors.grey.shade300,
+                    width: 1.5,
+                  ),
                 ),
-                side: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.5,
-                ),
-              ),
-              child: Text(
-                widget.cancelText,
-                style: TextStyle(
-                  color: Colors.grey.shade700,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
+                child: Text(
+                  widget.cancelText,
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
+            const SizedBox(width: 12),
+          ],
           Flexible(
             child: FilledButton(
               onPressed: () {

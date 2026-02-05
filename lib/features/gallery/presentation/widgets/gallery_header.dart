@@ -7,15 +7,19 @@ class GalleryHeader extends StatelessWidget implements PreferredSizeWidget {
 
   final bool isSelectionMode;
   final int selectedCount;
+  final bool areAllFilesSelected;
   final VoidCallback? onCancelSelection;
   final VoidCallback? onSelectAll;
+  final VoidCallback? onDeselectAll;
 
   const GalleryHeader({
     super.key,
     this.isSelectionMode = false,
     this.selectedCount = 0,
+    this.areAllFilesSelected = false,
     this.onCancelSelection,
-    this.onSelectAll
+    this.onSelectAll,
+    this.onDeselectAll
   });
 
   @override
@@ -52,7 +56,16 @@ class GalleryHeader extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       backgroundColor: PhotoManagerColors.primary.withValues(alpha: 0.1),
       actions: [
-        if (onSelectAll != null)
+        if (areAllFilesSelected && onDeselectAll != null)
+          TextButton.icon(
+            onPressed: onDeselectAll,
+            icon: const Icon(Icons.deselect, size: 20),
+            label: Text(l10n.deselectAll),
+            style: TextButton.styleFrom(
+              foregroundColor: PhotoManagerColors.primary
+            ),
+          )
+        else if (!areAllFilesSelected && onSelectAll != null)
           TextButton.icon(
             onPressed: onSelectAll,
             icon: const Icon(Icons.select_all, size: 20),
@@ -61,7 +74,7 @@ class GalleryHeader extends StatelessWidget implements PreferredSizeWidget {
               foregroundColor: PhotoManagerColors.primary
             ),
           ),
-          const SizedBox(width: 8)
+        const SizedBox(width: 8)
       ],
     );
   }

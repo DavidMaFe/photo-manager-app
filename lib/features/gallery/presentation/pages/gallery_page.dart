@@ -8,6 +8,7 @@ import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
@@ -34,16 +35,21 @@ class GalleryPage extends StatelessWidget {
 
           final isSelectionMode = state is GalleryLoaded && state.isSelectionMode;
           final selectedCount = isSelectionMode ? state.selectedFileIds.length : 0;
+          final areAllFilesSelected = state is GalleryLoaded && state.areAllFilesSelected;
 
           return Scaffold(
             appBar: GalleryHeader(
               isSelectionMode: isSelectionMode,
               selectedCount: selectedCount,
+              areAllFilesSelected: areAllFilesSelected,
               onCancelSelection: () {
                 context.read<GalleryBloc>().add(const ExitSelectionMode());
               },
               onSelectAll: () {
-                //context.read<GalleryBloc>().add(const SelectAllFiles());
+                context.read<GalleryBloc>().add(const SelectAllFiles());
+              },
+              onDeselectAll: () {
+                context.read<GalleryBloc>().add(const ClearSelection());
               },
             ),
             body: Column(
@@ -105,8 +111,8 @@ class GalleryPage extends StatelessWidget {
     );
   }
 
-  void _showManageModal(BuildContext context, List<String> fileIds) {
-    showModalBottomSheet(
+  void _showManageModal(BuildContext context, List<String> fileIds) async {
+    final result = await showModalBottomSheet<bool>(
       useSafeArea: true,
       context: context,
       isScrollControlled: true,
@@ -118,10 +124,12 @@ class GalleryPage extends StatelessWidget {
         ],
         child: ManageFileModal(fileIds: fileIds, isMultiple: fileIds.length > 1),
       )
-    ).then((_) {
-      if (!context.mounted) return;
-      context.read<GalleryBloc>().add(const ExitSelectionMode());
-    });
+    );
+
+    if (!context.mounted) return;
+
+    // Exit selection mode after modal is dismissed (regardless of result)
+    context.read<GalleryBloc>().add(const ExitSelectionMode());
   }
 
   void _handleStateChanges(BuildContext context, GalleryState state) {
@@ -204,6 +212,7 @@ class GalleryPage extends StatelessWidget {
   Widget _buildGrid(BuildContext context, dynamic state) {
 
     List<GalleryFile> files = [];
+    List<FileDateGroup> groupedFiles = [];
     bool hasNext = false;
     bool isLoadingMore = false;
     bool isSelectionMode = false;
@@ -211,12 +220,14 @@ class GalleryPage extends StatelessWidget {
 
     if (state is GalleryLoaded) {
       files = state.files;
+      groupedFiles = state.groupedFiles;
       hasNext = state.hasNext;
       isLoadingMore = false;
       isSelectionMode = state.isSelectionMode;
       selectedFileIds = state.selectedFileIds;
     } else if (state is GalleryLoadingMore) {
       files = state.files;
+      groupedFiles = state.groupedFiles;
       hasNext = true;
       isLoadingMore = true;
       isSelectionMode = state.isSelectionMode;
@@ -224,7 +235,7 @@ class GalleryPage extends StatelessWidget {
     }
 
     return FilesGrid(
-      files: files,
+      groupedFiles: groupedFiles,
       hasNext: hasNext,
       isLoadingMore: isLoadingMore,
       isSelectionMode: isSelectionMode,

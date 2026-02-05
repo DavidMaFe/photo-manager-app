@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
+import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
@@ -53,6 +55,11 @@ void main() {
       capturedAt: testDate,
     ),
   ];
+
+  // Helper to create grouped files for tests
+  List<FileDateGroup> groupTestFiles(List<GalleryFile> files) {
+    return DateGroupingUtil.groupFilesByDate(files);
+  }
 
   group('GalleryPage', () {
     testWidgets('should render Scaffold', (tester) async {
@@ -114,6 +121,7 @@ void main() {
       when(() => mockGalleryBloc.state).thenReturn(
         GalleryLoaded(
           files: testFiles,
+          groupedFiles: groupTestFiles(testFiles),
           isSelectionMode: false,
           selectedFileIds: const {},
           hasNext: true,
@@ -134,6 +142,7 @@ void main() {
       when(() => mockGalleryBloc.state).thenReturn(
         GalleryLoaded(
           files: const [],
+          groupedFiles: const [],
           isSelectionMode: false,
           selectedFileIds: const {},
           hasNext: false,
@@ -154,6 +163,7 @@ void main() {
       when(() => mockGalleryBloc.state).thenReturn(
         GalleryLoaded(
           files: testFiles,
+          groupedFiles: groupTestFiles(testFiles),
           isSelectionMode: false,
           selectedFileIds: const {},
           hasNext: true,
@@ -174,6 +184,7 @@ void main() {
       when(() => mockGalleryBloc.state).thenReturn(
         GalleryLoaded(
           files: testFiles,
+          groupedFiles: groupTestFiles(testFiles),
           isSelectionMode: true,
           selectedFileIds: {'file-1'},
           hasNext: true,
@@ -194,6 +205,7 @@ void main() {
       when(() => mockGalleryBloc.state).thenReturn(
         GalleryLoaded(
           files: testFiles,
+          groupedFiles: groupTestFiles(testFiles),
           isSelectionMode: true,
           selectedFileIds: const {},
           hasNext: true,
@@ -214,6 +226,7 @@ void main() {
       when(() => mockGalleryBloc.state).thenReturn(
         GalleryLoadingMore(
           files: testFiles,
+          groupedFiles: groupTestFiles(testFiles),
           isSelectionMode: false,
           selectedFileIds: const {},
           currentPage: 0,
@@ -233,6 +246,7 @@ void main() {
       when(() => mockGalleryBloc.stream)
           .thenAnswer((_) => Stream.value(GalleryLoaded(
         files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: false,
         selectedFileIds: const {},
         hasNext: true,
@@ -242,6 +256,7 @@ void main() {
       when(() => mockGalleryBloc.state).thenReturn(
         GalleryLoaded(
           files: testFiles,
+          groupedFiles: groupTestFiles(testFiles),
           isSelectionMode: false,
           selectedFileIds: const {},
           hasNext: true,
@@ -264,6 +279,7 @@ void main() {
       when(() => mockGalleryBloc.state).thenReturn(
         GalleryLoaded(
           files: testFiles,
+          groupedFiles: groupTestFiles(testFiles),
           isSelectionMode: true,
           selectedFileIds: {'file-1', 'file-2'},
           hasNext: true,
@@ -296,6 +312,7 @@ void main() {
       when(() => mockGalleryBloc.state).thenReturn(
         GalleryLoaded(
           files: manyFiles,
+          groupedFiles: groupTestFiles(manyFiles),
           isSelectionMode: false,
           selectedFileIds: const {},
           hasNext: true,

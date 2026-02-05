@@ -4,23 +4,24 @@ import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
+import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
+import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_event.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/breadcrumbs_bar.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/create_folder_modal.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/subfolders_section.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/date_section_header.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/file_thumbnail_card.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/filter_chips.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
-
-import '../../../gallery/domain/entities/gallery_file.dart';
-import '../../../gallery/presentation/widgets/filter_chips.dart';
-import '../../domain/entities/folder.dart';
-import '../bloc/folder/folder_bloc.dart';
-import '../widgets/create_folder_modal.dart';
 
 
 class FolderContentPage extends StatefulWidget {
@@ -94,6 +95,8 @@ class _FolderContentPageState extends State<FolderContentPage> {
     final l10n = AppLocalizations.of(context)!;
 
     if (isSelectionMode) {
+      final areAllFilesSelected = state is FolderContentLoaded && state.areAllFilesSelected;
+
       return AppBar(
         leading: IconButton(
           icon: Icon(Icons.close),
@@ -104,6 +107,32 @@ class _FolderContentPageState extends State<FolderContentPage> {
         title: Text(selectedCount == 1 ? l10n.selectedFilesSingle : l10n.selectedFiles(selectedCount)),
         centerTitle: false,
         elevation: 0,
+        backgroundColor: PhotoManagerColors.primary.withValues(alpha: 0.1),
+        actions: [
+          if (areAllFilesSelected)
+            TextButton.icon(
+              onPressed: () {
+                context.read<FolderContentBloc>().add(const DeselectAllFiles());
+              },
+              icon: const Icon(Icons.deselect, size: 20),
+              label: Text(l10n.deselectAll),
+              style: TextButton.styleFrom(
+                foregroundColor: PhotoManagerColors.primary
+              ),
+            )
+          else
+            TextButton.icon(
+              onPressed: () {
+                context.read<FolderContentBloc>().add(const SelectAllFiles());
+              },
+              icon: const Icon(Icons.select_all, size: 20),
+              label: Text(l10n.selectAll),
+              style: TextButton.styleFrom(
+                foregroundColor: PhotoManagerColors.primary
+              ),
+            ),
+          const SizedBox(width: 8)
+        ],
       );
     }
 
@@ -188,42 +217,8 @@ class _FolderContentPageState extends State<FolderContentPage> {
       child: CustomScrollView(
         controller: _scrollController,
         slivers: [
-          if (state.files.isNotEmpty)
-            SliverPadding(
-              padding: const EdgeInsets.all(4),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 4,
-                    mainAxisSpacing: 4,
-                    childAspectRatio: 1
-                ),
-                delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                      final file = state.files[index];
-                      return FileThumbnailCard(
-                        file: file,
-                        isSelectionMode: state.isSelectionMode,
-                        isSelected: state.selectedFileIds.contains(file.id),
-                        onTap: () {
-                          if (state.isSelectionMode) {
-                            context.read<FolderContentBloc>().add(ToggleFileSelection(file.id));
-                          } else {
-                            _navigateToFileDetail(context, state.files, index);
-                          }
-                        },
-                        onLongPress: () {
-                          if (!state.isSelectionMode) {
-                            context.read<FolderContentBloc>().add(const EnterSelectionMode());
-                          }
-                          context.read<FolderContentBloc>().add(ToggleFileSelection(file.id));
-                        },
-                      );
-                    },
-                    childCount: state.files.length
-                ),
-              ),
-            ),
+          if (state.groupedFiles.isNotEmpty)
+            ..._buildGroupedFileSlivers(context, state),
           if (state.hasMoreFiles)
             const SliverToBoxAdapter(
               child: Padding(
@@ -240,6 +235,80 @@ class _FolderContentPageState extends State<FolderContentPage> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildGroupedFileSlivers(BuildContext context, FolderContentLoaded state) {
+    final slivers = <Widget>[];
+    final l10n = AppLocalizations.of(context)!;
+
+    // Build month names array
+    final monthNames = [
+      l10n.january, l10n.february, l10n.march, l10n.april,
+      l10n.may, l10n.june, l10n.july, l10n.august,
+      l10n.september, l10n.october, l10n.november, l10n.december,
+    ];
+
+    // Relabel groups with localized strings
+    final localizedGroups = DateGroupingUtil.relabelGroups(
+      state.groupedFiles,
+      todayLabel: l10n.today,
+      yesterdayLabel: l10n.yesterday,
+      thisWeekLabel: l10n.thisWeek,
+      lastWeekLabel: l10n.lastWeek,
+      monthNames: monthNames,
+    );
+
+    for (final group in localizedGroups) {
+      // Add header for the date
+      slivers.add(
+        SliverPersistentHeader(
+          pinned: false,
+          delegate: DateSectionHeaderDelegate(label: group.label),
+        ),
+      );
+
+      // Add grid for files in this date group
+      slivers.add(
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 4,
+              mainAxisSpacing: 4,
+              childAspectRatio: 1,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final file = group.files[index];
+                final fileIndexInAllFiles = state.files.indexWhere((f) => f.id == file.id);
+                return FileThumbnailCard(
+                  file: file,
+                  isSelectionMode: state.isSelectionMode,
+                  isSelected: state.selectedFileIds.contains(file.id),
+                  onTap: () {
+                    if (state.isSelectionMode) {
+                      context.read<FolderContentBloc>().add(ToggleFileSelection(file.id));
+                    } else {
+                      _navigateToFileDetail(context, state.files, fileIndexInAllFiles);
+                    }
+                  },
+                  onLongPress: () {
+                    if (!state.isSelectionMode) {
+                      context.read<FolderContentBloc>().add(const EnterSelectionMode());
+                    }
+                    context.read<FolderContentBloc>().add(ToggleFileSelection(file.id));
+                  },
+                );
+              },
+              childCount: group.files.length,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return slivers;
   }
 
   Widget _buildFilters(BuildContext context, FolderContentState state) {
@@ -426,8 +495,8 @@ class _FolderContentPageState extends State<FolderContentPage> {
     );
   }
 
-  void _showManageModal(BuildContext context, List<String> fileIds) {
-    showModalBottomSheet(
+  void _showManageModal(BuildContext context, List<String> fileIds) async {
+    final result = await showModalBottomSheet<bool>(
       useSafeArea: true,
       context: context,
       isScrollControlled: true,
@@ -439,10 +508,12 @@ class _FolderContentPageState extends State<FolderContentPage> {
         ],
         child: ManageFileModal(fileIds: fileIds, isMultiple: fileIds.length > 1),
       )
-    ).then((_) {
-      if (!context.mounted) return;
-      context.read<FolderContentBloc>().add(const ExitSelectionMode());
-    });
+    );
+
+    if (!context.mounted) return;
+
+    // Exit selection mode after modal is dismissed (regardless of result)
+    context.read<FolderContentBloc>().add(const ExitSelectionMode());
   }
 
   void _navigateToFileDetail(BuildContext context, List<GalleryFile> files, int index) {

@@ -34,7 +34,12 @@ class FileManagementBloc extends Bloc<FileManagementEvent, FileManagementState> 
       if(failedFiles.isEmpty) {
         final count = event.fileIds.length;
         final message = count == 1 ? 'Files managed correctly' : '$count files managed';
-        emit(FileManagementSuccess(message: message, processedCount: count));
+        final mayHaveLocalFiles = !event.action.keepOnDevice;
+        emit(FileManagementSuccess(
+          message: message,
+          processedCount: count,
+          mayHaveLocalFiles: mayHaveLocalFiles
+        ));
 
         // Broadcast file update event
         _broadcastFileUpdateEvent(event.fileIds, event.action);

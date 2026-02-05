@@ -59,3 +59,13 @@ class FilterFilesInFolder extends FolderContentEvent {
   @override
   List<Object?> get props => [filter];
 }
+
+
+class SelectAllFiles extends FolderContentEvent {
+  const SelectAllFiles();
+}
+
+
+class DeselectAllFiles extends FolderContentEvent {
+  const DeselectAllFiles();
+}

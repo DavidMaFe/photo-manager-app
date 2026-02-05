@@ -25,11 +25,16 @@ class FileManagementSuccess extends FileManagementState {
 
   final String message;
   final int processedCount;
+  final bool mayHaveLocalFiles;
 
-  const FileManagementSuccess({required this.message, required this.processedCount});
+  const FileManagementSuccess({
+    required this.message,
+    required this.processedCount,
+    this.mayHaveLocalFiles = false
+  });
 
   @override
-  List<Object?> get props => [message, processedCount];
+  List<Object?> get props => [message, processedCount, mayHaveLocalFiles];
 }
 
 
