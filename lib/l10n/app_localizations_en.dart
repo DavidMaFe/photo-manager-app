@@ -938,4 +938,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get december => 'December';
+
+  @override
+  String get renameDevice => 'Rename device';
+
+  @override
+  String get renameDeviceDescription => 'Enter a new name for your device';
+
+  @override
+  String get deviceName => 'Device name';
+
+  @override
+  String get deviceNameRequired => 'Device name is required';
+
+  @override
+  String get deviceNameTooLong => 'Name is too long (maximum 50 characters)';
+
+  @override
+  String get autoSync => 'Auto-sync';
+
+  @override
+  String get unlinkDevice => 'Unlink';
+
+  @override
+  String unlinkDeviceConfirmation(Object deviceName) {
+    return 'Are you sure you want to unlink \'$deviceName\'? This device will stop syncing with your account.';
+  }
+
+  @override
+  String get deviceActionSuccess => 'Action completed successfully';
+
+  @override
+  String get noDevices => 'No linked devices';
+
+  @override
+  String get noDevicesDescription => 'Devices will appear here when you sign in to the app from other devices.';
+
+  @override
+  String get devicesLoadError => 'Could not load devices';
+
+  @override
+  String get retry => 'Retry';
 }

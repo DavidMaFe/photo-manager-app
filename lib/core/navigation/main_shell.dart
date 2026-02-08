@@ -58,6 +58,7 @@ class MainShell extends StatelessWidget {
           currentIndex: navigationShell.currentIndex,
           onTap: (index) => navigationShell.goBranch(index),
           selectedItemColor: PhotoManagerColors.primary,
+          backgroundColor: Colors.white,
           unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home, size: 28), label: ''),

@@ -179,6 +179,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
       ),
       centerTitle: false,
       elevation: 0,
+      backgroundColor: Colors.white,
     );
   }
 
@@ -496,7 +497,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
   }
 
   void _showManageModal(BuildContext context, List<String> fileIds) async {
-    final result = await showModalBottomSheet<bool>(
+    await showModalBottomSheet<bool>(
       useSafeArea: true,
       context: context,
       isScrollControlled: true,

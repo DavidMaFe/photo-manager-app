@@ -43,6 +43,14 @@ import 'package:photo_manager_app/features/profile/domain/use_cases/get_user_pro
 import 'package:photo_manager_app/features/profile/domain/use_cases/update_user_profile_use_case.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/change_password_use_case.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:photo_manager_app/features/devices/data/data_sources/device_remote_data_source.dart';
+import 'package:photo_manager_app/features/devices/data/repositories/device_data_repository.dart';
+import 'package:photo_manager_app/features/devices/domain/repositories/device_repository.dart';
+import 'package:photo_manager_app/features/devices/domain/use_cases/get_user_devices_use_case.dart';
+import 'package:photo_manager_app/features/devices/domain/use_cases/rename_device_use_case.dart';
+import 'package:photo_manager_app/features/devices/domain/use_cases/toggle_auto_sync_use_case.dart';
+import 'package:photo_manager_app/features/devices/domain/use_cases/unlink_device_use_case.dart';
+import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/sync_device_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_device_remote_data_source.dart';
@@ -126,6 +134,14 @@ Future<void> init() async {
       () {
         final sharedPreferences = sl<SharedPreferences>();
         return ProfileLocalDataSourceImpl(sharedPreferences: sharedPreferences);
+      }
+  );
+
+  // devices
+  sl.registerLazySingleton<DeviceRemoteDataSource>(
+      () {
+        final client = sl<AuthenticatedHttpClient>();
+        return DeviceRemoteDataSourceImpl(client: client);
       }
   );
 
@@ -232,6 +248,14 @@ Future<void> init() async {
             profileRemoteDatasource: profileRemoteDataSource,
             profileLocalDataSource: profileLocalDataSource
         );
+      }
+  );
+
+  // devices
+  sl.registerLazySingleton<DeviceRepository>(
+      () {
+        final deviceRemoteDataSource = sl<DeviceRemoteDataSource>();
+        return DeviceDataRepository(remoteDataSource: deviceRemoteDataSource);
       }
   );
 
@@ -392,6 +416,35 @@ Future<void> init() async {
       () {
         final repository = sl<ProfileRepository>();
         return ChangePasswordUseCase(repository);
+      }
+  );
+
+  // devices
+  sl.registerFactory(
+      () {
+        final repository = sl<DeviceRepository>();
+        return GetUserDevicesUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<DeviceRepository>();
+        return RenameDeviceUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<DeviceRepository>();
+        return ToggleAutoSyncUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<DeviceRepository>();
+        return UnlinkDeviceUseCase(repository);
       }
   );
 
@@ -569,6 +622,24 @@ Future<void> init() async {
           updateUserProfileUseCase,
           changePasswordUseCase,
           eventBus,
+        );
+      }
+  );
+
+  // devices
+  sl.registerFactory(
+      () {
+        final getUserDevicesUseCase = sl<GetUserDevicesUseCase>();
+        final renameDeviceUseCase = sl<RenameDeviceUseCase>();
+        final toggleAutoSyncUseCase = sl<ToggleAutoSyncUseCase>();
+        final unlinkDeviceUseCase = sl<UnlinkDeviceUseCase>();
+        final eventBus = sl<AppEventBus>();
+        return DeviceBloc(
+          getUserDevicesUseCase: getUserDevicesUseCase,
+          renameDeviceUseCase: renameDeviceUseCase,
+          toggleAutoSyncUseCase: toggleAutoSyncUseCase,
+          unlinkDeviceUseCase: unlinkDeviceUseCase,
+          eventBus: eventBus,
         );
       }
   );

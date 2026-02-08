@@ -54,6 +54,24 @@ class SyncCompletedEvent extends AppEvent {
   });
 }
 
+/// Event broadcasted when devices are updated (renamed, unlinked, autosync toggled)
+class DeviceUpdatedEvent extends AppEvent {
+  final List<String>? affectedDeviceIds;
+  final DeviceUpdateType updateType;
+
+  const DeviceUpdatedEvent({
+    this.affectedDeviceIds,
+    required this.updateType,
+  });
+}
+
+enum DeviceUpdateType {
+  renamed,
+  unlinked,
+  autoSyncToggled,
+  updated,
+}
+
 /// Event to trigger cache invalidation across the app
 class CacheInvalidationEvent extends AppEvent {
   final CacheInvalidationType type;

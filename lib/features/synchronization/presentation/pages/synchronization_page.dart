@@ -62,6 +62,7 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
         return Scaffold(
           appBar: AppBar(
             title: Text(l10n.syncSessionTitle),
+            backgroundColor: Colors.white,
           ),
           body: _buildContent(context, state, l10n),
         );

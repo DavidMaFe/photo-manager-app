@@ -20,6 +20,9 @@ import 'package:photo_manager_app/features/notification/presentation/pages/notif
 import 'package:photo_manager_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:photo_manager_app/features/devices/presentation/pages/devices_page.dart';
+import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
+import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
 import 'package:photo_manager_app/features/trash/presentation/pages/trash_page.dart';
 import 'package:photo_manager_app/features/trash/presentation/pages/trash_file_detail_page.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
@@ -234,6 +237,14 @@ class AppRouter {
                             builder: (context, state) => BlocProvider.value(
                               value: sl<ProfileBloc>(),
                               child: const EditProfilePage(),
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'devices',
+                            name: RouteNames.devices,
+                            builder: (context, state) => BlocProvider(
+                              create: (context) => sl<DeviceBloc>()..add(LoadDevices()),
+                              child: const DevicesPage(),
                             ),
                           ),
                           GoRoute(

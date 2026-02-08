@@ -938,4 +938,45 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get december => 'Diciembre';
+
+  @override
+  String get renameDevice => 'Renombrar dispositivo';
+
+  @override
+  String get renameDeviceDescription => 'Introduce un nuevo nombre para tu dispositivo';
+
+  @override
+  String get deviceName => 'Nombre del dispositivo';
+
+  @override
+  String get deviceNameRequired => 'El nombre del dispositivo es obligatorio';
+
+  @override
+  String get deviceNameTooLong => 'El nombre es demasiado largo (máximo 50 caracteres)';
+
+  @override
+  String get autoSync => 'Sincronización automática';
+
+  @override
+  String get unlinkDevice => 'Desvincular';
+
+  @override
+  String unlinkDeviceConfirmation(Object deviceName) {
+    return '¿Estás seguro de que quieres desvincular \'$deviceName\'? Este dispositivo dejará de sincronizarse con tu cuenta.';
+  }
+
+  @override
+  String get deviceActionSuccess => 'Acción completada con éxito';
+
+  @override
+  String get noDevices => 'No tienes dispositivos vinculados';
+
+  @override
+  String get noDevicesDescription => 'Los dispositivos aparecerán aquí cuando inicies sesión en la aplicación desde otros dispositivos.';
+
+  @override
+  String get devicesLoadError => 'No se pudieron cargar los dispositivos';
+
+  @override
+  String get retry => 'Reintentar';
 }

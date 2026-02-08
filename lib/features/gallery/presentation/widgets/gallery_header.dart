@@ -38,6 +38,7 @@ class GalleryHeader extends StatelessWidget implements PreferredSizeWidget {
       title: Text(l10n.gallery),
       centerTitle: false,
       elevation: 0,
+      backgroundColor: Colors.white,
     );
   }
 

@@ -31,6 +31,7 @@ class FoldersPage extends StatelessWidget {
         title: Text(l10n.folders),
         centerTitle: false,
         elevation: 0,
+        backgroundColor: Colors.white,
       ),
       body: BlocConsumer<FolderBloc, FolderState>(
         listener: _handleStateChanges,

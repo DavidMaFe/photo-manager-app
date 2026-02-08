@@ -314,5 +314,19 @@
   "september": "Septiembre",
   "october": "Octubre",
   "november": "Noviembre",
-  "december": "Diciembre"
+  "december": "Diciembre",
+
+  "renameDevice": "Renombrar dispositivo",
+  "renameDeviceDescription": "Introduce un nuevo nombre para tu dispositivo",
+  "deviceName": "Nombre del dispositivo",
+  "deviceNameRequired": "El nombre del dispositivo es obligatorio",
+  "deviceNameTooLong": "El nombre es demasiado largo (máximo 50 caracteres)",
+  "autoSync": "Sincronización automática",
+  "unlinkDevice": "Desvincular",
+  "unlinkDeviceConfirmation": "¿Estás seguro de que quieres desvincular '{deviceName}'? Este dispositivo dejará de sincronizarse con tu cuenta.",
+  "deviceActionSuccess": "Acción completada con éxito",
+  "noDevices": "No tienes dispositivos vinculados",
+  "noDevicesDescription": "Los dispositivos aparecerán aquí cuando inicies sesión en la aplicación desde otros dispositivos.",
+  "devicesLoadError": "No se pudieron cargar los dispositivos",
+  "retry": "Reintentar"
 }

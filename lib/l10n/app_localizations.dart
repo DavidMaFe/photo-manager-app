@@ -1828,6 +1828,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'December'**
   String get december;
+
+  /// No description provided for @renameDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename device'**
+  String get renameDevice;
+
+  /// No description provided for @renameDeviceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a new name for your device'**
+  String get renameDeviceDescription;
+
+  /// No description provided for @deviceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Device name'**
+  String get deviceName;
+
+  /// No description provided for @deviceNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Device name is required'**
+  String get deviceNameRequired;
+
+  /// No description provided for @deviceNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Name is too long (maximum 50 characters)'**
+  String get deviceNameTooLong;
+
+  /// No description provided for @autoSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-sync'**
+  String get autoSync;
+
+  /// No description provided for @unlinkDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink'**
+  String get unlinkDevice;
+
+  /// No description provided for @unlinkDeviceConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to unlink \'{deviceName}\'? This device will stop syncing with your account.'**
+  String unlinkDeviceConfirmation(Object deviceName);
+
+  /// No description provided for @deviceActionSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Action completed successfully'**
+  String get deviceActionSuccess;
+
+  /// No description provided for @noDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked devices'**
+  String get noDevices;
+
+  /// No description provided for @noDevicesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices will appear here when you sign in to the app from other devices.'**
+  String get noDevicesDescription;
+
+  /// No description provided for @devicesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load devices'**
+  String get devicesLoadError;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

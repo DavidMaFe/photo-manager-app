@@ -89,45 +89,55 @@ http.StreamedResponse createHttpStreamedResponse(
 ///
 /// Provides factory methods for standard HTTP error scenarios to reduce
 /// duplication in error handling tests.
+///
+/// These responses match the backend ErrorResponse format with:
+/// - code: Error code string
+/// - message: Human-readable error message
+/// - timestamp: ISO 8601 timestamp
+/// - path: Optional request path
 class HttpErrorResponses {
+  static String _getTimestamp() {
+    return DateTime.now().toIso8601String();
+  }
+
   /// 400 Bad Request
   static http.Response badRequest([String message = 'Bad Request']) {
-    return createHttpResponse(400, '{"error": "$message"}');
+    return createHttpResponse(400, '{"code": "BAD_REQUEST", "message": "$message", "timestamp": "${_getTimestamp()}"}');
   }
 
   /// 401 Unauthorized
   static http.Response unauthorized([String message = 'Unauthorized']) {
-    return createHttpResponse(401, '{"error": "$message"}');
+    return createHttpResponse(401, '{"code": "UNAUTHORIZED", "message": "$message", "timestamp": "${_getTimestamp()}"}');
   }
 
   /// 403 Forbidden
   static http.Response forbidden([String message = 'Forbidden']) {
-    return createHttpResponse(403, '{"error": "$message"}');
+    return createHttpResponse(403, '{"code": "FORBIDDEN", "message": "$message", "timestamp": "${_getTimestamp()}"}');
   }
 
   /// 404 Not Found
   static http.Response notFound([String message = 'Not Found']) {
-    return createHttpResponse(404, '{"error": "$message"}');
+    return createHttpResponse(404, '{"code": "NOT_FOUND", "message": "$message", "timestamp": "${_getTimestamp()}"}');
   }
 
   /// 409 Conflict
   static http.Response conflict([String message = 'Conflict']) {
-    return createHttpResponse(409, '{"error": "$message"}');
+    return createHttpResponse(409, '{"code": "CONFLICT", "message": "$message", "timestamp": "${_getTimestamp()}"}');
   }
 
   /// 422 Unprocessable Entity
   static http.Response unprocessableEntity([String message = 'Validation Error']) {
-    return createHttpResponse(422, '{"error": "$message"}');
+    return createHttpResponse(422, '{"code": "VALIDATION_ERROR", "message": "$message", "timestamp": "${_getTimestamp()}"}');
   }
 
   /// 500 Internal Server Error
   static http.Response internalServerError([String message = 'Internal Server Error']) {
-    return createHttpResponse(500, '{"error": "$message"}');
+    return createHttpResponse(500, '{"code": "INTERNAL_SERVER_ERROR", "message": "$message", "timestamp": "${_getTimestamp()}"}');
   }
 
   /// 503 Service Unavailable
   static http.Response serviceUnavailable([String message = 'Service Unavailable']) {
-    return createHttpResponse(503, '{"error": "$message"}');
+    return createHttpResponse(503, '{"code": "SERVICE_UNAVAILABLE", "message": "$message", "timestamp": "${_getTimestamp()}"}');
   }
 }
 

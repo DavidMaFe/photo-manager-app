@@ -117,7 +117,9 @@ class ProfilePage extends StatelessWidget {
                               icon: Icons.devices_outlined,
                               title: l10n.myDevices,
                               subtitle: l10n.myDevicesSubtitle(profile.deviceCount),
-                              onTap: () {},
+                              onTap: () {
+                                context.goNamed(RouteNames.devices);
+                              },
                             ),
                             const Divider(height: 1, indent: 60),
 

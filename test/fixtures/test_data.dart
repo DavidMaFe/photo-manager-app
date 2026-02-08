@@ -1,4 +1,5 @@
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
+import 'package:photo_manager_app/features/devices/domain/entities/device.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 
 /// Test Data Fixtures
@@ -230,6 +231,148 @@ class TestSyncSessions {
     'status': 'completed',
     'filesUploaded': 100,
     'totalFiles': 100,
+  };
+}
+
+/// Sample Device entities for the devices feature testing
+class TestDeviceEntities {
+  /// Standard Android device with auto sync enabled
+  static Device get androidDevice => const Device(
+        id: '1',
+        uuid: 'android-uuid-001',
+        name: 'Samsung Galaxy S21',
+        model: 'SM-G991B',
+        osType: 'Android',
+        osVersion: '13',
+        appVersion: '1.0.0',
+        autoSync: true,
+      );
+
+  /// iOS device with auto sync disabled
+  static Device get iosDevice => const Device(
+        id: '2',
+        uuid: 'ios-uuid-002',
+        name: 'iPhone 13 Pro',
+        model: 'iPhone14,3',
+        osType: 'iOS',
+        osVersion: '16.0',
+        appVersion: '1.0.0',
+        autoSync: false,
+      );
+
+  /// Android tablet with auto sync enabled
+  static Device get androidTablet => const Device(
+        id: '3',
+        uuid: 'android-tablet-uuid-003',
+        name: 'Samsung Galaxy Tab S8',
+        model: 'SM-X706B',
+        osType: 'Android',
+        osVersion: '12',
+        appVersion: '1.0.0',
+        autoSync: true,
+      );
+
+  /// Device with lowercase os type (for testing isAndroid/isIOS getters)
+  static Device get deviceWithLowercaseOs => const Device(
+        id: '4',
+        uuid: 'lowercase-uuid-004',
+        name: 'Test Device',
+        model: 'TEST-001',
+        osType: 'android',
+        osVersion: '11',
+        appVersion: '1.0.0',
+        autoSync: false,
+      );
+
+  /// Device with unknown OS type
+  static Device get unknownOsDevice => const Device(
+        id: '5',
+        uuid: 'unknown-uuid-005',
+        name: 'Unknown Device',
+        model: 'UNKNOWN-001',
+        osType: 'Windows',
+        osVersion: '11',
+        appVersion: '1.0.0',
+        autoSync: false,
+      );
+
+  /// List of multiple devices for testing lists
+  static List<Device> get deviceList => [
+        androidDevice,
+        iosDevice,
+        androidTablet,
+      ];
+
+  /// Empty list for testing empty states
+  static List<Device> get emptyDeviceList => [];
+}
+
+/// Sample device JSON responses for data layer testing
+class TestDeviceJsonData {
+  /// Android device JSON (as returned by API)
+  static const Map<String, dynamic> androidDeviceJson = {
+    'deviceId': '1',
+    'uuid': 'android-uuid-001',
+    'name': 'Samsung Galaxy S21',
+    'model': 'SM-G991B',
+    'osType': 'Android',
+    'osVersion': '13',
+    'appVersion': '1.0.0',
+    'autoSyncEnabled': true,
+  };
+
+  /// iOS device JSON
+  static const Map<String, dynamic> iosDeviceJson = {
+    'deviceId': '2',
+    'uuid': 'ios-uuid-002',
+    'name': 'iPhone 13 Pro',
+    'model': 'iPhone14,3',
+    'osType': 'iOS',
+    'osVersion': '16.0',
+    'appVersion': '1.0.0',
+    'autoSyncEnabled': false,
+  };
+
+  /// Device JSON with integer deviceId (should be converted to string)
+  static const Map<String, dynamic> deviceJsonWithIntegerId = {
+    'deviceId': 123,
+    'uuid': 'int-id-uuid-123',
+    'name': 'Test Device',
+    'model': 'TEST-001',
+    'osType': 'Android',
+    'osVersion': '11',
+    'appVersion': '1.0.0',
+    'autoSyncEnabled': true,
+  };
+
+  /// Device JSON without autoSyncEnabled (should default to false)
+  static const Map<String, dynamic> deviceJsonWithoutAutoSync = {
+    'deviceId': '4',
+    'uuid': 'no-autosync-uuid-004',
+    'name': 'Legacy Device',
+    'model': 'LEGACY-001',
+    'osType': 'Android',
+    'osVersion': '10',
+    'appVersion': '0.9.0',
+  };
+
+  /// API response with multiple devices
+  static const Map<String, dynamic> deviceListResponse = {
+    'devices': [
+      androidDeviceJson,
+      iosDeviceJson,
+    ],
+  };
+
+  /// Empty device list response
+  static const Map<String, dynamic> emptyDeviceListResponse = {
+    'devices': [],
+  };
+
+  /// Error response example
+  static const Map<String, dynamic> errorResponse = {
+    'error': 'Unauthorized access',
+    'code': 'UNAUTHORIZED',
   };
 }
 

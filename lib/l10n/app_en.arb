@@ -314,5 +314,19 @@
   "september": "September",
   "october": "October",
   "november": "November",
-  "december": "December"
+  "december": "December",
+
+  "renameDevice": "Rename device",
+  "renameDeviceDescription": "Enter a new name for your device",
+  "deviceName": "Device name",
+  "deviceNameRequired": "Device name is required",
+  "deviceNameTooLong": "Name is too long (maximum 50 characters)",
+  "autoSync": "Auto-sync",
+  "unlinkDevice": "Unlink",
+  "unlinkDeviceConfirmation": "Are you sure you want to unlink '{deviceName}'? This device will stop syncing with your account.",
+  "deviceActionSuccess": "Action completed successfully",
+  "noDevices": "No linked devices",
+  "noDevicesDescription": "Devices will appear here when you sign in to the app from other devices.",
+  "devicesLoadError": "Could not load devices",
+  "retry": "Retry"
 }
