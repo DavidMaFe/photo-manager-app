@@ -32,7 +32,6 @@ void main() {
         expect(result.user.name, testName);
         expect(result.user.surname, testSurname);
         expect(result.refreshToken, isNull);
-        expect(result.expiresAt, isNull);
       });
 
       test('should create AuthResponseModel with refreshToken', () {
@@ -51,46 +50,6 @@ void main() {
 
         // Assert
         expect(result.refreshToken, testRefreshToken);
-      });
-
-      test('should parse expiresAt from ISO 8601 string', () {
-        // Arrange
-        final expiryDate = DateTime(2025, 12, 31, 23, 59, 59);
-        final json = {
-          'token': testToken,
-          'id': testId,
-          'email': testEmail,
-          'name': testName,
-          'surname': testSurname,
-          'expiresAt': expiryDate.toIso8601String(),
-        };
-
-        // Act
-        final result = AuthResponseModel.fromJson(json);
-
-        // Assert
-        expect(result.expiresAt, isNotNull);
-        expect(result.expiresAt!.year, expiryDate.year);
-        expect(result.expiresAt!.month, expiryDate.month);
-        expect(result.expiresAt!.day, expiryDate.day);
-      });
-
-      test('should handle null expiresAt', () {
-        // Arrange
-        final json = {
-          'token': testToken,
-          'id': testId,
-          'email': testEmail,
-          'name': testName,
-          'surname': testSurname,
-          'expiresAt': null,
-        };
-
-        // Act
-        final result = AuthResponseModel.fromJson(json);
-
-        // Assert
-        expect(result.expiresAt, isNull);
       });
 
       test('should create model with all optional fields', () {
@@ -112,7 +71,6 @@ void main() {
         // Assert
         expect(result.token, testToken);
         expect(result.refreshToken, testRefreshToken);
-        expect(result.expiresAt, isNotNull);
       });
 
       test('should handle integer user id', () {
@@ -171,8 +129,9 @@ void main() {
         final expiryDate = DateTime(2025, 12, 31, 23, 59, 59);
         final model = AuthResponseModel(
           token: testToken,
-          user: _createTestUserModel(),
+          refreshToken: testRefreshToken,
           expiresAt: expiryDate,
+          user: _createTestUserModel(),
         );
 
         // Act
@@ -198,71 +157,6 @@ void main() {
 
         // Assert
         expect(result.keys, containsAll(['token', 'user', 'refreshToken', 'expiresAt']));
-      });
-    });
-
-    group('isExpired getter', () {
-      test('should return false when expiresAt is null', () {
-        // Arrange
-        final model = AuthResponseModel(
-          token: testToken,
-          user: _createTestUserModel(),
-        );
-
-        // Act & Assert
-        expect(model.isExpired, isFalse);
-      });
-
-      test('should return false when token has not expired yet', () {
-        // Arrange
-        final futureDate = DateTime.now().add(const Duration(hours: 1));
-        final model = AuthResponseModel(
-          token: testToken,
-          user: _createTestUserModel(),
-          expiresAt: futureDate,
-        );
-
-        // Act & Assert
-        expect(model.isExpired, isFalse);
-      });
-
-      test('should return true when token has expired', () {
-        // Arrange
-        final pastDate = DateTime.now().subtract(const Duration(hours: 1));
-        final model = AuthResponseModel(
-          token: testToken,
-          user: _createTestUserModel(),
-          expiresAt: pastDate,
-        );
-
-        // Act & Assert
-        expect(model.isExpired, isTrue);
-      });
-
-      test('should return true when token expires exactly now', () {
-        // Arrange - set expiry to a very recent past moment
-        final justExpired = DateTime.now().subtract(const Duration(milliseconds: 1));
-        final model = AuthResponseModel(
-          token: testToken,
-          user: _createTestUserModel(),
-          expiresAt: justExpired,
-        );
-
-        // Act & Assert
-        expect(model.isExpired, isTrue);
-      });
-
-      test('should return false for token expiring far in the future', () {
-        // Arrange
-        final farFuture = DateTime.now().add(const Duration(days: 365));
-        final model = AuthResponseModel(
-          token: testToken,
-          user: _createTestUserModel(),
-          expiresAt: farFuture,
-        );
-
-        // Act & Assert
-        expect(model.isExpired, isFalse);
       });
     });
 

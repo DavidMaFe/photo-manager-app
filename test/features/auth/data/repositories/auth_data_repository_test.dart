@@ -6,6 +6,7 @@ import 'package:photo_manager_app/features/auth/data/models/auth_response_model.
 import 'package:photo_manager_app/features/auth/data/models/user_model.dart';
 import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repository.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/data/data_sources/local/sync_device_local_data_source.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 
@@ -14,33 +15,45 @@ class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 class MockProfileLocalDataSource extends Mock
     implements ProfileLocalDataSource {}
 
+class MockSyncDeviceLocalDataSource extends Mock
+    implements SyncDeviceLocalDataSource {}
+
 class FakeUserModel extends Fake implements UserModel {}
 
 void main() {
+
   late AuthDataRepository repository;
   late MockAuthRemoteDataSource mockRemoteDataSource;
   late MockAuthLocalDataSource mockLocalDataSource;
   late MockProfileLocalDataSource mockProfileLocalDataSource;
+  late MockSyncDeviceLocalDataSource mockSyncDeviceLocalDataSource;
 
   setUpAll(() {
     registerFallbackValue(FakeUserModel());
   });
 
   setUp(() {
+
     mockRemoteDataSource = MockAuthRemoteDataSource();
     mockLocalDataSource = MockAuthLocalDataSource();
     mockProfileLocalDataSource = MockProfileLocalDataSource();
+    mockSyncDeviceLocalDataSource = MockSyncDeviceLocalDataSource();
+
     repository = AuthDataRepository(
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
       profileLocalDataSource: mockProfileLocalDataSource,
+      syncDeviceLocalDataSource: mockSyncDeviceLocalDataSource,
     );
   });
 
   group('AuthDataRepository', () {
+
     const testEmail = 'test@example.com';
     const testPassword = 'password123';
     const testToken = 'test_token_123';
+    const testRefreshToken = 'refresh_token_123';
+    const testDeviceUuid = 'uuid_123';
 
     final testUser = UserModel(
       id: '1',
@@ -51,6 +64,7 @@ void main() {
 
     final testAuthResponse = AuthResponseModel(
       token: testToken,
+      refreshToken: testRefreshToken,
       user: testUser,
     );
 
@@ -58,9 +72,15 @@ void main() {
       test('should call remote data source with correct credentials',
           () async {
         // Arrange
-        when(() => mockRemoteDataSource.login(any(), any()))
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
+        when(() => mockRemoteDataSource.login(any(), any(), any()))
             .thenAnswer((_) async => testAuthResponse);
         when(() => mockLocalDataSource.cacheToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any()))
             .thenAnswer((_) async => {});
         when(() => mockLocalDataSource.cacheUser(any()))
             .thenAnswer((_) async => {});
@@ -69,15 +89,22 @@ void main() {
         await repository.login(email: testEmail, password: testPassword);
 
         // Assert
-        verify(() => mockRemoteDataSource.login(testEmail, testPassword))
+        verify(() => mockRemoteDataSource.login(testEmail, testPassword,
+            testDeviceUuid))
             .called(1);
       });
 
       test('should cache token after successful login', () async {
         // Arrange
-        when(() => mockRemoteDataSource.login(any(), any()))
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
+        when(() => mockRemoteDataSource.login(any(), any(), any()))
             .thenAnswer((_) async => testAuthResponse);
         when(() => mockLocalDataSource.cacheToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any()))
             .thenAnswer((_) async => {});
         when(() => mockLocalDataSource.cacheUser(any()))
             .thenAnswer((_) async => {});
@@ -91,9 +118,15 @@ void main() {
 
       test('should cache user after successful login', () async {
         // Arrange
-        when(() => mockRemoteDataSource.login(any(), any()))
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
+        when(() => mockRemoteDataSource.login(any(), any(), any()))
             .thenAnswer((_) async => testAuthResponse);
         when(() => mockLocalDataSource.cacheToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any()))
             .thenAnswer((_) async => {});
         when(() => mockLocalDataSource.cacheUser(any()))
             .thenAnswer((_) async => {});
@@ -107,9 +140,15 @@ void main() {
 
       test('should return user from auth response', () async {
         // Arrange
-        when(() => mockRemoteDataSource.login(any(), any()))
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
+        when(() => mockRemoteDataSource.login(any(), any(), any()))
             .thenAnswer((_) async => testAuthResponse);
         when(() => mockLocalDataSource.cacheToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any()))
             .thenAnswer((_) async => {});
         when(() => mockLocalDataSource.cacheUser(any()))
             .thenAnswer((_) async => {});
@@ -127,10 +166,18 @@ void main() {
       test('should cache both token and user in correct order', () async {
         // Arrange
         final callOrder = <String>[];
-        when(() => mockRemoteDataSource.login(any(), any()))
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
+        when(() => mockRemoteDataSource.login(any(), any(), any()))
             .thenAnswer((_) async => testAuthResponse);
         when(() => mockLocalDataSource.cacheToken(any())).thenAnswer((_) async {
           callOrder.add('token');
+        });
+        when(() => mockLocalDataSource.cacheRefreshToken(any())).thenAnswer((_) async {
+          callOrder.add('refreshToken');
+        });
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any())).thenAnswer((_) async {
+          callOrder.add('timestamp');
         });
         when(() => mockLocalDataSource.cacheUser(any())).thenAnswer((_) async {
           callOrder.add('user');
@@ -140,12 +187,14 @@ void main() {
         await repository.login(email: testEmail, password: testPassword);
 
         // Assert
-        expect(callOrder, ['token', 'user']);
+        expect(callOrder, ['token', 'refreshToken', 'timestamp', 'user']);
       });
 
       test('should propagate exceptions from remote data source', () async {
         // Arrange
-        when(() => mockRemoteDataSource.login(any(), any()))
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
+        when(() => mockRemoteDataSource.login(any(), any(), any()))
             .thenThrow(Exception('Invalid credentials'));
 
         // Act & Assert
@@ -165,7 +214,9 @@ void main() {
 
       test('should not cache if remote call fails', () async {
         // Arrange
-        when(() => mockRemoteDataSource.login(any(), any()))
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
+        when(() => mockRemoteDataSource.login(any(), any(), any()))
             .thenThrow(Exception('Network error'));
 
         // Act & Assert
@@ -600,18 +651,31 @@ void main() {
     });
 
     group('register', () {
+
       const testName = 'John';
       const testSurname = 'Doe';
+      const testDeviceUuid = "uuid_123";
 
       test('should delegate to remote data source with all parameters',
           () async {
         // Arrange
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
         when(() => mockRemoteDataSource.register(
-              any(),
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
+            any(),
+            any(),
+            any(),
+            any(),
+            any()
+        )).thenAnswer((_) async => testAuthResponse);
+        when(() => mockLocalDataSource.cacheToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheUser(any()))
+            .thenAnswer((_) async => {});
 
         // Act
         await repository.register(
@@ -623,21 +687,33 @@ void main() {
 
         // Assert
         verify(() => mockRemoteDataSource.register(
-              testEmail,
-              testPassword,
-              testName,
-              testSurname,
-            )).called(1);
+            testEmail,
+            testPassword,
+            testName,
+            testSurname,
+            testDeviceUuid
+        )).called(1);
       });
 
       test('should delegate to remote data source without surname', () async {
         // Arrange
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
         when(() => mockRemoteDataSource.register(
-              any(),
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
+            any(),
+            any(),
+            any(),
+            any(),
+            any()
+        )).thenAnswer((_) async => testAuthResponse);
+        when(() => mockLocalDataSource.cacheToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheUser(any()))
+            .thenAnswer((_) async => {});
 
         // Act
         await repository.register(
@@ -649,21 +725,33 @@ void main() {
 
         // Assert
         verify(() => mockRemoteDataSource.register(
-              testEmail,
-              testPassword,
-              testName,
-              null,
-            )).called(1);
+            testEmail,
+            testPassword,
+            testName,
+            null,
+            testDeviceUuid
+        )).called(1);
       });
 
       test('should complete successfully when remote call succeeds', () async {
         // Arrange
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
         when(() => mockRemoteDataSource.register(
-              any(),
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
+            any(),
+            any(),
+            any(),
+            any(),
+            any()
+        )).thenAnswer((_) async => testAuthResponse);
+        when(() => mockLocalDataSource.cacheToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheUser(any()))
+            .thenAnswer((_) async => {});
 
         // Act & Assert - should not throw
         await expectLater(
@@ -676,14 +764,25 @@ void main() {
             completes);
       });
 
-      test('should NOT cache token after successful registration', () async {
+      test('should cache token after successful registration', () async {
         // Arrange
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
         when(() => mockRemoteDataSource.register(
-              any(),
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
+            any(),
+            any(),
+            any(),
+            any(),
+            any()
+        )).thenAnswer((_) async => testAuthResponse);
+        when(() => mockLocalDataSource.cacheToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheUser(any()))
+            .thenAnswer((_) async => {});
 
         // Act
         await repository.register(
@@ -693,18 +792,29 @@ void main() {
           surname: testSurname,
         );
 
-        // Assert - no caching should occur
-        verifyNever(() => mockLocalDataSource.cacheToken(any()));
+        // Assert
+        verify(() => mockLocalDataSource.cacheToken(testToken)).called(1);
       });
 
-      test('should NOT cache user after successful registration', () async {
+      test('should cache user after successful registration', () async {
         // Arrange
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
         when(() => mockRemoteDataSource.register(
-              any(),
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
+            any(),
+            any(),
+            any(),
+            any(),
+            any()
+        )).thenAnswer((_) async => testAuthResponse);
+        when(() => mockLocalDataSource.cacheToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockLocalDataSource.cacheUser(any()))
+            .thenAnswer((_) async => {});
 
         // Act
         await repository.register(
@@ -714,18 +824,58 @@ void main() {
           surname: testSurname,
         );
 
-        // Assert - no caching should occur
-        verifyNever(() => mockLocalDataSource.cacheUser(any()));
+        // Assert
+        verify(() => mockLocalDataSource.cacheUser(testUser)).called(1);
+      });
+
+      test('should cache all auth data in correct order after registration', () async {
+        // Arrange
+        final callOrder = <String>[];
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
+        when(() => mockRemoteDataSource.register(
+            any(),
+            any(),
+            any(),
+            any(),
+            any()
+        )).thenAnswer((_) async => testAuthResponse);
+        when(() => mockLocalDataSource.cacheToken(any())).thenAnswer((_) async {
+          callOrder.add('token');
+        });
+        when(() => mockLocalDataSource.cacheRefreshToken(any())).thenAnswer((_) async {
+          callOrder.add('refreshToken');
+        });
+        when(() => mockLocalDataSource.cacheLoginTimestamp(any())).thenAnswer((_) async {
+          callOrder.add('timestamp');
+        });
+        when(() => mockLocalDataSource.cacheUser(any())).thenAnswer((_) async {
+          callOrder.add('user');
+        });
+
+        // Act
+        await repository.register(
+          email: testEmail,
+          password: testPassword,
+          name: testName,
+          surname: testSurname,
+        );
+
+        // Assert
+        expect(callOrder, ['token', 'refreshToken', 'timestamp', 'user']);
       });
 
       test('should propagate exceptions from remote data source', () async {
         // Arrange
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
         when(() => mockRemoteDataSource.register(
-              any(),
-              any(),
-              any(),
-              any(),
-            )).thenThrow(Exception('Email already registered'));
+          any(),
+          any(),
+          any(),
+          any(),
+          any()
+        )).thenThrow(Exception('Email already registered'));
 
         // Act & Assert
         expect(
@@ -744,17 +894,22 @@ void main() {
 
         // Ensure no caching occurs on error
         verifyNever(() => mockLocalDataSource.cacheToken(any()));
+        verifyNever(() => mockLocalDataSource.cacheRefreshToken(any()));
+        verifyNever(() => mockLocalDataSource.cacheLoginTimestamp(any()));
         verifyNever(() => mockLocalDataSource.cacheUser(any()));
       });
 
       test('should not cache anything if remote call fails', () async {
         // Arrange
+        when(() => mockSyncDeviceLocalDataSource.getDeviceUuid())
+            .thenAnswer((_) async => testDeviceUuid);
         when(() => mockRemoteDataSource.register(
               any(),
-              any(),
-              any(),
-              any(),
-            )).thenThrow(Exception('Network error'));
+            any(),
+            any(),
+            any(),
+            any()
+        )).thenThrow(Exception('Network error'));
 
         // Act & Assert
         await expectLater(
@@ -768,6 +923,8 @@ void main() {
         );
 
         verifyNever(() => mockLocalDataSource.cacheToken(any()));
+        verifyNever(() => mockLocalDataSource.cacheRefreshToken(any()));
+        verifyNever(() => mockLocalDataSource.cacheLoginTimestamp(any()));
         verifyNever(() => mockLocalDataSource.cacheUser(any()));
       });
     });

@@ -8,12 +8,14 @@ import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 
 import '../models/auth_response_model.dart';
+import '../models/refresh_token_response_model.dart';
 
 
 abstract class AuthRemoteDataSource {
-  Future<AuthResponseModel> login(String email, String password);
+  Future<AuthResponseModel> login(String email, String password, String deviceUuid);
   Future<void> logout(String token);
-  Future<void> register(String email, String password, String name, String? surname);
+  Future<AuthResponseModel> register(String email, String password, String name, String? surname, String deviceUuid);
+  Future<RefreshTokenResponseModel> refreshToken(String refreshToken, String deviceUuid);
   Future<void> requestPasswordReset(String email);
   Future<void> validateResetCode(String email, String code);
   Future<void> resetPassword(String email, String code, String newPassword);
@@ -31,14 +33,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   });
 
   @override
-  Future<AuthResponseModel> login(String email, String password) async {
+  Future<AuthResponseModel> login(String email, String password, String deviceUuid) async {
     final url = Uri.parse('$baseUrl/api/login/');
 
     try {
       final response = await client.post(
         url,
         headers: HttpHeadersUtil.getJsonHeaders(),
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'deviceUuid': deviceUuid,
+        }),
       );
 
       if (response.statusCode == 200) {
@@ -79,9 +85,41 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       print('Logout failed: $e');
     }
   }
+
+  @override
+  Future<RefreshTokenResponseModel> refreshToken(String refreshToken, String deviceUuid) async {
+    final url = Uri.parse('$baseUrl/api/auth/refresh/');
+
+    try {
+      final response = await client.post(
+        url,
+        headers: HttpHeadersUtil.getJsonHeaders(),
+        body: jsonEncode({
+          'refreshToken': refreshToken,
+          'deviceUuid': deviceUuid,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        return RefreshTokenResponseModel.fromJson(jsonData);
+      } else {
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
+      }
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw Exception('Connection error: $e');
+    }
+  }
   
   @override
-  Future<void> register(String email, String password, String name, String? surname) async {
+  Future<AuthResponseModel> register(String email, String password, String name, String? surname, String deviceUuid) async {
     final url = Uri.parse('$baseUrl/api/register/');
 
     try {
@@ -89,6 +127,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'email': email,
         'password': password,
         'name': name,
+        'deviceUuid': deviceUuid,
       };
 
       if (surname != null) {
@@ -102,7 +141,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return;
+        final jsonData = jsonDecode(response.body);
+        return AuthResponseModel.fromJson(jsonData);
       } else {
         final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
         throw ApiException(errorResponse);

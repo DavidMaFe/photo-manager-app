@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/config/data_constants.dart';
+import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 import 'package:photo_manager_app/features/synchronization/data/models/synchronization_model.dart';
 
 import '../../../../core/errors/base/failure_codes.dart';
-import '../../../auth/data/data_sources/auth_local_data_source.dart';
 
 
 class SynchronizationsListResponse {
@@ -33,12 +33,10 @@ abstract class SynchronizationRemoteDataSource {
 class SynchronizationRemoteDataSourceImpl implements SynchronizationRemoteDataSource {
 
   final http.Client client;
-  final AuthLocalDataSource authLocalDataSource;
   final String baseUrl;
 
   SynchronizationRemoteDataSourceImpl({
     required this.client,
-    required this.authLocalDataSource,
     this.baseUrl = DataConstants.backendBaseUrl
   });
 
@@ -55,13 +53,9 @@ class SynchronizationRemoteDataSourceImpl implements SynchronizationRemoteDataSo
         'deviceUuid': deviceUuid, 'page': page.toString(), 'pageSize': pageSize.toString()
       });
 
-      String? token = await authLocalDataSource.getToken();
       final response = await client.get(
           uri,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token'
-          }
+          headers: HttpHeadersUtil.getJsonHeaders()
       );
 
       if (response.statusCode == 200) {
@@ -77,7 +71,7 @@ class SynchronizationRemoteDataSourceImpl implements SynchronizationRemoteDataSo
 
     } catch(e) {
       if (e is HttpException) rethrow;
-      throw Exception(FailureCodes.unknownErrorCode);
+      throw Exception(FailureCodes.unknownError);
     }
 
   }

@@ -3,6 +3,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/database/app_database.dart';
+import 'package:photo_manager_app/core/network/authenticated_http_client.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
@@ -10,6 +11,7 @@ import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repo
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/refresh_token_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_deletion_local_data_source.dart';
@@ -83,7 +85,9 @@ final sl = GetIt.instance;
 Future<void> init() async {
 
   // GENERAL INJECTIONS
+  // Plain HTTP client (used for auth endpoints to avoid circular dependency)
   sl.registerLazySingleton(() => http.Client());
+
   sl.registerLazySingleton(() => DeviceInfoPlugin());
   sl.registerLazySingleton(() => AppDatabase());
   sl.registerLazySingleton(() => AppEventBus());
@@ -113,10 +117,8 @@ Future<void> init() async {
   // profile
   sl.registerLazySingleton<ProfileRemoteDataSource>(
       () {
-        final client = sl<http.Client>();
-        final authLocalDataSource = sl<AuthLocalDataSource>();
-        return ProfileRemoteDataSourceImpl(client: client,
-            authLocalDataSource: authLocalDataSource);
+        final client = sl<AuthenticatedHttpClient>();
+        return ProfileRemoteDataSourceImpl(client: client);
       }
   );
 
@@ -130,23 +132,15 @@ Future<void> init() async {
   // sync session
   sl.registerLazySingleton<SyncSessionRemoteDataSource>(
       () {
-        final client = sl<http.Client>();
-        final authLocalDataSource = sl<AuthLocalDataSource>();
-        return SyncSessionRemoteDatasourceImpl(
-          client: client,
-          authLocalDataSource: authLocalDataSource
-        );
+        final client = sl<AuthenticatedHttpClient>();
+        return SyncSessionRemoteDatasourceImpl(client: client);
       }
   );
 
   sl.registerLazySingleton<SyncDeviceRemoteDataSource>(
       () {
-        final client = sl<http.Client>();
-        final authLocalDataSource = sl<AuthLocalDataSource>();
-        return SyncDeviceRemoteDataSourceImpl(
-            client: client,
-            authLocalDataSource: authLocalDataSource
-        );
+        final client = sl<AuthenticatedHttpClient>();
+        return SyncDeviceRemoteDataSourceImpl(client: client);
       }
   );
 
@@ -168,24 +162,16 @@ Future<void> init() async {
   // gallery
   sl.registerLazySingleton<GalleryRemoteDataSource>(
       () {
-        final client = sl<http.Client>();
-        final autLocalDataSource = sl<AuthLocalDataSource>();
-        return GalleryRemoteDataSourceImpl(
-          client: client,
-          authLocalDataSource: autLocalDataSource
-        );
+        final client = sl<AuthenticatedHttpClient>();
+        return GalleryRemoteDataSourceImpl(client: client);
       }
   );
 
   // file management
   sl.registerLazySingleton<FileManagementRemoteDataSource>(
       () {
-        final client = sl<http.Client>();
-        final authLocalDataSource = sl<AuthLocalDataSource>();
-        return FileManagementRemoteDataSourceImpl(
-          client: client,
-          authLocalDataSource: authLocalDataSource
-        );
+        final client = sl<AuthenticatedHttpClient>();
+        return FileManagementRemoteDataSourceImpl(client: client);
       }
   );
 
@@ -198,36 +184,24 @@ Future<void> init() async {
   // folders
   sl.registerLazySingleton<FolderRemoteDataSource>(
       () {
-        final client = sl<http.Client>();
-        final authLocalDataSource = sl<AuthLocalDataSource>();
-        return FolderRemoteDataSourceImpl(
-            client: client,
-            authLocalDataSource: authLocalDataSource
-        );
+        final client = sl<AuthenticatedHttpClient>();
+        return FolderRemoteDataSourceImpl(client: client);
       }
   ) ;
 
   // synchronization
   sl.registerLazySingleton<SynchronizationRemoteDataSource>(
       () {
-        final client = sl<http.Client>();
-        final authLocalDataSource = sl<AuthLocalDataSource>();
-        return SynchronizationRemoteDataSourceImpl(
-            client: client,
-            authLocalDataSource: authLocalDataSource
-        );
+        final client = sl<AuthenticatedHttpClient>();
+        return SynchronizationRemoteDataSourceImpl(client: client);
       }
   );
 
   // trash
   sl.registerLazySingleton<TrashRemoteDataSource>(
       () {
-        final client = sl<http.Client>();
-        final authLocalDataSource = sl<AuthLocalDataSource>();
-        return TrashRemoteDataSourceImpl(
-          client: client,
-          authLocalDataSource: authLocalDataSource
-        );
+        final client = sl<AuthenticatedHttpClient>();
+        return TrashRemoteDataSourceImpl(client: client);
       }
   );
 
@@ -239,10 +213,12 @@ Future<void> init() async {
         final remoteDataSource = sl<AuthRemoteDataSource>();
         final localDataSource = sl<AuthLocalDataSource>();
         final profileLocalDataSource = sl<ProfileLocalDataSource>();
+        final syncDeviceLocalDataSource = sl<SyncDeviceLocalDataSource>();
         return AuthDataRepository(
             remoteDataSource: remoteDataSource,
             localDataSource: localDataSource,
-            profileLocalDataSource: profileLocalDataSource
+            profileLocalDataSource: profileLocalDataSource,
+            syncDeviceLocalDataSource: syncDeviceLocalDataSource
         );
       }
   );
@@ -330,6 +306,22 @@ Future<void> init() async {
   );
 
 
+  // Authenticated HTTP Client (uses AuthRepository for token refresh)
+  // Registered after repositories to avoid circular dependency
+  sl.registerLazySingleton<AuthenticatedHttpClient>(
+      () {
+        final plainClient = sl<http.Client>();
+        final authLocalDataSource = sl<AuthLocalDataSource>();
+        final authRepository = sl<AuthRepository>();
+
+        return AuthenticatedHttpClient(
+          client: plainClient,
+          authLocalDataSource: authLocalDataSource,
+          onTokenRefresh: () => authRepository.refreshToken(),
+        );
+      }
+  );
+
   // USE CASES
   // auth
   sl.registerFactory(
@@ -371,6 +363,13 @@ Future<void> init() async {
       () {
         final repository = sl<AuthRepository>();
         return ResetPasswordUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<AuthRepository>();
+        return RefreshTokenUseCase(repository);
       }
   );
 
@@ -536,6 +535,7 @@ Future<void> init() async {
         final loginUseCase = sl<LoginUseCase>();
         final registerUseCase = sl<RegisterUseCase>();
         final logoutUseCase = sl<LogoutUseCase>();
+        final refreshTokenUseCase = sl<RefreshTokenUseCase>();
         final registerSyncDeviceUseCase = sl<RegisterSyncDeviceUseCase>();
         final requestPasswordResetUseCase = sl<RequestPasswordResetUseCase>();
         final validateResetCodeUseCase = sl<ValidateResetCodeUseCase>();
@@ -546,6 +546,7 @@ Future<void> init() async {
             loginUseCase: loginUseCase,
             registerUseCase: registerUseCase,
             logoutUseCase: logoutUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
             registerSyncDeviceUseCase: registerSyncDeviceUseCase,
             requestPasswordResetUseCase: requestPasswordResetUseCase,
             validateResetCodeUseCase: validateResetCodeUseCase,

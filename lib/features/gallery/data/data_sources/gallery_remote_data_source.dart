@@ -8,8 +8,6 @@ import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 import 'package:photo_manager_app/features/gallery/data/models/gallery_page_model.dart';
 
-import '../../../auth/data/data_sources/auth_local_data_source.dart';
-
 
 abstract class GalleryRemoteDataSource {
   Future<GalleryPageModel> getFiles({
@@ -24,12 +22,10 @@ abstract class GalleryRemoteDataSource {
 class GalleryRemoteDataSourceImpl implements GalleryRemoteDataSource {
 
   final http.Client client;
-  final AuthLocalDataSource authLocalDataSource;
   final String baseUrl;
 
   GalleryRemoteDataSourceImpl({
     required this.client,
-    required this.authLocalDataSource,
     this.baseUrl = DataConstants.backendBaseUrl
   });
 
@@ -59,10 +55,9 @@ class GalleryRemoteDataSourceImpl implements GalleryRemoteDataSource {
     );
 
     try {
-      final token = await authLocalDataSource.getToken();
       final response = await client.get(
         url,
-        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        headers: HttpHeadersUtil.getJsonHeaders(),
       );
 
       if (response.statusCode == 200) {

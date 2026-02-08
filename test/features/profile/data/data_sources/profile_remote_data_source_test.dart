@@ -4,12 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_remote_data_source.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
-
-class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 
 class FakeUri extends Fake implements Uri {}
 
@@ -18,7 +15,6 @@ class FakeRequest extends Fake implements http.Request {}
 void main() {
   late ProfileRemoteDataSourceImpl dataSource;
   late MockHttpClient mockHttpClient;
-  late MockAuthLocalDataSource mockAuthLocalDataSource;
 
   setUpAll(() {
     registerFallbackValue(FakeUri());
@@ -27,10 +23,8 @@ void main() {
 
   setUp(() {
     mockHttpClient = MockHttpClient();
-    mockAuthLocalDataSource = MockAuthLocalDataSource();
     dataSource = ProfileRemoteDataSourceImpl(
       client: mockHttpClient,
-      authLocalDataSource: mockAuthLocalDataSource,
     );
   });
 
@@ -54,28 +48,8 @@ void main() {
     };
 
     group('getUserProfile', () {
-      test('should retrieve token from auth local data source', () async {
-        // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.get(
-              any(),
-              headers: any(named: 'headers'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(successResponse), 200),
-        );
-
-        // Act
-        await dataSource.getUserProfile();
-
-        // Assert
-        verify(() => mockAuthLocalDataSource.getToken()).called(1);
-      });
-
       test('should perform GET request to correct endpoint', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -95,37 +69,12 @@ void main() {
 
         final headers = captured.captured.last as Map<String, String>;
         expect(headers['Content-Type'], 'application/json');
-        expect(headers['Authorization'], 'Bearer $testToken');
         expect(headers.containsKey('Accept-Language'), true);
-      });
-
-      test('should include Bearer token in Authorization header', () async {
-        // Arrange
-        Map<String, String>? capturedHeaders;
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.get(
-              any(),
-              headers: any(named: 'headers'),
-            )).thenAnswer((invocation) async {
-          capturedHeaders =
-              invocation.namedArguments[#headers] as Map<String, String>;
-          return http.Response(jsonEncode(successResponse), 200);
-        });
-
-        // Act
-        await dataSource.getUserProfile();
-
-        // Assert
-        expect(capturedHeaders!['Authorization'], 'Bearer $testToken');
-        expect(capturedHeaders!.containsKey('Accept-Language'), true);
       });
 
       test('should set correct Content-Type header', () async {
         // Arrange
         Map<String, String>? capturedHeaders;
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -146,8 +95,6 @@ void main() {
       test('should return UserProfileModel on successful request (200)',
           () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -169,8 +116,6 @@ void main() {
 
       test('should parse JSON response correctly', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -190,8 +135,6 @@ void main() {
 
       test('should throw ApiException on 401 Unauthorized', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -221,8 +164,6 @@ void main() {
 
       test('should throw ApiException on 404 Not Found', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -252,8 +193,6 @@ void main() {
 
       test('should throw ApiException on server error (500)', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -283,8 +222,6 @@ void main() {
 
       test('should throw ApiException on 503 Service Unavailable', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -328,8 +265,6 @@ void main() {
           }
         };
 
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -356,8 +291,6 @@ void main() {
           'storageTotalMb': 1024,
         };
 
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -381,12 +314,9 @@ void main() {
         const customBaseUrl = 'https://api.example.com';
         final customDataSource = ProfileRemoteDataSourceImpl(
           client: mockHttpClient,
-          authLocalDataSource: mockAuthLocalDataSource,
           baseUrl: customBaseUrl,
         );
 
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.get(
               any(),
               headers: any(named: 'headers'),
@@ -421,29 +351,8 @@ void main() {
         }
       };
 
-      test('should retrieve token from auth local data source', () async {
+      test('should perform PUT request to correct endpoint', () async{
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.put(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(updatedProfileResponse), 200),
-        );
-
-        // Act
-        await dataSource.updateUserProfile(name: 'Jane', surname: 'Smith');
-
-        // Assert
-        verify(() => mockAuthLocalDataSource.getToken()).called(1);
-      });
-
-      test('should perform PUT request to correct endpoint', () async {
-        // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
@@ -465,7 +374,6 @@ void main() {
 
         final headers = captured.captured.last as Map<String, String>;
         expect(headers['Content-Type'], 'application/json');
-        expect(headers['Authorization'], 'Bearer $testToken');
         expect(headers.containsKey('Accept-Language'), true);
       });
 
@@ -473,8 +381,6 @@ void main() {
           () async {
         // Arrange
         String? capturedBody;
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
@@ -498,8 +404,6 @@ void main() {
           () async {
         // Arrange
         String? capturedBody;
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
@@ -526,8 +430,6 @@ void main() {
       test('should return updated UserProfileModel on successful request (200)',
           () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
@@ -551,8 +453,6 @@ void main() {
 
       test('should throw ApiException on 401 Unauthorized', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
@@ -583,8 +483,6 @@ void main() {
 
       test('should throw ApiException on 400 Bad Request', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
@@ -615,8 +513,6 @@ void main() {
 
       test('should throw ApiException on server error (500)', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
@@ -648,8 +544,6 @@ void main() {
       test('should handle profile image update only', () async {
         // Arrange
         String? capturedBody;
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.put(
               any(),
               headers: any(named: 'headers'),
@@ -671,32 +565,8 @@ void main() {
     });
 
     group('changePassword', () {
-      test('should retrieve token from auth local data source', () async {
-        // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response('', 200),
-        );
-
-        // Act
-        await dataSource.changePassword(
-          currentPassword: 'oldPass123',
-          newPassword: 'newPass456',
-        );
-
-        // Assert
-        verify(() => mockAuthLocalDataSource.getToken()).called(1);
-      });
-
       test('should perform POST request to correct endpoint', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.post(
               any(),
               headers: any(named: 'headers'),
@@ -721,15 +591,12 @@ void main() {
 
         final headers = captured.captured.last as Map<String, String>;
         expect(headers['Content-Type'], 'application/json');
-        expect(headers['Authorization'], 'Bearer $testToken');
         expect(headers.containsKey('Accept-Language'), true);
       });
 
       test('should send correct passwords in request body', () async {
         // Arrange
         String? capturedBody;
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.post(
               any(),
               headers: any(named: 'headers'),
@@ -753,8 +620,6 @@ void main() {
 
       test('should complete successfully on 200 response', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.post(
               any(),
               headers: any(named: 'headers'),
@@ -775,8 +640,6 @@ void main() {
 
       test('should throw ApiException on 401 Unauthorized', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.post(
               any(),
               headers: any(named: 'headers'),
@@ -811,8 +674,6 @@ void main() {
       test('should throw ApiException on 400 Bad Request (wrong password)',
           () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.post(
               any(),
               headers: any(named: 'headers'),
@@ -846,8 +707,6 @@ void main() {
 
       test('should throw ApiException on server error (500)', () async {
         // Arrange
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.post(
               any(),
               headers: any(named: 'headers'),
@@ -882,8 +741,6 @@ void main() {
       test('should handle complex password formats', () async {
         // Arrange
         String? capturedBody;
-        when(() => mockAuthLocalDataSource.getToken())
-            .thenAnswer((_) async => testToken);
         when(() => mockHttpClient.post(
               any(),
               headers: any(named: 'headers'),

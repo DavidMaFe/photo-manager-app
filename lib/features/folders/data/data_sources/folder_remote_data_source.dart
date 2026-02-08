@@ -6,7 +6,6 @@ import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:photo_manager_app/core/utils/http_headers_util.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/folders/data/models/folder_content_model.dart';
 
 import '../models/folder_model.dart';
@@ -31,30 +30,21 @@ class FolderRemoteDataSourceImpl implements FolderRemoteDataSource {
 
   final http.Client client;
   final String baseUrl;
-  final AuthLocalDataSource authLocalDataSource;
 
   FolderRemoteDataSourceImpl({
     required this.client,
-    required this.authLocalDataSource,
     this.baseUrl = DataConstants.backendBaseUrl
   });
-
-  Future<Map<String, String>> _getHeaders() async {
-    final token = await authLocalDataSource.getToken();
-    return HttpHeadersUtil.getAuthJsonHeaders(token);
-  }
 
   @override
   Future<List<FolderModel>> getFolders({String? parentFolderId}) async {
     try {
-      final headers = await _getHeaders();
-
       final finalUrl = '$baseUrl/api/folder/list/';
       final uri = parentFolderId != null
           ? Uri.parse('$finalUrl?parentId=$parentFolderId')
           : Uri.parse(finalUrl);
 
-      final response = await client.get(uri, headers: headers);
+      final response = await client.get(uri, headers: HttpHeadersUtil.getJsonHeaders());
 
       if (response.statusCode == 200) {
         final jsonList = jsonDecode(response.body)["folders"] as List<dynamic>;
@@ -83,8 +73,6 @@ class FolderRemoteDataSourceImpl implements FolderRemoteDataSource {
     String? status,
   }) async {
     try {
-      final headers = await _getHeaders();
-
       final finalUrl = '$baseUrl/api/folder/$folderId/';
       final queryParams = <String, String>{
         'page': page.toString(),
@@ -100,7 +88,7 @@ class FolderRemoteDataSourceImpl implements FolderRemoteDataSource {
       }
 
       final uri = Uri.parse(finalUrl).replace(queryParameters: queryParams);
-      final response = await client.get(uri, headers: headers);
+      final response = await client.get(uri, headers: HttpHeadersUtil.getJsonHeaders());
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -123,7 +111,6 @@ class FolderRemoteDataSourceImpl implements FolderRemoteDataSource {
   @override
   Future<FolderModel> createFolder({required String name, String? parentFolderId}) async {
     try {
-      final headers = await _getHeaders();
       final uri = Uri.parse("$baseUrl/api/folder/new/");
 
       final body = jsonEncode({
@@ -131,7 +118,7 @@ class FolderRemoteDataSourceImpl implements FolderRemoteDataSource {
         if (parentFolderId != null) 'parentFolderId': parentFolderId,
       });
 
-      final response = await client.post(uri, headers: headers, body: body);
+      final response = await client.post(uri, headers: HttpHeadersUtil.getJsonHeaders(), body: body);
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -154,11 +141,10 @@ class FolderRemoteDataSourceImpl implements FolderRemoteDataSource {
   @override
   Future<FolderModel> renameFolder({required String folderId, required String newName}) async {
     try {
-      final headers = await _getHeaders();
       final url = Uri.parse('$baseUrl/api/folder/$folderId/');
       final body = jsonEncode({'newName': newName});
 
-      final response = await client.put(url, headers: headers, body: body);
+      final response = await client.put(url, headers: HttpHeadersUtil.getJsonHeaders(), body: body);
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -181,10 +167,9 @@ class FolderRemoteDataSourceImpl implements FolderRemoteDataSource {
   @override
   Future<void> deleteFolder({required String folderId}) async {
     try {
-      final headers = await _getHeaders();
       final url = Uri.parse('$baseUrl/api/folder/$folderId/');
 
-      final response = await client.delete(url, headers: headers);
+      final response = await client.delete(url, headers: HttpHeadersUtil.getJsonHeaders());
 
       if (response.statusCode == 200) {
         return;

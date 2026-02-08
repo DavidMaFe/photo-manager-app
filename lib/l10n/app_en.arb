@@ -196,7 +196,7 @@
   "trashEmptyDescription": "Deleted files will appear here and be permanently deleted after 30 days",
   "daysRemaining": "{days}d",
   "filesSelected": "{count} selected",
-  "emptyTrash": "Empty trash",
+  "emptyTrash": "Empty",
   "emptyTrashConfirmation": "Are you sure you want to permanently delete all files in trash? This action cannot be undone.",
   "restore": "Restore",
   "restoreFiles": "Restore {count} files",

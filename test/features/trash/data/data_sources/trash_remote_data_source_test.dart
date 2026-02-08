@@ -5,13 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/trash/data/data_sources/trash_remote_data_source.dart';
 import 'package:photo_manager_app/features/trash/data/models/trash_page_model.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
-
-class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 
 class FakeUri extends Fake implements Uri {}
 
@@ -22,22 +19,15 @@ void main() {
 
   late TrashRemoteDataSourceImpl dataSource;
   late MockHttpClient mockHttpClient;
-  late MockAuthLocalDataSource mockAuthLocalDataSource;
 
   const baseUrl = 'http://localhost:8080';
-  const testToken = 'test-token-123';
 
   setUp(() {
     mockHttpClient = MockHttpClient();
-    mockAuthLocalDataSource = MockAuthLocalDataSource();
     dataSource = TrashRemoteDataSourceImpl(
       client: mockHttpClient,
-      authLocalDataSource: mockAuthLocalDataSource,
       baseUrl: baseUrl,
     );
-
-    when(() => mockAuthLocalDataSource.getToken())
-        .thenAnswer((_) async => testToken);
   });
 
   group('TrashRemoteDataSource - getTrashFiles', () {
@@ -70,7 +60,6 @@ void main() {
 
       final headers = captured.captured.last as Map<String, String>;
       expect(headers['Content-Type'], 'application/json');
-      expect(headers['Authorization'], 'Bearer $testToken');
       expect(headers.containsKey('Accept-Language'), true);
     });
 
@@ -266,7 +255,6 @@ void main() {
 
       final headers = captured.captured[0] as Map<String, String>;
       expect(headers['Content-Type'], 'application/json');
-      expect(headers['Authorization'], 'Bearer $testToken');
 
       final body = captured.captured[1] as String;
       final bodyJson = jsonDecode(body) as Map<String, dynamic>;
@@ -369,7 +357,6 @@ void main() {
 
       final headers = captured.captured[0] as Map<String, String>;
       expect(headers['Content-Type'], 'application/json');
-      expect(headers['Authorization'], 'Bearer $testToken');
 
       final body = captured.captured[1] as String;
       final bodyJson = jsonDecode(body) as Map<String, dynamic>;
@@ -470,7 +457,6 @@ void main() {
 
       final headers = captured.captured.last as Map<String, String>;
       expect(headers['Content-Type'], 'application/json');
-      expect(headers['Authorization'], 'Bearer $testToken');
     });
 
     test('should return successfully on 200 status code', () async {

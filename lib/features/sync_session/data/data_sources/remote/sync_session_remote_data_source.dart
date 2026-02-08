@@ -12,7 +12,6 @@ import 'package:photo_manager_app/features/sync_session/data/models/sync_session
 import 'package:photo_manager_app/features/sync_session/data/models/upload_result_model.dart';
 
 import '../../../../../config/data_constants.dart';
-import '../../../../auth/data/data_sources/auth_local_data_source.dart';
 
 
 abstract class SyncSessionRemoteDataSource {
@@ -27,26 +26,19 @@ abstract class SyncSessionRemoteDataSource {
 class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
 
   final http.Client client;
-  final AuthLocalDataSource authLocalDataSource;
   final String baseUrl;
 
   SyncSessionRemoteDatasourceImpl({
     required this.client,
-    required this.authLocalDataSource,
     this.baseUrl = DataConstants.backendBaseUrl,
   });
-
-  Future<Map<String, String>> _headers() async {
-    String? token = await authLocalDataSource.getToken();
-    return HttpHeadersUtil.getAuthJsonHeaders(token!);
-  }
   
   @override
   Future<SyncSessionModel> startSyncSession(String deviceUuid) async {
     try {
       final response = await client.post(
         Uri.parse('$baseUrl/api/sync_session/start/'),
-        headers: await _headers(),
+        headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({'deviceUuid': deviceUuid}),
       );
 
@@ -73,7 +65,7 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
     try {
       final response = await client.post(
         Uri.parse('$baseUrl/api/sync_session/check_duplicates/'),
-        headers: await _headers(),
+        headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({'sessionId': sessionId, 'fileHashes': fileHashes}),
       );
 
@@ -99,8 +91,7 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
   Future<UploadResultModel> uploadFile(String sessionId, SyncFileModel file) async {
     try {
       final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/api/sync_session/upload/'));
-      final token = await authLocalDataSource.getToken();
-      request.headers.addAll({'Authorization': 'Bearer $token'});
+      request.headers.addAll(HttpHeadersUtil.getJsonHeaders());
 
       request.fields['sessionId'] = sessionId;
       request.fields['metadata'] = jsonEncode(file.uploadMetadata);
@@ -134,7 +125,7 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
     try {
       final response = await client.post(
         Uri.parse('$baseUrl/api/sync_session/complete/'),
-        headers: await _headers(),
+        headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({'sessionId': sessionId}),
       );
 
@@ -161,7 +152,7 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
     try {
       final response = await client.post(
         Uri.parse('$baseUrl/api/sync_session/cancel/'),
-        headers: await _headers(),
+        headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({'sessionId': sessionId}),
       );
 

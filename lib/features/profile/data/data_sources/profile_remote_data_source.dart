@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:photo_manager_app/core/utils/http_headers_util.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/profile/data/models/user_profile_model.dart';
 
 
@@ -26,22 +25,19 @@ abstract class ProfileRemoteDataSource {
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
   final http.Client client;
-  final AuthLocalDataSource authLocalDataSource;
   final String baseUrl;
 
   ProfileRemoteDataSourceImpl({
     required this.client,
-    required this.authLocalDataSource,
     this.baseUrl = 'http://10.0.2.2:8080'
   });
 
   @override
   Future<UserProfileModel> getUserProfile() async {
     try {
-      final token = await authLocalDataSource.getToken();
       final response = await client.get(
         Uri.parse('$baseUrl/api/profile/'),
-        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        headers: HttpHeadersUtil.getJsonHeaders(),
       );
 
       if (response.statusCode == 200) {
@@ -69,8 +65,6 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     String? profileImage,
   }) async {
     try {
-      final token = await authLocalDataSource.getToken();
-
       final Map<String, dynamic> body = {};
       if (name != null) body['name'] = name;
       if (surname != null) body['surname'] = surname;
@@ -78,7 +72,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       final response = await client.put(
         Uri.parse('$baseUrl/api/profile/'),
-        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode(body),
       );
 
@@ -106,11 +100,9 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     required String newPassword,
   }) async {
     try {
-      final token = await authLocalDataSource.getToken();
-
       final response = await client.post(
         Uri.parse('$baseUrl/api/password-change/'),
-        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({
           'currentPassword': currentPassword,
           'newPassword': newPassword,

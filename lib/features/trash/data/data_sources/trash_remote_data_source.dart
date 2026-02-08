@@ -6,7 +6,6 @@ import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:photo_manager_app/core/utils/http_headers_util.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/trash/data/models/trash_page_model.dart';
 
 abstract class TrashRemoteDataSource {
@@ -24,12 +23,10 @@ abstract class TrashRemoteDataSource {
 
 class TrashRemoteDataSourceImpl implements TrashRemoteDataSource {
   final http.Client client;
-  final AuthLocalDataSource authLocalDataSource;
   final String baseUrl;
 
   TrashRemoteDataSourceImpl({
     required this.client,
-    required this.authLocalDataSource,
     this.baseUrl = DataConstants.backendBaseUrl,
   });
 
@@ -49,10 +46,9 @@ class TrashRemoteDataSourceImpl implements TrashRemoteDataSource {
     );
 
     try {
-      final token = await authLocalDataSource.getToken();
       final response = await client.get(
         url,
-        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        headers: HttpHeadersUtil.getJsonHeaders(),
       );
 
       if (response.statusCode == 200) {
@@ -83,10 +79,9 @@ class TrashRemoteDataSourceImpl implements TrashRemoteDataSource {
     final url = Uri.parse('$baseUrl/api/file/restore/');
 
     try {
-      final token = await authLocalDataSource.getToken();
       final response = await client.post(
         url,
-        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({'fileIds': fileIds}),
       );
 
@@ -113,10 +108,9 @@ class TrashRemoteDataSourceImpl implements TrashRemoteDataSource {
     final url = Uri.parse('$baseUrl/api/file/delete-permanently/');
 
     try {
-      final token = await authLocalDataSource.getToken();
       final response = await client.delete(
         url,
-        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({'fileIds': fileIds}),
       );
 
@@ -143,10 +137,9 @@ class TrashRemoteDataSourceImpl implements TrashRemoteDataSource {
     final url = Uri.parse('$baseUrl/api/file/empty-trash/');
 
     try {
-      final token = await authLocalDataSource.getToken();
       final response = await client.delete(
         url,
-        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        headers: HttpHeadersUtil.getJsonHeaders(),
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {

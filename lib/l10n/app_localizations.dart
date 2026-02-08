@@ -1220,7 +1220,7 @@ abstract class AppLocalizations {
   /// No description provided for @emptyTrash.
   ///
   /// In en, this message translates to:
-  /// **'Empty trash'**
+  /// **'Empty'**
   String get emptyTrash;
 
   /// No description provided for @emptyTrashConfirmation.

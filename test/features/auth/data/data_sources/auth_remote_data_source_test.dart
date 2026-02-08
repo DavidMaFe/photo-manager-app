@@ -28,11 +28,14 @@ void main() {
     const testEmail = 'test@example.com';
     const testPassword = 'password123';
     const testToken = 'test_token_123';
+    const testRefreshToken = 'refresh_token_123';
+    const testDeviceUuid = 'uuid_123';
     const baseUrl = 'http://10.0.2.2:8080';
 
     group('login', () {
       final successResponse = {
         'token': testToken,
+        'refreshToken': testRefreshToken,
         'id': '1',
         'email': testEmail,
         'name': 'John',
@@ -50,13 +53,17 @@ void main() {
         );
 
         // Act
-        await dataSource.login(testEmail, testPassword);
+        await dataSource.login(testEmail, testPassword, testDeviceUuid);
 
         // Assert
         final captured = verify(() => mockHttpClient.post(
               Uri.parse('$baseUrl/api/login/'),
               headers: captureAny(named: 'headers'),
-              body: jsonEncode({'email': testEmail, 'password': testPassword}),
+              body: jsonEncode({
+                'email': testEmail,
+                'password': testPassword,
+                'deviceUuid': testDeviceUuid
+              }),
             ));
         captured.called(1);
 
@@ -77,7 +84,8 @@ void main() {
         );
 
         // Act
-        final result = await dataSource.login(testEmail, testPassword);
+        final result = await dataSource.login(testEmail, testPassword,
+            testDeviceUuid);
 
         // Assert
         expect(result.token, testToken);
@@ -99,12 +107,13 @@ void main() {
         });
 
         // Act
-        await dataSource.login(testEmail, testPassword);
+        await dataSource.login(testEmail, testPassword, testDeviceUuid);
 
         // Assert
         final decodedBody = jsonDecode(capturedBody!);
         expect(decodedBody['email'], testEmail);
         expect(decodedBody['password'], testPassword);
+        expect(decodedBody['deviceUuid'], testDeviceUuid);
       });
 
       test('should set correct Content-Type header', () async {
@@ -121,7 +130,7 @@ void main() {
         });
 
         // Act
-        await dataSource.login(testEmail, testPassword);
+        await dataSource.login(testEmail, testPassword, testDeviceUuid);
 
         // Assert
         expect(capturedHeaders!['Content-Type'], 'application/json');
@@ -145,7 +154,7 @@ void main() {
 
         // Act & Assert
         expect(
-          () => dataSource.login(testEmail, testPassword),
+          () => dataSource.login(testEmail, testPassword, testDeviceUuid),
           throwsA(
             predicate((e) =>
                 e is ApiException &&
@@ -166,7 +175,7 @@ void main() {
 
         // Act & Assert
         expect(
-          () => dataSource.login(testEmail, testPassword),
+          () => dataSource.login(testEmail, testPassword, testDeviceUuid),
           throwsA(
             predicate((e) =>
                 e is Exception && e.toString().contains('Connection error')),
@@ -194,7 +203,8 @@ void main() {
         );
 
         // Act
-        final result = await dataSource.login(testEmail, testPassword);
+        final result = await dataSource.login(testEmail, testPassword,
+            testDeviceUuid);
 
         // Assert
         expect(result.token, testToken);
@@ -216,7 +226,7 @@ void main() {
 
         // Act & Assert
         expect(
-          () => dataSource.login(testEmail, testPassword),
+          () => dataSource.login(testEmail, testPassword, testDeviceUuid),
           throwsA(
             predicate((e) =>
                 e is Exception && e.toString().contains('Connection error')),
@@ -798,6 +808,15 @@ void main() {
       const testName = 'John';
       const testSurname = 'Doe';
 
+      final registerSuccessResponse = {
+        'token': testToken,
+        'refreshToken': testRefreshToken,
+        'id': '1',
+        'email': testEmail,
+        'name': testName,
+        'surname': testSurname,
+      };
+
       test('should perform POST request to correct endpoint', () async {
         // Arrange
         when(() => mockHttpClient.post(
@@ -805,11 +824,12 @@ void main() {
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             )).thenAnswer(
-          (_) async => http.Response('', 200),
+          (_) async => http.Response(jsonEncode(registerSuccessResponse), 200),
         );
 
         // Act
-        await dataSource.register(testEmail, testPassword, testName, testSurname);
+        await dataSource.register(testEmail, testPassword, testName,
+            testSurname, testDeviceUuid);
 
         // Assert
         final captured = verify(() => mockHttpClient.post(
@@ -819,6 +839,7 @@ void main() {
                 'email': testEmail,
                 'password': testPassword,
                 'name': testName,
+                'deviceUuid': testDeviceUuid,
                 'surname': testSurname,
               }),
             ));
@@ -836,12 +857,13 @@ void main() {
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             )).thenAnswer(
-          (_) async => http.Response('', 200),
+          (_) async => http.Response(jsonEncode(registerSuccessResponse), 200),
         );
 
         // Act & Assert - should not throw
         await expectLater(
-            dataSource.register(testEmail, testPassword, testName, testSurname),
+            dataSource.register(testEmail, testPassword, testName, testSurname,
+                testDeviceUuid),
             completes);
       });
 
@@ -854,11 +876,12 @@ void main() {
               body: any(named: 'body'),
             )).thenAnswer((invocation) async {
           capturedBody = invocation.namedArguments[#body] as String;
-          return http.Response('', 200);
+          return http.Response(jsonEncode(registerSuccessResponse), 200);
         });
 
         // Act
-        await dataSource.register(testEmail, testPassword, testName, testSurname);
+        await dataSource.register(testEmail, testPassword, testName,
+            testSurname, testDeviceUuid);
 
         // Assert
         final decodedBody = jsonDecode(capturedBody!);
@@ -866,6 +889,7 @@ void main() {
         expect(decodedBody['password'], testPassword);
         expect(decodedBody['name'], testName);
         expect(decodedBody['surname'], testSurname);
+        expect(decodedBody['deviceUuid'], testDeviceUuid);
       });
 
       test('should send correct JSON body in request without surname', () async {
@@ -877,11 +901,12 @@ void main() {
               body: any(named: 'body'),
             )).thenAnswer((invocation) async {
           capturedBody = invocation.namedArguments[#body] as String;
-          return http.Response('', 200);
+          return http.Response(jsonEncode(registerSuccessResponse), 200);
         });
 
         // Act
-        await dataSource.register(testEmail, testPassword, testName, null);
+        await dataSource.register(testEmail, testPassword, testName, null,
+            testDeviceUuid);
 
         // Assert
         final decodedBody = jsonDecode(capturedBody!);
@@ -889,6 +914,7 @@ void main() {
         expect(decodedBody['password'], testPassword);
         expect(decodedBody['name'], testName);
         expect(decodedBody.containsKey('surname'), isFalse);
+        expect(decodedBody['deviceUuid'], testDeviceUuid);
       });
 
       test('should set correct Content-Type header', () async {
@@ -901,11 +927,12 @@ void main() {
             )).thenAnswer((invocation) async {
           capturedHeaders =
               invocation.namedArguments[#headers] as Map<String, String>;
-          return http.Response('', 200);
+          return http.Response(jsonEncode(registerSuccessResponse), 200);
         });
 
         // Act
-        await dataSource.register(testEmail, testPassword, testName, testSurname);
+        await dataSource.register(testEmail, testPassword, testName,
+            testSurname, testDeviceUuid);
 
         // Assert
         expect(capturedHeaders!['Content-Type'], 'application/json');
@@ -930,7 +957,8 @@ void main() {
 
         // Act & Assert
         expect(
-          () => dataSource.register(testEmail, testPassword, testName, testSurname),
+          () => dataSource.register(testEmail, testPassword, testName,
+              testSurname, testDeviceUuid),
           throwsA(
             predicate((e) =>
                 e is ApiException &&
@@ -958,7 +986,8 @@ void main() {
 
         // Act & Assert
         expect(
-          () => dataSource.register(testEmail, testPassword, testName, testSurname),
+          () => dataSource.register(testEmail, testPassword, testName,
+              testSurname, testDeviceUuid),
           throwsA(
             predicate((e) =>
                 e is ApiException &&
@@ -978,7 +1007,8 @@ void main() {
 
         // Act & Assert
         expect(
-          () => dataSource.register(testEmail, testPassword, testName, testSurname),
+          () => dataSource.register(testEmail, testPassword, testName,
+              testSurname, testDeviceUuid),
           throwsA(
             predicate((e) =>
                 e is Exception && e.toString().contains('Connection error')),
@@ -997,7 +1027,8 @@ void main() {
 
         // Act & Assert
         expect(
-          () => dataSource.register(testEmail, testPassword, testName, testSurname),
+          () => dataSource.register(testEmail, testPassword, testName,
+              testSurname, testDeviceUuid),
           throwsA(
             predicate((e) =>
                 e is Exception && e.toString().contains('Connection error')),
@@ -1016,7 +1047,8 @@ void main() {
 
         // Act & Assert
         expect(
-          () => dataSource.register(testEmail, testPassword, testName, testSurname),
+          () => dataSource.register(testEmail, testPassword, testName,
+              testSurname, testDeviceUuid),
           throwsA(testException),
         );
       });
@@ -1033,6 +1065,7 @@ void main() {
 
         final successResponse = {
           'token': testToken,
+          'refreshToken': testRefreshToken,
           'id': '1',
           'email': testEmail,
           'name': 'John',
@@ -1048,7 +1081,7 @@ void main() {
         );
 
         // Act
-        await customDataSource.login(testEmail, testPassword);
+        await customDataSource.login(testEmail, testPassword, testDeviceUuid);
 
         // Assert
         verify(() => mockHttpClient.post(
@@ -1066,16 +1099,26 @@ void main() {
           baseUrl: customBaseUrl,
         );
 
+        final registerSuccessResponse = {
+          'token': testToken,
+          'refreshToken': testRefreshToken,
+          'id': '1',
+          'email': testEmail,
+          'name': 'John',
+          'surname': 'Doe',
+        };
+
         when(() => mockHttpClient.post(
               any(),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             )).thenAnswer(
-          (_) async => http.Response('', 200),
+          (_) async => http.Response(jsonEncode(registerSuccessResponse), 200),
         );
 
         // Act
-        await customDataSource.register(testEmail, testPassword, 'John', 'Doe');
+        await customDataSource.register(testEmail, testPassword, 'John', 'Doe',
+            testDeviceUuid);
 
         // Assert
         verify(() => mockHttpClient.post(

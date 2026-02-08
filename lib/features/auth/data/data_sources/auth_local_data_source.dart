@@ -9,6 +9,10 @@ abstract class AuthLocalDataSource {
   Future<UserModel?> getCachedUser();
   Future<void> cacheToken(String token);
   Future<String?> getToken();
+  Future<void> cacheRefreshToken(String refreshToken);
+  Future<String?> getRefreshToken();
+  Future<void> cacheLoginTimestamp(DateTime timestamp);
+  Future<DateTime?> getLoginTimestamp();
   Future<bool> hasValidToken();
   Future<void> clearCache();
 }
@@ -20,6 +24,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   static const String _keyUser = 'CACHED_USER';
   static const String _keyToken = 'AUTH_TOKEN';
+  static const String _keyRefreshToken = 'REFRESH_TOKEN';
+  static const String _keyLoginTimestamp = 'LOGIN_TIMESTAMP';
 
   AuthLocalDataSourceImpl({required this.sharedPreferences});
 
@@ -54,6 +60,30 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
+  Future<void> cacheRefreshToken(String refreshToken) async {
+    await sharedPreferences.setString(_keyRefreshToken, refreshToken);
+  }
+
+  @override
+  Future<String?> getRefreshToken() async {
+    return sharedPreferences.getString(_keyRefreshToken);
+  }
+
+  @override
+  Future<void> cacheLoginTimestamp(DateTime timestamp) async {
+    await sharedPreferences.setString(_keyLoginTimestamp, timestamp.toIso8601String());
+  }
+
+  @override
+  Future<DateTime?> getLoginTimestamp() async {
+    final timestampString = sharedPreferences.getString(_keyLoginTimestamp);
+    if (timestampString != null) {
+      return DateTime.parse(timestampString);
+    }
+    return null;
+  }
+
+  @override
   Future<bool> hasValidToken() async {
 
     final token = await getToken();
@@ -64,5 +94,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> clearCache() async{
     await sharedPreferences.remove(_keyUser);
     await sharedPreferences.remove(_keyToken);
+    await sharedPreferences.remove(_keyRefreshToken);
+    await sharedPreferences.remove(_keyLoginTimestamp);
   }
 }

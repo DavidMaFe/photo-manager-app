@@ -97,7 +97,7 @@ void main() {
       await tester.tap(find.text('Show Dialog'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Empty trash'), findsWidgets);
+      expect(find.text('Empty'), findsWidgets);
     });
 
     testWidgets('should call onConfirm when confirmed', (tester) async {
@@ -125,7 +125,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap the confirm button (second "Empty trash" button)
-      final confirmButtons = find.text('Empty trash');
+      final confirmButtons = find.text('Empty');
       await tester.tap(confirmButtons.last);
       await tester.pumpAndSettle();
 
@@ -281,7 +281,7 @@ void main() {
 
       expect(find.byType(ModernDialog), findsOneWidget);
 
-      final confirmButtons = find.text('Empty trash');
+      final confirmButtons = find.text('Empty');
       await tester.tap(confirmButtons.last);
       await tester.pumpAndSettle();
 

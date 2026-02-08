@@ -196,7 +196,7 @@
   "trashEmptyDescription": "Los archivos eliminados aparecerán aquí y se borrarán permanentemente después de 30 días",
   "daysRemaining": "{days}d",
   "filesSelected": "{count} seleccionados",
-  "emptyTrash": "Vaciar papelera",
+  "emptyTrash": "Vaciar",
   "emptyTrashConfirmation": "¿Estás seguro de que quieres eliminar permanentemente todos los archivos de la papelera? Esta acción no se puede deshacer.",
   "restore": "Restaurar",
   "restoreFiles": "Restaurar {count} archivos",

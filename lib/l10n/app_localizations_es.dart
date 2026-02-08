@@ -610,7 +610,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get emptyTrash => 'Vaciar papelera';
+  String get emptyTrash => 'Vaciar';
 
   @override
   String get emptyTrashConfirmation => '¿Estás seguro de que quieres eliminar permanentemente todos los archivos de la papelera? Esta acción no se puede deshacer.';

@@ -5,20 +5,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_device_remote_data_source.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
-class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 class FakeUri extends Fake implements Uri {}
 
 void main() {
   late SyncDeviceRemoteDataSourceImpl dataSource;
   late MockHttpClient mockClient;
-  late MockAuthLocalDataSource mockAuthDataSource;
 
   const baseUrl = DataConstants.backendBaseUrl;
-  const token = 'test-token-123';
 
   setUpAll(() {
     registerFallbackValue(FakeUri());
@@ -26,14 +22,10 @@ void main() {
 
   setUp(() {
     mockClient = MockHttpClient();
-    mockAuthDataSource = MockAuthLocalDataSource();
     dataSource = SyncDeviceRemoteDataSourceImpl(
       client: mockClient,
-      authLocalDataSource: mockAuthDataSource,
       baseUrl: baseUrl,
     );
-
-    when(() => mockAuthDataSource.getToken()).thenAnswer((_) async => token);
   });
 
   group('registerDevice', () {
@@ -81,10 +73,7 @@ void main() {
       expect(result.osType, osType);
       verify(() => mockClient.post(
             Uri.parse('$baseUrl/api/device/register/'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $token',
-            },
+            headers: any(named: 'headers'),
             body: any(named: 'body'),
           )).called(1);
     });
@@ -231,10 +220,7 @@ void main() {
       // Assert
       verify(() => mockClient.post(
             any(),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $token',
-            },
+            headers: any(named: 'headers'),
             body: any(named: 'body'),
           )).called(1);
     });

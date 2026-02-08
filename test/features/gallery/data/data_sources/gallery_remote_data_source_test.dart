@@ -5,13 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/gallery/data/data_sources/gallery_remote_data_source.dart';
 import 'package:photo_manager_app/features/gallery/data/models/gallery_page_model.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
-
-class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 
 class FakeUri extends Fake implements Uri {}
 
@@ -21,22 +18,15 @@ void main() {
   });
   late GalleryRemoteDataSourceImpl dataSource;
   late MockHttpClient mockHttpClient;
-  late MockAuthLocalDataSource mockAuthLocalDataSource;
 
   const baseUrl = 'http://localhost:8080';
-  const testToken = 'test-token-123';
 
   setUp(() {
     mockHttpClient = MockHttpClient();
-    mockAuthLocalDataSource = MockAuthLocalDataSource();
     dataSource = GalleryRemoteDataSourceImpl(
       client: mockHttpClient,
-      authLocalDataSource: mockAuthLocalDataSource,
       baseUrl: baseUrl,
     );
-
-    when(() => mockAuthLocalDataSource.getToken())
-        .thenAnswer((_) async => testToken);
   });
 
   group('GalleryRemoteDataSource - getFiles', () {
@@ -69,7 +59,6 @@ void main() {
 
       final headers = captured.captured.last as Map<String, String>;
       expect(headers['Content-Type'], 'application/json');
-      expect(headers['Authorization'], 'Bearer $testToken');
       expect(headers.containsKey('Accept-Language'), true);
     });
 
@@ -394,36 +383,6 @@ void main() {
         () => dataSource.getFiles(page: 0, pageSize: 50),
         throwsA(exception),
       );
-    });
-
-    test('should use auth token from local data source', () async {
-      // Arrange
-      final responseBody = jsonEncode({
-        'files': [],
-        'hasNext': false,
-      });
-
-      when(() => mockHttpClient.get(
-            any(),
-            headers: any(named: 'headers'),
-          )).thenAnswer((_) async => http.Response(responseBody, 200));
-
-      // Act
-      await dataSource.getFiles(page: 0, pageSize: 50);
-
-      // Assert
-      verify(() => mockAuthLocalDataSource.getToken()).called(1);
-
-      final captured = verify(() => mockHttpClient.get(
-            any(),
-            headers: captureAny(named: 'headers'),
-          ));
-      captured.called(1);
-
-      final headers = captured.captured.last as Map<String, String>;
-      expect(headers['Content-Type'], 'application/json');
-      expect(headers['Authorization'], 'Bearer $testToken');
-      expect(headers.containsKey('Accept-Language'), true);
     });
 
     test('should handle empty files list', () async {

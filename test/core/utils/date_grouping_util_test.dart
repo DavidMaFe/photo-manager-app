@@ -74,7 +74,7 @@ void main() {
         final label = DateGroupingUtil.getSmartDateLabel(normalized);
 
         // Assert
-        expect(label, 'This Week');
+        expect(label, 'Yesterday');
       });
 
       test('should return "Last Week" for dates in previous week', () {

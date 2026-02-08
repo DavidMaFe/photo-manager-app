@@ -33,6 +33,9 @@ class LogoutRequested extends AuthEvent {}
 class CheckAuthStatus extends AuthEvent {}
 
 
+class TokenRefreshRequested extends AuthEvent {}
+
+
 class PasswordResetRequested extends AuthEvent {
 
   final String email;

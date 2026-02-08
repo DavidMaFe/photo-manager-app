@@ -6,7 +6,6 @@ import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:photo_manager_app/core/utils/http_headers_util.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_file_request_model.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_file_response_model.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_folder_model.dart';
@@ -21,22 +20,19 @@ abstract class FileManagementRemoteDataSource {
 class FileManagementRemoteDataSourceImpl implements FileManagementRemoteDataSource {
 
   final http.Client client;
-  final AuthLocalDataSource authLocalDataSource;
   final String baseUrl;
 
   FileManagementRemoteDataSourceImpl({
     required this.client,
-    required this.authLocalDataSource,
     this.baseUrl = DataConstants.backendBaseUrl
   });
 
   @override
   Future<ManageFileResponseModel> manageFiles(ManageFileRequestModel request) async {
     try {
-      final token = await authLocalDataSource.getToken();
       final response = await client.post(
         Uri.parse('$baseUrl/api/file/manage/'),
-        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode(request.toJson()),
       );
 
@@ -61,10 +57,9 @@ class FileManagementRemoteDataSourceImpl implements FileManagementRemoteDataSour
   @override
   Future<List<ManageFolderModel>> getFolders() async {
     try {
-      final token = await authLocalDataSource.getToken();
       final response = await client.get(
         Uri.parse('$baseUrl/api/folder/list/'),
-        headers: HttpHeadersUtil.getAuthJsonHeaders(token),
+        headers: HttpHeadersUtil.getJsonHeaders(),
       );
 
       if (response.statusCode == 200) {

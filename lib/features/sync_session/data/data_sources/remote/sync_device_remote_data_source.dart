@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/config/data_constants.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
+import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_device_model.dart';
 
 import '../../../../../core/errors/base/failure_codes.dart';
@@ -25,23 +25,12 @@ abstract class SyncDeviceRemoteDataSource {
 class SyncDeviceRemoteDataSourceImpl implements SyncDeviceRemoteDataSource {
 
   final http.Client client;
-  final AuthLocalDataSource authLocalDataSource;
   final String baseUrl;
 
   SyncDeviceRemoteDataSourceImpl({
     required this.client,
-    required this.authLocalDataSource,
     this.baseUrl = DataConstants.backendBaseUrl,
   });
-
-  Future<Map<String, String>> _headers() async {
-    String? token = await authLocalDataSource.getToken();
-
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token!}'
-    };
-  }
 
   @override
   Future<SyncDeviceModel> registerDevice({
@@ -66,11 +55,9 @@ class SyncDeviceRemoteDataSourceImpl implements SyncDeviceRemoteDataSource {
         if (pushToken != null && pushToken.isNotEmpty) 'pushToken': pushToken
       };
 
-      Map<String, String> headers = await _headers();
-      
       final response = await client.post(
         Uri.parse('$baseUrl/api/device/register/'),
-        headers: headers,
+        headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode(requestBody)
       );
 
@@ -95,7 +82,7 @@ class SyncDeviceRemoteDataSourceImpl implements SyncDeviceRemoteDataSource {
 
     } catch (e) {
       if (e is HttpException) rethrow;
-      throw Exception(FailureCodes.unknownErrorCode);
+      throw Exception(FailureCodes.unknownError);
     }
   }
 

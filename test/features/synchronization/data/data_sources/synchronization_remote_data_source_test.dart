@@ -4,20 +4,16 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/synchronization/data/data_sources/synchronization_remote_data_source.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
-class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 class FakeUri extends Fake implements Uri {}
 
 void main() {
   late SynchronizationRemoteDataSourceImpl dataSource;
   late MockHttpClient mockHttpClient;
-  late MockAuthLocalDataSource mockAuthLocalDataSource;
 
   const baseUrl = 'http://localhost:8080';
-  const testToken = 'test-token-123';
   const testDeviceUuid = 'device-uuid-123';
 
   setUpAll(() {
@@ -26,15 +22,10 @@ void main() {
 
   setUp(() {
     mockHttpClient = MockHttpClient();
-    mockAuthLocalDataSource = MockAuthLocalDataSource();
     dataSource = SynchronizationRemoteDataSourceImpl(
       client: mockHttpClient,
-      authLocalDataSource: mockAuthLocalDataSource,
       baseUrl: baseUrl,
     );
-
-    when(() => mockAuthLocalDataSource.getToken())
-        .thenAnswer((_) async => testToken);
   });
 
   group('SynchronizationRemoteDataSource - getSynchronizations', () {
@@ -66,10 +57,7 @@ void main() {
                 'pageSize': '20',
               },
             ),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $testToken',
-            },
+            headers: any(named: 'headers'),
           )).called(1);
     });
 
@@ -334,36 +322,6 @@ void main() {
         ),
         throwsA(isA<Exception>()),
       );
-    });
-
-    test('should use auth token from local data source', () async {
-      // Arrange
-      final responseBody = jsonEncode({
-        'syncSessions': [],
-        'hasNext': false,
-      });
-
-      when(() => mockHttpClient.get(
-            any(),
-            headers: any(named: 'headers'),
-          )).thenAnswer((_) async => http.Response(responseBody, 200));
-
-      // Act
-      await dataSource.getSynchronizations(
-        deviceUuid: testDeviceUuid,
-        page: 0,
-        pageSize: 20,
-      );
-
-      // Assert
-      verify(() => mockAuthLocalDataSource.getToken()).called(1);
-      verify(() => mockHttpClient.get(
-            any(),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $testToken',
-            },
-          )).called(1);
     });
 
     test('should handle hasNext true', () async {

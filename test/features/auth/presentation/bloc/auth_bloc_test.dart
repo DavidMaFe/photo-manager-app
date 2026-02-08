@@ -6,6 +6,7 @@ import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/refresh_token_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/request_password_reset_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/reset_password_use_case.dart';
@@ -34,6 +35,8 @@ class MockAuthRepository extends Mock implements AuthRepository {}
 
 class MockSyncDeviceRepository extends Mock implements SyncDeviceRepository {}
 
+class MockRefreshTokenUseCase extends Mock implements RefreshTokenUseCase {}
+
 void main() {
   late AuthBloc authBloc;
   late MockLoginUseCase mockLoginUseCase;
@@ -45,6 +48,7 @@ void main() {
   late MockResetPasswordUseCase mockResetPasswordUseCase;
   late MockAuthRepository mockAuthRepository;
   late MockSyncDeviceRepository mockSyncDeviceRepository;
+  late MockRefreshTokenUseCase mockRefreshTokenUseCase;
 
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
@@ -56,16 +60,19 @@ void main() {
     mockResetPasswordUseCase = MockResetPasswordUseCase();
     mockAuthRepository = MockAuthRepository();
     mockSyncDeviceRepository = MockSyncDeviceRepository();
+    mockRefreshTokenUseCase = MockRefreshTokenUseCase();
+
     authBloc = AuthBloc(
-      loginUseCase: mockLoginUseCase,
-      registerUseCase: mockRegisterUseCase,
-      registerSyncDeviceUseCase: mockRegisterSyncDeviceUseCase,
-      logoutUseCase: mockLogoutUseCase,
-      requestPasswordResetUseCase: mockRequestPasswordResetUseCase,
-      validateResetCodeUseCase: mockValidateResetCodeUseCase,
-      resetPasswordUseCase: mockResetPasswordUseCase,
-      authRepository: mockAuthRepository,
-      syncDeviceRepository: mockSyncDeviceRepository
+        loginUseCase: mockLoginUseCase,
+        registerUseCase: mockRegisterUseCase,
+        registerSyncDeviceUseCase: mockRegisterSyncDeviceUseCase,
+        logoutUseCase: mockLogoutUseCase,
+        requestPasswordResetUseCase: mockRequestPasswordResetUseCase,
+        validateResetCodeUseCase: mockValidateResetCodeUseCase,
+        resetPasswordUseCase: mockResetPasswordUseCase,
+        authRepository: mockAuthRepository,
+        syncDeviceRepository: mockSyncDeviceRepository,
+        refreshTokenUseCase: mockRefreshTokenUseCase
     );
   });
 
@@ -524,6 +531,8 @@ void main() {
               .thenAnswer((_) async => testUser);
           when(() => mockAuthRepository.hasToken())
               .thenAnswer((_) async => true);
+          when(() => (mockAuthRepository as dynamic).isRefreshTokenExpired())
+              .thenAnswer((_) async => false);
           return authBloc;
         },
         act: (bloc) => bloc.add(CheckAuthStatus()),

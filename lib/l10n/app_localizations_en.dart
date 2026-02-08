@@ -610,7 +610,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get emptyTrash => 'Empty trash';
+  String get emptyTrash => 'Empty';
 
   @override
   String get emptyTrashConfirmation => 'Are you sure you want to permanently delete all files in trash? This action cannot be undone.';

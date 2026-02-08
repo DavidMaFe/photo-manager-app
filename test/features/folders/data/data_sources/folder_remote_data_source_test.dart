@@ -6,21 +6,17 @@ import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/folders/data/data_sources/folder_remote_data_source.dart';
 import 'package:photo_manager_app/features/folders/data/models/folder_content_model.dart';
 import 'package:photo_manager_app/features/folders/data/models/folder_model.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
-class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 
 void main() {
   late FolderRemoteDataSourceImpl dataSource;
   late MockHttpClient mockHttpClient;
-  late MockAuthLocalDataSource mockAuthLocalDataSource;
 
   const baseUrl = DataConstants.backendBaseUrl;
-  const testToken = 'test-token-123';
 
   setUpAll(() {
     registerFallbackValue(Uri());
@@ -28,15 +24,10 @@ void main() {
 
   setUp(() {
     mockHttpClient = MockHttpClient();
-    mockAuthLocalDataSource = MockAuthLocalDataSource();
     dataSource = FolderRemoteDataSourceImpl(
       client: mockHttpClient,
-      authLocalDataSource: mockAuthLocalDataSource,
       baseUrl: baseUrl,
     );
-
-    when(() => mockAuthLocalDataSource.getToken())
-        .thenAnswer((_) async => testToken);
   });
 
   group('FolderRemoteDataSource', () {
@@ -76,7 +67,6 @@ void main() {
 
         final headers = captured.captured.last as Map<String, String>;
         expect(headers['Content-Type'], 'application/json');
-        expect(headers['Authorization'], 'Bearer $testToken');
         expect(headers.containsKey('Accept-Language'), true);
       });
 
@@ -248,7 +238,6 @@ void main() {
 
         expect(uri.path, '/api/folder/$folderId/');
         expect(headers['Content-Type'], 'application/json');
-        expect(headers['Authorization'], 'Bearer $testToken');
         expect(headers.containsKey('Accept-Language'), true);
       });
 
@@ -476,7 +465,6 @@ void main() {
 
         final headers = captured.captured.last as Map<String, String>;
         expect(headers['Content-Type'], 'application/json');
-        expect(headers['Authorization'], 'Bearer $testToken');
         expect(headers.containsKey('Accept-Language'), true);
       });
 
@@ -608,7 +596,6 @@ void main() {
 
         final headers = captured.captured.last as Map<String, String>;
         expect(headers['Content-Type'], 'application/json');
-        expect(headers['Authorization'], 'Bearer $testToken');
         expect(headers.containsKey('Accept-Language'), true);
       });
 
@@ -695,7 +682,6 @@ void main() {
 
         final headers = captured.captured.last as Map<String, String>;
         expect(headers['Content-Type'], 'application/json');
-        expect(headers['Authorization'], 'Bearer $testToken');
         expect(headers.containsKey('Accept-Language'), true);
       });
 

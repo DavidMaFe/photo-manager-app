@@ -4,20 +4,24 @@ import 'package:photo_manager_app/features/auth/data/models/user_model.dart';
 class AuthResponseModel {
 
   final String token;
-  final UserModel user;
   final String? refreshToken;
   final DateTime? expiresAt;
+  final UserModel user;
 
   AuthResponseModel({
     required this.token,
-    required this.user,
     this.refreshToken,
-    this.expiresAt
+    this.expiresAt,
+    required this.user,
   });
 
   factory AuthResponseModel.fromJson(Map<String, dynamic> json) {
 
     final token = json['token'] as String;
+    final refreshToken = json['refreshToken'] as String?;
+    final expiresAt = json['expiresAt'] == null
+        ? null
+        : DateTime.parse(json['expiresAt'] as String);
 
     final user = UserModel(
         id: json['id'].toString(),
@@ -28,23 +32,26 @@ class AuthResponseModel {
 
     return AuthResponseModel(
       token: token,
+      refreshToken: refreshToken,
+      expiresAt: expiresAt,
       user: user,
-      refreshToken: json['refreshToken'] as String?,
-      expiresAt: json['expiresAt'] != null ? DateTime.parse(json['expiresAt']) : null
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final json = {
       'token': token,
-      'user': user,
-      if (refreshToken != null) 'refreshToken': refreshToken,
-      if (expiresAt != null) 'expiresAt': expiresAt!.toIso8601String()
+      'user': user.toJson(),
     };
-  }
 
-  bool get isExpired {
-    if(expiresAt == null) return false;
-    return DateTime.now().isAfter(expiresAt!);
+    if (refreshToken != null) {
+      json['refreshToken'] = refreshToken!;
+    }
+
+    if (expiresAt != null) {
+      json['expiresAt'] = expiresAt!.toIso8601String();
+    }
+
+    return json;
   }
 }

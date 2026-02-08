@@ -316,7 +316,7 @@ void main() {
       // Assert
       expect(emptyTrashButton, findsOneWidget);
       final iconButton = tester.widget<IconButton>(emptyTrashButton);
-      expect(iconButton.tooltip, 'Empty trash');
+      expect(iconButton.tooltip, 'Empty');
     });
 
     // ==================== PREFERRED SIZE TESTS ====================

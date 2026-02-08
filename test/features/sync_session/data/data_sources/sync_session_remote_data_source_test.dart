@@ -7,22 +7,18 @@ import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
-import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_session_remote_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
-class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 class FakeUri extends Fake implements Uri {}
 class FakeBaseRequest extends Fake implements http.BaseRequest {}
 
 void main() {
   late SyncSessionRemoteDatasourceImpl dataSource;
   late MockHttpClient mockClient;
-  late MockAuthLocalDataSource mockAuthDataSource;
 
   const baseUrl = DataConstants.backendBaseUrl;
-  const token = 'test-token-123';
 
   setUpAll(() {
     registerFallbackValue(FakeUri());
@@ -31,14 +27,10 @@ void main() {
 
   setUp(() {
     mockClient = MockHttpClient();
-    mockAuthDataSource = MockAuthLocalDataSource();
     dataSource = SyncSessionRemoteDatasourceImpl(
       client: mockClient,
-      authLocalDataSource: mockAuthDataSource,
       baseUrl: baseUrl,
     );
-
-    when(() => mockAuthDataSource.getToken()).thenAnswer((_) async => token);
   });
 
   group('startSyncSession', () {
@@ -72,7 +64,6 @@ void main() {
 
       final headers = captured.captured.last as Map<String, String>;
       expect(headers['Content-Type'], 'application/json');
-      expect(headers['Authorization'], 'Bearer $token');
       expect(headers.containsKey('Accept-Language'), true);
     });
 

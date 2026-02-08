@@ -3,6 +3,7 @@ import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/refresh_token_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/request_password_reset_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/validate_reset_code_use_case.dart';
@@ -19,6 +20,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterUseCase registerUseCase;
   final RegisterSyncDeviceUseCase registerSyncDeviceUseCase;
   final LogoutUseCase logoutUseCase;
+  final RefreshTokenUseCase refreshTokenUseCase;
   final RequestPasswordResetUseCase requestPasswordResetUseCase;
   final ValidateResetCodeUseCase validateResetCodeUseCase;
   final ResetPasswordUseCase resetPasswordUseCase;
@@ -32,6 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.registerUseCase,
     required this.registerSyncDeviceUseCase,
     required this.logoutUseCase,
+    required this.refreshTokenUseCase,
     required this.requestPasswordResetUseCase,
     required this.validateResetCodeUseCase,
     required this.resetPasswordUseCase,
@@ -42,6 +45,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<CheckAuthStatus>(_onCheckAuthStatus);
+    on<TokenRefreshRequested>(_onTokenRefreshRequested);
     on<PasswordResetRequested>(_onPasswordResetRequested);
     on<ResetCodeValidationRequested>(_onResetCodeValidationRequested);
     on<PasswordResetCodeResendRequested>(_onPasswordResetCodeResendRequested);
@@ -112,7 +116,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await authRepository.getCurrentUser();
 
       if (await authRepository.hasToken() && user != null) {
-        emit(AuthSuccessful(user));
+        // Check if refresh token has expired (30 days)
+        final authDataRepository = authRepository as dynamic;
+        final isExpired = await authDataRepository.isRefreshTokenExpired();
+
+        if (isExpired) {
+          // 30 days have passed, force logout
+          await logoutUseCase();
+          emit(NotAuthenticated());
+        } else {
+          emit(AuthSuccessful(user));
+        }
       } else {
         emit(NotAuthenticated());
       }
@@ -218,6 +232,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _waitForLoading(stopwatch);
       final failure = ErrorHandler.handleError(e);
       emit(AuthError(failure));
+    }
+  }
+
+  Future<void> _onTokenRefreshRequested(TokenRefreshRequested event, Emitter<AuthState> emit) async {
+    try {
+      await refreshTokenUseCase();
+      // Token refreshed successfully - maintain current state
+      // The HTTP interceptor will use the new token automatically
+    } catch (e) {
+      // Refresh failed - force logout
+      final failure = ErrorHandler.handleError(e);
+      emit(AuthError(failure));
+      emit(NotAuthenticated());
     }
   }
 }
