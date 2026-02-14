@@ -1906,6 +1906,456 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// No description provided for @syncConfigurationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Configuration'**
+  String get syncConfigurationTitle;
+
+  /// No description provided for @syncConfigurationDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure how and when your files will be automatically synced'**
+  String get syncConfigurationDescription;
+
+  /// No description provided for @enableAutoSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable automatic sync'**
+  String get enableAutoSync;
+
+  /// No description provided for @autoSyncEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic sync is enabled'**
+  String get autoSyncEnabled;
+
+  /// No description provided for @autoSyncDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic sync is disabled'**
+  String get autoSyncDisabled;
+
+  /// No description provided for @syncFrequencyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync frequency'**
+  String get syncFrequencyTitle;
+
+  /// No description provided for @syncFrequencyDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get syncFrequencyDaily;
+
+  /// No description provided for @syncFrequencyWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get syncFrequencyWeekly;
+
+  /// No description provided for @syncFrequencyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'at'**
+  String get syncFrequencyAt;
+
+  /// No description provided for @syncTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync time'**
+  String get syncTimeTitle;
+
+  /// No description provided for @syncTimeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the time you want the sync to run'**
+  String get syncTimeDescription;
+
+  /// No description provided for @selectTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Select time'**
+  String get selectTime;
+
+  /// No description provided for @syncDayOfWeekTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of the week'**
+  String get syncDayOfWeekTitle;
+
+  /// No description provided for @syncDayOfWeekDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the day you want the sync to run'**
+  String get syncDayOfWeekDescription;
+
+  /// No description provided for @monday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// No description provided for @saturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get saturday;
+
+  /// No description provided for @sunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
+
+  /// No description provided for @networkPreferenceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Network preference'**
+  String get networkPreferenceTitle;
+
+  /// No description provided for @networkPreferenceWifiOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'WiFi only'**
+  String get networkPreferenceWifiOnly;
+
+  /// No description provided for @networkPreferenceWifiOnlyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync will only run when connected to WiFi'**
+  String get networkPreferenceWifiOnlyDescription;
+
+  /// No description provided for @networkPreferenceAnyNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Any network'**
+  String get networkPreferenceAnyNetwork;
+
+  /// No description provided for @networkPreferenceAnyNetworkDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync will run on WiFi or mobile data'**
+  String get networkPreferenceAnyNetworkDescription;
+
+  /// No description provided for @batteryPreferenceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery preference'**
+  String get batteryPreferenceTitle;
+
+  /// No description provided for @batteryPreferenceAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Any battery level'**
+  String get batteryPreferenceAny;
+
+  /// No description provided for @batteryPreferenceAnyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync will run regardless of battery level'**
+  String get batteryPreferenceAnyDescription;
+
+  /// No description provided for @batteryPreferenceCharging.
+  ///
+  /// In en, this message translates to:
+  /// **'Charging or battery >15%'**
+  String get batteryPreferenceCharging;
+
+  /// No description provided for @batteryPreferenceChargingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync will only run when device is charging or has more than 15% battery'**
+  String get batteryPreferenceChargingDescription;
+
+  /// No description provided for @notifyOnSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify when sync is successful'**
+  String get notifyOnSuccess;
+
+  /// No description provided for @notifyOnSuccessDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'You will receive a notification when sync completes successfully'**
+  String get notifyOnSuccessDescription;
+
+  /// No description provided for @notifyOnFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify when sync fails'**
+  String get notifyOnFailure;
+
+  /// No description provided for @notifyOnFailureDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'You will receive a notification when sync fails'**
+  String get notifyOnFailureDescription;
+
+  /// No description provided for @saveConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Save configuration'**
+  String get saveConfiguration;
+
+  /// No description provided for @savingConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving configuration...'**
+  String get savingConfiguration;
+
+  /// No description provided for @configurationSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration saved'**
+  String get configurationSaved;
+
+  /// No description provided for @configurationSavedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your automatic sync configuration has been saved successfully'**
+  String get configurationSavedDescription;
+
+  /// No description provided for @configurationSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving configuration'**
+  String get configurationSaveError;
+
+  /// No description provided for @loadingConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading configuration...'**
+  String get loadingConfiguration;
+
+  /// No description provided for @configurationLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading configuration'**
+  String get configurationLoadError;
+
+  /// No description provided for @syncInProgressError.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync in progress'**
+  String get syncInProgressError;
+
+  /// No description provided for @syncInProgressErrorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A sync is already in progress. Please wait for it to finish before starting a new one.'**
+  String get syncInProgressErrorDescription;
+
+  /// No description provided for @syncInProgressDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync in progress'**
+  String get syncInProgressDialogTitle;
+
+  /// No description provided for @syncInProgressDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'An automatic sync is in progress in the background. Please wait for it to finish before starting a manual sync.'**
+  String get syncInProgressDialogMessage;
+
+  /// No description provided for @understood.
+  ///
+  /// In en, this message translates to:
+  /// **'Understood'**
+  String get understood;
+
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Photo Manager!'**
+  String get onboardingWelcomeTitle;
+
+  /// No description provided for @onboardingWelcomeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'To give you the best experience, we need your permission to access your photos, send you notifications, and run automatic syncs in the background.\n\nThese permissions allow us to:\n\n• Automatically sync your photos and videos\n• Keep your files safely backed up\n• Notify you about sync progress\n• Run syncs while the app is closed'**
+  String get onboardingWelcomeMessage;
+
+  /// No description provided for @onboardingWelcomeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get onboardingWelcomeButton;
+
+  /// No description provided for @onboardingGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Start setup'**
+  String get onboardingGetStarted;
+
+  /// No description provided for @permissionNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get permissionNotificationTitle;
+
+  /// No description provided for @permissionNotificationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll send you notifications to inform you about the progress of your automatic syncs and when they complete successfully or fail.'**
+  String get permissionNotificationMessage;
+
+  /// No description provided for @permissionNotificationContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Notifications'**
+  String get permissionNotificationContinue;
+
+  /// No description provided for @permissionNotificationDeniedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications Disabled'**
+  String get permissionNotificationDeniedTitle;
+
+  /// No description provided for @permissionNotificationDeniedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Without notification permission, you won\'t receive updates about your sync status. You can enable notifications later in Settings.'**
+  String get permissionNotificationDeniedMessage;
+
+  /// No description provided for @permissionBackgroundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Background Sync'**
+  String get permissionBackgroundTitle;
+
+  /// No description provided for @permissionBackgroundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'For automatic sync to work properly, the app needs to run in the background. This allows your photos to sync even when the app is closed.'**
+  String get permissionBackgroundMessage;
+
+  /// No description provided for @permissionBackgroundMessageAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'For automatic sync to work properly, we need to:\n\n• Allow the app to run in the background\n• Disable battery optimization for this app\n\nThis allows your photos to sync even when the app is closed.'**
+  String get permissionBackgroundMessageAndroid;
+
+  /// No description provided for @permissionBackgroundMessageIOS.
+  ///
+  /// In en, this message translates to:
+  /// **'For automatic sync to work properly, we need to:\n\n• Enable background app refresh\n• Allow the app to run in the background\n\nThis allows your photos to sync even when the app is closed.'**
+  String get permissionBackgroundMessageIOS;
+
+  /// No description provided for @permissionBackgroundContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Background Sync'**
+  String get permissionBackgroundContinue;
+
+  /// No description provided for @permissionBackgroundDeniedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Background Sync Disabled'**
+  String get permissionBackgroundDeniedTitle;
+
+  /// No description provided for @permissionBackgroundDeniedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Without permission to run in the background, automatic sync will only work when you have the app open. You can enable this later in Settings.'**
+  String get permissionBackgroundDeniedMessage;
+
+  /// No description provided for @onboardingPermissionsRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Some Permissions Were Not Granted'**
+  String get onboardingPermissionsRejectedTitle;
+
+  /// No description provided for @onboardingPermissionsRejectedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You have denied some required permissions. The app will work with limited functionality. You can enable these permissions later from the app settings:'**
+  String get onboardingPermissionsRejectedMessage;
+
+  /// No description provided for @onboardingPermissionsRejectedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'I Understand'**
+  String get onboardingPermissionsRejectedButton;
+
+  /// No description provided for @onboardingPermissionsRetryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get onboardingPermissionsRetryButton;
+
+  /// No description provided for @permissionLimitationPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'• You won\'t be able to sync photos or videos'**
+  String get permissionLimitationPhoto;
+
+  /// No description provided for @permissionLimitationNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'• You won\'t receive notifications about syncs'**
+  String get permissionLimitationNotification;
+
+  /// No description provided for @permissionLimitationBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'• Automatic sync will only work with the app open'**
+  String get permissionLimitationBackground;
+
+  /// No description provided for @onboardingPermissionsAllGrantedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All Set!'**
+  String get onboardingPermissionsAllGrantedTitle;
+
+  /// No description provided for @onboardingPermissionsAllGrantedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'All permissions have been granted successfully. You can now start using Photo Manager with all its features.'**
+  String get onboardingPermissionsAllGrantedMessage;
+
+  /// No description provided for @onboardingPermissionsAllGrantedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Gallery'**
+  String get onboardingPermissionsAllGrantedButton;
+
+  /// No description provided for @errorGalleryPermissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery Permission Required'**
+  String get errorGalleryPermissionTitle;
+
+  /// No description provided for @errorGalleryPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'The app needs access to your gallery to work. Please enable the permission in Settings.'**
+  String get errorGalleryPermission;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -34,3 +34,14 @@ class DeviceActionSuccess extends DeviceState {
 
   DeviceActionSuccess(this.devices);
 }
+
+/// State emitted when auto-sync is enabled and we need to navigate to sync configuration
+class DeviceAutoSyncEnabled extends DeviceState {
+  final List<Device> devices;
+  final String deviceId;
+
+  DeviceAutoSyncEnabled({
+    required this.devices,
+    required this.deviceId,
+  });
+}

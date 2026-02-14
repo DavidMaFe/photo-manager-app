@@ -7,6 +7,7 @@ class RouteNames {
   static const String requestPasswordReset = 'request_password_reset';
   static const String validateResetCode = 'validate_reset_code';
   static const String resetPassword = 'reset_password';
+  static const String onboarding = 'onboarding';
 
   // Main
   static const String shell = 'shell';
@@ -20,6 +21,7 @@ class RouteNames {
   static const String profile = 'profile';
   static const String editProfile = 'edit_profile';
   static const String devices = 'devices';
+  static const String syncConfiguration = 'sync_configuration';
   static const String trash = 'trash';
   static const String trashFileDetail = 'trash_file_detail';
 }
@@ -28,6 +30,7 @@ class RouteNames {
 class RoutePaths {
   static const String login = '/login';
   static const String register = '/register';
+  static const String onboarding = '/onboarding';
   static const String requestPasswordReset = '/request-password-reset';
   static const String validateResetCode = '/validate-reset-code';
   static const String resetPassword = '/reset-password';
@@ -39,6 +42,7 @@ class RoutePaths {
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
   static const String devices = '/profile/devices';
+  static const String syncConfiguration = '/profile/sync-configuration';
   static const String trash = '/profile/trash';
   static const String trashFileDetail = '/profile/trash/file/:fileId';
 }

@@ -1,10 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/navigation/auth_notifier.dart';
 import 'package:photo_manager_app/core/navigation/main_shell.dart';
+import 'package:photo_manager_app/core/navigation/onboarding_notifier.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/pages/login_page.dart';
+import 'package:photo_manager_app/features/onboarding/presentation/bloc/onboarding_bloc.dart';
+import 'package:photo_manager_app/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:photo_manager_app/features/auth/presentation/pages/register_page.dart';
 import 'package:photo_manager_app/features/file_management/presentation/pages/file_detail_page.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_bloc.dart';
@@ -23,6 +27,7 @@ import 'package:photo_manager_app/features/profile/presentation/bloc/profile_blo
 import 'package:photo_manager_app/features/devices/presentation/pages/devices_page.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
+import 'package:photo_manager_app/features/sync_config/presentation/pages/sync_configuration_page.dart';
 import 'package:photo_manager_app/features/trash/presentation/pages/trash_page.dart';
 import 'package:photo_manager_app/features/trash/presentation/pages/trash_file_detail_page.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
@@ -44,30 +49,45 @@ import '../injection_container.dart';
 
 class AppRouter {
 
-  static GoRouter createRouter(AuthBloc authBloc) {
+  static GoRouter createRouter(AuthBloc authBloc, OnboardingNotifier onboardingNotifier) {
     final authNotifier = AuthNotifier(authBloc);
 
     return GoRouter(
         initialLocation: RoutePaths.login,
-        refreshListenable: authNotifier,
+        refreshListenable: Listenable.merge([authNotifier, onboardingNotifier]),
         redirect: (context, state) {
           final isAuthenticated = authNotifier.isAuthenticated;
           final isLoading = authNotifier.isLoading;
+          final isCheckingOnboardingStatus = onboardingNotifier.isCheckingStatus;
+          final isOnboardingRequired = onboardingNotifier.isOnboardingRequired;
           final isGoingToLogin = state.matchedLocation == RoutePaths.login;
           final isGoingToRegister = state.matchedLocation == RoutePaths.register;
           final isGoingToPasswordReset = state.matchedLocation == RoutePaths.requestPasswordReset ||
               state.matchedLocation == RoutePaths.validateResetCode ||
               state.matchedLocation == RoutePaths.resetPassword;
+          final isGoingToOnboarding = state.matchedLocation == RoutePaths.onboarding;
 
-
-          if (isLoading) {
+          if (isLoading || isCheckingOnboardingStatus) {
             return null;
           }
 
           if (!isAuthenticated && !isGoingToLogin && !isGoingToRegister && !isGoingToPasswordReset) {
             return RoutePaths.login;
           }
+
+          // Authenticated user trying to access auth pages: redirect appropriately
           if (isAuthenticated && (isGoingToLogin || isGoingToRegister || isGoingToPasswordReset)) {
+            // If onboarding is required, redirect to onboarding instead of home
+            return isOnboardingRequired ? RoutePaths.onboarding : RoutePaths.home;
+          }
+
+          // Authenticated user who needs onboarding but is not going there
+          if (isAuthenticated && isOnboardingRequired && !isGoingToOnboarding) {
+            return RoutePaths.onboarding;
+          }
+
+          // Authenticated user who completed onboarding but is on onboarding page
+          if (isAuthenticated && !isOnboardingRequired && isGoingToOnboarding) {
             return RoutePaths.home;
           }
 
@@ -75,6 +95,14 @@ class AppRouter {
         },
 
         routes: [
+          GoRoute(
+            path: RoutePaths.onboarding,
+            name: RouteNames.onboarding,
+            builder: (context, state) => BlocProvider(
+              create: (_) => sl<OnboardingBloc>(),
+              child: const OnboardingPage(),
+            ),
+          ),
           GoRoute(
               path: RoutePaths.login,
               name: RouteNames.login,
@@ -246,6 +274,11 @@ class AppRouter {
                               create: (context) => sl<DeviceBloc>()..add(LoadDevices()),
                               child: const DevicesPage(),
                             ),
+                          ),
+                          GoRoute(
+                            path: 'sync-configuration',
+                            name: RouteNames.syncConfiguration,
+                            builder: (context, state) => const SyncConfigurationPage(),
                           ),
                           GoRoute(
                             path: 'trash',

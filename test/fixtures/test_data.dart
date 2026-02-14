@@ -1,6 +1,10 @@
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/devices/domain/entities/device.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
+import 'package:photo_manager_app/features/sync_config/domain/entities/sync_config.dart';
+import 'package:photo_manager_app/features/sync_config/domain/enums/battery_preference.dart';
+import 'package:photo_manager_app/features/sync_config/domain/enums/network_preference.dart';
+import 'package:photo_manager_app/features/sync_config/domain/enums/sync_frequency.dart';
 
 /// Test Data Fixtures
 ///
@@ -395,4 +399,146 @@ class TestDates {
   /// ISO 8601 formatted date strings
   static const String nowIso = '2024-01-15T10:30:00.000Z';
   static const String yesterdayIso = '2024-01-14T10:30:00.000Z';
+}
+
+/// Sample SyncConfig entities for sync configuration testing
+class TestSyncConfigs {
+  /// Disabled sync configuration (default state)
+  static SyncConfig get disabled => SyncConfig.disabled();
+
+  /// Default enabled sync configuration
+  static SyncConfig get defaultEnabled => SyncConfig.defaultEnabled();
+
+  /// Daily sync at 2:00 AM with WiFi-only and battery requirement
+  static SyncConfig get dailySync => const SyncConfig(
+        autoSyncEnabled: true,
+        syncFrequency: SyncFrequency.daily,
+        syncHour: 2,
+        syncMinute: 0,
+        syncDayOfWeek: null,
+        networkPreference: NetworkPreference.wifiOnly,
+        batteryPreference: BatteryPreference.chargingOrAbove15Percent,
+        notifyOnSuccess: false,
+        notifyOnFailure: true,
+      );
+
+  /// Daily sync at 3:30 AM with any network and any battery
+  static SyncConfig get dailySyncAnyConditions => const SyncConfig(
+        autoSyncEnabled: true,
+        syncFrequency: SyncFrequency.daily,
+        syncHour: 3,
+        syncMinute: 30,
+        syncDayOfWeek: null,
+        networkPreference: NetworkPreference.anyNetwork,
+        batteryPreference: BatteryPreference.any,
+        notifyOnSuccess: true,
+        notifyOnFailure: true,
+      );
+
+  /// Weekly sync on Monday at 1:00 AM
+  static SyncConfig get weeklySync => const SyncConfig(
+        autoSyncEnabled: true,
+        syncFrequency: SyncFrequency.weekly,
+        syncHour: 1,
+        syncMinute: 0,
+        syncDayOfWeek: 1, // Monday
+        networkPreference: NetworkPreference.wifiOnly,
+        batteryPreference: BatteryPreference.chargingOrAbove15Percent,
+        notifyOnSuccess: false,
+        notifyOnFailure: true,
+      );
+
+  /// Weekly sync on Sunday at 23:45 with all notifications enabled
+  static SyncConfig get weeklySyncSunday => const SyncConfig(
+        autoSyncEnabled: true,
+        syncFrequency: SyncFrequency.weekly,
+        syncHour: 23,
+        syncMinute: 45,
+        syncDayOfWeek: 7, // Sunday
+        networkPreference: NetworkPreference.wifiOnly,
+        batteryPreference: BatteryPreference.chargingOrAbove15Percent,
+        notifyOnSuccess: true,
+        notifyOnFailure: true,
+      );
+
+  /// Sync config with only success notifications
+  static SyncConfig get onlySuccessNotifications => const SyncConfig(
+        autoSyncEnabled: true,
+        syncFrequency: SyncFrequency.daily,
+        syncHour: 4,
+        syncMinute: 0,
+        syncDayOfWeek: null,
+        networkPreference: NetworkPreference.wifiOnly,
+        batteryPreference: BatteryPreference.chargingOrAbove15Percent,
+        notifyOnSuccess: true,
+        notifyOnFailure: false,
+      );
+
+  /// Sync config with no notifications
+  static SyncConfig get noNotifications => const SyncConfig(
+        autoSyncEnabled: true,
+        syncFrequency: SyncFrequency.daily,
+        syncHour: 5,
+        syncMinute: 15,
+        syncDayOfWeek: null,
+        networkPreference: NetworkPreference.wifiOnly,
+        batteryPreference: BatteryPreference.chargingOrAbove15Percent,
+        notifyOnSuccess: false,
+        notifyOnFailure: false,
+      );
+}
+
+/// Sample SyncConfig JSON data for data layer testing
+class TestSyncConfigJsonData {
+  /// Daily sync JSON
+  static const Map<String, dynamic> dailySyncJson = {
+    'autoSyncEnabled': true,
+    'syncFrequency': 'daily',
+    'syncHour': 2,
+    'syncMinute': 0,
+    'syncDayOfWeek': null,
+    'networkPreference': 'wifiOnly',
+    'batteryPreference': 'chargingOrAbove15Percent',
+    'notifyOnSuccess': false,
+    'notifyOnFailure': true,
+  };
+
+  /// Weekly sync JSON
+  static const Map<String, dynamic> weeklySyncJson = {
+    'autoSyncEnabled': true,
+    'syncFrequency': 'weekly',
+    'syncHour': 1,
+    'syncMinute': 0,
+    'syncDayOfWeek': 1,
+    'networkPreference': 'wifiOnly',
+    'batteryPreference': 'chargingOrAbove15Percent',
+    'notifyOnSuccess': false,
+    'notifyOnFailure': true,
+  };
+
+  /// Disabled sync JSON
+  static const Map<String, dynamic> disabledSyncJson = {
+    'autoSyncEnabled': false,
+    'syncFrequency': 'daily',
+    'syncHour': 2,
+    'syncMinute': 0,
+    'syncDayOfWeek': null,
+    'networkPreference': 'wifiOnly',
+    'batteryPreference': 'chargingOrAbove15Percent',
+    'notifyOnSuccess': false,
+    'notifyOnFailure': true,
+  };
+
+  /// Sync with any network and any battery
+  static const Map<String, dynamic> anyConditionsSyncJson = {
+    'autoSyncEnabled': true,
+    'syncFrequency': 'daily',
+    'syncHour': 3,
+    'syncMinute': 30,
+    'syncDayOfWeek': null,
+    'networkPreference': 'anyNetwork',
+    'batteryPreference': 'any',
+    'notifyOnSuccess': true,
+    'notifyOnFailure': true,
+  };
 }

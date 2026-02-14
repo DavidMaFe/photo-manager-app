@@ -979,4 +979,229 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get retry => 'Reintentar';
+
+  @override
+  String get syncConfigurationTitle => 'Configuración de Sincronización';
+
+  @override
+  String get syncConfigurationDescription => 'Configura cómo y cuándo se sincronizarán automáticamente tus archivos';
+
+  @override
+  String get enableAutoSync => 'Habilitar sincronización automática';
+
+  @override
+  String get autoSyncEnabled => 'La sincronización automática está activada';
+
+  @override
+  String get autoSyncDisabled => 'La sincronización automática está desactivada';
+
+  @override
+  String get syncFrequencyTitle => 'Frecuencia de sincronización';
+
+  @override
+  String get syncFrequencyDaily => 'Diariamente';
+
+  @override
+  String get syncFrequencyWeekly => 'Semanalmente';
+
+  @override
+  String get syncFrequencyAt => 'a las';
+
+  @override
+  String get syncTimeTitle => 'Hora de sincronización';
+
+  @override
+  String get syncTimeDescription => 'Selecciona la hora a la que deseas que se ejecute la sincronización';
+
+  @override
+  String get selectTime => 'Seleccionar hora';
+
+  @override
+  String get syncDayOfWeekTitle => 'Día de la semana';
+
+  @override
+  String get syncDayOfWeekDescription => 'Selecciona el día en el que deseas que se ejecute la sincronización';
+
+  @override
+  String get monday => 'Lunes';
+
+  @override
+  String get tuesday => 'Martes';
+
+  @override
+  String get wednesday => 'Miércoles';
+
+  @override
+  String get thursday => 'Jueves';
+
+  @override
+  String get friday => 'Viernes';
+
+  @override
+  String get saturday => 'Sábado';
+
+  @override
+  String get sunday => 'Domingo';
+
+  @override
+  String get networkPreferenceTitle => 'Preferencia de red';
+
+  @override
+  String get networkPreferenceWifiOnly => 'Solo WiFi';
+
+  @override
+  String get networkPreferenceWifiOnlyDescription => 'La sincronización solo se ejecutará cuando estés conectado a WiFi';
+
+  @override
+  String get networkPreferenceAnyNetwork => 'Cualquier red';
+
+  @override
+  String get networkPreferenceAnyNetworkDescription => 'La sincronización se ejecutará en WiFi o datos móviles';
+
+  @override
+  String get batteryPreferenceTitle => 'Preferencia de batería';
+
+  @override
+  String get batteryPreferenceAny => 'Cualquier nivel de batería';
+
+  @override
+  String get batteryPreferenceAnyDescription => 'La sincronización se ejecutará sin importar el nivel de batería';
+
+  @override
+  String get batteryPreferenceCharging => 'Cargando o batería >15%';
+
+  @override
+  String get batteryPreferenceChargingDescription => 'La sincronización solo se ejecutará cuando el dispositivo esté cargando o tenga más del 15% de batería';
+
+  @override
+  String get notifyOnSuccess => 'Notificar cuando la sincronización sea exitosa';
+
+  @override
+  String get notifyOnSuccessDescription => 'Recibirás una notificación cuando la sincronización se complete correctamente';
+
+  @override
+  String get notifyOnFailure => 'Notificar cuando la sincronización falle';
+
+  @override
+  String get notifyOnFailureDescription => 'Recibirás una notificación cuando la sincronización falle';
+
+  @override
+  String get saveConfiguration => 'Guardar configuración';
+
+  @override
+  String get savingConfiguration => 'Guardando configuración...';
+
+  @override
+  String get configurationSaved => 'Configuración guardada';
+
+  @override
+  String get configurationSavedDescription => 'Tu configuración de sincronización automática ha sido guardada correctamente';
+
+  @override
+  String get configurationSaveError => 'Error al guardar la configuración';
+
+  @override
+  String get loadingConfiguration => 'Cargando configuración...';
+
+  @override
+  String get configurationLoadError => 'Error al cargar la configuración';
+
+  @override
+  String get syncInProgressError => 'Sincronización en progreso';
+
+  @override
+  String get syncInProgressErrorDescription => 'Ya hay una sincronización en progreso. Por favor, espera a que termine antes de iniciar una nueva.';
+
+  @override
+  String get syncInProgressDialogTitle => 'Sincronización en progreso';
+
+  @override
+  String get syncInProgressDialogMessage => 'Una sincronización automática está en progreso en segundo plano. Por favor, espera a que termine antes de iniciar una sincronización manual.';
+
+  @override
+  String get understood => 'Entendido';
+
+  @override
+  String get onboardingWelcomeTitle => '¡Bienvenido a Photo Manager!';
+
+  @override
+  String get onboardingWelcomeMessage => 'Para brindarte la mejor experiencia, necesitamos tu permiso para acceder a tus fotos, enviarte notificaciones y ejecutar sincronizaciones automáticas en segundo plano.\n\nEstos permisos nos permiten:\n\n• Sincronizar automáticamente tus fotos y vídeos\n• Mantener tus archivos respaldados de forma segura\n• Notificarte sobre el progreso de la sincronización\n• Ejecutar sincronizaciones mientras la app está cerrada';
+
+  @override
+  String get onboardingWelcomeButton => 'Comenzar';
+
+  @override
+  String get onboardingGetStarted => 'Empezar configuración';
+
+  @override
+  String get permissionNotificationTitle => 'Notificaciones';
+
+  @override
+  String get permissionNotificationMessage => 'Te enviaremos notificaciones para informarte sobre el progreso de tus sincronizaciones automáticas y cuando se completen exitosamente o fallen.';
+
+  @override
+  String get permissionNotificationContinue => 'Permitir notificaciones';
+
+  @override
+  String get permissionNotificationDeniedTitle => 'Notificaciones Deshabilitadas';
+
+  @override
+  String get permissionNotificationDeniedMessage => 'Sin permiso de notificaciones, no podrás recibir actualizaciones sobre el estado de tus sincronizaciones. Puedes habilitar las notificaciones más tarde en Configuración.';
+
+  @override
+  String get permissionBackgroundTitle => 'Sincronización en Segundo Plano';
+
+  @override
+  String get permissionBackgroundMessage => 'Para que la sincronización automática funcione correctamente, la aplicación necesita ejecutarse en segundo plano. Esto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.';
+
+  @override
+  String get permissionBackgroundMessageAndroid => 'Para que la sincronización automática funcione correctamente, necesitamos que:\n\n• La aplicación pueda ejecutarse en segundo plano\n• Se desactive la optimización de batería para esta app\n\nEsto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.';
+
+  @override
+  String get permissionBackgroundMessageIOS => 'Para que la sincronización automática funcione correctamente, necesitamos que:\n\n• Habilites la actualización en segundo plano\n• Permitas que la app se ejecute en segundo plano\n\nEsto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.';
+
+  @override
+  String get permissionBackgroundContinue => 'Permitir sincronización en segundo plano';
+
+  @override
+  String get permissionBackgroundDeniedTitle => 'Sincronización en Segundo Plano Deshabilitada';
+
+  @override
+  String get permissionBackgroundDeniedMessage => 'Sin permiso para ejecutar en segundo plano, la sincronización automática solo funcionará cuando tengas la aplicación abierta. Puedes habilitar esto más tarde en Configuración.';
+
+  @override
+  String get onboardingPermissionsRejectedTitle => 'Algunos Permisos No Fueron Otorgados';
+
+  @override
+  String get onboardingPermissionsRejectedMessage => 'Has denegado algunos permisos necesarios. La aplicación funcionará con funcionalidad limitada. Puedes habilitar estos permisos más tarde desde la configuración de la aplicación:';
+
+  @override
+  String get onboardingPermissionsRejectedButton => 'Entendido';
+
+  @override
+  String get onboardingPermissionsRetryButton => 'Intentar de nuevo';
+
+  @override
+  String get permissionLimitationPhoto => '• No podrás sincronizar fotos ni vídeos';
+
+  @override
+  String get permissionLimitationNotification => '• No recibirás notificaciones sobre las sincronizaciones';
+
+  @override
+  String get permissionLimitationBackground => '• La sincronización automática solo funcionará con la app abierta';
+
+  @override
+  String get onboardingPermissionsAllGrantedTitle => '¡Todo Listo!';
+
+  @override
+  String get onboardingPermissionsAllGrantedMessage => 'Todos los permisos han sido otorgados correctamente. Ya puedes empezar a usar Photo Manager con todas sus funciones.';
+
+  @override
+  String get onboardingPermissionsAllGrantedButton => 'Ir a la galería';
+
+  @override
+  String get errorGalleryPermissionTitle => 'Permiso de Galería Requerido';
+
+  @override
+  String get errorGalleryPermission => 'La aplicación necesita acceso a tu galería para funcionar. Por favor, habilita el permiso en Configuración.';
 }

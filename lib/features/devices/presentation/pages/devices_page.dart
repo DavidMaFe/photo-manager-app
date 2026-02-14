@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
+import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_state.dart';
@@ -47,6 +49,11 @@ class DevicesPage extends StatelessWidget {
                   backgroundColor: Colors.green,
                 ),
               );
+            }
+
+            if (state is DeviceAutoSyncEnabled) {
+              // Navigate to sync configuration when auto-sync is enabled
+              context.pushNamed(RouteNames.syncConfiguration);
             }
           },
           builder: (context, state) {

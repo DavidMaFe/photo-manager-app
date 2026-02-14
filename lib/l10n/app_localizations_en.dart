@@ -979,4 +979,229 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Retry';
+
+  @override
+  String get syncConfigurationTitle => 'Sync Configuration';
+
+  @override
+  String get syncConfigurationDescription => 'Configure how and when your files will be automatically synced';
+
+  @override
+  String get enableAutoSync => 'Enable automatic sync';
+
+  @override
+  String get autoSyncEnabled => 'Automatic sync is enabled';
+
+  @override
+  String get autoSyncDisabled => 'Automatic sync is disabled';
+
+  @override
+  String get syncFrequencyTitle => 'Sync frequency';
+
+  @override
+  String get syncFrequencyDaily => 'Daily';
+
+  @override
+  String get syncFrequencyWeekly => 'Weekly';
+
+  @override
+  String get syncFrequencyAt => 'at';
+
+  @override
+  String get syncTimeTitle => 'Sync time';
+
+  @override
+  String get syncTimeDescription => 'Select the time you want the sync to run';
+
+  @override
+  String get selectTime => 'Select time';
+
+  @override
+  String get syncDayOfWeekTitle => 'Day of the week';
+
+  @override
+  String get syncDayOfWeekDescription => 'Select the day you want the sync to run';
+
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
+  String get saturday => 'Saturday';
+
+  @override
+  String get sunday => 'Sunday';
+
+  @override
+  String get networkPreferenceTitle => 'Network preference';
+
+  @override
+  String get networkPreferenceWifiOnly => 'WiFi only';
+
+  @override
+  String get networkPreferenceWifiOnlyDescription => 'Sync will only run when connected to WiFi';
+
+  @override
+  String get networkPreferenceAnyNetwork => 'Any network';
+
+  @override
+  String get networkPreferenceAnyNetworkDescription => 'Sync will run on WiFi or mobile data';
+
+  @override
+  String get batteryPreferenceTitle => 'Battery preference';
+
+  @override
+  String get batteryPreferenceAny => 'Any battery level';
+
+  @override
+  String get batteryPreferenceAnyDescription => 'Sync will run regardless of battery level';
+
+  @override
+  String get batteryPreferenceCharging => 'Charging or battery >15%';
+
+  @override
+  String get batteryPreferenceChargingDescription => 'Sync will only run when device is charging or has more than 15% battery';
+
+  @override
+  String get notifyOnSuccess => 'Notify when sync is successful';
+
+  @override
+  String get notifyOnSuccessDescription => 'You will receive a notification when sync completes successfully';
+
+  @override
+  String get notifyOnFailure => 'Notify when sync fails';
+
+  @override
+  String get notifyOnFailureDescription => 'You will receive a notification when sync fails';
+
+  @override
+  String get saveConfiguration => 'Save configuration';
+
+  @override
+  String get savingConfiguration => 'Saving configuration...';
+
+  @override
+  String get configurationSaved => 'Configuration saved';
+
+  @override
+  String get configurationSavedDescription => 'Your automatic sync configuration has been saved successfully';
+
+  @override
+  String get configurationSaveError => 'Error saving configuration';
+
+  @override
+  String get loadingConfiguration => 'Loading configuration...';
+
+  @override
+  String get configurationLoadError => 'Error loading configuration';
+
+  @override
+  String get syncInProgressError => 'Sync in progress';
+
+  @override
+  String get syncInProgressErrorDescription => 'A sync is already in progress. Please wait for it to finish before starting a new one.';
+
+  @override
+  String get syncInProgressDialogTitle => 'Sync in progress';
+
+  @override
+  String get syncInProgressDialogMessage => 'An automatic sync is in progress in the background. Please wait for it to finish before starting a manual sync.';
+
+  @override
+  String get understood => 'Understood';
+
+  @override
+  String get onboardingWelcomeTitle => 'Welcome to Photo Manager!';
+
+  @override
+  String get onboardingWelcomeMessage => 'To give you the best experience, we need your permission to access your photos, send you notifications, and run automatic syncs in the background.\n\nThese permissions allow us to:\n\n• Automatically sync your photos and videos\n• Keep your files safely backed up\n• Notify you about sync progress\n• Run syncs while the app is closed';
+
+  @override
+  String get onboardingWelcomeButton => 'Get Started';
+
+  @override
+  String get onboardingGetStarted => 'Start setup';
+
+  @override
+  String get permissionNotificationTitle => 'Notifications';
+
+  @override
+  String get permissionNotificationMessage => 'We\'ll send you notifications to inform you about the progress of your automatic syncs and when they complete successfully or fail.';
+
+  @override
+  String get permissionNotificationContinue => 'Allow Notifications';
+
+  @override
+  String get permissionNotificationDeniedTitle => 'Notifications Disabled';
+
+  @override
+  String get permissionNotificationDeniedMessage => 'Without notification permission, you won\'t receive updates about your sync status. You can enable notifications later in Settings.';
+
+  @override
+  String get permissionBackgroundTitle => 'Background Sync';
+
+  @override
+  String get permissionBackgroundMessage => 'For automatic sync to work properly, the app needs to run in the background. This allows your photos to sync even when the app is closed.';
+
+  @override
+  String get permissionBackgroundMessageAndroid => 'For automatic sync to work properly, we need to:\n\n• Allow the app to run in the background\n• Disable battery optimization for this app\n\nThis allows your photos to sync even when the app is closed.';
+
+  @override
+  String get permissionBackgroundMessageIOS => 'For automatic sync to work properly, we need to:\n\n• Enable background app refresh\n• Allow the app to run in the background\n\nThis allows your photos to sync even when the app is closed.';
+
+  @override
+  String get permissionBackgroundContinue => 'Allow Background Sync';
+
+  @override
+  String get permissionBackgroundDeniedTitle => 'Background Sync Disabled';
+
+  @override
+  String get permissionBackgroundDeniedMessage => 'Without permission to run in the background, automatic sync will only work when you have the app open. You can enable this later in Settings.';
+
+  @override
+  String get onboardingPermissionsRejectedTitle => 'Some Permissions Were Not Granted';
+
+  @override
+  String get onboardingPermissionsRejectedMessage => 'You have denied some required permissions. The app will work with limited functionality. You can enable these permissions later from the app settings:';
+
+  @override
+  String get onboardingPermissionsRejectedButton => 'I Understand';
+
+  @override
+  String get onboardingPermissionsRetryButton => 'Try Again';
+
+  @override
+  String get permissionLimitationPhoto => '• You won\'t be able to sync photos or videos';
+
+  @override
+  String get permissionLimitationNotification => '• You won\'t receive notifications about syncs';
+
+  @override
+  String get permissionLimitationBackground => '• Automatic sync will only work with the app open';
+
+  @override
+  String get onboardingPermissionsAllGrantedTitle => 'All Set!';
+
+  @override
+  String get onboardingPermissionsAllGrantedMessage => 'All permissions have been granted successfully. You can now start using Photo Manager with all its features.';
+
+  @override
+  String get onboardingPermissionsAllGrantedButton => 'Go to Gallery';
+
+  @override
+  String get errorGalleryPermissionTitle => 'Gallery Permission Required';
+
+  @override
+  String get errorGalleryPermission => 'The app needs access to your gallery to work. Please enable the permission in Settings.';
 }

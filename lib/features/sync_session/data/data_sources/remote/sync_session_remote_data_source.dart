@@ -97,7 +97,7 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
       request.fields['metadata'] = jsonEncode(file.uploadMetadata);
       request.files.add(await http.MultipartFile.fromPath('file', file.devicePath, filename: file.fileName));
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await client.send(request);
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {

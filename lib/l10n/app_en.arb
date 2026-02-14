@@ -328,5 +328,96 @@
   "noDevices": "No linked devices",
   "noDevicesDescription": "Devices will appear here when you sign in to the app from other devices.",
   "devicesLoadError": "Could not load devices",
-  "retry": "Retry"
+  "retry": "Retry",
+
+  "syncConfigurationTitle": "Sync Configuration",
+  "syncConfigurationDescription": "Configure how and when your files will be automatically synced",
+  "enableAutoSync": "Enable automatic sync",
+  "autoSyncEnabled": "Automatic sync is enabled",
+  "autoSyncDisabled": "Automatic sync is disabled",
+
+  "syncFrequencyTitle": "Sync frequency",
+  "syncFrequencyDaily": "Daily",
+  "syncFrequencyWeekly": "Weekly",
+  "syncFrequencyAt": "at",
+
+  "syncTimeTitle": "Sync time",
+  "syncTimeDescription": "Select the time you want the sync to run",
+  "selectTime": "Select time",
+
+  "syncDayOfWeekTitle": "Day of the week",
+  "syncDayOfWeekDescription": "Select the day you want the sync to run",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "saturday": "Saturday",
+  "sunday": "Sunday",
+
+  "networkPreferenceTitle": "Network preference",
+  "networkPreferenceWifiOnly": "WiFi only",
+  "networkPreferenceWifiOnlyDescription": "Sync will only run when connected to WiFi",
+  "networkPreferenceAnyNetwork": "Any network",
+  "networkPreferenceAnyNetworkDescription": "Sync will run on WiFi or mobile data",
+
+  "batteryPreferenceTitle": "Battery preference",
+  "batteryPreferenceAny": "Any battery level",
+  "batteryPreferenceAnyDescription": "Sync will run regardless of battery level",
+  "batteryPreferenceCharging": "Charging or battery >15%",
+  "batteryPreferenceChargingDescription": "Sync will only run when device is charging or has more than 15% battery",
+
+  "notifyOnSuccess": "Notify when sync is successful",
+  "notifyOnSuccessDescription": "You will receive a notification when sync completes successfully",
+  "notifyOnFailure": "Notify when sync fails",
+  "notifyOnFailureDescription": "You will receive a notification when sync fails",
+
+  "saveConfiguration": "Save configuration",
+  "savingConfiguration": "Saving configuration...",
+  "configurationSaved": "Configuration saved",
+  "configurationSavedDescription": "Your automatic sync configuration has been saved successfully",
+  "configurationSaveError": "Error saving configuration",
+  "loadingConfiguration": "Loading configuration...",
+  "configurationLoadError": "Error loading configuration",
+
+  "syncInProgressError": "Sync in progress",
+  "syncInProgressErrorDescription": "A sync is already in progress. Please wait for it to finish before starting a new one.",
+  "syncInProgressDialogTitle": "Sync in progress",
+  "syncInProgressDialogMessage": "An automatic sync is in progress in the background. Please wait for it to finish before starting a manual sync.",
+  "understood": "Understood",
+
+  "onboardingWelcomeTitle": "Welcome to Photo Manager!",
+  "onboardingWelcomeMessage": "To give you the best experience, we need your permission to access your photos, send you notifications, and run automatic syncs in the background.\n\nThese permissions allow us to:\n\n• Automatically sync your photos and videos\n• Keep your files safely backed up\n• Notify you about sync progress\n• Run syncs while the app is closed",
+  "onboardingWelcomeButton": "Get Started",
+  "onboardingGetStarted": "Start setup",
+
+  "permissionNotificationTitle": "Notifications",
+  "permissionNotificationMessage": "We'll send you notifications to inform you about the progress of your automatic syncs and when they complete successfully or fail.",
+  "permissionNotificationContinue": "Allow Notifications",
+  "permissionNotificationDeniedTitle": "Notifications Disabled",
+  "permissionNotificationDeniedMessage": "Without notification permission, you won't receive updates about your sync status. You can enable notifications later in Settings.",
+
+  "permissionBackgroundTitle": "Background Sync",
+  "permissionBackgroundMessage": "For automatic sync to work properly, the app needs to run in the background. This allows your photos to sync even when the app is closed.",
+  "permissionBackgroundMessageAndroid": "For automatic sync to work properly, we need to:\n\n• Allow the app to run in the background\n• Disable battery optimization for this app\n\nThis allows your photos to sync even when the app is closed.",
+  "permissionBackgroundMessageIOS": "For automatic sync to work properly, we need to:\n\n• Enable background app refresh\n• Allow the app to run in the background\n\nThis allows your photos to sync even when the app is closed.",
+  "permissionBackgroundContinue": "Allow Background Sync",
+  "permissionBackgroundDeniedTitle": "Background Sync Disabled",
+  "permissionBackgroundDeniedMessage": "Without permission to run in the background, automatic sync will only work when you have the app open. You can enable this later in Settings.",
+
+  "onboardingPermissionsRejectedTitle": "Some Permissions Were Not Granted",
+  "onboardingPermissionsRejectedMessage": "You have denied some required permissions. The app will work with limited functionality. You can enable these permissions later from the app settings:",
+  "onboardingPermissionsRejectedButton": "I Understand",
+  "onboardingPermissionsRetryButton": "Try Again",
+
+  "permissionLimitationPhoto": "• You won't be able to sync photos or videos",
+  "permissionLimitationNotification": "• You won't receive notifications about syncs",
+  "permissionLimitationBackground": "• Automatic sync will only work with the app open",
+
+  "onboardingPermissionsAllGrantedTitle": "All Set!",
+  "onboardingPermissionsAllGrantedMessage": "All permissions have been granted successfully. You can now start using Photo Manager with all its features.",
+  "onboardingPermissionsAllGrantedButton": "Go to Gallery",
+
+  "errorGalleryPermissionTitle": "Gallery Permission Required",
+  "errorGalleryPermission": "The app needs access to your gallery to work. Please enable the permission in Settings."
 }

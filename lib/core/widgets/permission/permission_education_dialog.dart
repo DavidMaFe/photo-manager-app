@@ -4,6 +4,26 @@ import 'package:photo_manager_app/core/widgets/modern_dialog.dart';
 /// Educational dialog shown before requesting system permissions
 /// Explains why the permission is needed and what benefits it provides
 class PermissionEducationDialog {
+  /// Generic show method for any permission education dialog
+  static Future<bool?> show({
+    required BuildContext context,
+    required String title,
+    required String message,
+    required String continueText,
+    required String cancelText,
+    required IconData icon,
+  }) async {
+    return ModernDialog.show(
+      context: context,
+      type: DialogType.info,
+      icon: icon,
+      title: title,
+      message: message,
+      cancelText: cancelText,
+      confirmText: continueText,
+    );
+  }
+
   static Future<bool> showPhotoAccess({
     required BuildContext context,
     required String title,

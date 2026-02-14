@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
 import 'package:photo_manager_app/features/devices/domain/use_cases/get_user_devices_use_case.dart';
 import 'package:photo_manager_app/features/devices/domain/use_cases/rename_device_use_case.dart';
 import 'package:photo_manager_app/features/devices/domain/use_cases/toggle_auto_sync_use_case.dart';
@@ -11,6 +12,7 @@ import 'package:photo_manager_app/features/devices/domain/use_cases/unlink_devic
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_state.dart';
+import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
 import '../../../../fixtures/test_data.dart';
 
 class MockGetUserDevicesUseCase extends Mock
@@ -24,6 +26,10 @@ class MockUnlinkDeviceUseCase extends Mock implements UnlinkDeviceUseCase {}
 
 class MockAppEventBus extends Mock implements AppEventBus {}
 
+class MockSyncSchedulerService extends Mock implements SyncSchedulerService {}
+
+class MockSyncConfigRepository extends Mock implements SyncConfigRepository {}
+
 class FakeAppEvent extends Fake implements AppEvent {}
 
 class FakeDeviceUpdatedEvent extends Fake implements DeviceUpdatedEvent {}
@@ -35,6 +41,8 @@ void main() {
   late MockToggleAutoSyncUseCase mockToggleAutoSyncUseCase;
   late MockUnlinkDeviceUseCase mockUnlinkDeviceUseCase;
   late AppEventBus eventBus;
+  late MockSyncSchedulerService mockSyncSchedulerService;
+  late MockSyncConfigRepository mockSyncConfigRepository;
 
   setUpAll(() {
     registerFallbackValue(FakeAppEvent());
@@ -48,6 +56,8 @@ void main() {
       toggleAutoSyncUseCase: mockToggleAutoSyncUseCase,
       unlinkDeviceUseCase: mockUnlinkDeviceUseCase,
       eventBus: customEventBus ?? eventBus,
+      syncSchedulerService: mockSyncSchedulerService,
+      syncConfigRepository: mockSyncConfigRepository,
     );
   }
 
@@ -56,6 +66,8 @@ void main() {
     mockRenameDeviceUseCase = MockRenameDeviceUseCase();
     mockToggleAutoSyncUseCase = MockToggleAutoSyncUseCase();
     mockUnlinkDeviceUseCase = MockUnlinkDeviceUseCase();
+    mockSyncSchedulerService = MockSyncSchedulerService();
+    mockSyncConfigRepository = MockSyncConfigRepository();
 
     // Set up a default MockAppEventBus for all tests
     final mockEventBus = MockAppEventBus();

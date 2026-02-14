@@ -7,6 +7,8 @@ import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 import 'package:photo_manager_app/features/devices/data/models/device_model.dart';
 
+import '../../../../config/data_constants.dart';
+
 abstract class DeviceRemoteDataSource {
   Future<List<DeviceModel>> getUserDevices();
 
@@ -29,7 +31,7 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
 
   DeviceRemoteDataSourceImpl({
     required this.client,
-    this.baseUrl = 'http://10.0.2.2:8080',
+    this.baseUrl = DataConstants.backendBaseUrl,
   });
 
   @override

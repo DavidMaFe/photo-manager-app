@@ -328,5 +328,96 @@
   "noDevices": "No tienes dispositivos vinculados",
   "noDevicesDescription": "Los dispositivos aparecerán aquí cuando inicies sesión en la aplicación desde otros dispositivos.",
   "devicesLoadError": "No se pudieron cargar los dispositivos",
-  "retry": "Reintentar"
+  "retry": "Reintentar",
+
+  "syncConfigurationTitle": "Configuración de Sincronización",
+  "syncConfigurationDescription": "Configura cómo y cuándo se sincronizarán automáticamente tus archivos",
+  "enableAutoSync": "Habilitar sincronización automática",
+  "autoSyncEnabled": "La sincronización automática está activada",
+  "autoSyncDisabled": "La sincronización automática está desactivada",
+
+  "syncFrequencyTitle": "Frecuencia de sincronización",
+  "syncFrequencyDaily": "Diariamente",
+  "syncFrequencyWeekly": "Semanalmente",
+  "syncFrequencyAt": "a las",
+
+  "syncTimeTitle": "Hora de sincronización",
+  "syncTimeDescription": "Selecciona la hora a la que deseas que se ejecute la sincronización",
+  "selectTime": "Seleccionar hora",
+
+  "syncDayOfWeekTitle": "Día de la semana",
+  "syncDayOfWeekDescription": "Selecciona el día en el que deseas que se ejecute la sincronización",
+  "monday": "Lunes",
+  "tuesday": "Martes",
+  "wednesday": "Miércoles",
+  "thursday": "Jueves",
+  "friday": "Viernes",
+  "saturday": "Sábado",
+  "sunday": "Domingo",
+
+  "networkPreferenceTitle": "Preferencia de red",
+  "networkPreferenceWifiOnly": "Solo WiFi",
+  "networkPreferenceWifiOnlyDescription": "La sincronización solo se ejecutará cuando estés conectado a WiFi",
+  "networkPreferenceAnyNetwork": "Cualquier red",
+  "networkPreferenceAnyNetworkDescription": "La sincronización se ejecutará en WiFi o datos móviles",
+
+  "batteryPreferenceTitle": "Preferencia de batería",
+  "batteryPreferenceAny": "Cualquier nivel de batería",
+  "batteryPreferenceAnyDescription": "La sincronización se ejecutará sin importar el nivel de batería",
+  "batteryPreferenceCharging": "Cargando o batería >15%",
+  "batteryPreferenceChargingDescription": "La sincronización solo se ejecutará cuando el dispositivo esté cargando o tenga más del 15% de batería",
+
+  "notifyOnSuccess": "Notificar cuando la sincronización sea exitosa",
+  "notifyOnSuccessDescription": "Recibirás una notificación cuando la sincronización se complete correctamente",
+  "notifyOnFailure": "Notificar cuando la sincronización falle",
+  "notifyOnFailureDescription": "Recibirás una notificación cuando la sincronización falle",
+
+  "saveConfiguration": "Guardar configuración",
+  "savingConfiguration": "Guardando configuración...",
+  "configurationSaved": "Configuración guardada",
+  "configurationSavedDescription": "Tu configuración de sincronización automática ha sido guardada correctamente",
+  "configurationSaveError": "Error al guardar la configuración",
+  "loadingConfiguration": "Cargando configuración...",
+  "configurationLoadError": "Error al cargar la configuración",
+
+  "syncInProgressError": "Sincronización en progreso",
+  "syncInProgressErrorDescription": "Ya hay una sincronización en progreso. Por favor, espera a que termine antes de iniciar una nueva.",
+  "syncInProgressDialogTitle": "Sincronización en progreso",
+  "syncInProgressDialogMessage": "Una sincronización automática está en progreso en segundo plano. Por favor, espera a que termine antes de iniciar una sincronización manual.",
+  "understood": "Entendido",
+
+  "onboardingWelcomeTitle": "¡Bienvenido a Photo Manager!",
+  "onboardingWelcomeMessage": "Para brindarte la mejor experiencia, necesitamos tu permiso para acceder a tus fotos, enviarte notificaciones y ejecutar sincronizaciones automáticas en segundo plano.\n\nEstos permisos nos permiten:\n\n• Sincronizar automáticamente tus fotos y vídeos\n• Mantener tus archivos respaldados de forma segura\n• Notificarte sobre el progreso de la sincronización\n• Ejecutar sincronizaciones mientras la app está cerrada",
+  "onboardingWelcomeButton": "Comenzar",
+  "onboardingGetStarted": "Empezar configuración",
+
+  "permissionNotificationTitle": "Notificaciones",
+  "permissionNotificationMessage": "Te enviaremos notificaciones para informarte sobre el progreso de tus sincronizaciones automáticas y cuando se completen exitosamente o fallen.",
+  "permissionNotificationContinue": "Permitir notificaciones",
+  "permissionNotificationDeniedTitle": "Notificaciones Deshabilitadas",
+  "permissionNotificationDeniedMessage": "Sin permiso de notificaciones, no podrás recibir actualizaciones sobre el estado de tus sincronizaciones. Puedes habilitar las notificaciones más tarde en Configuración.",
+
+  "permissionBackgroundTitle": "Sincronización en Segundo Plano",
+  "permissionBackgroundMessage": "Para que la sincronización automática funcione correctamente, la aplicación necesita ejecutarse en segundo plano. Esto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.",
+  "permissionBackgroundMessageAndroid": "Para que la sincronización automática funcione correctamente, necesitamos que:\n\n• La aplicación pueda ejecutarse en segundo plano\n• Se desactive la optimización de batería para esta app\n\nEsto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.",
+  "permissionBackgroundMessageIOS": "Para que la sincronización automática funcione correctamente, necesitamos que:\n\n• Habilites la actualización en segundo plano\n• Permitas que la app se ejecute en segundo plano\n\nEsto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.",
+  "permissionBackgroundContinue": "Permitir sincronización en segundo plano",
+  "permissionBackgroundDeniedTitle": "Sincronización en Segundo Plano Deshabilitada",
+  "permissionBackgroundDeniedMessage": "Sin permiso para ejecutar en segundo plano, la sincronización automática solo funcionará cuando tengas la aplicación abierta. Puedes habilitar esto más tarde en Configuración.",
+
+  "onboardingPermissionsRejectedTitle": "Algunos Permisos No Fueron Otorgados",
+  "onboardingPermissionsRejectedMessage": "Has denegado algunos permisos necesarios. La aplicación funcionará con funcionalidad limitada. Puedes habilitar estos permisos más tarde desde la configuración de la aplicación:",
+  "onboardingPermissionsRejectedButton": "Entendido",
+  "onboardingPermissionsRetryButton": "Intentar de nuevo",
+
+  "permissionLimitationPhoto": "• No podrás sincronizar fotos ni vídeos",
+  "permissionLimitationNotification": "• No recibirás notificaciones sobre las sincronizaciones",
+  "permissionLimitationBackground": "• La sincronización automática solo funcionará con la app abierta",
+
+  "onboardingPermissionsAllGrantedTitle": "¡Todo Listo!",
+  "onboardingPermissionsAllGrantedMessage": "Todos los permisos han sido otorgados correctamente. Ya puedes empezar a usar Photo Manager con todas sus funciones.",
+  "onboardingPermissionsAllGrantedButton": "Ir a la galería",
+
+  "errorGalleryPermissionTitle": "Permiso de Galería Requerido",
+  "errorGalleryPermission": "La aplicación necesita acceso a tu galería para funcionar. Por favor, habilita el permiso en Configuración."
 }

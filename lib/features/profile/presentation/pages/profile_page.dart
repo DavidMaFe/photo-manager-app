@@ -13,6 +13,7 @@ import 'package:photo_manager_app/features/profile/presentation/widgets/profile_
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_menu_item.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_stats.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/storage_bar.dart';
+import 'package:photo_manager_app/features/profile/presentation/widgets/sync_settings_menu_item.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/profile_bloc.dart';
@@ -133,12 +134,7 @@ class ProfilePage extends StatelessWidget {
                             ),
                             const Divider(height: 1, indent: 60),
 
-                            ProfileMenuItem(
-                              icon: Icons.sync_outlined,
-                              title: l10n.syncSettings,
-                              subtitle: l10n.syncSettingsSubtitle,
-                              onTap: () {},
-                            ),
+                            const SyncSettingsMenuItem(),
                             const Divider(height: 1, indent: 60),
         
                             ProfileMenuItem(

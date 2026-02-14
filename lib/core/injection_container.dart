@@ -1,9 +1,13 @@
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/network/authenticated_http_client.dart';
+import 'package:photo_manager_app/core/services/background_sync_service.dart';
+import 'package:photo_manager_app/core/services/sync_notification_service.dart';
+import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
@@ -84,8 +88,21 @@ import '../features/auth/domain/use_cases/reset_password_use_case.dart';
 import '../features/auth/domain/use_cases/validate_reset_code_use_case.dart';
 import '../features/folders/domain/use_cases/get_folders_list_use_case.dart';
 import '../features/folders/presentation/bloc/folder/folder_bloc.dart';
+import '../features/onboarding/data/data_sources/onboarding_local_data_source.dart';
+import '../features/onboarding/data/repositories/onboarding_data_repository.dart';
+import '../features/onboarding/domain/repositories/onboarding_repository.dart';
+import '../features/onboarding/domain/use_cases/check_onboarding_status_use_case.dart';
+import '../features/onboarding/domain/use_cases/complete_onboarding_use_case.dart';
+import '../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../features/sync_session/presentation/bloc/sync_session_bloc.dart';
+import '../features/sync_config/data/data_sources/sync_config_local_data_source.dart';
+import '../features/sync_config/data/repositories/sync_config_data_repository.dart';
+import '../features/sync_config/domain/repositories/sync_config_repository.dart';
+import '../features/sync_config/domain/use_cases/get_sync_config_use_case.dart';
+import '../features/sync_config/domain/use_cases/save_sync_config_use_case.dart';
+import '../features/sync_config/presentation/bloc/sync_config_bloc.dart';
 import 'events/app_event_bus.dart';
+import 'utils/onboarding_preferences.dart';
 
 
 final sl = GetIt.instance;
@@ -105,6 +122,35 @@ Future<void> init() async {
 
   // Core Services
   sl.registerLazySingleton(() => UiPreferencesService(sl()));
+
+  // Notification plugin
+  sl.registerLazySingleton(() => FlutterLocalNotificationsPlugin());
+
+  // Notification service
+  sl.registerLazySingleton(
+    () => SyncNotificationService(sl<FlutterLocalNotificationsPlugin>()),
+  );
+
+  // Sync scheduler service
+  sl.registerLazySingleton(
+    () => SyncSchedulerService(),
+  );
+
+  sl.registerLazySingleton(
+    () => BackgroundSyncService(
+      syncDeviceRepository: sl<SyncDeviceRepository>(),
+      syncConfigRepository: sl<SyncConfigRepository>(),
+      syncSessionRepository: sl<SyncSessionRepository>(),
+      startSyncSessionUseCase: sl<StartSyncSessionUseCase>(),
+      checkDuplicatesUseCase: sl<CheckDuplicatedFilesUseCase>(),
+      uploadFileUseCase: sl<UploadFileUseCase>(),
+      completeSyncSessionUseCase: sl<CompleteSyncSessionUseCase>(),
+      mediaLocalDataSource: sl<MediaLocalDataSource>(),
+      authRepository: sl<AuthRepository>(),
+      sharedPreferences: sl<SharedPreferences>(),
+      notificationService: sl<SyncNotificationService>(),
+    ),
+  );
 
   // DATASOURCE'S
   // auth
@@ -221,6 +267,14 @@ Future<void> init() async {
       }
   );
 
+  // sync config
+  sl.registerLazySingleton<SyncConfigLocalDataSource>(
+      () {
+        final sharedPreferences = sl<SharedPreferences>();
+        return SyncConfigLocalDataSourceImpl(sharedPreferences: sharedPreferences);
+      }
+  );
+
 
   // REPOSITORIES
   // auth
@@ -326,6 +380,14 @@ Future<void> init() async {
       () {
         final remoteDataSource = sl<TrashRemoteDataSource>();
         return TrashRepositoryImpl(remoteDataSource: remoteDataSource);
+      }
+  );
+
+  // sync config
+  sl.registerLazySingleton<SyncConfigRepository>(
+      () {
+        final localDataSource = sl<SyncConfigLocalDataSource>();
+        return SyncConfigDataRepository(localDataSource: localDataSource);
       }
   );
 
@@ -580,6 +642,21 @@ Future<void> init() async {
       }
   );
 
+  // sync config
+  sl.registerFactory(
+      () {
+        final repository = sl<SyncConfigRepository>();
+        return GetSyncConfigUseCase(repository);
+      }
+  );
+
+  sl.registerFactory(
+      () {
+        final repository = sl<SyncConfigRepository>();
+        return SaveSyncConfigUseCase(repository);
+      }
+  );
+
 
   // BLOC'S
   // auth
@@ -634,12 +711,16 @@ Future<void> init() async {
         final toggleAutoSyncUseCase = sl<ToggleAutoSyncUseCase>();
         final unlinkDeviceUseCase = sl<UnlinkDeviceUseCase>();
         final eventBus = sl<AppEventBus>();
+        final syncSchedulerService = sl<SyncSchedulerService>();
+        final syncConfigRepository = sl<SyncConfigRepository>();
         return DeviceBloc(
           getUserDevicesUseCase: getUserDevicesUseCase,
           renameDeviceUseCase: renameDeviceUseCase,
           toggleAutoSyncUseCase: toggleAutoSyncUseCase,
           unlinkDeviceUseCase: unlinkDeviceUseCase,
           eventBus: eventBus,
+          syncSchedulerService: syncSchedulerService,
+          syncConfigRepository: syncConfigRepository,
         );
       }
   );
@@ -655,6 +736,7 @@ Future<void> init() async {
         final syncDeviceRepository = sl<SyncDeviceRepository>();
         final mediaLocalDataSource = sl<MediaLocalDataSource>();
         final eventBus = sl<AppEventBus>();
+        final sharedPreferences = sl<SharedPreferences>();
 
         return SyncSessionBloc(
           startSyncSessionUseCase: startSyncSessionUseCase,
@@ -665,6 +747,7 @@ Future<void> init() async {
           syncDeviceRepository: syncDeviceRepository,
           mediaLocalDataSource: mediaLocalDataSource,
           eventBus: eventBus,
+          sharedPreferences: sharedPreferences,
         );
       }
   );
@@ -754,4 +837,52 @@ Future<void> init() async {
         );
       }
   );
+
+  // sync config
+  sl.registerFactory(
+      () {
+        final getSyncConfigUseCase = sl<GetSyncConfigUseCase>();
+        final saveSyncConfigUseCase = sl<SaveSyncConfigUseCase>();
+        final syncSchedulerService = sl<SyncSchedulerService>();
+        return SyncConfigBloc(
+          getSyncConfigUseCase: getSyncConfigUseCase,
+          saveSyncConfigUseCase: saveSyncConfigUseCase,
+          syncSchedulerService: syncSchedulerService,
+        );
+      }
+  );
+
+  // ─── ONBOARDING ──────────────────────────────────────────────────────────
+
+  // Data source
+  sl.registerLazySingleton<OnboardingLocalDataSource>(
+    () => OnboardingLocalDataSourceImpl(
+      OnboardingPreferences(sl<SharedPreferences>()),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<OnboardingRepository>(
+    () => OnboardingDataRepository(sl<OnboardingLocalDataSource>()),
+  );
+
+  // Use cases
+  sl.registerFactory(
+    () => CheckOnboardingStatusUseCase(sl<OnboardingRepository>()),
+  );
+
+  sl.registerFactory(
+    () => CompleteOnboardingUseCase(sl<OnboardingRepository>()),
+  );
+
+  // BLoC
+  sl.registerFactory(
+    () => OnboardingBloc(
+      completeOnboardingUseCase: sl<CompleteOnboardingUseCase>(),
+    ),
+  );
+
+  // OnboardingNotifier is registered in main.dart after AuthBloc is created,
+  // because it needs the same AuthBloc singleton instance.
+  // It is registered here as a placeholder; see main.dart for the actual registration.
 }

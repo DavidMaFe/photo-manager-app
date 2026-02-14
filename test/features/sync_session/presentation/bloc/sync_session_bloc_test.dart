@@ -16,6 +16,7 @@ import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockStartSyncSessionUseCase extends Mock implements StartSyncSessionUseCase {}
 class MockCheckDuplicatedFilesUseCase extends Mock implements CheckDuplicatedFilesUseCase {}
@@ -26,6 +27,7 @@ class MockSyncSessionRepository extends Mock implements SyncSessionRepository {}
 class MockMediaLocalDataSource extends Mock implements MediaLocalDataSource {}
 class MockAppEventBus extends Mock implements AppEventBus {}
 class MockBuildContext extends Mock implements BuildContext {}
+class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 class FakeAppEvent extends Fake implements AppEvent {}
 
@@ -40,6 +42,7 @@ void main() {
   late MockMediaLocalDataSource mockMediaDataSource;
   late MockAppEventBus mockEventBus;
   late MockBuildContext mockContext;
+  late MockSharedPreferences mockSharedPreferences;
 
   setUpAll(() {
     registerFallbackValue(FakeAppEvent());
@@ -55,6 +58,7 @@ void main() {
     mockMediaDataSource = MockMediaLocalDataSource();
     mockEventBus = MockAppEventBus();
     mockContext = MockBuildContext();
+    mockSharedPreferences = MockSharedPreferences();
 
     // Mock context.mounted to return true
     when(() => mockContext.mounted).thenReturn(true);
@@ -62,6 +66,9 @@ void main() {
     // Mock cancelSyncSession to prevent errors
     when(() => mockSessionRepository.cancelSyncSession(sessionId: any(named: 'sessionId')))
         .thenAnswer((_) async => {});
+
+    // Mock SharedPreferences to return false for sync lock (no sync in progress)
+    when(() => mockSharedPreferences.getBool(any())).thenReturn(false);
 
     bloc = SyncSessionBloc(
       startSyncSessionUseCase: mockStartUseCase,
@@ -72,6 +79,7 @@ void main() {
       syncSessionRepository: mockSessionRepository,
       mediaLocalDataSource: mockMediaDataSource,
       eventBus: mockEventBus,
+      sharedPreferences: mockSharedPreferences,
     );
   });
 

@@ -1,15 +1,18 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
 import 'package:photo_manager_app/features/devices/domain/use_cases/get_user_devices_use_case.dart';
 import 'package:photo_manager_app/features/devices/domain/use_cases/rename_device_use_case.dart';
 import 'package:photo_manager_app/features/devices/domain/use_cases/toggle_auto_sync_use_case.dart';
 import 'package:photo_manager_app/features/devices/domain/use_cases/unlink_device_use_case.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_state.dart';
+import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
 
 class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
   final GetUserDevicesUseCase getUserDevicesUseCase;
@@ -17,6 +20,8 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
   final ToggleAutoSyncUseCase toggleAutoSyncUseCase;
   final UnlinkDeviceUseCase unlinkDeviceUseCase;
   final AppEventBus eventBus;
+  final SyncSchedulerService syncSchedulerService;
+  final SyncConfigRepository syncConfigRepository;
 
   static const int minimumLoadingDuration = 800;
 
@@ -28,6 +33,8 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
     required this.toggleAutoSyncUseCase,
     required this.unlinkDeviceUseCase,
     required this.eventBus,
+    required this.syncSchedulerService,
+    required this.syncConfigRepository,
   }) : super(DeviceInitial()) {
     on<LoadDevices>(_onLoadDevices);
     on<RefreshDevices>(_onRefreshDevices);
@@ -128,6 +135,7 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
     final stopwatch = Stopwatch()..start();
 
     try {
+      // Toggle auto-sync on the server
       await toggleAutoSyncUseCase(
         deviceId: event.deviceId,
         enabled: event.enabled,
@@ -143,8 +151,48 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
 
       await _waitForLoading(stopwatch);
 
-      emit(DeviceActionSuccess(updatedDevices));
-      emit(DeviceLoaded(updatedDevices));
+      if (event.enabled) {
+        // Auto-sync enabled: emit state to trigger navigation to sync configuration
+        developer.log(
+          '✅ Auto-sync enabled, navigating to sync configuration',
+          name: 'DeviceBloc',
+        );
+        emit(DeviceAutoSyncEnabled(
+          devices: updatedDevices,
+          deviceId: event.deviceId,
+        ));
+        // Then emit loaded state
+        emit(DeviceLoaded(updatedDevices));
+      } else {
+        // Auto-sync disabled: cancel scheduled tasks
+        developer.log(
+          '❌ Auto-sync disabled, canceling scheduled tasks',
+          name: 'DeviceBloc',
+        );
+
+        try {
+          await syncSchedulerService.cancelSync();
+
+          // Clear sync configuration
+          final currentConfig = await syncConfigRepository.getSyncConfig();
+          if (currentConfig != null) {
+            final disabledConfig = currentConfig.copyWith(autoSyncEnabled: false);
+            await syncConfigRepository.saveSyncConfig(disabledConfig);
+          }
+
+          developer.log('✅ Sync tasks cancelled and config cleared', name: 'DeviceBloc');
+        } catch (e) {
+          developer.log(
+            '⚠️ Failed to cancel sync tasks',
+            name: 'DeviceBloc',
+            error: e,
+          );
+          // Don't fail the whole operation if cleanup fails
+        }
+
+        emit(DeviceActionSuccess(updatedDevices));
+        emit(DeviceLoaded(updatedDevices));
+      }
 
       // Fire event bus notification
       eventBus.fire(const DeviceUpdatedEvent(

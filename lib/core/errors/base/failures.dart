@@ -194,6 +194,18 @@ class PermissionDeniedFailure extends Failure {
   });
 }
 
+// ============= CONCURRENCY ERRORS =============
+
+class ConcurrencyFailure extends Failure {
+  const ConcurrencyFailure({
+    super.messageKey = 'syncInProgressError',
+    super.messageParams,
+    super.code,
+    super.data,
+    super.errorResponse,
+  });
+}
+
 // ============= GENERIC ERRORS =============
 
 class UnknownFailure extends Failure {

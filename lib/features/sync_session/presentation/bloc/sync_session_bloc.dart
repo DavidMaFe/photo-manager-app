@@ -14,6 +14,7 @@ import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/errors/base/failures.dart';
 import '../../../../core/errors/handler/error_handler.dart';
@@ -29,9 +30,13 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
   final SyncSessionRepository syncSessionRepository;
   final MediaLocalDataSource mediaLocalDataSource;
   final AppEventBus eventBus;
+  final SharedPreferences sharedPreferences;
 
   String? _currentSessionId;
   bool _isCancelled = false;
+
+  // Sync lock key - must match BackgroundSyncService
+  static const String _syncLockKey = 'SYNC_IN_PROGRESS';
 
   SyncSessionBloc({
     required this.startSyncSessionUseCase,
@@ -42,6 +47,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     required this.syncSessionRepository,
     required this.mediaLocalDataSource,
     required this.eventBus,
+    required this.sharedPreferences,
   }) : super(const SyncSessionInitial()) {
     on<SyncSessionStarted>(_onSyncSessionStarted);
     on<SyncSessionCancelled>(_onSyncSessionCancelled);
@@ -55,6 +61,17 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     _currentSessionId = null;
 
     try {
+      // Check if background sync is in progress
+      final isSyncInProgress = sharedPreferences.getBool(_syncLockKey) ?? false;
+      if (isSyncInProgress) {
+        emit(SyncSessionError(
+          const ConcurrencyFailure(
+            messageKey: 'syncInProgressError',
+            code: FailureCodes.syncSessionAlreadyInProgress,
+          ),
+        ));
+        return;
+      }
 
       emit(const SyncSessionStarting());
       final startStopwatch = Stopwatch()..start();
