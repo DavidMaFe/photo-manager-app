@@ -1,0 +1,4 @@
+{
+  "ENV": "prod",
+  "BACKEND_BASE_URL": "https://photo-manager-pro.com"
+}

@@ -21,7 +21,10 @@ void main() {
 
   setUp(() {
     mockHttpClient = MockHttpClient();
-    dataSource = AuthRemoteDataSourceImpl(client: mockHttpClient);
+    dataSource = AuthRemoteDataSourceImpl(
+      client: mockHttpClient,
+      baseUrl: 'http://10.0.2.2:8080',
+    );
   });
 
   group('AuthRemoteDataSource', () {

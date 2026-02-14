@@ -13,6 +13,7 @@ import 'package:photo_manager_app/features/onboarding/domain/use_cases/check_onb
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 import 'package:workmanager/workmanager.dart';
+import 'config/app_config.dart';
 import 'core/injection_container.dart' as di;
 
 
@@ -25,7 +26,7 @@ void main() async {
   // Initialize WorkManager for background tasks
   await Workmanager().initialize(
     backgroundTaskHandler,
-    isInDebugMode: true, // Enable debug mode to see WorkManager logs
+    isInDebugMode: AppConfig.isDevelopment,
   );
 
   // Initialize notification service
