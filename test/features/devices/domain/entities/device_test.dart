@@ -53,7 +53,7 @@ void main() {
 
       test('should return true when osType is "ios" (lowercase)', () {
         // Arrange
-        final device = const Device(
+        const device = Device(
           id: '1',
           uuid: 'test-uuid',
           name: 'Test iPhone',

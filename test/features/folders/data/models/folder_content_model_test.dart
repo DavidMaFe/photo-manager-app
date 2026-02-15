@@ -25,8 +25,8 @@ void main() {
 
       final model = FolderContentModel(
         folder: folder,
-        subfolders: [],
-        files: [],
+        subfolders: const [],
+        files: const [],
         hasMoreFiles: false,
       );
 
@@ -253,8 +253,8 @@ void main() {
 
       final model = FolderContentModel(
         folder: folder,
-        subfolders: [],
-        files: [],
+        subfolders: const [],
+        files: const [],
         hasMoreFiles: false,
       );
 
@@ -465,8 +465,8 @@ void main() {
 
       final entity = FolderContent(
         folder: folder,
-        subfolders: [],
-        files: [],
+        subfolders: const [],
+        files: const [],
         hasMoreFiles: false,
       );
 

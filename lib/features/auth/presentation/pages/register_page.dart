@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -87,7 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   SnackBar(
                     content: Text(l10n.accountCreated),
                     backgroundColor: Colors.green,
-                    duration: Duration(seconds: 3),
+                    duration: const Duration(seconds: 3),
                   )
               );
               Future.delayed(const Duration(milliseconds: 500), () {
@@ -100,7 +99,7 @@ class _RegisterPageState extends State<RegisterPage> {
           builder: (context, state) {
             final isLoading = state is AuthLoading;
 
-            return Padding(
+            return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Form(
                 key: _formKey,
@@ -109,15 +108,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 20),
                     const Center(child: RegisterHeader()),
                     const SizedBox(height: 40),
-                    Expanded(
-                      child: RegisterInputs(
-                        nameInputController: _nameInputController,
-                        surnameInputController: _surnameInputController,
-                        emailInputController: _emailInputController,
-                        passwordInputController: _passwordInputController,
-                        confirmPasswordInputController: _confirmPasswordInputController,
-                        enabled: !isLoading,
-                      ),
+                    RegisterInputs(
+                      nameInputController: _nameInputController,
+                      surnameInputController: _surnameInputController,
+                      emailInputController: _emailInputController,
+                      passwordInputController: _passwordInputController,
+                      confirmPasswordInputController: _confirmPasswordInputController,
+                      enabled: !isLoading,
                     ),
                     const SizedBox(height: 24),
                     RegisterActions(

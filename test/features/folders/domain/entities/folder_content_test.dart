@@ -76,7 +76,7 @@ void main() {
       final content = FolderContent(
         folder: testFolder,
         subfolders: testSubfolders,
-        files: [],
+        files: const [],
         hasMoreFiles: false,
       );
 
@@ -88,7 +88,7 @@ void main() {
       // Arrange
       final content = FolderContent(
         folder: testFolder,
-        subfolders: [],
+        subfolders: const [],
         files: testFiles,
         hasMoreFiles: false,
       );
@@ -101,7 +101,7 @@ void main() {
       // Arrange
       final content = FolderContent(
         folder: testFolder,
-        subfolders: [],
+        subfolders: const [],
         files: testFiles,
         hasMoreFiles: false,
       );
@@ -115,7 +115,7 @@ void main() {
       final content = FolderContent(
         folder: testFolder,
         subfolders: testSubfolders,
-        files: [],
+        files: const [],
         hasMoreFiles: false,
       );
 
@@ -127,8 +127,8 @@ void main() {
       // Arrange
       final content = FolderContent(
         folder: testFolder,
-        subfolders: [],
-        files: [],
+        subfolders: const [],
+        files: const [],
         hasMoreFiles: false,
       );
 
@@ -141,7 +141,7 @@ void main() {
       final content = FolderContent(
         folder: testFolder,
         subfolders: testSubfolders,
-        files: [],
+        files: const [],
         hasMoreFiles: false,
       );
 
@@ -153,7 +153,7 @@ void main() {
       // Arrange
       final content = FolderContent(
         folder: testFolder,
-        subfolders: [],
+        subfolders: const [],
         files: testFiles,
         hasMoreFiles: false,
       );
@@ -378,8 +378,8 @@ void main() {
       // Arrange & Act
       final content = FolderContent(
         folder: testFolder,
-        subfolders: [],
-        files: [],
+        subfolders: const [],
+        files: const [],
         hasMoreFiles: false,
       );
 
@@ -408,7 +408,7 @@ void main() {
       final content = FolderContent(
         folder: testFolder,
         subfolders: manySubfolders,
-        files: [],
+        files: const [],
         hasMoreFiles: false,
       );
 
@@ -432,7 +432,7 @@ void main() {
       // Act
       final content = FolderContent(
         folder: testFolder,
-        subfolders: [],
+        subfolders: const [],
         files: manyFiles,
         hasMoreFiles: true,
       );

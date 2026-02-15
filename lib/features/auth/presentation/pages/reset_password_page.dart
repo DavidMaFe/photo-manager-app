@@ -90,18 +90,18 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
             final isLoading = state is AuthLoading;
 
-            return Padding(
+            return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
 
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
-                    ResetPasswordHeader(),
+                    const ResetPasswordHeader(),
 
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
                     ResetPasswordInputs(
                       newPasswordController: _newPasswordController,
@@ -109,7 +109,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       enabled: !isLoading
                     ),
 
-                    SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
                     ResetPasswordActions(
                       onResetPassword: _handleResetPassword,

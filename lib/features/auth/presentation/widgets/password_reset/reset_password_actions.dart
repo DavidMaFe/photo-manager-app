@@ -19,8 +19,7 @@ class ResetPasswordActions extends StatelessWidget {
 
     final l10n = AppLocalizations.of(context)!;
 
-    return Expanded(
-      child: Column(
+    return Column(
         children: [
           SizedBox(
             width: double.infinity,
@@ -47,7 +46,7 @@ class ResetPasswordActions extends StatelessWidget {
                 )
                 : Text(
                   l10n.resetPasswordButton,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600
                   ),
@@ -55,7 +54,6 @@ class ResetPasswordActions extends StatelessWidget {
             ),
           )
         ],
-      ),
     );
   }
 }

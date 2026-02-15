@@ -99,7 +99,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
 
       return AppBar(
         leading: IconButton(
-          icon: Icon(Icons.close),
+          icon: const Icon(Icons.close),
           onPressed: () {
             context.read<FolderContentBloc>().add(const ExitSelectionMode());
           },
@@ -206,7 +206,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
       return _buildErrorState(context, state, l10n);
     }
 
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
   }
 
   Widget _buildContent(BuildContext context, FolderContentLoaded state) {

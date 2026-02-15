@@ -73,7 +73,7 @@ class SynchronizationStatusCard extends StatelessWidget {
           ] else ...[
             Text(
               l10n.syncEmpty,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w700
@@ -96,7 +96,7 @@ class SynchronizationStatusCard extends StatelessWidget {
               ),
               child: Text(
                 l10n.syncNow,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600
                 ),

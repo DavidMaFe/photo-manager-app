@@ -64,8 +64,8 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
       // Check if background sync is in progress
       final isSyncInProgress = sharedPreferences.getBool(_syncLockKey) ?? false;
       if (isSyncInProgress) {
-        emit(SyncSessionError(
-          const ConcurrencyFailure(
+        emit(const SyncSessionError(
+          ConcurrencyFailure(
             messageKey: 'syncInProgressError',
             code: FailureCodes.syncSessionAlreadyInProgress,
           ),

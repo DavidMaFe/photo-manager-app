@@ -36,14 +36,14 @@ class _ResetPasswordInputsState extends State<ResetPasswordInputs> {
       children: [
         Text(
           l10n.newPasswordLabel,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: Colors.black87
           ),
         ),
 
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
 
         TextFormField(
           controller: widget.newPasswordController,
@@ -86,10 +86,10 @@ class _ResetPasswordInputsState extends State<ResetPasswordInputs> {
 
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: PhotoManagerColors.primary, width: 2)
+              borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2)
             ),
 
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
 
             suffixIcon: IconButton(
               icon: Icon(
@@ -105,18 +105,18 @@ class _ResetPasswordInputsState extends State<ResetPasswordInputs> {
           ),
         ),
 
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         Text(
           l10n.confirmNewPasswordLabel,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: Colors.black87
           ),
         ),
 
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
 
         TextFormField(
           controller: widget.confirmPasswordController,
@@ -163,10 +163,10 @@ class _ResetPasswordInputsState extends State<ResetPasswordInputs> {
 
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: PhotoManagerColors.primary, width: 2)
+              borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2)
             ),
 
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
 
             suffixIcon: IconButton(
               icon: Icon(

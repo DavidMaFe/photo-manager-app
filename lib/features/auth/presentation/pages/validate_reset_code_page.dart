@@ -98,25 +98,25 @@ class _ValidateResetCodePageState extends State<ValidateResetCodePage> {
 
             final isLoading = state is AuthLoading;
 
-            return Padding(
+            return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
 
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
                     ValidateCodeHeader(email: widget.email),
 
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
                     ValidateCodeInputs(
                       codeInputController: _codeController,
                       enabled: !isLoading
                     ),
 
-                    SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
                     ValidateCodeActions(
                       onValidateCode: _handleValidateCode,

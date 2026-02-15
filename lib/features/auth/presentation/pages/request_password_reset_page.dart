@@ -80,25 +80,25 @@ class _RequestPasswordResetPageState extends State<RequestPasswordResetPage> {
 
             final isLoading = state is AuthLoading;
 
-            return Padding(
+            return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
 
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
-                    RequestResetHeader(),
+                    const RequestResetHeader(),
 
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
                     RequestResetInputs(
                       emailInputController: _emailController,
                       enabled: !isLoading
                     ),
 
-                    SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
                     RequestResetActions(
                       onSendCode: _handleSendCode,

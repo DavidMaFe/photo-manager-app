@@ -57,7 +57,7 @@ class FolderCard extends StatelessWidget {
                       color: PhotoManagerColors.primary.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12)
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.folder,
                       color: PhotoManagerColors.primary,
                       size: 32,
@@ -135,8 +135,8 @@ class FolderCard extends StatelessWidget {
                         value: 'rename',
                         child: Row(
                           children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 12),
+                            const Icon(Icons.edit, size: 20),
+                            const SizedBox(width: 12),
                             Text(l10n.rename)
                           ],
                         ),
@@ -146,9 +146,9 @@ class FolderCard extends StatelessWidget {
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete, size: 20, color: Colors.red),
-                            SizedBox(width: 12),
-                            Text(l10n.delete, style: TextStyle(color: Colors.red))
+                            const Icon(Icons.delete, size: 20, color: Colors.red),
+                            const SizedBox(width: 12),
+                            Text(l10n.delete, style: const TextStyle(color: Colors.red))
                           ],
                         ),
                       )

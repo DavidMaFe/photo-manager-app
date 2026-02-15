@@ -21,8 +21,7 @@ class RequestResetActions extends StatelessWidget {
 
     final l10n = AppLocalizations.of(context)!;
 
-    return Expanded(
-      child: Column(
+    return Column(
         children: [
           SizedBox(
             width: double.infinity,
@@ -49,7 +48,7 @@ class RequestResetActions extends StatelessWidget {
                 )
                 : Text(
                   l10n.sendCodeButton,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600
                   ),
@@ -71,7 +70,6 @@ class RequestResetActions extends StatelessWidget {
             )
           )
         ],
-      ),
     );
   }
 }

@@ -25,7 +25,7 @@ class FileThumbnailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final baseUrl = DataConstants.backendBaseUrl;
+    const baseUrl = DataConstants.backendBaseUrl;
     final thumbnailUrl = '$baseUrl/api/file/${file.id}/thumbnail/';
 
     return GestureDetector(
@@ -112,10 +112,10 @@ class FileThumbnailCard extends StatelessWidget {
             )
           ]
         ),
-        child: Row(
+        child: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.schedule,
               size: 12,
               color: Colors.white,

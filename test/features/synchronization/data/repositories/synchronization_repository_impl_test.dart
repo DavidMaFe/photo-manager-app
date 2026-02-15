@@ -163,8 +163,8 @@ void main() {
 
     test('should handle empty result', () async {
       // Arrange
-      final emptyResponse = SynchronizationsListResponse(
-        syncSessions: const [],
+      const emptyResponse = SynchronizationsListResponse(
+        syncSessions: [],
         hasNext: false,
       );
 

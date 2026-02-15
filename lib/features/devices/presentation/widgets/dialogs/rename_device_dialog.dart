@@ -106,37 +106,46 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+    return AnimatedPadding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.viewInsetsOf(context).bottom,
+      ),
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+      child: Center(
+        child: SingleChildScrollView(
           child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.95),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
+            constraints: const BoxConstraints(maxWidth: 400),
+            margin: const EdgeInsets.symmetric(horizontal: 24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.95),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildHeader(l10n),
-                  _buildContent(l10n),
-                  _buildActions(l10n),
-                ],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildHeader(l10n),
+                      _buildContent(l10n),
+                      _buildActions(l10n),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -219,7 +228,7 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: PhotoManagerColors.primary,
                   width: 2,
                 ),

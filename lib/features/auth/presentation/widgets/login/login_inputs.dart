@@ -35,14 +35,14 @@ class _LoginInputsState extends State<LoginInputs> {
       children: [
         Text(
           l10n.emailLabel,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: Colors.black87
           ),
         ),
 
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
 
         TextFormField(
           controller: widget.emailInputController,
@@ -89,25 +89,25 @@ class _LoginInputsState extends State<LoginInputs> {
 
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: PhotoManagerColors.primary, width: 2)
+              borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2)
             ),
 
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16)
           ),
         ),
 
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         Text(
           l10n.passwordLabel,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: Colors.black87
           ),
         ),
 
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
 
         TextFormField(
           controller: widget.passwordInputController,
@@ -150,10 +150,10 @@ class _LoginInputsState extends State<LoginInputs> {
 
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: PhotoManagerColors.primary, width: 2)
+              borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2)
             ),
 
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             suffixIcon: IconButton(icon: Icon(
               _obscurePassword ? Icons.visibility_off : Icons.visibility,
               color: Colors.grey[600],

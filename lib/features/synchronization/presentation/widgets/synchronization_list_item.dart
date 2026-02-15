@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/core/utils/date_formatter.dart';
 import 'package:photo_manager_app/features/synchronization/domain/entities/synchronization.dart';

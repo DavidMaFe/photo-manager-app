@@ -85,7 +85,7 @@ void main() {
       when(() => mockFolderContentBloc.state).thenReturn(
         FolderContentLoaded(
           currentFolder: testFolder,
-          subfolders: [],
+          subfolders: const [],
           files: files,
           groupedFiles: groupTestFiles(files),
           hasMoreFiles: false,
@@ -97,7 +97,7 @@ void main() {
         (_) => Stream.value(
           FolderContentLoaded(
             currentFolder: testFolder,
-            subfolders: [],
+            subfolders: const [],
             files: files,
             groupedFiles: groupTestFiles(files),
             hasMoreFiles: false,
@@ -139,8 +139,8 @@ void main() {
       when(() => mockFolderContentBloc.state).thenReturn(
         FolderContentLoaded(
           currentFolder: testFolder,
-          subfolders: [],
-          files: [],
+          subfolders: const [],
+          files: const [],
           groupedFiles: const [],
           hasMoreFiles: false,
           selectedFileIds: const {},
@@ -151,8 +151,8 @@ void main() {
         (_) => Stream.value(
           FolderContentLoaded(
             currentFolder: testFolder,
-            subfolders: [],
-            files: [],
+            subfolders: const [],
+            files: const [],
             groupedFiles: const [],
             hasMoreFiles: false,
             selectedFileIds: const {},
@@ -198,7 +198,7 @@ void main() {
         FolderContentLoaded(
           currentFolder: testFolder,
           subfolders: subfolders,
-          files: [],
+          files: const [],
           groupedFiles: const [],
           hasMoreFiles: false,
           selectedFileIds: const {},
@@ -210,7 +210,7 @@ void main() {
           FolderContentLoaded(
             currentFolder: testFolder,
             subfolders: subfolders,
-            files: [],
+            files: const [],
             groupedFiles: const [],
             hasMoreFiles: false,
             selectedFileIds: const {},
@@ -242,7 +242,7 @@ void main() {
       when(() => mockFolderContentBloc.state).thenReturn(
         FolderContentLoaded(
           currentFolder: testFolder,
-          subfolders: [],
+          subfolders: const [],
           files: manyFiles,
           groupedFiles: groupTestFiles(manyFiles),
           hasMoreFiles: true,
@@ -254,7 +254,7 @@ void main() {
         (_) => Stream.value(
           FolderContentLoaded(
             currentFolder: testFolder,
-            subfolders: [],
+            subfolders: const [],
             files: manyFiles,
             groupedFiles: groupTestFiles(manyFiles),
             hasMoreFiles: true,

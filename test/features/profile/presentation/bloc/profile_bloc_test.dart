@@ -36,13 +36,13 @@ void main() {
     mockEventBus = MockAppEventBus();
 
     when(() => mockEventBus.on<FileUpdatedEvent>())
-        .thenAnswer((_) => Stream<FileUpdatedEvent>.empty());
+        .thenAnswer((_) => const Stream<FileUpdatedEvent>.empty());
 
     when(() => mockEventBus.on<FolderUpdatedEvent>())
-        .thenAnswer((_) => Stream<FolderUpdatedEvent>.empty());
+        .thenAnswer((_) => const Stream<FolderUpdatedEvent>.empty());
 
     when(() => mockEventBus.on<SyncCompletedEvent>())
-        .thenAnswer((_) => Stream<SyncCompletedEvent>.empty());
+        .thenAnswer((_) => const Stream<SyncCompletedEvent>.empty());
   });
 
   group('ProfileBloc', () {

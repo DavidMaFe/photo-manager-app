@@ -47,8 +47,8 @@ void main() {
 
       test('should create TrashPage with empty files list', () {
         // Arrange & Act
-        final trashPage = TrashPage(
-          files: const [],
+        const trashPage = TrashPage(
+          files: [],
           currentPage: 0,
           pageSize: 50,
           hasNext: false,
@@ -102,8 +102,8 @@ void main() {
     group('isEmpty', () {
       test('should return true when files is empty', () {
         // Arrange
-        final trashPage = TrashPage(
-          files: const [],
+        const trashPage = TrashPage(
+          files: [],
           currentPage: 0,
           pageSize: 50,
           hasNext: false,
@@ -136,8 +136,8 @@ void main() {
     group('isNotEmpty', () {
       test('should return false when files is empty', () {
         // Arrange
-        final trashPage = TrashPage(
-          files: const [],
+        const trashPage = TrashPage(
+          files: [],
           currentPage: 0,
           pageSize: 50,
           hasNext: false,

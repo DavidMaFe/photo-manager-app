@@ -25,14 +25,14 @@ class ValidateCodeInputs extends StatelessWidget {
       children: [
         Text(
           l10n.codeLabel,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: Colors.black87
           ),
         ),
 
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
 
         TextFormField(
           controller: codeInputController,
@@ -46,7 +46,7 @@ class ValidateCodeInputs extends StatelessWidget {
             LengthLimitingTextInputFormatter(6)
           ],
 
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w600,
             letterSpacing: 8
@@ -93,10 +93,10 @@ class ValidateCodeInputs extends StatelessWidget {
 
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: PhotoManagerColors.primary, width: 2)
+              borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2)
             ),
 
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20)
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20)
           ),
         )
       ],

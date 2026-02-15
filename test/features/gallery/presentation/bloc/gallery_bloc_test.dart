@@ -318,7 +318,7 @@ void main() {
         files: testFiles,
         groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: true,
-        selectedFileIds: {'file-1', 'file-2'},
+        selectedFileIds: const {'file-1', 'file-2'},
         hasNext: true,
         currentPage: 0,
         filter: FileFilter.all,
@@ -357,7 +357,7 @@ void main() {
         files: testFiles,
         groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: true,
-        selectedFileIds: {'file-1'},
+        selectedFileIds: const {'file-1'},
         hasNext: true,
         currentPage: 0,
         filter: FileFilter.all,
@@ -396,7 +396,7 @@ void main() {
         files: testFiles,
         groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: true,
-        selectedFileIds: {'file-1', 'file-2'},
+        selectedFileIds: const {'file-1', 'file-2'},
         hasNext: true,
         currentPage: 0,
         filter: FileFilter.all,
@@ -422,7 +422,7 @@ void main() {
         files: testFiles,
         groupedFiles: groupTestFiles(testFiles),
         isSelectionMode: true,
-        selectedFileIds: {'file-1'},
+        selectedFileIds: const {'file-1'},
         hasNext: true,
         currentPage: 0,
         filter: FileFilter.all,
@@ -441,8 +441,8 @@ void main() {
     blocTest<GalleryBloc, GalleryState>(
       'handles empty result',
       setUp: () {
-        final emptyPage = GalleryPage(
-          files: const [],
+        const emptyPage = GalleryPage(
+          files: [],
           currentPage: 0,
           pageSize: 50,
           hasNext: false,

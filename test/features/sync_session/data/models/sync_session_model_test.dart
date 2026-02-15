@@ -77,7 +77,7 @@ void main() {
 
       test('should parse ISO 8601 date string correctly', () {
         // Arrange
-        final dateString = '2024-01-15T10:30:00.000Z';
+        const dateString = '2024-01-15T10:30:00.000Z';
         final json = {
           'sessionId': sessionId,
           'lastSyncCompletedAt': dateString,

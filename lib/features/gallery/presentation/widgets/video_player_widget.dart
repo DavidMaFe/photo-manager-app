@@ -260,7 +260,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             const SizedBox(height: 16),
             Text(
               l10n.loadingVideoError,
-              style: TextStyle(color: Colors.white70, fontSize: 16),
+              style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
             if (_errorMessage != null) ...[
               const SizedBox(height: 8),

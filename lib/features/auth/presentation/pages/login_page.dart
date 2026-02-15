@@ -71,21 +71,21 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context, state) {
                 final isLoading = state is AuthLoading;
 
-                return Padding(
+                return SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       children: [
-                        SizedBox(height: 20),
-                        Center(child: LoginHeader()),
-                        SizedBox(height: 40),
+                        const SizedBox(height: 20),
+                        const Center(child: LoginHeader()),
+                        const SizedBox(height: 40),
                         LoginInputs(
                           emailInputController: _emailInputController,
                           passwordInputController: _passwordInputController,
                           enabled: !isLoading,
                         ),
-                        SizedBox(height: 48),
+                        const SizedBox(height: 48),
                         LoginActions(
                             onLogin: _handleLogin,
                             onForgotPassword: _handleForgotPassword,

@@ -106,7 +106,7 @@ void main() {
 
     testWidgets('should show error snackbar when ProfileError state', (tester) async {
       // Arrange
-      final failure = NetworkFailure();
+      const failure = NetworkFailure();
       when(() => mockProfileBloc.state).thenReturn(ProfileInitial());
       when(() => mockProfileBloc.stream).thenAnswer(
         (_) => Stream.value(ProfileError(failure)),
@@ -123,7 +123,7 @@ void main() {
 
     testWidgets('should return empty widget on error state', (tester) async {
       // Arrange
-      final failure = NetworkFailure();
+      const failure = NetworkFailure();
       when(() => mockProfileBloc.state).thenReturn(ProfileInitial());
       when(() => mockProfileBloc.stream).thenAnswer(
         (_) => Stream.value(ProfileError(failure)),

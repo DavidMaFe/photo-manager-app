@@ -156,7 +156,7 @@ void main() {
     testWidgets('should show error snackbar when AuthError state', (tester) async {
       setUpScreenSize(tester);
       // Arrange
-      final failure = NetworkFailure();
+      const failure = NetworkFailure();
       when(() => mockAuthBloc.state).thenReturn(NotAuthenticated());
       when(() => mockAuthBloc.stream).thenAnswer(
         (_) => Stream.value(AuthError(failure)),

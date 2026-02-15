@@ -24,14 +24,14 @@ class RequestResetInputs extends StatelessWidget {
       children: [
         Text(
           l10n.emailLabel,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: Colors.black87
           ),
         ),
 
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
 
         TextFormField(
           controller: emailInputController,
@@ -78,10 +78,10 @@ class RequestResetInputs extends StatelessWidget {
 
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: PhotoManagerColors.primary, width: 2)
+              borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2)
             ),
 
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16)
           ),
         )
       ],

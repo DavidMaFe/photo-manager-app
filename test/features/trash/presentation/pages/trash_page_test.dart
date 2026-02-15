@@ -149,8 +149,8 @@ void main() {
   setUp(() {
     mockTrashBloc = MockTrashBloc();
     when(() => mockTrashBloc.stream)
-        .thenAnswer((_) => Stream.value(TrashInitial()));
-    when(() => mockTrashBloc.state).thenReturn(TrashInitial());
+        .thenAnswer((_) => Stream.value(const TrashInitial()));
+    when(() => mockTrashBloc.state).thenReturn(const TrashInitial());
   });
 
   Widget createWidgetUnderTest() {
@@ -220,7 +220,7 @@ void main() {
     testWidgets('should show loading indicator for TrashInitial state',
         (tester) async {
       // Arrange
-      when(() => mockTrashBloc.state).thenReturn(TrashInitial());
+      when(() => mockTrashBloc.state).thenReturn(const TrashInitial());
 
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
@@ -267,12 +267,12 @@ void main() {
         (tester) async {
       // Arrange
       when(() => mockTrashBloc.state).thenReturn(
-        TrashLoaded(
-          files: const [],
+        const TrashLoaded(
+          files: [],
           currentPage: 0,
           hasNext: false,
           isSelectionMode: false,
-          selectedFileIds: const {},
+          selectedFileIds: {},
         ),
       );
 
@@ -398,7 +398,7 @@ void main() {
           currentPage: 0,
           hasNext: true,
           isSelectionMode: true,
-          selectedFileIds: {'file-1'},
+          selectedFileIds: const {'file-1'},
         ),
       );
 
@@ -438,7 +438,7 @@ void main() {
           currentPage: 0,
           hasNext: true,
           isSelectionMode: true,
-          selectedFileIds: {'file-1', 'file-2'},
+          selectedFileIds: const {'file-1', 'file-2'},
         ),
       );
 
@@ -460,7 +460,7 @@ void main() {
           currentPage: 0,
           hasNext: true,
           isSelectionMode: true,
-          selectedFileIds: {'file-1', 'file-2'},
+          selectedFileIds: const {'file-1', 'file-2'},
         ),
       );
 
@@ -505,7 +505,7 @@ void main() {
           currentPage: 0,
           hasNext: true,
           isSelectionMode: true,
-          selectedFileIds: {'file-1'},
+          selectedFileIds: const {'file-1'},
         ),
       );
 
@@ -526,7 +526,7 @@ void main() {
           currentPage: 0,
           hasNext: true,
           isSelectionMode: true,
-          selectedFileIds: {'file-1'},
+          selectedFileIds: const {'file-1'},
         ),
       );
 
@@ -604,7 +604,7 @@ void main() {
           currentPage: 0,
           hasNext: false,
           isSelectionMode: true,
-          selectedFileIds: {'file-1', 'file-2'},
+          selectedFileIds: const {'file-1', 'file-2'},
         ),
       );
 

@@ -11,8 +11,8 @@ void main() {
 
     test('should be a subclass of GalleryPage entity', () {
       // Arrange
-      final model = GalleryPageModel(
-        files: const [],
+      const model = GalleryPageModel(
+        files: [],
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
@@ -175,8 +175,8 @@ void main() {
 
     test('should serialize empty files list to JSON', () {
       // Arrange
-      final model = GalleryPageModel(
-        files: const [],
+      const model = GalleryPageModel(
+        files: [],
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
@@ -258,8 +258,8 @@ void main() {
 
     test('should perform round-trip conversion with empty files', () {
       // Arrange
-      final original = GalleryPageModel(
-        files: const [],
+      const original = GalleryPageModel(
+        files: [],
         currentPage: 0,
         pageSize: 50,
         hasNext: false,

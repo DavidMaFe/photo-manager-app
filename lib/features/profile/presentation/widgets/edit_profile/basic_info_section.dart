@@ -104,7 +104,7 @@ class BasicInfoSection extends StatelessWidget {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: PhotoManagerColors.primary, width: 2),
+        borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       suffixIcon: suffixIcon,

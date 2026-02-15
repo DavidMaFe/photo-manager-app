@@ -21,25 +21,25 @@ class SyncSessionErrorView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.error_outline,
             size: 100,
             color: Color(0xFFF44336),
           ),
           const SizedBox(height: 16),
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Color(0xFFFFEBEE),
+              color: const Color(0xFFFFEBEE),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Color(0xFFEF5350),
+                color: const Color(0xFFEF5350),
                 width: 1
               )
             ),
             child: Text(
               message,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: Color(0xFFC62828)
               ),
@@ -58,7 +58,7 @@ class SyncSessionErrorView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8)
                 )
               ),
-              child: Text(l10n.tryAgain, style: TextStyle(
+              child: Text(l10n.tryAgain, style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.white
@@ -74,12 +74,12 @@ class SyncSessionErrorView extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: BorderSide(color: PhotoManagerColors.primary, width: 2),
+                    side: const BorderSide(color: PhotoManagerColors.primary, width: 2),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)
                     )
                 ),
-                child: Text(l10n.goBack, style: TextStyle(
+                child: Text(l10n.goBack, style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: PhotoManagerColors.primary

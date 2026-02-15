@@ -131,8 +131,8 @@ void main() {
 
         final contentModel = FolderContentModel(
           folder: folderModel,
-          subfolders: [],
-          files: [],
+          subfolders: const [],
+          files: const [],
           hasMoreFiles: false,
         );
 
@@ -175,8 +175,8 @@ void main() {
 
         final contentModel = FolderContentModel(
           folder: folderModel,
-          subfolders: [],
-          files: [],
+          subfolders: const [],
+          files: const [],
           hasMoreFiles: false,
         );
 
@@ -221,8 +221,8 @@ void main() {
 
         final contentModel = FolderContentModel(
           folder: folderModel,
-          subfolders: [],
-          files: [],
+          subfolders: const [],
+          files: const [],
           hasMoreFiles: false,
         );
 
@@ -265,8 +265,8 @@ void main() {
 
         final contentModel = FolderContentModel(
           folder: folderModel,
-          subfolders: [],
-          files: [],
+          subfolders: const [],
+          files: const [],
           hasMoreFiles: false,
         );
 
@@ -309,8 +309,8 @@ void main() {
 
         final contentModel = FolderContentModel(
           folder: folderModel,
-          subfolders: [],
-          files: [],
+          subfolders: const [],
+          files: const [],
           hasMoreFiles: false,
         );
 
@@ -353,8 +353,8 @@ void main() {
 
         final contentModel = FolderContentModel(
           folder: folderModel,
-          subfolders: [],
-          files: [],
+          subfolders: const [],
+          files: const [],
           hasMoreFiles: false,
         );
 

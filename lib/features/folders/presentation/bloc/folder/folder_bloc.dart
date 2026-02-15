@@ -103,7 +103,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
 
   Future<void> _onRenameFolder(RenameFolderRequested event, Emitter<FolderState> emit) async {
 
-    emit(FolderOperationLoading(operation: 'rename'));
+    emit(const FolderOperationLoading(operation: 'rename'));
     _isPerformingOperation = true;
 
     try {
@@ -133,7 +133,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
 
   Future<void> _onDeleteFolder(DeleteFolderRequested event, Emitter<FolderState> emit) async {
 
-    emit(FolderOperationLoading(operation: 'delete'));
+    emit(const FolderOperationLoading(operation: 'delete'));
     _isPerformingOperation = true;
 
     try {

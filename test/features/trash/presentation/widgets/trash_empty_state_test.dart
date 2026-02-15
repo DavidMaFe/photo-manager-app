@@ -5,10 +5,10 @@ import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 void main() {
   Widget createWidgetUnderTest() {
-    return MaterialApp(
+    return const MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const Scaffold(
+      home: Scaffold(
         body: TrashEmptyState(),
       ),
     );

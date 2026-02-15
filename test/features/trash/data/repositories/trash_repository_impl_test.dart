@@ -136,8 +136,8 @@ void main() {
 
     test('should return empty page when data source returns empty', () async {
       // Arrange
-      final emptyPageModel = TrashPageModel(
-        files: const [],
+      const emptyPageModel = TrashPageModel(
+        files: [],
         currentPage: 0,
         pageSize: 50,
         hasNext: false,

@@ -38,8 +38,7 @@ class _RegisterInputsState extends State<RegisterInputs> {
 
     final l10n = AppLocalizations.of(context)!;
 
-    return SingleChildScrollView(
-      child: Column(
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -189,7 +188,6 @@ class _RegisterInputsState extends State<RegisterInputs> {
             ),
           ),
         ],
-      ),
     );
   }
 
@@ -220,7 +218,7 @@ class _RegisterInputsState extends State<RegisterInputs> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: PhotoManagerColors.primary, width: 2),
+        borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       suffixIcon: suffixIcon,

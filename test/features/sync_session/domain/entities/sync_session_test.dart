@@ -5,7 +5,7 @@ void main() {
   group('SyncSession Entity', () {
     test('should create sync session with all fields', () {
       // Arrange
-      final id = 'session_123';
+      const id = 'session_123';
       final lastCompletedAt = DateTime(2024, 1, 15, 10, 30);
 
       // Act

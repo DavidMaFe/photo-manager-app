@@ -24,7 +24,7 @@ class BreadcrumbsBar extends StatelessWidget {
           onTap: () => onNavigate?.call(null),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.folder,
                 size: 20,
                 color: PhotoManagerColors.primary
@@ -32,7 +32,7 @@ class BreadcrumbsBar extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 l10n.folders,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   color: PhotoManagerColors.primary,
                   fontWeight: FontWeight.w500

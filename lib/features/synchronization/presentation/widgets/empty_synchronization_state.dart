@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -21,8 +20,8 @@ class EmptySynchronizationState extends StatelessWidget {
             Container(
               width: 120,
               height: 120,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF3F4F6),
                 shape: BoxShape.circle
               ),
               child: const Icon(
@@ -34,7 +33,7 @@ class EmptySynchronizationState extends StatelessWidget {
             const SizedBox(height: 24),
             Text(
               l10n.notSyncYet,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF111111)

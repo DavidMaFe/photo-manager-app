@@ -20,11 +20,11 @@ class LoginHeader extends StatelessWidget {
           height: 180,
         ),
 
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         Text(
           l10n.welcome,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
             color: Colors.black87

@@ -95,7 +95,7 @@ class SyncDeviceLocalDataSourceImpl implements SyncDeviceLocalDataSource {
       throw Exception("Platform not supported: ${Platform.operatingSystem}");
     }
 
-    final appVersion = "1.0.0"; // TODO: Obtener de package_info_plus
+    const appVersion = "1.0.0"; // TODO: Obtener de package_info_plus
 
     return SyncDeviceModel.fromRegistrationResponse(
       id: '',

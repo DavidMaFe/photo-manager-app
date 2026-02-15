@@ -163,8 +163,8 @@ class DeviceCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     // Actions: Rename and Delete
                     if (isPerformingAction)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
                         child: SizedBox(
                           width: 22,
                           height: 22,
@@ -182,7 +182,7 @@ class DeviceCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: IconButton(
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.edit_outlined,
                             color: PhotoManagerColors.primary,
                           ),
@@ -253,7 +253,7 @@ class DeviceCard extends StatelessWidget {
                           ),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.sync_rounded,
                           size: 20,
                           color: PhotoManagerColors.primary,

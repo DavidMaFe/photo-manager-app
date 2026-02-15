@@ -60,7 +60,7 @@ class SyncSessionUploading extends SyncSessionState {
   List<Object?> get props => [uploadCount, totalCount, currentFileName];
 
   @override
-  String toString() => 'SyncSessionUploading (uploaded: $uploadCount/$totalCount, ${progressPercentage}%)';
+  String toString() => 'SyncSessionUploading (uploaded: $uploadCount/$totalCount, $progressPercentage%)';
 }
 
 

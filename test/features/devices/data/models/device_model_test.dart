@@ -8,7 +8,7 @@ void main() {
     group('fromJson', () {
       test('should create DeviceModel from JSON with all fields', () {
         // Arrange
-        final json = TestDeviceJsonData.androidDeviceJson;
+        const json = TestDeviceJsonData.androidDeviceJson;
 
         // Act
         final result = DeviceModel.fromJson(json);
@@ -26,7 +26,7 @@ void main() {
 
       test('should convert integer deviceId to string', () {
         // Arrange
-        final json = TestDeviceJsonData.deviceJsonWithIntegerId;
+        const json = TestDeviceJsonData.deviceJsonWithIntegerId;
 
         // Act
         final result = DeviceModel.fromJson(json);
@@ -38,7 +38,7 @@ void main() {
 
       test('should default autoSync to false when not provided', () {
         // Arrange
-        final json = TestDeviceJsonData.deviceJsonWithoutAutoSync;
+        const json = TestDeviceJsonData.deviceJsonWithoutAutoSync;
 
         // Act
         final result = DeviceModel.fromJson(json);
@@ -49,7 +49,7 @@ void main() {
 
       test('should handle autoSyncEnabled false', () {
         // Arrange
-        final json = TestDeviceJsonData.iosDeviceJson;
+        const json = TestDeviceJsonData.iosDeviceJson;
 
         // Act
         final result = DeviceModel.fromJson(json);
@@ -60,7 +60,7 @@ void main() {
 
       test('should create iOS device from JSON', () {
         // Arrange
-        final json = TestDeviceJsonData.iosDeviceJson;
+        const json = TestDeviceJsonData.iosDeviceJson;
 
         // Act
         final result = DeviceModel.fromJson(json);
@@ -76,7 +76,7 @@ void main() {
     group('toJson', () {
       test('should convert DeviceModel to JSON', () {
         // Arrange
-        final device = DeviceModel(
+        const device = DeviceModel(
           id: '1',
           uuid: 'test-uuid',
           name: 'Test Device',
@@ -103,7 +103,7 @@ void main() {
 
       test('should handle autoSync false', () {
         // Arrange
-        final device = DeviceModel(
+        const device = DeviceModel(
           id: '2',
           uuid: 'test-uuid-2',
           name: 'Test Device 2',
@@ -160,7 +160,7 @@ void main() {
     group('inheritance', () {
       test('should extend Device entity', () {
         // Arrange
-        final model = DeviceModel(
+        const model = DeviceModel(
           id: '1',
           uuid: 'test-uuid',
           name: 'Test',
@@ -177,7 +177,7 @@ void main() {
 
       test('should have access to Device getters', () {
         // Arrange
-        final androidModel = DeviceModel(
+        const androidModel = DeviceModel(
           id: '1',
           uuid: 'test-uuid',
           name: 'Android Phone',
@@ -188,7 +188,7 @@ void main() {
           autoSync: true,
         );
 
-        final iosModel = DeviceModel(
+        const iosModel = DeviceModel(
           id: '2',
           uuid: 'test-uuid-2',
           name: 'iPhone',
@@ -211,7 +211,7 @@ void main() {
       test('should maintain data integrity through fromJson -> toJson cycle',
           () {
         // Arrange
-        final originalJson = TestDeviceJsonData.androidDeviceJson;
+        const originalJson = TestDeviceJsonData.androidDeviceJson;
 
         // Act
         final model = DeviceModel.fromJson(originalJson);

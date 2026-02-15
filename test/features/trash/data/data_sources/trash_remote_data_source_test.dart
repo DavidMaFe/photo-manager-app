@@ -219,7 +219,7 @@ void main() {
 
     test('should rethrow HttpException', () async {
       // Arrange
-      final exception = HttpException('HTTP error');
+      const exception = HttpException('HTTP error');
       when(() => mockHttpClient.get(
             any(),
             headers: any(named: 'headers'),
@@ -530,7 +530,7 @@ void main() {
 
     test('should rethrow HttpException', () async {
       // Arrange
-      final exception = HttpException('HTTP error');
+      const exception = HttpException('HTTP error');
       when(() => mockHttpClient.delete(
             any(),
             headers: any(named: 'headers'),

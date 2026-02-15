@@ -35,7 +35,7 @@ class SyncSessionProcessPage extends StatelessWidget {
             await _handleBackPressed(context, state, l10n);
           },
           child: Scaffold(
-            backgroundColor: Color(0xFFF5F5F5),
+            backgroundColor: const Color(0xFFF5F5F5),
             appBar: AppBar(
               title: Text(l10n.syncSessionTitle),
               backgroundColor: PhotoManagerColors.primary,
@@ -115,6 +115,6 @@ class SyncSessionProcessPage extends StatelessWidget {
   }
 
   Widget _buildCancelledView(BuildContext context, SyncSessionCancelling state) {
-    return CircularProgressIndicator();
+    return const CircularProgressIndicator();
   }
 }

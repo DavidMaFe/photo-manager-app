@@ -46,7 +46,7 @@ class SubfoldersSection extends StatelessWidget {
                 ),
                 child: Text(
                   '${subfolders.length}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: PhotoManagerColors.primary
@@ -119,7 +119,7 @@ class _SubfolderCard extends StatelessWidget {
                 color: PhotoManagerColors.primary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8)
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.folder,
                 color: PhotoManagerColors.primary,
                 size: 24,

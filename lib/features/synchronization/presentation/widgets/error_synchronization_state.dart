@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -29,8 +28,8 @@ class ErrorSynchronizationState extends StatelessWidget {
             Container(
               width: 120,
               height: 120,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEE2E2),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFEE2E2),
                 shape: BoxShape.circle
               ),
               child: const Icon(
@@ -42,7 +41,7 @@ class ErrorSynchronizationState extends StatelessWidget {
             const SizedBox(height: 24),
             Text(
               l10n.syncErrorLoad,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF111111)

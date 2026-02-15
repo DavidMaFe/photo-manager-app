@@ -80,7 +80,7 @@ class _RenameFolderModalState extends State<RenameFolderModal> {
                       color: PhotoManagerColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12)
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.edit,
                     color: PhotoManagerColors.primary,
                     size: 24,
@@ -126,7 +126,7 @@ class _RenameFolderModalState extends State<RenameFolderModal> {
                   ),
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                           color: PhotoManagerColors.primary,
                           width: 2
                       )

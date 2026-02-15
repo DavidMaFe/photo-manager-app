@@ -32,10 +32,10 @@ void main() {
     mockEventBus = MockAppEventBus();
 
     when(() => mockEventBus.on<FileUpdatedEvent>())
-        .thenAnswer((_) => Stream<FileUpdatedEvent>.empty());
+        .thenAnswer((_) => const Stream<FileUpdatedEvent>.empty());
 
     when(() => mockEventBus.on<FolderUpdatedEvent>())
-        .thenAnswer((_) => Stream<FolderUpdatedEvent>.empty());
+        .thenAnswer((_) => const Stream<FolderUpdatedEvent>.empty());
   });
 
 
@@ -184,8 +184,8 @@ void main() {
         setUp: () {
           final emptyContent = FolderContent(
             folder: testFolder,
-            subfolders: [],
-            files: [],
+            subfolders: const [],
+            files: const [],
             hasMoreFiles: false,
           );
 
@@ -224,8 +224,8 @@ void main() {
         ),
         seed: () => FolderContentLoaded(
           currentFolder: testFolder,
-          subfolders: [],
-          files: [],
+          subfolders: const [],
+          files: const [],
           groupedFiles: const [],
           hasMoreFiles: false,
           selectedFileIds: const {},
@@ -278,7 +278,7 @@ void main() {
 
           final nextPageContent = FolderContent(
             folder: testFolder,
-            subfolders: [],
+            subfolders: const [],
             files: moreFiles,
             hasMoreFiles: false,
           );

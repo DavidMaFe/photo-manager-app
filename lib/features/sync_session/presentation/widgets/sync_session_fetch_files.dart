@@ -17,15 +17,15 @@ class SyncSessionFetchFiles extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(strokeWidth: 4, color: PhotoManagerColors.primary),
+          const CircularProgressIndicator(strokeWidth: 4, color: PhotoManagerColors.primary),
           const SizedBox(height: 32),
-          Text(l10n.syncSessionFetchingFiles, style: TextStyle(
+          Text(l10n.syncSessionFetchingFiles, style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
             color: Color(0xFF212121)
           )),
           const SizedBox(height: 8),
-          Text(l10n.syncSessionWaitWarning, style: TextStyle(
+          Text(l10n.syncSessionWaitWarning, style: const TextStyle(
             fontSize: 14,
             color: Color(0xFF757575)
           ))

@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
-import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
@@ -247,7 +246,7 @@ void main() {
           currentPage: 0,
           hasNext: true,
           isSelectionMode: true,
-          selectedFileIds: {'file-1'},
+          selectedFileIds: const {'file-1'},
         ),
         act: (bloc) => bloc.add(const RefreshTrash()),
         wait: const Duration(milliseconds: 500),
@@ -318,7 +317,7 @@ void main() {
           currentPage: 0,
           hasNext: false,
           isSelectionMode: true,
-          selectedFileIds: {'file-1'},
+          selectedFileIds: const {'file-1'},
         ),
         act: (bloc) => bloc.add(const ToggleFileSelection('file-1')),
         expect: () => [
@@ -352,7 +351,7 @@ void main() {
           currentPage: 0,
           hasNext: false,
           isSelectionMode: true,
-          selectedFileIds: {'file-1', 'file-2'},
+          selectedFileIds: const {'file-1', 'file-2'},
         ),
         act: (bloc) => bloc.add(const ClearSelection()),
         expect: () => [
@@ -377,7 +376,7 @@ void main() {
           currentPage: 0,
           hasNext: false,
           isSelectionMode: true,
-          selectedFileIds: {'file-1'},
+          selectedFileIds: const {'file-1'},
         ),
         act: (bloc) => bloc.add(const RestoreSelectedFiles()),
         wait: const Duration(milliseconds: 2000),
@@ -406,7 +405,7 @@ void main() {
           currentPage: 0,
           hasNext: false,
           isSelectionMode: true,
-          selectedFileIds: {'file-1'},
+          selectedFileIds: const {'file-1'},
         ),
         act: (bloc) => bloc.add(const RestoreSelectedFiles()),
         wait: const Duration(milliseconds: 900),
@@ -475,7 +474,7 @@ void main() {
           currentPage: 0,
           hasNext: false,
           isSelectionMode: true,
-          selectedFileIds: {'file-1'},
+          selectedFileIds: const {'file-1'},
         ),
         act: (bloc) => bloc.add(const PermanentlyDeleteSelectedFiles()),
         wait: const Duration(milliseconds: 2000),
@@ -504,7 +503,7 @@ void main() {
           currentPage: 0,
           hasNext: false,
           isSelectionMode: true,
-          selectedFileIds: {'file-1'},
+          selectedFileIds: const {'file-1'},
         ),
         act: (bloc) => bloc.add(const PermanentlyDeleteSelectedFiles()),
         wait: const Duration(milliseconds: 900),

@@ -91,7 +91,7 @@ void main() {
 
     testWidgets('should display error state when state is SynchronizationError',
         (tester) async {
-      final errorState = SynchronizationError(NetworkFailure());
+      const errorState = SynchronizationError(NetworkFailure());
 
       await tester.pumpWidget(buildTestWidget(errorState));
 
@@ -99,7 +99,7 @@ void main() {
     });
 
     testWidgets('should trigger LoadSynchronizations on error retry', (tester) async {
-      final errorState = SynchronizationError(NetworkFailure());
+      const errorState = SynchronizationError(NetworkFailure());
 
       await tester.pumpWidget(buildTestWidget(errorState));
       await tester.pump();

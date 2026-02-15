@@ -12,8 +12,8 @@ void main() {
 
     test('should be a subclass of TrashPage entity', () {
       // Arrange
-      final model = TrashPageModel(
-        files: const [],
+      const model = TrashPageModel(
+        files: [],
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
@@ -314,8 +314,8 @@ void main() {
 
       test('should serialize empty files list to JSON', () {
         // Arrange
-        final model = TrashPageModel(
-          files: const [],
+        const model = TrashPageModel(
+          files: [],
           currentPage: 0,
           pageSize: 50,
           hasNext: false,
@@ -451,8 +451,8 @@ void main() {
 
       test('should perform round-trip conversion with empty files', () {
         // Arrange
-        final original = TrashPageModel(
-          files: const [],
+        const original = TrashPageModel(
+          files: [],
           currentPage: 0,
           pageSize: 50,
           hasNext: false,

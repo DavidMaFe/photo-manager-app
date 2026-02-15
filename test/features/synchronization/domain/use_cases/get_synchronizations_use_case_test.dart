@@ -122,8 +122,8 @@ void main() {
 
     test('should handle empty result', () async {
       // Arrange
-      final emptyResult = SynchronizationResult(
-        sessions: const [],
+      const emptyResult = SynchronizationResult(
+        sessions: [],
         hasNext: false,
       );
 

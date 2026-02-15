@@ -12,7 +12,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-        ManageAction(
+        const ManageAction(
             serverAction: ServerAction.save,
             keepOnDevice: true)
         );

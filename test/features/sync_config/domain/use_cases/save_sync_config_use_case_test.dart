@@ -83,7 +83,7 @@ void main() {
     group('validation - sync hour', () {
       test('should throw exception when sync hour is less than 0', () async {
         // Arrange
-        final invalidConfig = const SyncConfig(
+        const invalidConfig = SyncConfig(
           autoSyncEnabled: true,
           syncFrequency: SyncFrequency.daily,
           syncHour: -1,
@@ -111,7 +111,7 @@ void main() {
       test('should throw exception when sync hour is greater than 23',
           () async {
         // Arrange
-        final invalidConfig = const SyncConfig(
+        const invalidConfig = SyncConfig(
           autoSyncEnabled: true,
           syncFrequency: SyncFrequency.daily,
           syncHour: 24,
@@ -137,7 +137,7 @@ void main() {
 
       test('should accept sync hour at 0 (midnight)', () async {
         // Arrange
-        final midnightConfig = const SyncConfig(
+        const midnightConfig = SyncConfig(
           autoSyncEnabled: true,
           syncFrequency: SyncFrequency.daily,
           syncHour: 0,
@@ -159,7 +159,7 @@ void main() {
 
       test('should accept sync hour at 23', () async {
         // Arrange
-        final lateConfig = const SyncConfig(
+        const lateConfig = SyncConfig(
           autoSyncEnabled: true,
           syncFrequency: SyncFrequency.daily,
           syncHour: 23,
@@ -183,7 +183,7 @@ void main() {
     group('validation - sync minute', () {
       test('should throw exception when sync minute is less than 0', () async {
         // Arrange
-        final invalidConfig = const SyncConfig(
+        const invalidConfig = SyncConfig(
           autoSyncEnabled: true,
           syncFrequency: SyncFrequency.daily,
           syncHour: 2,
@@ -210,7 +210,7 @@ void main() {
       test('should throw exception when sync minute is greater than 59',
           () async {
         // Arrange
-        final invalidConfig = const SyncConfig(
+        const invalidConfig = SyncConfig(
           autoSyncEnabled: true,
           syncFrequency: SyncFrequency.daily,
           syncHour: 2,
@@ -248,7 +248,7 @@ void main() {
 
       test('should accept sync minute at 59', () async {
         // Arrange
-        final config59 = const SyncConfig(
+        const config59 = SyncConfig(
           autoSyncEnabled: true,
           syncFrequency: SyncFrequency.daily,
           syncHour: 2,
@@ -273,7 +273,7 @@ void main() {
       test('should throw exception when weekly sync has null day of week',
           () async {
         // Arrange
-        final invalidWeeklyConfig = const SyncConfig(
+        const invalidWeeklyConfig = SyncConfig(
           autoSyncEnabled: true,
           syncFrequency: SyncFrequency.weekly,
           syncHour: 2,
@@ -300,7 +300,7 @@ void main() {
 
       test('should throw exception when day of week is less than 1', () async {
         // Arrange
-        final invalidConfig = const SyncConfig(
+        const invalidConfig = SyncConfig(
           autoSyncEnabled: true,
           syncFrequency: SyncFrequency.weekly,
           syncHour: 2,
@@ -328,7 +328,7 @@ void main() {
       test('should throw exception when day of week is greater than 7',
           () async {
         // Arrange
-        final invalidConfig = const SyncConfig(
+        const invalidConfig = SyncConfig(
           autoSyncEnabled: true,
           syncFrequency: SyncFrequency.weekly,
           syncHour: 2,

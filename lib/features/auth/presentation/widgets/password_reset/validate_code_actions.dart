@@ -23,8 +23,7 @@ class ValidateCodeActions extends StatelessWidget {
 
     final l10n = AppLocalizations.of(context)!;
 
-    return Expanded(
-      child: Column(
+    return Column(
         children: [
           SizedBox(
             width: double.infinity,
@@ -51,7 +50,7 @@ class ValidateCodeActions extends StatelessWidget {
                 )
                 : Text(
                   l10n.validateCodeButton,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600
                   ),
@@ -87,7 +86,6 @@ class ValidateCodeActions extends StatelessWidget {
             )
           )
         ],
-      ),
     );
   }
 }

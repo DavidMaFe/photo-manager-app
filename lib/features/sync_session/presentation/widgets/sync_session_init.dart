@@ -17,15 +17,15 @@ class SyncSessionInit extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(strokeWidth: 4, color: PhotoManagerColors.primary),
+          const CircularProgressIndicator(strokeWidth: 4, color: PhotoManagerColors.primary),
           const SizedBox(height: 32),
-          Text(l10n.syncSessionInit, style: TextStyle(
+          Text(l10n.syncSessionInit, style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
             color: Color(0xFF212121)
           )),
           const SizedBox(height: 8),
-          Text(l10n.syncSessionConnecting, style: TextStyle(
+          Text(l10n.syncSessionConnecting, style: const TextStyle(
             fontSize: 14,
             color: Color(0xFF757575)
           ))

@@ -136,7 +136,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
                 color: PhotoManagerColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.tune,
                 color: PhotoManagerColors.primary,
                 size: 24,

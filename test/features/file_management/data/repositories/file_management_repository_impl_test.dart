@@ -17,8 +17,8 @@ class MockAppDatabase extends Mock implements AppDatabase {}
 void main() {
   setUpAll(() {
     registerFallbackValue(
-      ManageFileRequestModel(
-        fileIds: const [],
+      const ManageFileRequestModel(
+        fileIds: [],
         serverAction: 'SAVE',
         keepOnDevice: true,
       ),

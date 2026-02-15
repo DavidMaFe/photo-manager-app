@@ -16,7 +16,7 @@ class SyncSessionSuccessView extends StatelessWidget {
 
     final l10n = AppLocalizations.of(context)!;
     final isFullSuccess = result.isSuccess;
-    final iconColor = isFullSuccess ? Color(0xFF4CAF50) : Color(0xFFFF9800);
+    final iconColor = isFullSuccess ? const Color(0xFF4CAF50) : const Color(0xFFFF9800);
     final icon = isFullSuccess ? Icons.check_circle : Icons.info_outline;
     final title = isFullSuccess ? l10n.syncSessionCompleted : l10n.syncSessionFinished;
 
@@ -33,7 +33,7 @@ class SyncSessionSuccessView extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Color(0xFF212121)
@@ -48,19 +48,19 @@ class SyncSessionSuccessView extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Color(0xFFE0E0E0),
+                color: const Color(0xFFE0E0E0),
                 width: 1
               )
             ),
             child: Column(
               children: [
-                _buildStatRow(label: l10n.total, value: l10n.infoFiles(result.totalFiles), color: Color(0xFF757575)),
+                _buildStatRow(label: l10n.total, value: l10n.infoFiles(result.totalFiles), color: const Color(0xFF757575)),
                 const SizedBox(height: 16),
-                _buildStatRow(label: l10n.uploaded, value: l10n.infoFiles(result.uploadedFiles), color: Color(0xFF4CAF50)),
+                _buildStatRow(label: l10n.uploaded, value: l10n.infoFiles(result.uploadedFiles), color: const Color(0xFF4CAF50)),
 
                 if (result.failedFiles > 0) ...[
                   const SizedBox(height: 16),
-                  _buildStatRow(label: l10n.failed, value: l10n.infoFiles(result.failedFiles), color: Color(0xFFF44336)),
+                  _buildStatRow(label: l10n.failed, value: l10n.infoFiles(result.failedFiles), color: const Color(0xFFF44336)),
                 ]
               ],
             ),
@@ -79,7 +79,7 @@ class SyncSessionSuccessView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8)
                 )
               ),
-              child: Text(l10n.goBack, style: TextStyle(
+              child: Text(l10n.goBack, style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.white
@@ -96,7 +96,7 @@ class SyncSessionSuccessView extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(
+        Text(label, style: const TextStyle(
           fontSize: 16,
           color: Color(0xFF757575)
         )),

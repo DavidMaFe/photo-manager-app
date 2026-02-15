@@ -268,8 +268,8 @@ void main() {
 
     test('should return empty page when data source returns empty', () async {
       // Arrange
-      final emptyPageModel = GalleryPageModel(
-        files: const [],
+      const emptyPageModel = GalleryPageModel(
+        files: [],
         currentPage: 0,
         pageSize: 50,
         hasNext: false,

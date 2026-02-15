@@ -23,7 +23,7 @@ class TrashFileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseUrl = DataConstants.backendBaseUrl;
+    const baseUrl = DataConstants.backendBaseUrl;
     final thumbnailUrl = '$baseUrl/api/file/${file.id}/thumbnail/';
 
     return GestureDetector(

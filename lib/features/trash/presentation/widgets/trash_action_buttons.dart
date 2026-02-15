@@ -72,10 +72,10 @@ class TrashActionButtons extends StatelessWidget {
                 heroTag: 'delete_button',
                 backgroundColor: Colors.white,
                 elevation: 0,
-                icon: Icon(Icons.delete_forever, size: 20, color: PhotoManagerColors.primary),
+                icon: const Icon(Icons.delete_forever, size: 20, color: PhotoManagerColors.primary),
                 label: Text(
                   l10n.delete,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     color: PhotoManagerColors.primary,
                     fontSize: 14,

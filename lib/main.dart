@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +20,11 @@ import 'core/injection_container.dart' as di;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Hide system navigation bar completely (immersive sticky).
+  // The bar appears briefly as a semi-transparent overlay when the user
+  // swipes from the edge, then auto-hides again.
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   // Initialize dependency injection
   await di.init();
@@ -56,24 +62,49 @@ void main() async {
   runApp(MyApp(authBloc: authBloc, router: router));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
 
   final AuthBloc authBloc;
   final GoRouter router;
 
   const MyApp({super.key, required this.authBloc, required this.router});
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Android resets system UI on resume — reapply immersive mode.
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: authBloc),
+        BlocProvider.value(value: widget.authBloc),
       ],
       child: MaterialApp.router(
         title: 'Photo Manager',
-        routerConfig: router,
+        routerConfig: widget.router,
 
         localizationsDelegates: const [
           AppLocalizations.delegate,

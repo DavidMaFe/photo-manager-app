@@ -191,7 +191,7 @@ void main() {
               .thenAnswer((_) async => subfolders);
         },
         build: () => bloc,
-        seed: () => FolderLoaded(folders: const [], currentParentId: 'parent-1'),
+        seed: () => const FolderLoaded(folders: [], currentParentId: 'parent-1'),
         act: (bloc) => bloc.add(const RefreshFolders()),
         expect: () => [
           isA<FolderLoaded>()

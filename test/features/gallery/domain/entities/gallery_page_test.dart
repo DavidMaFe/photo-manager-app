@@ -81,8 +81,8 @@ void main() {
 
     test('should return true for isEmpty when files list is empty', () {
       // Arrange
-      final galleryPage = GalleryPage(
-        files: const [],
+      const galleryPage = GalleryPage(
+        files: [],
         currentPage: 0,
         pageSize: 50,
         hasNext: false,

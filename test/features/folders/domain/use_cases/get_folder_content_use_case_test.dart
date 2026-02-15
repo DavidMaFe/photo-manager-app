@@ -204,7 +204,7 @@ void main() {
       final videoContent = FolderContent(
         folder: testFolder,
         subfolders: testSubfolders,
-        files: [],
+        files: const [],
         hasMoreFiles: false,
       );
 
@@ -246,8 +246,8 @@ void main() {
 
       final emptyContent = FolderContent(
         folder: emptyFolder,
-        subfolders: [],
-        files: [],
+        subfolders: const [],
+        files: const [],
         hasMoreFiles: false,
       );
 
@@ -306,7 +306,7 @@ void main() {
 
       final secondPageContent = FolderContent(
         folder: testFolder,
-        subfolders: [],
+        subfolders: const [],
         files: secondPageFiles,
         hasMoreFiles: false,
       );
@@ -417,7 +417,7 @@ void main() {
       final subfolder = testSubfolders[0];
       final subfolderContent = FolderContent(
         folder: subfolder,
-        subfolders: [],
+        subfolders: const [],
         files: testFiles,
         hasMoreFiles: false,
       );

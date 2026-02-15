@@ -157,8 +157,8 @@ void main() {
       blocTest<SynchronizationBloc, SynchronizationState>(
         'should handle empty result',
         build: () {
-          final emptyResult = SynchronizationResult(
-            sessions: const [],
+          const emptyResult = SynchronizationResult(
+            sessions: [],
             hasNext: false,
           );
           when(() => mockGetSynchronizationsUseCase(

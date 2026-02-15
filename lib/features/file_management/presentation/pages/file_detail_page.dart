@@ -82,7 +82,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
       ),
       title: Text(
         l10n.fileCountLabel(_currentIndex + 1, widget.files.length),
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
       ),
       actions: [
         if (_currentFile.isPending)
@@ -121,7 +121,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
 
   Widget _buildMediaViewer(GalleryFile file, AppLocalizations l10n) {
 
-    final baseUrl = DataConstants.backendBaseUrl;
+    const baseUrl = DataConstants.backendBaseUrl;
     final fullUrl = '$baseUrl/api/file/${file.id}/';
 
     if (file.isImage) {
@@ -141,7 +141,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
     } else if (file.isVideo) {
       return Container(
         color: Colors.black,
-        padding: EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: VideoPlayerWidget(
           videoUrl: fullUrl,
           key: ValueKey(file.id),
@@ -428,7 +428,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
                     ),
                     child: Text(
                       l10n.close,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: PhotoManagerColors.primary,
                         fontWeight: FontWeight.w600,
                         fontSize: 16

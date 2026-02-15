@@ -295,7 +295,7 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
       currentPage: currentState.currentPage,
       hasNext: currentState.hasNext,
       isSelectionMode: false,
-      selectedFileIds: {},
+      selectedFileIds: const {},
     ));
 
     final stopwatch = Stopwatch()..start();

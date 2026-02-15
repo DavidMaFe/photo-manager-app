@@ -208,7 +208,7 @@ class SyncNotificationService {
         iOS: iosDetails,
       );
 
-      final title = 'Sync completed';
+      const title = 'Sync completed';
       final body = filesUploaded == 0
           ? 'All files already synced'
           : filesUploaded == 1

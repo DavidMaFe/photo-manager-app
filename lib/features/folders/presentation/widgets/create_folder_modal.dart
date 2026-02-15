@@ -72,7 +72,7 @@ class _CreateFolderModalState extends State<CreateFolderModal> {
                     color: PhotoManagerColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12)
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.create_new_folder,
                     color: PhotoManagerColors.primary,
                     size: 24,
@@ -103,7 +103,7 @@ class _CreateFolderModalState extends State<CreateFolderModal> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                     color: PhotoManagerColors.primary,
                     width: 2
                   )

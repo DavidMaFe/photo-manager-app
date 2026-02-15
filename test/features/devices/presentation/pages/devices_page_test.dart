@@ -67,7 +67,7 @@ void main() {
 
     testWidgets('should display error display when state is DeviceError',
         (tester) async {
-      final errorState = DeviceError(NetworkFailure());
+      final errorState = DeviceError(const NetworkFailure());
 
       await tester.pumpWidget(buildTestWidget(errorState));
       await tester.pumpAndSettle();
@@ -77,7 +77,7 @@ void main() {
     });
 
     testWidgets('should trigger LoadDevices on error retry', (tester) async {
-      final errorState = DeviceError(NetworkFailure());
+      final errorState = DeviceError(const NetworkFailure());
 
       await tester.pumpWidget(buildTestWidget(errorState));
       await tester.pumpAndSettle();
@@ -169,7 +169,7 @@ void main() {
 
     testWidgets('should show error snackbar when state is DeviceError',
         (tester) async {
-      final errorState = DeviceError(NetworkFailure());
+      final errorState = DeviceError(const NetworkFailure());
 
       when(() => mockBloc.state).thenReturn(errorState);
       when(() => mockBloc.stream).thenAnswer((_) => Stream.value(errorState));
