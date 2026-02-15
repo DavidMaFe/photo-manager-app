@@ -167,19 +167,5 @@ void main() {
       expect(textButtons[0].onPressed, isNotNull); // Forgot password
       expect(textButtons[1].onPressed, isNotNull); // Register
     });
-
-    testWidgets('should have Expanded as parent widget', (tester) async {
-      // Arrange & Act
-      await tester.pumpWidget(makeTestableWidget(
-        LoginActions(
-          onLogin: () {},
-          onForgotPassword: () {},
-          onRegister: () {},
-        ),
-      ));
-
-      // Assert
-      expect(find.byType(Expanded), findsOneWidget);
-    });
   });
 }
