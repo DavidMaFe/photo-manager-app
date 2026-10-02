@@ -95,6 +95,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/branding/
 
   # Plus Jakarta Sans (OFL, see assets/fonts/OFL.txt). Bundled instead of
   # google_fonts to avoid runtime downloads.
@@ -142,17 +143,22 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/photo_manager_logo.png"
-  adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/images/photo_manager_logo.png"
+  image_path: "assets/branding/app_icon.png"
+  adaptive_icon_background: "#5146E5"
+  adaptive_icon_foreground: "assets/branding/app_icon_foreground.png"
+  remove_alpha_ios: true
 
 # Flutter Native Splash Configuration
 flutter_native_splash:
-  color: "#FFFFFF"
-  image: "assets/images/photo_manager_logo.png"
+  color: "#F7F7F9"
+  image: "assets/branding/splash_logo.png"
+  color_dark: "#0E0E12"
+  image_dark: "assets/branding/splash_logo_dark.png"
   android: true
   ios: true
   web: false
   android_12:
-    color: "#FFFFFF"
-    image: "assets/images/photo_manager_logo.png"
+    color: "#F7F7F9"
+    image: "assets/branding/splash_logo.png"
+    color_dark: "#0E0E12"
+    image_dark: "assets/branding/splash_logo_dark.png"
