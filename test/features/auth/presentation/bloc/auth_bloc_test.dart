@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
@@ -72,7 +73,8 @@ void main() {
         resetPasswordUseCase: mockResetPasswordUseCase,
         authRepository: mockAuthRepository,
         syncDeviceRepository: mockSyncDeviceRepository,
-        refreshTokenUseCase: mockRefreshTokenUseCase
+        refreshTokenUseCase: mockRefreshTokenUseCase,
+        eventBus: AppEventBus(),
     );
   });
 

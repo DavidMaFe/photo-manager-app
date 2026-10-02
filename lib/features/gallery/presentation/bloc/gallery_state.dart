@@ -36,7 +36,11 @@ class GalleryLoaded extends GalleryState {
   final Set<String> selectedFileIds;
   final bool hasNext;
   final int currentPage;
+  final int totalFilesCount;
+  final int totalPendingCount;
   final FileFilter filter;
+  final bool selectionLimitReached;
+  final bool isRefreshing;
 
   const GalleryLoaded({
     required this.files,
@@ -45,13 +49,19 @@ class GalleryLoaded extends GalleryState {
     required this.selectedFileIds,
     required this.hasNext,
     required this.currentPage,
-    required this.filter
+    required this.totalFilesCount,
+    required this.totalPendingCount,
+    required this.filter,
+    this.selectionLimitReached = false,
+    this.isRefreshing = false,
   });
 
-  int get pendingCount => files.where((f) => f.isPending).length;
+  int get pendingCount => totalPendingCount;
   bool get hasPendingFiles => pendingCount > 0;
   bool get isEmpty => files.isEmpty;
-  bool get areAllFilesSelected => files.isNotEmpty && selectedFileIds.length == files.length;
+  bool get areAllFilesSelected =>
+      files.isNotEmpty &&
+      (selectedFileIds.length == files.length || selectedFileIds.length >= 100);
 
   GalleryLoaded copyWith({
     List<GalleryFile>? files,
@@ -60,7 +70,11 @@ class GalleryLoaded extends GalleryState {
     Set<String>? selectedFileIds,
     bool? hasNext,
     int? currentPage,
-    FileFilter? filter
+    int? totalFilesCount,
+    int? totalPendingCount,
+    FileFilter? filter,
+    bool selectionLimitReached = false,
+    bool isRefreshing = false,
   }) {
     return GalleryLoaded(
       files: files ?? this.files,
@@ -69,13 +83,17 @@ class GalleryLoaded extends GalleryState {
       selectedFileIds: selectedFileIds ?? this.selectedFileIds,
       hasNext: hasNext ?? this.hasNext,
       currentPage: currentPage ?? this.currentPage,
-      filter: filter ?? this.filter
+      totalFilesCount: totalFilesCount ?? this.totalFilesCount,
+      totalPendingCount: totalPendingCount ?? this.totalPendingCount,
+      filter: filter ?? this.filter,
+      selectionLimitReached: selectionLimitReached,
+      isRefreshing: isRefreshing,
     );
   }
 
   @override
   List<Object?> get props => [files, groupedFiles, isSelectionMode, selectedFileIds, hasNext,
-    currentPage, filter];
+    currentPage, totalFilesCount, totalPendingCount, filter, selectionLimitReached, isRefreshing];
 }
 
 
@@ -86,6 +104,8 @@ class GalleryLoadingMore extends GalleryState {
   final bool isSelectionMode;
   final Set<String> selectedFileIds;
   final int currentPage;
+  final int totalFilesCount;
+  final int totalPendingCount;
   final FileFilter filter;
 
   const GalleryLoadingMore({
@@ -94,10 +114,12 @@ class GalleryLoadingMore extends GalleryState {
     required this.isSelectionMode,
     required this.selectedFileIds,
     required this.currentPage,
+    required this.totalFilesCount,
+    required this.totalPendingCount,
     required this.filter
   });
 
-  int get pendingCount => files.where((f) => f.isPending).length;
+  int get pendingCount => totalPendingCount;
   bool get hasPendingFiles => pendingCount > 0;
 
   GalleryLoadingMore copyWith({
@@ -106,6 +128,8 @@ class GalleryLoadingMore extends GalleryState {
     bool? isSelectionMode,
     Set<String>? selectedFileIds,
     int? currentPage,
+    int? totalFilesCount,
+    int? totalPendingCount,
     FileFilter? filter
   }) {
     return GalleryLoadingMore(
@@ -114,12 +138,14 @@ class GalleryLoadingMore extends GalleryState {
         isSelectionMode: isSelectionMode ?? this.isSelectionMode,
         selectedFileIds: selectedFileIds ?? this.selectedFileIds,
         currentPage: currentPage ?? this.currentPage,
+        totalFilesCount: totalFilesCount ?? this.totalFilesCount,
+        totalPendingCount: totalPendingCount ?? this.totalPendingCount,
         filter: filter ?? this.filter
     );
   }
 
   @override
-  List<Object?> get props => [files, groupedFiles, isSelectionMode, selectedFileIds, currentPage, filter];
+  List<Object?> get props => [files, groupedFiles, isSelectionMode, selectedFileIds, currentPage, totalFilesCount, totalPendingCount, filter];
 }
 
 

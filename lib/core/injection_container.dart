@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/network/authenticated_http_client.dart';
 import 'package:photo_manager_app/core/services/background_sync_service.dart';
+import 'package:photo_manager_app/core/services/sync_log_service.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
@@ -120,6 +121,10 @@ Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
+  // Persistent sync log — registered immediately after SharedPreferences so it
+  // is available in both the main isolate and the WorkManager background isolate.
+  sl.registerLazySingleton(() => SyncLogService(sl<SharedPreferences>()));
+
   // Core Services
   sl.registerLazySingleton(() => UiPreferencesService(sl()));
 
@@ -149,6 +154,7 @@ Future<void> init() async {
       authRepository: sl<AuthRepository>(),
       sharedPreferences: sl<SharedPreferences>(),
       notificationService: sl<SyncNotificationService>(),
+      syncLogService: sl<SyncLogService>(),
     ),
   );
 
@@ -399,11 +405,13 @@ Future<void> init() async {
         final plainClient = sl<http.Client>();
         final authLocalDataSource = sl<AuthLocalDataSource>();
         final authRepository = sl<AuthRepository>();
+        final eventBus = sl<AppEventBus>();
 
         return AuthenticatedHttpClient(
           client: plainClient,
           authLocalDataSource: authLocalDataSource,
           onTokenRefresh: () => authRepository.refreshToken(),
+          eventBus: eventBus,
         );
       }
   );
@@ -672,6 +680,7 @@ Future<void> init() async {
         final resetPasswordUseCase = sl<ResetPasswordUseCase>();
         final authRepository = sl<AuthRepository>();
         final syncDeviceRepository = sl<SyncDeviceRepository>();
+        final eventBus = sl<AppEventBus>();
         return AuthBloc(
             loginUseCase: loginUseCase,
             registerUseCase: registerUseCase,
@@ -682,7 +691,8 @@ Future<void> init() async {
             validateResetCodeUseCase: validateResetCodeUseCase,
             resetPasswordUseCase: resetPasswordUseCase,
             authRepository: authRepository,
-            syncDeviceRepository: syncDeviceRepository
+            syncDeviceRepository: syncDeviceRepository,
+            eventBus: eventBus,
         );
       }
   );

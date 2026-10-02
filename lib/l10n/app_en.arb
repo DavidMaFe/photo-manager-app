@@ -46,6 +46,15 @@
   "syncToHaveFiles": "Synchronize your devices to see your files",
   "selectedFilesSingle": "1 selected",
   "selectedFiles": "{files} selected",
+  "selectedFilesWithLimit": "{count} / 100 selected",
+  "@selectedFilesWithLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectionLimitReached": "You can only select up to 100 files at a time.",
   "noFolders": "You don't have any folder. Create a new one.",
   "selectFolder": "Select one folder",
   "quickActionsTitle": "QUICK ACTIONS",

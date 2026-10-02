@@ -10,7 +10,8 @@ class FolderContentModel extends FolderContent {
     required super.folder,
     required super.subfolders,
     required super.files,
-    required super.hasMoreFiles
+    required super.hasMoreFiles,
+    required super.totalFilesCount
   });
 
   factory FolderContentModel.fromJson(Map<String, dynamic> json,
@@ -26,12 +27,14 @@ class FolderContentModel extends FolderContent {
     final files = filesContent.map((json) => GalleryFileModel.fromJson(json as Map<String, dynamic>)).toList();
 
     final hasNext = filesJson['hasNext'] as bool? ?? false;
+    final totalCount = filesJson['totalCount'] as int? ?? 0;
 
     return FolderContentModel(
       folder: folder,
       subfolders: subfolders,
       files: files,
-      hasMoreFiles: hasNext
+      hasMoreFiles: hasNext,
+      totalFilesCount: totalCount
     );
   }
 
@@ -44,7 +47,8 @@ class FolderContentModel extends FolderContent {
       folder: contents.folder,
       subfolders: contents.subfolders,
       files: contents.files,
-      hasMoreFiles: contents.hasMoreFiles
+      hasMoreFiles: contents.hasMoreFiles,
+      totalFilesCount: contents.totalFilesCount
     );
   }
 }

@@ -8,12 +8,16 @@ class GalleryPage extends Equatable {
   final int currentPage;
   final int pageSize;
   final bool hasNext;
+  final int totalFilesCount;
+  final int totalPendingCount;
 
   const GalleryPage({
     required this.files,
     required this.currentPage,
     required this.pageSize,
-    required this.hasNext
+    required this.hasNext,
+    required this.totalFilesCount,
+    required this.totalPendingCount
   });
 
   factory GalleryPage.empty() {
@@ -21,7 +25,9 @@ class GalleryPage extends Equatable {
       files: [],
       currentPage: 0,
       pageSize: 0,
-      hasNext: false
+      hasNext: false,
+      totalFilesCount: 0,
+      totalPendingCount: 0
     );
   }
 
@@ -35,16 +41,20 @@ class GalleryPage extends Equatable {
     List<GalleryFile>? files,
     int? currentPage,
     int? pageSize,
-    bool? hasNext
+    bool? hasNext,
+    int? totalFilesCount,
+    int? totalPendingCount
   }) {
     return GalleryPage(
       files:  files ?? this.files,
       currentPage: currentPage ?? this.currentPage,
       pageSize: pageSize ?? this.pageSize,
-      hasNext: hasNext ?? this.hasNext
+      hasNext: hasNext ?? this.hasNext,
+      totalFilesCount: totalFilesCount ?? this.totalFilesCount,
+      totalPendingCount: totalPendingCount ?? this.totalPendingCount
     );
   }
 
   @override
-  List<Object?> get props => [files, currentPage, pageSize, hasNext];
+  List<Object?> get props => [files, currentPage, pageSize, hasNext, totalFilesCount, totalPendingCount];
 }

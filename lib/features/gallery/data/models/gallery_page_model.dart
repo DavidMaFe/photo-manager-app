@@ -8,7 +8,9 @@ class GalleryPageModel extends GalleryPage {
     required super.files,
     required super.currentPage,
     required super.pageSize,
-    required super.hasNext
+    required super.hasNext,
+    required super.totalFilesCount,
+    required super.totalPendingCount
   });
 
   factory GalleryPageModel.fromJson(
@@ -20,11 +22,16 @@ class GalleryPageModel extends GalleryPage {
         .map((fileJson) => GalleryFileModel.fromJson(fileJson as Map<String, dynamic>))
         .toList();
 
+    final totalCount = json['totalCount'] as int? ?? 0;
+    final totalPending = json['totalPendingCount'] as int? ?? 0;
+
     return GalleryPageModel(
       files: filesList,
       currentPage: currentPage,
       pageSize: pageSize,
-      hasNext: json['hasNext'] as bool
+      hasNext: json['hasNext'] as bool,
+      totalFilesCount: totalCount,
+      totalPendingCount: totalPending
     );
   }
 
@@ -33,7 +40,9 @@ class GalleryPageModel extends GalleryPage {
       'files': files.map((file) => GalleryFileModel.fromEntity(file).toJson()).toList(),
       'currentPage': currentPage,
       'pageSize': pageSize,
-      'hasNext': hasNext
+      'hasNext': hasNext,
+      'totalCount': totalFilesCount,
+      'totalPendingCount': totalPendingCount
     };
   }
 }

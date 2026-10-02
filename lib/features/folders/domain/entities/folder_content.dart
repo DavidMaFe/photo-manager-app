@@ -10,12 +10,14 @@ class FolderContent extends Equatable {
   final List<Folder> subfolders;
   final List<GalleryFile> files;
   final bool hasMoreFiles;
+  final int totalFilesCount;
 
   const FolderContent({
     required this.folder,
     required this.subfolders,
     required this.files,
-    required this.hasMoreFiles
+    required this.hasMoreFiles,
+    required this.totalFilesCount
   });
 
   bool get hasSubfolders => subfolders.isNotEmpty;
@@ -26,18 +28,18 @@ class FolderContent extends Equatable {
     Folder? folder,
     List<Folder>? subfolders,
     List<GalleryFile>? files,
-    int? totalFiles,
-    int? currentPage,
+    int? totalFilesCount,
     bool? hasMoreFiles
   }) {
     return FolderContent(
       folder: folder ?? this.folder,
       subfolders: subfolders ?? this.subfolders,
       files: files ?? this.files,
-      hasMoreFiles: hasMoreFiles ?? this.hasMoreFiles
+      hasMoreFiles: hasMoreFiles ?? this.hasMoreFiles,
+      totalFilesCount: totalFilesCount ?? this.totalFilesCount
     );
   }
 
   @override
-  List<Object?> get props => [folder, subfolders, files, hasMoreFiles];
+  List<Object?> get props => [folder, subfolders, files, hasMoreFiles, totalFilesCount];
 }

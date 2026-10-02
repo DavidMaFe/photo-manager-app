@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/constants/app_constants.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
@@ -76,6 +77,8 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
         selectedFileIds: const {},
         hasNext: result.hasNext,
         currentPage: result.currentPage,
+        totalFilesCount: result.totalFilesCount,
+        totalPendingCount: result.totalPendingCount,
         filter: event.filter
       ));
 
@@ -98,6 +101,8 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
       isSelectionMode: currentState.isSelectionMode,
       selectedFileIds: currentState.selectedFileIds,
       currentPage: currentState.currentPage,
+      totalFilesCount: currentState.totalFilesCount,
+      totalPendingCount: currentState.totalPendingCount,
       filter:  currentState.filter
     ));
 
@@ -122,6 +127,8 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
         selectedFileIds: currentState.selectedFileIds,
         hasNext: result.hasNext,
         currentPage: nextPage,
+        totalFilesCount: result.totalFilesCount,
+        totalPendingCount: result.totalPendingCount,
         filter: currentState.filter
       ));
 
@@ -138,21 +145,22 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     Set<String> selectedFileIds = {};
 
     if (state is GalleryLoaded) {
-
-      GalleryLoaded currentState = state as GalleryLoaded;
+      final currentState = state as GalleryLoaded;
       currentFilter = currentState.filter;
       isSelectionMode = currentState.isSelectionMode;
       selectedFileIds = currentState.selectedFileIds;
-
+      // Signal refresh in progress — keeps FilesGrid alive so scroll position is preserved
+      emit(currentState.copyWith(isRefreshing: true));
     } else if (state is GalleryLoadingMore) {
-
-      GalleryLoadingMore currentState = state as GalleryLoadingMore;
-      currentFilter = (state as GalleryLoadingMore).filter;
+      final currentState = state as GalleryLoadingMore;
+      currentFilter = currentState.filter;
       isSelectionMode = currentState.isSelectionMode;
       selectedFileIds = currentState.selectedFileIds;
+      // Grid is already visible in GalleryLoadingMore — no intermediate emit needed
+    } else {
+      // No content yet (error / starting state) — fall back to full loading spinner
+      emit(GalleryLoading(filter: currentFilter));
     }
-
-    emit(GalleryLoading(filter: currentFilter));
 
     try {
 
@@ -166,7 +174,6 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
       // Exit selection mode if no files remain selected
       final shouldExitSelectionMode = isSelectionMode && cleanedSelectedIds.isEmpty;
 
-      await Future.delayed(const Duration(milliseconds: 400));
       emit(GalleryLoaded(
         files: result.files,
         groupedFiles: groupedFiles,
@@ -174,7 +181,10 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
         selectedFileIds: cleanedSelectedIds,
         hasNext: result.hasNext,
         currentPage: result.currentPage,
-        filter: currentFilter
+        totalFilesCount: result.totalFilesCount,
+        totalPendingCount: result.totalPendingCount,
+        filter: currentFilter,
+        // isRefreshing defaults to false — clears the indicator
       ));
 
     } catch(e) {
@@ -204,21 +214,33 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
 
       if (newSelection.contains(event.fileId)) {
         newSelection.remove(event.fileId);
+        emit(currentState.copyWith(selectedFileIds: newSelection));
       } else {
-        newSelection.add(event.fileId);
+        if (newSelection.length >= kMaxFileSelection) {
+          // Limit reached — signal UI without changing the selection
+          emit(currentState.copyWith(
+            selectedFileIds: newSelection,
+            selectionLimitReached: true,
+          ));
+        } else {
+          newSelection.add(event.fileId);
+          emit(currentState.copyWith(selectedFileIds: newSelection));
+        }
       }
-
-      emit(currentState.copyWith(selectedFileIds: newSelection));
     }
   }
 
   void _onSelectAllFiles(SelectAllFiles event, Emitter<GalleryState> emit) {
     if (state is GalleryLoaded) {
       final currentState = state as GalleryLoaded;
-      final allFileIds = currentState.files.map((file) => file.id).toSet();
+      final allFileIds = currentState.files.map((file) => file.id).toList();
+      final limitReached = allFileIds.length > kMaxFileSelection;
+      final capped = allFileIds.take(kMaxFileSelection).toSet();
 
       emit(currentState.copyWith(
-        isSelectionMode: true, selectedFileIds: allFileIds
+        isSelectionMode: true,
+        selectedFileIds: capped,
+        selectionLimitReached: limitReached,
       ));
     }
   }

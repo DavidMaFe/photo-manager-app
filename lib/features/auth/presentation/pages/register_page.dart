@@ -105,9 +105,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 8),
                     const Center(child: RegisterHeader()),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 24),
                     RegisterInputs(
                       nameInputController: _nameInputController,
                       surnameInputController: _surnameInputController,

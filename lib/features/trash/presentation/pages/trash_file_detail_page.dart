@@ -83,7 +83,10 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
       ),
       title: Text(
         l10n.fileCountLabel(_currentIndex + 1, widget.files.length),
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 15
+        ),
       ),
       actions: [
         _buildDaysRemainingBadge(l10n),

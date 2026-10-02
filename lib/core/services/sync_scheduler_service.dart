@@ -20,10 +20,20 @@ class SyncSchedulerService {
   // Retry configuration
   static const Duration retryDelay = Duration(hours: 1);
 
-  /// Schedule background sync based on configuration
+  /// Schedule background sync based on configuration.
   ///
-  /// This will schedule a periodic task that runs at the time specified
-  /// in the sync configuration (daily or weekly)
+  /// Registers a **one-off** WorkManager task with the exact initial delay
+  /// until the user-configured time (e.g. tonight at 2:00 AM).
+  ///
+  /// After the task executes, [scheduleNextRecurrence] is called from
+  /// [backgroundTaskHandler] to register the next occurrence — maintaining
+  /// the correct time across days without drift.
+  ///
+  /// NOTE: [registerPeriodicTask] is intentionally NOT used because Android's
+  /// WorkManager silently ignores the [initialDelay] parameter on periodic
+  /// tasks, causing the task to fire at an OS-determined time instead of the
+  /// user-configured time. Chained one-off tasks are the only reliable way to
+  /// hit a specific clock time on Android.
   Future<void> scheduleSync(SyncConfig config) async {
     if (!config.autoSyncEnabled) {
       developer.log(
@@ -38,24 +48,25 @@ class SyncSchedulerService {
       final initialDelay = _calculateInitialDelay(config);
 
       developer.log(
-        '📅 Scheduling sync: ${config.syncFrequency.name} at ${config.syncHour}:${config.syncMinute.toString().padLeft(2, '0')}, initial delay: ${initialDelay.inMinutes} minutes',
+        '📅 Scheduling one-off sync task: ${config.syncFrequency.name} '
+        'at ${config.syncHour}:${config.syncMinute.toString().padLeft(2, '0')}, '
+        'initial delay: ${initialDelay.inMinutes} min',
         name: 'SyncSchedulerService',
       );
 
       // Cancel any existing tasks first
       await cancelSync();
 
-      // Schedule periodic task
-      await Workmanager().registerPeriodicTask(
+      // Schedule as a one-off task with the exact delay to the configured
+      // time. backgroundTaskHandler calls scheduleNextRecurrence() after
+      // each execution to chain the following occurrence.
+      await Workmanager().registerOneOffTask(
         syncTaskName,
         syncTaskName,
-        frequency: config.isWeeklySync
-            ? const Duration(days: 7)
-            : const Duration(days: 1),
         initialDelay: initialDelay,
         constraints: Constraints(
           networkType: config.requiresWifiOnly
-              ? NetworkType.unmetered  // WiFi or unlimited data
+              ? NetworkType.unmetered // WiFi or unlimited data
               : NetworkType.connected,
           requiresCharging: false, // We handle battery in BackgroundSyncService
           requiresDeviceIdle: false,
@@ -67,7 +78,7 @@ class SyncSchedulerService {
       );
 
       developer.log(
-        '✅ Sync scheduled successfully',
+        '✅ One-off sync task scheduled (fires in ${initialDelay.inMinutes} min)',
         name: 'SyncSchedulerService',
       );
     } catch (e, stackTrace) {
@@ -78,6 +89,68 @@ class SyncSchedulerService {
         stackTrace: stackTrace,
       );
       rethrow;
+    }
+  }
+
+  /// Schedule the next recurrence after a sync task has been executed.
+  ///
+  /// Called by [backgroundTaskHandler] after each successful run. Computes
+  /// the next future occurrence of the configured hour/minute using
+  /// [_calculateInitialDelay] and registers a new one-off task.
+  ///
+  /// Because [_calculateInitialDelay] always finds the **next** future
+  /// occurrence, calling this right after a run naturally advances to the
+  /// next day (daily) or next week (weekly) with no cumulative drift.
+  Future<void> scheduleNextRecurrence(SyncConfig config) async {
+    if (!config.autoSyncEnabled) {
+      developer.log(
+        '⚠️ Auto-sync disabled, skipping next recurrence',
+        name: 'SyncSchedulerService',
+      );
+      return;
+    }
+
+    try {
+      final nextDelay = _calculateInitialDelay(config);
+
+      developer.log(
+        '📅 Scheduling next recurrence: '
+        '${config.syncHour}:${config.syncMinute.toString().padLeft(2, '0')} '
+        '(in ${nextDelay.inMinutes} min)',
+        name: 'SyncSchedulerService',
+      );
+
+      await Workmanager().registerOneOffTask(
+        syncTaskName,
+        syncTaskName,
+        initialDelay: nextDelay,
+        constraints: Constraints(
+          networkType: config.requiresWifiOnly
+              ? NetworkType.unmetered
+              : NetworkType.connected,
+          requiresCharging: false,
+          requiresDeviceIdle: false,
+          requiresBatteryNotLow: false,
+          requiresStorageNotLow: true,
+        ),
+        existingWorkPolicy: ExistingWorkPolicy.replace,
+        tag: syncTaskTag,
+      );
+
+      developer.log(
+        '✅ Next recurrence scheduled (fires in ${nextDelay.inMinutes} min)',
+        name: 'SyncSchedulerService',
+      );
+    } catch (e, stackTrace) {
+      developer.log(
+        '❌ Failed to schedule next recurrence — sync chain broken',
+        name: 'SyncSchedulerService',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      // Do not rethrow: failure here must not affect the current task's
+      // return value, and the sync chain can be restored by the user
+      // opening the app (rescheduleSync is called on launch).
     }
   }
 
@@ -141,9 +214,10 @@ class SyncSchedulerService {
     }
   }
 
-  /// Reschedule sync when configuration changes
+  /// Reschedule sync when the user **explicitly changes** their configuration.
   ///
-  /// This cancels existing tasks and schedules new ones based on updated config
+  /// Cancels existing tasks and registers a fresh one based on the new config.
+  /// Use [restoreSyncIfNeeded] for the app-launch scenario instead.
   Future<void> rescheduleSync(SyncConfig config) async {
     developer.log('🔄 Rescheduling sync with new configuration', name: 'SyncSchedulerService');
 
@@ -151,6 +225,66 @@ class SyncSchedulerService {
       await scheduleSync(config);
     } else {
       await cancelSync();
+    }
+  }
+
+  /// Restores the sync schedule on app launch **without disrupting a pending task**.
+  ///
+  /// Unlike [rescheduleSync] (which cancels then replaces), this method uses
+  /// [ExistingWorkPolicy.keep]: if a task with the same unique name is already
+  /// pending in WorkManager, it is preserved untouched. A new task is only
+  /// registered when none exists (broken chain restoration).
+  ///
+  /// **Why this matters:** calling [rescheduleSync] on every app launch
+  /// cancels the pending 2 AM task and re-registers it from the current
+  /// moment — meaning opening the app at 9 AM would permanently shift a 2 AM
+  /// schedule to start from 9 AM every day.
+  Future<void> restoreSyncIfNeeded(SyncConfig config) async {
+    if (!config.autoSyncEnabled) {
+      developer.log(
+        '⚠️ Auto-sync disabled, skipping restore',
+        name: 'SyncSchedulerService',
+      );
+      return;
+    }
+
+    try {
+      final nextDelay = _calculateInitialDelay(config);
+
+      developer.log(
+        '🔁 Restoring sync schedule if needed '
+        '(delay: ${nextDelay.inMinutes} min, policy: keep)',
+        name: 'SyncSchedulerService',
+      );
+
+      await Workmanager().registerOneOffTask(
+        syncTaskName,
+        syncTaskName,
+        initialDelay: nextDelay,
+        constraints: Constraints(
+          networkType: config.requiresWifiOnly
+              ? NetworkType.unmetered
+              : NetworkType.connected,
+          requiresCharging: false,
+          requiresDeviceIdle: false,
+          requiresBatteryNotLow: false,
+          requiresStorageNotLow: true,
+        ),
+        existingWorkPolicy: ExistingWorkPolicy.keep,
+        tag: syncTaskTag,
+      );
+
+      developer.log(
+        '✅ Sync schedule verified (existing task preserved or new task created)',
+        name: 'SyncSchedulerService',
+      );
+    } catch (e, stackTrace) {
+      developer.log(
+        '❌ Failed to restore sync schedule on launch',
+        name: 'SyncSchedulerService',
+        error: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 

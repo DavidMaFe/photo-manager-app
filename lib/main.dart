@@ -39,13 +39,18 @@ void main() async {
   final notificationService = di.sl<SyncNotificationService>();
   await notificationService.initialize();
 
-  // Reschedule sync on app startup (handles device reboot scenario)
+  // Restore sync schedule on app startup.
+  //
+  // Uses restoreSyncIfNeeded (ExistingWorkPolicy.keep) instead of
+  // rescheduleSync to avoid cancelling and re-registering a task that is
+  // already correctly pending. This prevents time-drift where opening the
+  // app at 9 AM would shift a 2 AM scheduled task to 9 AM.
   final syncConfigRepository = di.sl<SyncConfigRepository>();
   final syncSchedulerService = di.sl<SyncSchedulerService>();
   final syncConfig = await syncConfigRepository.getSyncConfig();
 
   if (syncConfig != null && syncConfig.autoSyncEnabled) {
-    await syncSchedulerService.rescheduleSync(syncConfig);
+    await syncSchedulerService.restoreSyncIfNeeded(syncConfig);
   }
 
   final authBloc = di.sl<AuthBloc>()..add(CheckAuthStatus());
@@ -83,7 +88,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+  WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

@@ -72,6 +72,13 @@ enum DeviceUpdateType {
   updated,
 }
 
+/// Event fired by [AuthenticatedHttpClient] when a token refresh attempt fails
+/// (i.e. the refresh token is expired or revoked). Listeners should treat this
+/// as a hard session expiry and force the user back to the login screen.
+class AuthenticationFailedEvent extends AppEvent {
+  const AuthenticationFailedEvent();
+}
+
 /// Event to trigger cache invalidation across the app
 class CacheInvalidationEvent extends AppEvent {
   final CacheInvalidationType type;

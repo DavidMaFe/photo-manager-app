@@ -142,6 +142,14 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String selectedFilesWithLimit(int count) {
+    return '$count / 100 seleccionados';
+  }
+
+  @override
+  String get selectionLimitReached => 'Solo puedes seleccionar hasta 100 archivos a la vez.';
+
+  @override
   String get noFolders => 'No tienes ninguna carpeta. Crea una nueva.';
 
   @override

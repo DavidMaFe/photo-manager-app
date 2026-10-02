@@ -145,13 +145,18 @@ class AppRouter {
                 final extra = state.extra as Map<String, dynamic>?;
                 final files = extra?['files'] as List<GalleryFile>? ?? [];
                 final initialIndex = extra?['initialIndex'] ?? 0;
+                final totalFilesCount = extra?['totalFilesCount'] as int?;
 
                 return MultiBlocProvider(
                   providers: [
                     BlocProvider(create: (context) => sl<FileManagementBloc>()),
                     BlocProvider(create: (context) => sl<ManageFolderBloc>())
                   ],
-                  child: FileDetailPage(files: files, initialIndex: initialIndex),
+                  child: FileDetailPage(
+                    files: files,
+                    initialIndex: initialIndex,
+                    totalFilesCount: totalFilesCount
+                  ),
                 );
               }
           ),

@@ -16,8 +16,8 @@ class RegisterHeader extends StatelessWidget {
       children: [
         Image.asset(
           'assets/images/photo_manager_logo_cut.png',
-          width: 180,
-          height: 180,
+          width: 140,
+          height: 140,
         ),
         const SizedBox(height: 16),
         Text(

@@ -3,6 +3,8 @@ import 'dart:developer' as developer;
 
 import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:photo_manager_app/core/database/app_database.dart';
+import 'package:photo_manager_app/core/services/sync_log_service.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/sync_config/domain/entities/sync_config.dart';
@@ -16,36 +18,41 @@ import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_s
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Result of a background sync operation
+/// Result of a background sync operation.
 class _SyncResult {
   final bool success;
   final int filesUploaded;
   final String? errorMessage;
 
+  /// True when the failure is caused by an authentication error (expired
+  /// tokens, revoked refresh token). In this case [BackgroundTaskHandler]
+  /// should skip the 1-hour retry (it will fail for the same reason) and
+  /// instead schedule the next regular recurrence so the chain is maintained.
+  final bool isAuthFailure;
+
   _SyncResult({
     required this.success,
     this.filesUploaded = 0,
     this.errorMessage,
+    this.isAuthFailure = false,
   });
 
-  factory _SyncResult.success(int filesUploaded) {
-    return _SyncResult(success: true, filesUploaded: filesUploaded);
-  }
+  factory _SyncResult.success(int filesUploaded) =>
+      _SyncResult(success: true, filesUploaded: filesUploaded);
 
-  factory _SyncResult.failure(String errorMessage) {
-    return _SyncResult(success: false, errorMessage: errorMessage);
-  }
+  factory _SyncResult.failure(String errorMessage) =>
+      _SyncResult(success: false, errorMessage: errorMessage);
+
+  /// Use this factory when the failure is definitively auth-related.
+  factory _SyncResult.authFailure(String errorMessage) =>
+      _SyncResult(success: false, errorMessage: errorMessage, isAuthFailure: true);
 }
 
-/// Service for executing background synchronization
+/// Service for executing background synchronization.
 ///
-/// This service handles the complete background sync flow including:
-/// - Checking device auto-sync status
-/// - Loading sync configuration
-/// - Validating network and battery conditions
-/// - Preventing concurrent syncs
-/// - Executing the sync process
-/// - Error handling and logging
+/// Every key checkpoint is written to [SyncLogService] (persisted to
+/// SharedPreferences) so the result can be inspected from the UI without
+/// a USB-connected logcat session.
 class BackgroundSyncService {
   final SyncDeviceRepository syncDeviceRepository;
   final SyncConfigRepository syncConfigRepository;
@@ -58,9 +65,24 @@ class BackgroundSyncService {
   final AuthRepository authRepository;
   final SharedPreferences sharedPreferences;
   final SyncNotificationService notificationService;
+  final SyncLogService syncLogService;
 
   static const String _syncLockKey = 'SYNC_IN_PROGRESS';
+  static const String _syncLockAcquiredAtKey = 'SYNC_LOCK_ACQUIRED_AT';
   static const String _lastSyncAttemptKey = 'LAST_SYNC_ATTEMPT';
+  static const String _lastSyncAuthFailureKey = 'SYNC_LAST_FAILURE_IS_AUTH';
+
+  /// Maximum time a sync lock may be held before it is considered stale.
+  ///
+  /// If the OS kills the WorkManager process mid-sync (e.g. during Doze mode
+  /// at 2 AM), the [_releaseSyncLock] call in the `finally` block never runs
+  /// and the lock remains `true` in SharedPreferences indefinitely. Any
+  /// subsequent scheduled run would see the lock and silently skip itself.
+  ///
+  /// To prevent this, [_isSyncInProgress] checks how long the lock has been
+  /// held. If it exceeds this threshold the lock is auto-released and the
+  /// current run proceeds normally.
+  static const Duration _syncLockMaxDuration = Duration(minutes: 30);
 
   BackgroundSyncService({
     required this.syncDeviceRepository,
@@ -74,232 +96,264 @@ class BackgroundSyncService {
     required this.authRepository,
     required this.sharedPreferences,
     required this.notificationService,
+    required this.syncLogService,
   });
 
-  /// Execute background sync
+  /// Execute background sync.
   ///
-  /// Returns true if sync completed successfully, false otherwise
+  /// Returns true if sync completed successfully, false otherwise.
   Future<bool> execute() async {
-    developer.log('🔄 Background sync triggered', name: 'BackgroundSyncService');
+    syncLogService.write('— execute() iniciado');
 
     try {
-      // 1. Check if sync is already in progress
+      // 1. Check if sync is already in progress (also auto-releases stale locks)
       if (_isSyncInProgress()) {
-        developer.log('⚠️ Sync already in progress, skipping', name: 'BackgroundSyncService');
+        syncLogService.write('■ Ejecución omitida (lock activo)');
         return false;
       }
 
       // 2. Check authentication
-      if (!await _isAuthenticated()) {
-        developer.log('❌ Not authenticated, cancelling sync', name: 'BackgroundSyncService');
+      final authenticated = await _isAuthenticated();
+      if (!authenticated) {
+        syncLogService.write('✗ Auth: usuario no autenticado — cancelando');
         return false;
       }
+      syncLogService.write('✓ Auth: OK');
 
       // 3. Load sync configuration
       final syncConfig = await syncConfigRepository.getSyncConfig();
       if (syncConfig == null || !syncConfig.autoSyncEnabled) {
-        developer.log('⚠️ Auto-sync disabled, skipping', name: 'BackgroundSyncService');
+        syncLogService.write('✗ Config: auto-sync desactivado — cancelando');
         return false;
       }
-
-      developer.log('✅ Sync config loaded: ${syncConfig.syncFrequency.name}', name: 'BackgroundSyncService');
+      syncLogService.write('✓ Config: ${syncConfig.syncFrequency.name}, '
+          'red=${syncConfig.networkPreference.name}, '
+          'batería=${syncConfig.batteryPreference.name}');
 
       // 4. Validate network conditions
-      if (!await _validateNetworkConditions(syncConfig)) {
-        developer.log('❌ Network conditions not met', name: 'BackgroundSyncService');
-        return false;
+      final networkOk = await _validateNetworkConditions(syncConfig);
+      if (!networkOk) {
+        return false; // reason already logged inside helper
       }
 
       // 5. Validate battery conditions
-      if (!await _validateBatteryConditions(syncConfig)) {
-        developer.log('❌ Battery conditions not met', name: 'BackgroundSyncService');
-        return false;
+      final batteryOk = await _validateBatteryConditions(syncConfig);
+      if (!batteryOk) {
+        return false; // reason already logged inside helper
       }
 
       // 6. Acquire sync lock
       _acquireSyncLock();
 
       try {
-        // 7. Show foreground notification (required for Android 12+)
-        await notificationService.showForegroundNotification();
+        // 7. Start foreground service (Android 12+)
+        try {
+          await notificationService.showForegroundNotification();
+          syncLogService.write('✓ Servicio en primer plano iniciado');
+        } catch (e) {
+          syncLogService.write('⚠ Servicio en primer plano falló ($e) — continúa');
+        }
 
         // 8. Execute sync
         final result = await _performSync(syncConfig);
 
-        // 9. Hide foreground notification
+        // 9. Stop foreground service
         await notificationService.hideForegroundNotification();
 
         if (result.success) {
-          developer.log('✅ Background sync completed successfully', name: 'BackgroundSyncService');
           _recordSuccessfulSync();
+          syncLogService.writeResult(
+            success: true,
+            detail: '${result.filesUploaded} archivos subidos',
+          );
 
-          // Show success notification if enabled
           if (syncConfig.notifyOnSuccess) {
             await notificationService.showSyncSuccessNotification(
               filesUploaded: result.filesUploaded,
             );
           }
         } else {
-          developer.log('⚠️ Background sync completed with issues', name: 'BackgroundSyncService');
+          _recordFailedSync(isAuthFailure: result.isAuthFailure);
+          syncLogService.writeResult(
+            success: false,
+            detail: result.errorMessage ?? 'Error desconocido',
+          );
 
-          // Show failure notification if enabled
           if (syncConfig.notifyOnFailure) {
             await notificationService.showSyncFailureNotification(
-              errorMessage: result.errorMessage ?? 'Unknown error occurred',
+              errorMessage: result.errorMessage ?? 'Error desconocido',
             );
           }
         }
 
         return result.success;
       } finally {
-        // 10. Release sync lock and hide notification
         _releaseSyncLock();
         await notificationService.hideForegroundNotification();
       }
     } catch (e, stackTrace) {
       developer.log(
-        '❌ Background sync failed',
+        '❌ BackgroundSyncService.execute failed',
         name: 'BackgroundSyncService',
         error: e,
         stackTrace: stackTrace,
       );
       _releaseSyncLock();
-      _recordFailedSync();
+      final isAuth = _isAuthRelatedError(e);
+      _recordFailedSync(isAuthFailure: isAuth);
+      syncLogService.writeResult(success: false, detail: e.toString());
       return false;
     }
   }
 
-  /// Check if sync is already in progress
+  /// Returns true if a sync is currently in progress.
+  ///
+  /// Also detects and auto-releases **stale locks** left behind when the OS
+  /// killed the WorkManager process before [_releaseSyncLock] could run
+  /// (e.g. Doze mode interruption at 2 AM). A lock older than
+  /// [_syncLockMaxDuration] is considered stale and is cleared so the next
+  /// scheduled run is not blocked forever.
   bool _isSyncInProgress() {
-    return sharedPreferences.getBool(_syncLockKey) ?? false;
+    final isLocked = sharedPreferences.getBool(_syncLockKey) ?? false;
+    if (!isLocked) return false;
+
+    // Check whether the lock is stale.
+    final acquiredAtStr =
+        sharedPreferences.getString(_syncLockAcquiredAtKey);
+
+    if (acquiredAtStr == null) {
+      // Lock exists but has no timestamp (legacy or corrupted) — treat as stale.
+      syncLogService.write(
+          '⚠ Lock sin timestamp detectado — liberando lock obsoleto');
+      _releaseSyncLock();
+      return false;
+    }
+
+    final acquiredAt = DateTime.tryParse(acquiredAtStr);
+    if (acquiredAt == null) {
+      syncLogService.write(
+          '⚠ Timestamp de lock inválido ("$acquiredAtStr") — liberando');
+      _releaseSyncLock();
+      return false;
+    }
+
+    final lockAge = DateTime.now().difference(acquiredAt);
+    if (lockAge > _syncLockMaxDuration) {
+      syncLogService.write(
+          '⚠ Lock obsoleto (${lockAge.inMinutes} min > '
+          '${_syncLockMaxDuration.inMinutes} min) — '
+          'liberando y continuando con la ejecución');
+      _releaseSyncLock();
+      return false;
+    }
+
+    syncLogService.write(
+        '⚠ Sync ya en progreso (lock adquirido hace ${lockAge.inMinutes} min)');
+    return true;
   }
 
-  /// Acquire sync lock to prevent concurrent syncs
   void _acquireSyncLock() {
     sharedPreferences.setBool(_syncLockKey, true);
-    developer.log('🔒 Sync lock acquired', name: 'BackgroundSyncService');
+    sharedPreferences.setString(
+        _syncLockAcquiredAtKey, DateTime.now().toIso8601String());
   }
 
-  /// Release sync lock
   void _releaseSyncLock() {
     sharedPreferences.setBool(_syncLockKey, false);
-    developer.log('🔓 Sync lock released', name: 'BackgroundSyncService');
+    sharedPreferences.remove(_syncLockAcquiredAtKey);
   }
 
-  /// Check if user is authenticated
   Future<bool> _isAuthenticated() async {
     try {
       final user = await authRepository.getCurrentUser();
       return user != null;
     } catch (e) {
-      developer.log('❌ Authentication check failed', name: 'BackgroundSyncService', error: e);
+      syncLogService.write('✗ Auth check exception: $e');
       return false;
     }
   }
 
-  /// Validate network conditions based on sync config
   Future<bool> _validateNetworkConditions(SyncConfig config) async {
     try {
       final connectivity = Connectivity();
-      final connectivityResults = await connectivity.checkConnectivity();
+      final results = await connectivity.checkConnectivity();
 
-      // Check if we have any connection
-      if (connectivityResults.isEmpty ||
-          connectivityResults.contains(ConnectivityResult.none)) {
-        developer.log('❌ No network connection', name: 'BackgroundSyncService');
+      if (results.isEmpty || results.contains(ConnectivityResult.none)) {
+        syncLogService.write('✗ Red: sin conexión');
         return false;
       }
 
-      // If WiFi-only is required, check for WiFi
       if (config.requiresWifiOnly) {
-        final hasWifi = connectivityResults.contains(ConnectivityResult.wifi);
+        final hasWifi = results.contains(ConnectivityResult.wifi);
         if (!hasWifi) {
-          developer.log('❌ WiFi required but not connected', name: 'BackgroundSyncService');
+          syncLogService.write('✗ Red: se requiere WiFi pero hay datos móviles');
           return false;
         }
+        syncLogService.write('✓ Red: WiFi disponible');
+      } else {
+        syncLogService.write('✓ Red: conectado (${results.map((r) => r.name).join(", ")})');
       }
-
-      developer.log('✅ Network conditions met', name: 'BackgroundSyncService');
       return true;
     } catch (e) {
-      developer.log('❌ Network validation failed', name: 'BackgroundSyncService', error: e);
+      syncLogService.write('✗ Red: error comprobando conexión ($e)');
       return false;
     }
   }
 
-  /// Validate battery conditions based on sync config
   Future<bool> _validateBatteryConditions(SyncConfig config) async {
     try {
-      // If any battery level is acceptable, skip validation
       if (!config.requiresBatteryCondition) {
-        developer.log('✅ Battery conditions not required', name: 'BackgroundSyncService');
+        syncLogService.write('✓ Batería: sin restricción');
         return true;
       }
 
-      // Check battery conditions: device must be charging OR battery > 15%
       final battery = Battery();
-
-      // Check if device is charging
       final batteryState = await battery.batteryState;
       final isCharging = batteryState == BatteryState.charging ||
-                         batteryState == BatteryState.full;
+          batteryState == BatteryState.full;
 
       if (isCharging) {
-        developer.log('✅ Device is charging', name: 'BackgroundSyncService');
+        syncLogService.write('✓ Batería: cargando');
         return true;
       }
 
-      // Check battery level
       final batteryLevel = await battery.batteryLevel;
       if (batteryLevel > 15) {
-        developer.log(
-          '✅ Battery level OK: $batteryLevel%',
-          name: 'BackgroundSyncService',
-        );
+        syncLogService.write('✓ Batería: $batteryLevel% (sin cargar)');
         return true;
       }
 
-      developer.log(
-        '❌ Battery conditions not met: level=$batteryLevel%, charging=false',
-        name: 'BackgroundSyncService',
-      );
+      syncLogService.write('✗ Batería: $batteryLevel%, no cargando — cancelando');
       return false;
     } catch (e) {
-      developer.log('❌ Battery validation failed', name: 'BackgroundSyncService', error: e);
-      // In case of error checking battery, allow sync to proceed
-      // Better to sync than to miss a scheduled sync due to battery check failure
+      syncLogService.write('⚠ Batería: error ($e) — continúa de todos modos');
       return true;
     }
   }
 
-  /// Perform the actual sync operation
   Future<_SyncResult> _performSync(SyncConfig config) async {
     String? sessionId;
 
     try {
-      // 1. Get device UUID
       final deviceUuid = await syncDeviceRepository.getDeviceUuid();
-      developer.log('📱 Device UUID: $deviceUuid', name: 'BackgroundSyncService');
+      syncLogService.write('✓ UUID dispositivo: $deviceUuid');
 
-      // 2. Start sync session
-      developer.log('🚀 Starting sync session...', name: 'BackgroundSyncService');
       final session = await startSyncSessionUseCase(deviceUuid: deviceUuid);
       sessionId = session.id;
-      developer.log('✅ Sync session started: $sessionId', name: 'BackgroundSyncService');
+      syncLogService.write('✓ Sesión iniciada: $sessionId');
 
-      // 3. Get media files
-      developer.log('📂 Fetching media files...', name: 'BackgroundSyncService');
-      final mediaFiles = await mediaLocalDataSource.scanMediaFiles();
-      developer.log('📊 Found ${mediaFiles.length} media files', name: 'BackgroundSyncService');
+      final mediaFiles = await mediaLocalDataSource.scanMediaFiles(
+          lastCompletedSyncAt: session.lastCompletedAt,
+          skipPermissionCheck: true,
+      );
+      syncLogService.write('✓ Archivos multimedia encontrados: ${mediaFiles.length}');
 
       if (mediaFiles.isEmpty) {
-        developer.log('⚠️ No files to sync', name: 'BackgroundSyncService');
         await completeSyncSessionUseCase(sessionId: sessionId);
+        syncLogService.write('✓ Sin archivos nuevos — sesión completada');
         return _SyncResult.success(0);
       }
 
-      // 4. Check for duplicates
-      developer.log('🔍 Checking for duplicates...', name: 'BackgroundSyncService');
       final hashes = mediaFiles.map((file) => file.hash).toList();
       final duplicateResult = await checkDuplicatesUseCase(
         sessionId: sessionId,
@@ -307,87 +361,108 @@ class BackgroundSyncService {
       );
 
       final hashesToUpload = duplicateResult.filesToUpload.toSet();
-      final filesToUpload = mediaFiles
-          .where((file) => hashesToUpload.contains(file.hash))
-          .toList();
+      final filesToUpload =
+          mediaFiles.where((f) => hashesToUpload.contains(f.hash)).toList();
 
-      developer.log(
-        '📊 Files to upload: ${filesToUpload.length} (${duplicateResult.duplicatesCount} duplicates)',
-        name: 'BackgroundSyncService',
+      syncLogService.write(
+        '✓ A subir: ${filesToUpload.length} '
+        '(${duplicateResult.duplicatesCount} duplicados omitidos)',
       );
 
-      // 5. Upload files
       int uploadedCount = 0;
       for (final file in filesToUpload) {
         try {
-          await uploadFileUseCase(sessionId: sessionId, file: file);
+          final uploadResult = await uploadFileUseCase(sessionId: sessionId, file: file);
+          if (uploadResult.serverFileId != null) {
+            await AppDatabase().saveFileMapping(
+              serverId: uploadResult.serverFileId!,
+              localId: file.localId,
+              localPath: file.devicePath,
+              hash: file.hash,
+            );
+          }
           uploadedCount++;
-          developer.log(
-            '⬆️ Uploaded $uploadedCount/${filesToUpload.length}',
-            name: 'BackgroundSyncService',
-          );
+          if (uploadedCount % 5 == 0 || uploadedCount == filesToUpload.length) {
+            syncLogService.write('⬆ Subidos $uploadedCount/${filesToUpload.length}');
+          }
         } catch (e) {
-          developer.log(
-            '❌ Failed to upload file: ${file.fileName}',
-            name: 'BackgroundSyncService',
-            error: e,
-          );
-          // Continue with other files
+          syncLogService.write('⚠ Error subiendo ${file.fileName}: $e');
         }
       }
 
-      // 6. Complete session
-      developer.log('✅ Completing sync session...', name: 'BackgroundSyncService');
       await completeSyncSessionUseCase(sessionId: sessionId);
-
-      developer.log(
-        '🎉 Sync completed: $uploadedCount files uploaded',
-        name: 'BackgroundSyncService',
-      );
+      syncLogService.write('✓ Sesión completada: $uploadedCount archivos subidos');
 
       return _SyncResult.success(uploadedCount);
     } catch (e, stackTrace) {
       developer.log(
-        '❌ Sync execution failed',
+        '❌ _performSync failed',
         name: 'BackgroundSyncService',
         error: e,
         stackTrace: stackTrace,
       );
 
-      // Cancel session if it was started
+      final isAuth = _isAuthRelatedError(e);
+      if (isAuth) {
+        syncLogService.write(
+          '✗ Error de autenticación en sincronización: las credenciales han '
+          'expirado o fueron revocadas. Abre la app para volver a iniciar sesión.',
+        );
+      } else {
+        syncLogService.write('✗ Error en _performSync: $e');
+      }
+
       if (sessionId != null) {
         try {
           await syncSessionRepository.cancelSyncSession(sessionId: sessionId);
-          developer.log('🚫 Session cancelled: $sessionId', name: 'BackgroundSyncService');
-        } catch (e) {
-          developer.log('❌ Failed to cancel session', name: 'BackgroundSyncService', error: e);
+          syncLogService.write('✓ Sesión cancelada: $sessionId');
+        } catch (cancelError) {
+          syncLogService.write('⚠ No se pudo cancelar sesión: $cancelError');
         }
       }
 
-      return _SyncResult.failure(e.toString());
+      return isAuth
+          ? _SyncResult.authFailure(e.toString())
+          : _SyncResult.failure(e.toString());
     }
   }
 
-  /// Record successful sync attempt
   void _recordSuccessfulSync() {
-    final now = DateTime.now().toIso8601String();
-    sharedPreferences.setString(_lastSyncAttemptKey, now);
-    developer.log('📝 Recorded successful sync at $now', name: 'BackgroundSyncService');
+    sharedPreferences.setString(_lastSyncAttemptKey, DateTime.now().toIso8601String());
+    sharedPreferences.setBool(_lastSyncAuthFailureKey, false);
   }
 
-  /// Record failed sync attempt
-  void _recordFailedSync() {
-    final now = DateTime.now().toIso8601String();
-    sharedPreferences.setString(_lastSyncAttemptKey, now);
-    developer.log('📝 Recorded failed sync at $now', name: 'BackgroundSyncService');
+  void _recordFailedSync({bool isAuthFailure = false}) {
+    sharedPreferences.setString(_lastSyncAttemptKey, DateTime.now().toIso8601String());
+    sharedPreferences.setBool(_lastSyncAuthFailureKey, isAuthFailure);
   }
 
-  /// Get last sync attempt time
   DateTime? getLastSyncAttempt() {
     final lastAttempt = sharedPreferences.getString(_lastSyncAttemptKey);
-    if (lastAttempt != null) {
-      return DateTime.tryParse(lastAttempt);
-    }
-    return null;
+    return lastAttempt != null ? DateTime.tryParse(lastAttempt) : null;
+  }
+
+  /// Returns true when the most recent sync failed due to an authentication
+  /// error (expired or revoked tokens). Used by [BackgroundTaskHandler] to
+  /// decide whether to schedule a 1-hour retry (pointless for auth errors) or
+  /// the next regular recurrence instead.
+  bool wasLastFailureAuthRelated() {
+    return sharedPreferences.getBool(_lastSyncAuthFailureKey) ?? false;
+  }
+
+  /// Heuristic detection of auth-related exceptions.
+  ///
+  /// Checks common patterns in the exception message. This covers 401
+  /// responses, expired-token messages from the server, and refresh-token
+  /// failures from [AuthenticatedHttpClient].
+  bool _isAuthRelatedError(Object error) {
+    final message = error.toString().toLowerCase();
+    return message.contains('401') ||
+        message.contains('unauthorized') ||
+        message.contains('unauthenticated') ||
+        message.contains('token expired') ||
+        message.contains('refresh token') ||
+        message.contains('invalid token') ||
+        message.contains('authentication failed');
   }
 }

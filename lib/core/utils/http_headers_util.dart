@@ -48,6 +48,23 @@ class HttpHeadersUtil {
     };
   }
 
+  /// Generates headers for multipart/form-data requests (no Content-Type).
+  ///
+  /// For multipart requests the `http` library sets `Content-Type: multipart/form-data`
+  /// with the correct boundary automatically. Adding `application/json` would
+  /// override that and break server-side parsing of form fields and files.
+  ///
+  /// Returns a Map with:
+  /// - Accept-Language: <current-locale> (e.g., "es", "en")
+  static Map<String, String> getMultipartHeaders() {
+    final locale = PlatformDispatcher.instance.locale;
+    final languageCode = locale.languageCode;
+
+    return {
+      'Accept-Language': languageCode,
+    };
+  }
+
   /// Generates headers with only authorization token (no Content-Type)
   ///
   /// Useful for GET requests or when Content-Type shouldn't be specified.

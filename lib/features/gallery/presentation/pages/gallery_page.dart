@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
-import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
@@ -54,6 +53,16 @@ class GalleryPage extends StatelessWidget {
             ),
             body: Column(
               children: [
+                // Always at index 0 — height is 0 when not refreshing.
+                // A conditional `if` would shift the indices of all siblings,
+                // causing FilesGrid to be recreated and losing the scroll position.
+                SizedBox(
+                  height: (state is GalleryLoaded && state.isRefreshing) ? 2 : 0,
+                  child: const LinearProgressIndicator(
+                    backgroundColor: Colors.transparent,
+                    color: PhotoManagerColors.primary,
+                  ),
+                ),
                 _buildFilters(context, state),
                 _buildPendingBanner(state),
                 Expanded(child: _buildContent(context, state))
@@ -112,7 +121,7 @@ class GalleryPage extends StatelessWidget {
   }
 
   void _showManageModal(BuildContext context, List<String> fileIds) async {
-    final result = await showModalBottomSheet<bool>(
+    await showModalBottomSheet<bool>(
       useSafeArea: true,
       context: context,
       isScrollControlled: true,
@@ -133,12 +142,15 @@ class GalleryPage extends StatelessWidget {
   }
 
   void _handleStateChanges(BuildContext context, GalleryState state) {
-    if (state is GalleryError) {
-      ErrorNotificationService.showError(
-        context,
-        state.failure,
-        config: ErrorDisplayConfig.snackBar,
-        onRetry: () => context.read<GalleryBloc>().add(const LoadGallery()),
+    // GalleryError is handled by the full-page ErrorDisplay in _buildContent.
+    // No snackbar here to avoid showing two error surfaces simultaneously.
+    if (state is GalleryLoaded && state.selectionLimitReached) {
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.selectionLimitReached),
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }
@@ -217,6 +229,7 @@ class GalleryPage extends StatelessWidget {
     bool isLoadingMore = false;
     bool isSelectionMode = false;
     Set<String> selectedFileIds = {};
+    int totalFilesCount = 0;
 
     if (state is GalleryLoaded) {
       files = state.files;
@@ -225,6 +238,7 @@ class GalleryPage extends StatelessWidget {
       isLoadingMore = false;
       isSelectionMode = state.isSelectionMode;
       selectedFileIds = state.selectedFileIds;
+      totalFilesCount = state.totalFilesCount;
     } else if (state is GalleryLoadingMore) {
       files = state.files;
       groupedFiles = state.groupedFiles;
@@ -232,6 +246,7 @@ class GalleryPage extends StatelessWidget {
       isLoadingMore = true;
       isSelectionMode = state.isSelectionMode;
       selectedFileIds = state.selectedFileIds;
+      totalFilesCount = state.totalFilesCount;
     }
 
     return FilesGrid(
@@ -257,7 +272,8 @@ class GalleryPage extends StatelessWidget {
             pathParameters: {'fileId': file.id},
             extra: {
               'files': files,
-              'initialIndex': fileIndex
+              'initialIndex': fileIndex,
+              'totalFilesCount': totalFilesCount
             }
           );
         }

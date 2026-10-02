@@ -126,6 +126,8 @@ void main() {
           selectedFileIds: const {},
           hasNext: true,
           currentPage: 0,
+          totalFilesCount: 100,
+          totalPendingCount: 1,
           filter: FileFilter.all,
         ),
       );
@@ -147,6 +149,8 @@ void main() {
           selectedFileIds: {},
           hasNext: false,
           currentPage: 0,
+          totalFilesCount: 0,
+          totalPendingCount: 0,
           filter: FileFilter.all,
         ),
       );
@@ -168,6 +172,8 @@ void main() {
           selectedFileIds: const {},
           hasNext: true,
           currentPage: 0,
+          totalFilesCount: 100,
+          totalPendingCount: 1,
           filter: FileFilter.all,
         ),
       );
@@ -189,6 +195,8 @@ void main() {
           selectedFileIds: const {'file-1'},
           hasNext: true,
           currentPage: 0,
+          totalFilesCount: 100,
+          totalPendingCount: 1,
           filter: FileFilter.all,
         ),
       );
@@ -210,6 +218,8 @@ void main() {
           selectedFileIds: const {},
           hasNext: true,
           currentPage: 0,
+          totalFilesCount: 100,
+          totalPendingCount: 1,
           filter: FileFilter.all,
         ),
       );
@@ -230,6 +240,8 @@ void main() {
           isSelectionMode: false,
           selectedFileIds: const {},
           currentPage: 0,
+          totalFilesCount: 100,
+          totalPendingCount: 1,
           filter: FileFilter.all,
         ),
       );
@@ -251,6 +263,8 @@ void main() {
         selectedFileIds: const {},
         hasNext: true,
         currentPage: 0,
+        totalFilesCount: 100,
+        totalPendingCount: 1,
         filter: FileFilter.images,
       )));
       when(() => mockGalleryBloc.state).thenReturn(

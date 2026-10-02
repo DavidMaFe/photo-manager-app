@@ -38,9 +38,12 @@ class FolderContentLoaded extends FolderContentState {
   final List<GalleryFile> files;
   final List<FileDateGroup> groupedFiles;
   final bool hasMoreFiles;
+  final int totalFilesCount;
   final FileFilter currentFilter;
   final bool isSelectionMode;
   final Set<String> selectedFileIds;
+  final bool selectionLimitReached;
+  final bool isRefreshing;
 
   const FolderContentLoaded({
     required this.currentFolder,
@@ -48,27 +51,34 @@ class FolderContentLoaded extends FolderContentState {
     required this.files,
     required this.groupedFiles,
     required this.hasMoreFiles,
+    required this.totalFilesCount,
     this.currentFilter = FileFilter.all,
     this.isSelectionMode = false,
-    this.selectedFileIds = const {}
+    this.selectedFileIds = const {},
+    this.selectionLimitReached = false,
+    this.isRefreshing = false,
   });
 
-  bool get areAllFilesSelected => files.isNotEmpty && selectedFileIds.length == files.length;
+  bool get areAllFilesSelected =>
+      files.isNotEmpty &&
+      (selectedFileIds.length == files.length || selectedFileIds.length >= 100);
 
   @override
   List<Object?> get props => [currentFolder, subfolders, files, groupedFiles, hasMoreFiles,
-    currentFilter, isSelectionMode, selectedFileIds];
+    totalFilesCount, currentFilter, isSelectionMode, selectedFileIds, selectionLimitReached, isRefreshing];
 
   FolderContentLoaded copyWith({
     Folder? currentFolder,
     List<Folder>? subfolders,
     List<GalleryFile>? files,
     List<FileDateGroup>? groupedFiles,
-    int? totalFiles,
     bool? hasMoreFiles,
+    int? totalFilesCount,
     FileFilter? currentFilter,
     bool? isSelectionMode,
-    Set<String>? selectedFileIds
+    Set<String>? selectedFileIds,
+    bool selectionLimitReached = false,
+    bool isRefreshing = false,
   }) {
     return FolderContentLoaded(
       currentFolder: currentFolder ?? this.currentFolder,
@@ -76,9 +86,12 @@ class FolderContentLoaded extends FolderContentState {
       files: files ?? this.files,
       groupedFiles: groupedFiles ?? this.groupedFiles,
       hasMoreFiles: hasMoreFiles ?? this.hasMoreFiles,
+      totalFilesCount: totalFilesCount ?? this.totalFilesCount,
       currentFilter: currentFilter ?? this.currentFilter,
       isSelectionMode: isSelectionMode ?? this.isSelectionMode,
       selectedFileIds: selectedFileIds ?? this.selectedFileIds,
+      selectionLimitReached: selectionLimitReached,
+      isRefreshing: isRefreshing,
     );
   }
 }
@@ -100,6 +113,7 @@ class FolderContentLoadingMore extends FolderContentState {
   final List<Folder> subfolders;
   final List<GalleryFile> files;
   final List<FileDateGroup> groupedFiles;
+  final int totalFilesCount;
   final FileFilter currentFilter;
 
   const FolderContentLoadingMore({
@@ -107,9 +121,10 @@ class FolderContentLoadingMore extends FolderContentState {
     required this.subfolders,
     required this.files,
     required this.groupedFiles,
+    required this.totalFilesCount,
     required this.currentFilter
   });
 
   @override
-  List<Object?> get props => [currentFolder, subfolders, files, groupedFiles, currentFilter];
+  List<Object?> get props => [currentFolder, subfolders, files, groupedFiles, totalFilesCount, currentFilter];
 }

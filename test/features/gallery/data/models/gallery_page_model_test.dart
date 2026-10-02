@@ -16,6 +16,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -41,6 +43,8 @@ void main() {
           },
         ],
         'hasNext': true,
+        'totalCount': 100,
+        'totalPendingCount': 25,
       };
 
       // Act
@@ -59,6 +63,8 @@ void main() {
       expect(model.currentPage, 0);
       expect(model.pageSize, 50);
       expect(model.hasNext, true);
+      expect(model.totalFilesCount, 100);
+      expect(model.totalPendingCount, 25);
     });
 
     test('should handle empty files list in JSON', () {
@@ -66,6 +72,8 @@ void main() {
       final json = {
         'files': [],
         'hasNext': false,
+        'totalCount': 0,
+        'totalPendingCount': 0,
       };
 
       // Act
@@ -87,6 +95,8 @@ void main() {
       final json = {
         'files': [],
         'hasNext': false,
+        'totalCount': 0,
+        'totalPendingCount': 0,
       };
 
       // Act
@@ -106,6 +116,8 @@ void main() {
       final json = {
         'files': [],
         'hasNext': true,
+        'totalCount': 0,
+        'totalPendingCount': 0,
       };
 
       // Act
@@ -124,6 +136,8 @@ void main() {
       final json = {
         'files': [],
         'hasNext': false,
+        'totalCount': 0,
+        'totalPendingCount': 0,
       };
 
       // Act
@@ -160,6 +174,8 @@ void main() {
         currentPage: 2,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 100,
+        totalPendingCount: 1,
       );
 
       // Act
@@ -180,6 +196,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Act
@@ -207,6 +225,8 @@ void main() {
       final json = {
         'files': filesJson,
         'hasNext': true,
+        'totalCount': 100,
+        'totalPendingCount': 0,
       };
 
       // Act
@@ -238,6 +258,8 @@ void main() {
         currentPage: 1,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 100,
+        totalPendingCount: 0,
       );
 
       // Act
@@ -263,6 +285,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Act
@@ -292,6 +316,8 @@ void main() {
           },
         ],
         'hasNext': false,
+        'totalCount': 1,
+        'totalPendingCount': 0,
       };
 
       // Act
@@ -311,6 +337,8 @@ void main() {
       final json = {
         'files': [],
         'hasNext': false,
+        'totalCount': 0,
+        'totalPendingCount': 0,
       };
 
       // Act
@@ -329,6 +357,8 @@ void main() {
       final json = {
         'files': [],
         'hasNext': false,
+        'totalCount': 0,
+        'totalPendingCount': 0,
       };
 
       // Act
@@ -357,6 +387,8 @@ void main() {
       final json = {
         'files': filesJson,
         'hasNext': true,
+        'totalCount': 200,
+        'totalPendingCount': 0,
       };
 
       // Act
@@ -388,6 +420,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 1,
+        totalPendingCount: 1,
       );
 
       // Act

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/core/constants/app_constants.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
@@ -88,6 +89,7 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
         files: content.files,
         groupedFiles: groupedFiles,
         hasMoreFiles: content.hasMoreFiles,
+        totalFilesCount: content.totalFilesCount,
         currentFilter: _currentFilter
       ));
     } catch(e) {
@@ -109,6 +111,8 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
       final currentState = state as FolderContentLoaded;
       isSelectionMode = currentState.isSelectionMode;
       selectedFileIds = currentState.selectedFileIds;
+      // Signal refresh in progress — keeps CustomScrollView alive so scroll position is preserved
+      emit(currentState.copyWith(isRefreshing: true));
     }
 
     try {
@@ -125,16 +129,17 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
       // Exit selection mode if no files remain selected
       final shouldExitSelectionMode = isSelectionMode && cleanedSelectedIds.isEmpty;
 
-      await Future.delayed(const Duration(milliseconds: 400));
       emit(FolderContentLoaded(
           currentFolder: content.folder,
           subfolders: content.subfolders,
           files: content.files,
           groupedFiles: groupedFiles,
           hasMoreFiles: content.hasMoreFiles,
+          totalFilesCount: content.totalFilesCount,
           currentFilter: _currentFilter,
           isSelectionMode: shouldExitSelectionMode ? false : isSelectionMode,
-          selectedFileIds: cleanedSelectedIds
+          selectedFileIds: cleanedSelectedIds,
+          // isRefreshing defaults to false — clears the indicator
       ));
     } catch(e) {
       Failure failure = ErrorHandler.handleError(e);
@@ -153,6 +158,7 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
         subfolders: currentState.subfolders,
         files: currentState.files,
         groupedFiles: currentState.groupedFiles,
+        totalFilesCount: currentState.totalFilesCount,
         currentFilter: currentState.currentFilter
     ));
 
@@ -178,6 +184,7 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
         files: allFiles,
         groupedFiles: updatedGroupedFiles,
         hasMoreFiles: content.hasMoreFiles,
+        totalFilesCount: content.totalFilesCount,
         currentFilter: _currentFilter
       ));
 
@@ -218,6 +225,7 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
           files: content.files,
           groupedFiles: groupedFiles,
           hasMoreFiles: content.hasMoreFiles,
+          totalFilesCount: content.totalFilesCount,
           currentFilter: _currentFilter
       ));
 
@@ -251,22 +259,33 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
 
       if (newSelectedIds.contains(event.fileId)) {
         newSelectedIds.remove(event.fileId);
+        emit(currentState.copyWith(selectedFileIds: newSelectedIds));
       } else {
-        newSelectedIds.add(event.fileId);
+        if (newSelectedIds.length >= kMaxFileSelection) {
+          // Limit reached — signal UI without changing the selection
+          emit(currentState.copyWith(
+            selectedFileIds: newSelectedIds,
+            selectionLimitReached: true,
+          ));
+        } else {
+          newSelectedIds.add(event.fileId);
+          emit(currentState.copyWith(selectedFileIds: newSelectedIds));
+        }
       }
-
-      emit(currentState.copyWith(selectedFileIds: newSelectedIds));
     }
   }
 
   void _onSelectAllFiles(SelectAllFiles event, Emitter<FolderContentState> emit) {
     if (state is FolderContentLoaded) {
       final currentState = state as FolderContentLoaded;
-      final allFileIds = currentState.files.map((file) => file.id).toSet();
+      final allFileIds = currentState.files.map((file) => file.id).toList();
+      final limitReached = allFileIds.length > kMaxFileSelection;
+      final capped = allFileIds.take(kMaxFileSelection).toSet();
 
       emit(currentState.copyWith(
         isSelectionMode: true,
-        selectedFileIds: allFileIds
+        selectedFileIds: capped,
+        selectionLimitReached: limitReached,
       ));
     }
   }

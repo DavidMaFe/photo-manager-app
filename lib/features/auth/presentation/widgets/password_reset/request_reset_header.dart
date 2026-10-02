@@ -22,12 +22,16 @@ class RequestResetHeader extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        Text(
-          l10n.forgotPasswordTitle,
-          style: const TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            l10n.forgotPasswordTitle,
+            maxLines: 1,
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87
+            ),
           ),
         ),
         Text(

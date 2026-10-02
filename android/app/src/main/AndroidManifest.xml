@@ -18,6 +18,9 @@
     <!-- Notification Permission (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+    <!-- Battery Optimization Exemption (required for WorkManager on physical devices) -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+
     <application
         android:label="Photo Manager"
         android:name="${applicationName}"
@@ -50,6 +53,15 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- flutter_local_notifications foreground service.
+             Merges with the plugin's own declaration to add foregroundServiceType
+             required on Android 14+ (API 34+) for data sync foreground services. -->
+        <service
+            android:name="com.dexterous.flutterlocalnotifications.ForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge"/>
 
         <!-- WorkManager for background task scheduling -->
         <receiver

@@ -9,8 +9,22 @@ class MediaLocalDataSource {
 
   MediaLocalDataSource();
 
-  Future<PermissionState> checkPermission() async {
-    return await PhotoManager.requestPermissionExtend();
+  Future<PermissionState> checkPermission({
+    bool requestIfDenied = false,
+  }) async {
+    if (requestIfDenied) {
+      return await PhotoManager.requestPermissionExtend();
+    }
+
+    return await PhotoManager.getPermissionState(
+      requestOption: const PermissionRequestOption(
+        iosAccessLevel: IosAccessLevel.readWrite,
+        androidPermission: AndroidPermission(
+          type: RequestType.common,
+          mediaLocation: false,
+        ),
+      ),
+    );
   }
 
   Future<bool> requestPermission() async {
@@ -27,11 +41,33 @@ class MediaLocalDataSource {
     return state.isAuth || state == PermissionState.limited;
   }
 
-  Future<List<SyncFileModel>> scanMediaFiles({DateTime? lastCompletedSyncAt}) async {
+  /// Scan device media files and return them as [SyncFileModel] instances.
+  ///
+  /// [skipPermissionCheck] should be set to `true` when called from a
+  /// WorkManager background isolate. In that context there is no foreground
+  /// Activity, so calling [PhotoManager.requestPermissionExtend] would crash
+  /// with a NullPointerException inside Android's ActivityResultLauncher.
+  /// The OS-level media permission is already granted by the main app process
+  /// and remains valid in background — we just cannot show the dialog again.
+  Future<List<SyncFileModel>> scanMediaFiles({
+    DateTime? lastCompletedSyncAt,
+    bool skipPermissionCheck = false,
+  }) async {
+    if (!skipPermissionCheck) {
+      final permissionState = await PhotoManager.getPermissionState(
+        requestOption: const PermissionRequestOption(
+          iosAccessLevel: IosAccessLevel.readWrite,
+          androidPermission: AndroidPermission(
+            type: RequestType.common,
+            mediaLocation: false,
+          ),
+        ),
+      );
 
-    final permissionState = await checkPermission();
-    if(!permissionState.isAuth && permissionState != PermissionState.limited) {
-      throw Exception("No permission to access the gallery");
+      if (!permissionState.isAuth &&
+          permissionState != PermissionState.limited) {
+        throw Exception('No permission to access the gallery');
+      }
     }
 
     final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(

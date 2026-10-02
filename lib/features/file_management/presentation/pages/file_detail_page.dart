@@ -15,11 +15,13 @@ class FileDetailPage extends StatefulWidget {
 
   final List<GalleryFile> files;
   final int initialIndex;
+  final int? totalFilesCount;
 
   const FileDetailPage({
     super.key,
     required this.files,
-    required this.initialIndex
+    required this.initialIndex,
+    this.totalFilesCount
   });
 
   @override
@@ -81,8 +83,11 @@ class _FileDetailPageState extends State<FileDetailPage> {
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
-        l10n.fileCountLabel(_currentIndex + 1, widget.files.length),
-        style: const TextStyle(color: Colors.white),
+        l10n.fileCountLabel(_currentIndex + 1, widget.totalFilesCount ?? widget.files.length),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 15
+        ),
       ),
       actions: [
         if (_currentFile.isPending)

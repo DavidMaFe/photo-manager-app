@@ -353,6 +353,18 @@ abstract class AppLocalizations {
   /// **'{files} selected'**
   String selectedFiles(Object files);
 
+  /// No description provided for @selectedFilesWithLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} / 100 selected'**
+  String selectedFilesWithLimit(int count);
+
+  /// No description provided for @selectionLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You can only select up to 100 files at a time.'**
+  String get selectionLimitReached;
+
   /// No description provided for @noFolders.
   ///
   /// In en, this message translates to:

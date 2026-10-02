@@ -28,11 +28,19 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
   final http.Client client;
   final String baseUrl;
 
+  // Timeout for regular API calls (start, check-duplicates, complete, cancel).
+  static const Duration _apiTimeout = Duration(seconds: 30);
+
+  // Longer timeout for file uploads — large photos/videos may take a while.
+  // WorkManager gives background tasks up to 10 minutes total, so 3 minutes
+  // per file is a reasonable ceiling that still leaves time for multiple files.
+  static const Duration _uploadTimeout = Duration(minutes: 3);
+
   SyncSessionRemoteDatasourceImpl({
     required this.client,
     this.baseUrl = DataConstants.backendBaseUrl,
   });
-  
+
   @override
   Future<SyncSessionModel> startSyncSession(String deviceUuid) async {
     try {
@@ -40,7 +48,7 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
         Uri.parse('$baseUrl/api/sync_session/start/'),
         headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({'deviceUuid': deviceUuid}),
-      );
+      ).timeout(_apiTimeout);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -67,7 +75,7 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
         Uri.parse('$baseUrl/api/sync_session/check_duplicates/'),
         headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({'sessionId': sessionId, 'fileHashes': fileHashes}),
-      );
+      ).timeout(_apiTimeout);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -91,13 +99,13 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
   Future<UploadResultModel> uploadFile(String sessionId, SyncFileModel file) async {
     try {
       final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/api/sync_session/upload/'));
-      request.headers.addAll(HttpHeadersUtil.getJsonHeaders());
+      request.headers.addAll(HttpHeadersUtil.getMultipartHeaders());
 
       request.fields['sessionId'] = sessionId;
       request.fields['metadata'] = jsonEncode(file.uploadMetadata);
       request.files.add(await http.MultipartFile.fromPath('file', file.devicePath, filename: file.fileName));
 
-      final streamedResponse = await client.send(request);
+      final streamedResponse = await client.send(request).timeout(_uploadTimeout);
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
@@ -127,7 +135,7 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
         Uri.parse('$baseUrl/api/sync_session/complete/'),
         headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({'sessionId': sessionId}),
-      );
+      ).timeout(_apiTimeout);
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -154,7 +162,7 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
         Uri.parse('$baseUrl/api/sync_session/cancel/'),
         headers: HttpHeadersUtil.getJsonHeaders(),
         body: jsonEncode({'sessionId': sessionId}),
-      );
+      ).timeout(_apiTimeout);
 
       if (response.statusCode == 200) {
         return;

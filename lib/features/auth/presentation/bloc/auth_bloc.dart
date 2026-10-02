@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
+import 'package:photo_manager_app/core/events/app_event_bus.dart';
+import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
@@ -29,6 +33,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   static const int minimumLoadingDuration = 800;
 
+  // Subscription for hard authentication failures fired by AuthenticatedHttpClient
+  // (e.g. refresh token expired). Forces a logout so the router redirects to login.
+  StreamSubscription<AuthenticationFailedEvent>? _authFailedSubscription;
+
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
@@ -39,7 +47,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.validateResetCodeUseCase,
     required this.resetPasswordUseCase,
     required this.authRepository,
-    required this.syncDeviceRepository
+    required this.syncDeviceRepository,
+    required AppEventBus eventBus,
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<RegisterRequested>(_onRegisterRequested);
@@ -50,6 +59,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<ResetCodeValidationRequested>(_onResetCodeValidationRequested);
     on<PasswordResetCodeResendRequested>(_onPasswordResetCodeResendRequested);
     on<NewPasswordSubmitted>(_onNewPasswordSubmitted);
+
+    // When the HTTP layer cannot refresh the token (session fully expired),
+    // trigger a logout so GoRouter redirects back to the login screen.
+    _authFailedSubscription = eventBus
+        .on<AuthenticationFailedEvent>()
+        .listen((_) => add(LogoutRequested()));
+  }
+
+  @override
+  Future<void> close() {
+    _authFailedSubscription?.cancel();
+    return super.close();
   }
 
   Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {

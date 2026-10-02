@@ -69,7 +69,18 @@ class _FolderContentPageState extends State<FolderContentPage> {
   @override
   Widget build(BuildContext context) {
 
-    return BlocBuilder<FolderContentBloc, FolderContentState>(
+    return BlocConsumer<FolderContentBloc, FolderContentState>(
+          listener: (context, state) {
+            if (state is FolderContentLoaded && state.selectionLimitReached) {
+              final l10n = AppLocalizations.of(context)!;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l10n.selectionLimitReached),
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+          },
           builder: (context, state) {
 
             final isSelectionMode = state is FolderContentLoaded && state.isSelectionMode;
@@ -79,6 +90,16 @@ class _FolderContentPageState extends State<FolderContentPage> {
               appBar: _buildAppBar(context, state, isSelectionMode, selectedCount),
               body: Column(
                 children: [
+                  // Always at index 0 — height is 0 when not refreshing.
+                  // A conditional `if` would shift the indices of all siblings,
+                  // causing the CustomScrollView to be remounted and losing scroll position.
+                  SizedBox(
+                    height: (state is FolderContentLoaded && state.isRefreshing) ? 2 : 0,
+                    child: const LinearProgressIndicator(
+                      backgroundColor: Colors.transparent,
+                      color: PhotoManagerColors.primary,
+                    ),
+                  ),
                   _buildFilters(context, state),
                   _buildSubfolders(context, state),
                   Expanded(child: _buildMainContent(context, state))
@@ -104,7 +125,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
             context.read<FolderContentBloc>().add(const ExitSelectionMode());
           },
         ),
-        title: Text(selectedCount == 1 ? l10n.selectedFilesSingle : l10n.selectedFiles(selectedCount)),
+        title: Text(l10n.selectedFilesWithLimit(selectedCount)),
         centerTitle: false,
         elevation: 0,
         backgroundColor: PhotoManagerColors.primary.withValues(alpha: 0.1),
@@ -291,7 +312,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
                     if (state.isSelectionMode) {
                       context.read<FolderContentBloc>().add(ToggleFileSelection(file.id));
                     } else {
-                      _navigateToFileDetail(context, state.files, fileIndexInAllFiles);
+                      _navigateToFileDetail(context, state.files, fileIndexInAllFiles, state.totalFilesCount);
                     }
                   },
                   onLongPress: () {
@@ -380,7 +401,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
                     file: file,
                     isSelectionMode: false,
                     isSelected: false,
-                    onTap: () => _navigateToFileDetail(context, state.files, index),
+                    onTap: () => _navigateToFileDetail(context, state.files, index, state.totalFilesCount),
                   );
                 },
                 childCount: state.files.length
@@ -517,13 +538,14 @@ class _FolderContentPageState extends State<FolderContentPage> {
     context.read<FolderContentBloc>().add(const ExitSelectionMode());
   }
 
-  void _navigateToFileDetail(BuildContext context, List<GalleryFile> files, int index) {
+  void _navigateToFileDetail(BuildContext context, List<GalleryFile> files, int index, int totalFilesCount) {
     context.pushNamed(
       RouteNames.fileDetail,
       pathParameters: {'fileId': files[index].id},
       extra: {
         'files': files,
         'initialIndex': index,
+        'totalFilesCount': totalFilesCount,
       },
     );
   }

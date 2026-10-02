@@ -50,7 +50,7 @@ class GalleryHeader extends StatelessWidget implements PreferredSizeWidget {
         tooltip: l10n.cancel,
       ),
       title: Text(
-        selectedCount == 1 ? l10n.selectedFilesSingle : l10n.selectedFiles(selectedCount),
+        l10n.selectedFilesWithLimit(selectedCount),
         style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
       ),
       centerTitle: false,

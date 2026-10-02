@@ -13,6 +13,7 @@ import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/network_preference_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/notification_preferences_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/save_button_widget.dart';
+import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/sync_diagnostics_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/time_picker_widget.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -128,6 +129,11 @@ class _SyncConfigurationPageContent extends StatelessWidget {
                         color: Colors.grey[600],
                       ),
                 ),
+                const SizedBox(height: 24),
+
+                // Diagnostics card — shows battery status, last sync result,
+                // event log, and Force Sync button.
+                const SyncDiagnosticsWidget(),
                 const SizedBox(height: 24),
 
                 // Auto-sync toggle

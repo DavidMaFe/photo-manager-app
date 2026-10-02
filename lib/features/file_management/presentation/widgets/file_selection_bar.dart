@@ -35,7 +35,7 @@ class FileSelectionBar extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                selectedCount == 1 ? l10n.selectedFilesSingle : l10n.selectedFiles(selectedCount),
+                l10n.selectedFilesWithLimit(selectedCount),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600
                 ),

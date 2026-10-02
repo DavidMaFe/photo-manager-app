@@ -1,4 +1,5 @@
 import 'dart:developer' as developer;
+import 'dart:io';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -9,6 +10,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 /// - Showing success/failure notifications based on user preferences
 /// - Managing foreground service notifications (Android 12+)
 /// - Handling notification tap actions
+///
+/// IMPORTANT: There are two initialization paths:
+/// - [initialize]: full init called from main.dart (foreground app)
+/// - [initializeForBackground]: lightweight init called from the WorkManager
+///   background isolate before using any notification methods
 class SyncNotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin;
 
@@ -24,14 +30,14 @@ class SyncNotificationService {
 
   SyncNotificationService(this._notificationsPlugin);
 
-  /// Initialize notification service and create channels
+  /// Full initialization — called from main.dart (foreground context).
+  ///
+  /// Sets up the plugin, registers tap callbacks, and creates channels.
   Future<void> initialize() async {
     developer.log('🔔 Initializing notification service', name: 'SyncNotificationService');
 
-    // Android-specific initialization
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // iOS-specific initialization
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -53,9 +59,35 @@ class SyncNotificationService {
     developer.log('✅ Notification service initialized', name: 'SyncNotificationService');
   }
 
-  /// Create notification channels for Android
+  /// Lightweight initialization for the WorkManager background isolate.
+  ///
+  /// In the background isolate a fresh FlutterEngine is spun up, so the plugin
+  /// must be re-initialized before any notification methods are called.
+  /// No tap callback is registered here because there is no UI to navigate to.
+  Future<void> initializeForBackground() async {
+    developer.log(
+      '🔔 Initializing notification service (background)',
+      name: 'SyncNotificationService',
+    );
+
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const initSettings = InitializationSettings(android: androidSettings);
+
+    await _notificationsPlugin.initialize(initSettings);
+
+    await _createNotificationChannels();
+
+    developer.log(
+      '✅ Notification service initialized (background)',
+      name: 'SyncNotificationService',
+    );
+  }
+
+  /// Create notification channels for Android.
   Future<void> _createNotificationChannels() async {
-    // Success channel
+    if (!Platform.isAndroid) return;
+
     const successChannel = AndroidNotificationChannel(
       _channelIdSuccess,
       'Sync Success',
@@ -65,7 +97,6 @@ class SyncNotificationService {
       enableVibration: false,
     );
 
-    // Failure channel
     const failureChannel = AndroidNotificationChannel(
       _channelIdFailure,
       'Sync Failures',
@@ -75,7 +106,6 @@ class SyncNotificationService {
       enableVibration: true,
     );
 
-    // Progress channel (for foreground service)
     const progressChannel = AndroidNotificationChannel(
       _channelIdProgress,
       'Sync Progress',
@@ -86,23 +116,26 @@ class SyncNotificationService {
       showBadge: false,
     );
 
-    await _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(successChannel);
+    final androidPlugin = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
 
-    await _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(failureChannel);
-
-    await _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(progressChannel);
+    await androidPlugin?.createNotificationChannel(successChannel);
+    await androidPlugin?.createNotificationChannel(failureChannel);
+    await androidPlugin?.createNotificationChannel(progressChannel);
 
     developer.log('✅ Notification channels created', name: 'SyncNotificationService');
   }
 
-  /// Show foreground service notification (required for Android 12+)
+  /// Start an Android foreground service with an indeterminate progress notification.
+  ///
+  /// This is the correct approach for background sync on Android 12+.
+  /// Using [startForegroundService] keeps the process alive while syncing,
+  /// preventing the OS from killing the task mid-upload.
+  ///
+  /// On iOS or non-Android platforms this is a no-op.
   Future<void> showForegroundNotification() async {
+    if (!Platform.isAndroid) return;
+
     try {
       const androidDetails = AndroidNotificationDetails(
         _channelIdProgress,
@@ -117,30 +150,35 @@ class SyncNotificationService {
         icon: '@mipmap/ic_launcher',
       );
 
-      const notificationDetails = NotificationDetails(android: androidDetails);
+      await _notificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.startForegroundService(
+            _notificationIdProgress,
+            'Syncing photos',
+            'Background sync in progress...',
+            notificationDetails: androidDetails,
+            foregroundServiceTypes: {
+              AndroidServiceForegroundType.foregroundServiceTypeDataSync,
+            },
+          );
 
-      await _notificationsPlugin.show(
-        _notificationIdProgress,
-        'Syncing photos',
-        'Background sync in progress...',
-        notificationDetails,
-      );
-
-      developer.log('📱 Foreground notification shown', name: 'SyncNotificationService');
+      developer.log('📱 Foreground service started', name: 'SyncNotificationService');
     } catch (e) {
       developer.log(
-        '❌ Failed to show foreground notification',
+        '❌ Failed to start foreground service',
         name: 'SyncNotificationService',
         error: e,
       );
     }
   }
 
-  /// Update foreground notification with progress
+  /// Update the foreground service notification with deterministic progress.
   Future<void> updateForegroundNotification({
     required int current,
     required int total,
   }) async {
+    if (!Platform.isAndroid) return;
+
     try {
       final androidDetails = AndroidNotificationDetails(
         _channelIdProgress,
@@ -156,14 +194,17 @@ class SyncNotificationService {
         icon: '@mipmap/ic_launcher',
       );
 
-      final notificationDetails = NotificationDetails(android: androidDetails);
-
-      await _notificationsPlugin.show(
-        _notificationIdProgress,
-        'Syncing photos',
-        'Uploading $current of $total files...',
-        notificationDetails,
-      );
+      await _notificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.startForegroundService(
+            _notificationIdProgress,
+            'Syncing photos',
+            'Uploading $current of $total files...',
+            notificationDetails: androidDetails,
+            foregroundServiceTypes: {
+              AndroidServiceForegroundType.foregroundServiceTypeDataSync,
+            },
+          );
     } catch (e) {
       developer.log(
         '❌ Failed to update foreground notification',
@@ -173,21 +214,26 @@ class SyncNotificationService {
     }
   }
 
-  /// Hide foreground notification
+  /// Stop the foreground service and remove the progress notification.
   Future<void> hideForegroundNotification() async {
+    if (!Platform.isAndroid) return;
+
     try {
-      await _notificationsPlugin.cancel(_notificationIdProgress);
-      developer.log('🔕 Foreground notification hidden', name: 'SyncNotificationService');
+      await _notificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.stopForegroundService();
+
+      developer.log('🔕 Foreground service stopped', name: 'SyncNotificationService');
     } catch (e) {
       developer.log(
-        '❌ Failed to hide foreground notification',
+        '❌ Failed to stop foreground service',
         name: 'SyncNotificationService',
         error: e,
       );
     }
   }
 
-  /// Show sync success notification
+  /// Show a sync success notification.
   Future<void> showSyncSuccessNotification({
     required int filesUploaded,
   }) async {
@@ -236,7 +282,7 @@ class SyncNotificationService {
     }
   }
 
-  /// Show sync failure notification
+  /// Show a sync failure notification.
   Future<void> showSyncFailureNotification({
     required String errorMessage,
   }) async {
@@ -278,7 +324,7 @@ class SyncNotificationService {
     }
   }
 
-  /// Request notification permissions (iOS)
+  /// Request notification permissions (iOS).
   Future<bool> requestPermissions() async {
     try {
       final result = await _notificationsPlugin
@@ -305,7 +351,7 @@ class SyncNotificationService {
     }
   }
 
-  /// Handle notification tap
+  /// Handle notification tap.
   void _onNotificationTapped(NotificationResponse response) {
     developer.log(
       '👆 Notification tapped: ${response.payload}',
@@ -314,10 +360,9 @@ class SyncNotificationService {
 
     // TODO: Navigate to sync history page
     // This will be implemented when we add navigation support
-    // For now, just log the tap
   }
 
-  /// Cancel all notifications
+  /// Cancel all notifications.
   Future<void> cancelAll() async {
     try {
       await _notificationsPlugin.cancelAll();
