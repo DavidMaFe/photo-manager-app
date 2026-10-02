@@ -44,6 +44,8 @@ void main() {
     currentPage: 0,
     pageSize: 50,
     hasNext: true,
+    totalFilesCount: 0,
+    totalPendingCount: 0,
   );
 
   group('GalleryRepositoryImpl - getFiles', () {
@@ -273,6 +275,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       when(() => mockRemoteDataSource.getFiles(
@@ -326,6 +330,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       when(() => mockRemoteDataSource.getFiles(

@@ -276,6 +276,8 @@ void main() {
           hasNext: true,
           currentPage: 0,
           filter: FileFilter.images,
+          totalFilesCount: 0,
+          totalPendingCount: 0,
         ),
       );
 
@@ -299,6 +301,8 @@ void main() {
           hasNext: true,
           currentPage: 0,
           filter: FileFilter.all,
+          totalFilesCount: 0,
+          totalPendingCount: 0,
         ),
       );
 
@@ -332,6 +336,8 @@ void main() {
           hasNext: true,
           currentPage: 0,
           filter: FileFilter.all,
+          totalFilesCount: 0,
+          totalPendingCount: 0,
         ),
       );
 

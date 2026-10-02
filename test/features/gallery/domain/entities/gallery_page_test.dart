@@ -31,6 +31,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -58,6 +60,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       final page2 = GalleryPage(
@@ -65,6 +69,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       final page3 = GalleryPage(
@@ -72,6 +78,8 @@ void main() {
         currentPage: 1,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -86,6 +94,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -100,6 +110,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -114,6 +126,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -127,6 +141,8 @@ void main() {
         currentPage: 2,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -140,6 +156,8 @@ void main() {
         currentPage: 3,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -153,6 +171,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -166,6 +186,8 @@ void main() {
         currentPage: 2,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -179,6 +201,8 @@ void main() {
         currentPage: 2,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -192,6 +216,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       final newFiles = [
@@ -220,6 +246,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       final newFiles = [
@@ -264,6 +292,8 @@ void main() {
         currentPage: 5,
         pageSize: 100,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -278,6 +308,8 @@ void main() {
         currentPage: 0,
         pageSize: 1000,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -291,6 +323,8 @@ void main() {
         currentPage: 999,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert
@@ -307,12 +341,14 @@ void main() {
         currentPage: 2,
         pageSize: 50,
         hasNext: true,
+        totalFilesCount: 120,
+        totalPendingCount: 7,
       );
 
       // Assert
       expect(
         galleryPage.props,
-        equals([testFiles, 2, 50, true]),
+        equals([testFiles, 2, 50, true, 120, 7]),
       );
     });
 
@@ -333,6 +369,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       // Assert

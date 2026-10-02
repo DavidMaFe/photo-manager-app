@@ -28,6 +28,7 @@ void main() {
         subfolders: const [],
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Assert
@@ -256,6 +257,7 @@ void main() {
         subfolders: const [],
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Act
@@ -307,6 +309,7 @@ void main() {
         subfolders: subfolders,
         files: files,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       // Act
@@ -468,6 +471,7 @@ void main() {
         subfolders: const [],
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Act

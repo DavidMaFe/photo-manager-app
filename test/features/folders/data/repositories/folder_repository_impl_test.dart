@@ -134,6 +134,7 @@ void main() {
           subfolders: const [],
           files: const [],
           hasMoreFiles: false,
+          totalFilesCount: 0,
         );
 
         when(() => mockRemoteDataSource.getFolderContent(
@@ -178,6 +179,7 @@ void main() {
           subfolders: const [],
           files: const [],
           hasMoreFiles: false,
+          totalFilesCount: 0,
         );
 
         when(() => mockRemoteDataSource.getFolderContent(
@@ -224,6 +226,7 @@ void main() {
           subfolders: const [],
           files: const [],
           hasMoreFiles: false,
+          totalFilesCount: 0,
         );
 
         when(() => mockRemoteDataSource.getFolderContent(
@@ -268,6 +271,7 @@ void main() {
           subfolders: const [],
           files: const [],
           hasMoreFiles: false,
+          totalFilesCount: 0,
         );
 
         when(() => mockRemoteDataSource.getFolderContent(
@@ -312,6 +316,7 @@ void main() {
           subfolders: const [],
           files: const [],
           hasMoreFiles: false,
+          totalFilesCount: 0,
         );
 
         when(() => mockRemoteDataSource.getFolderContent(
@@ -356,6 +361,7 @@ void main() {
           subfolders: const [],
           files: const [],
           hasMoreFiles: false,
+          totalFilesCount: 0,
         );
 
         when(() => mockRemoteDataSource.getFolderContent(

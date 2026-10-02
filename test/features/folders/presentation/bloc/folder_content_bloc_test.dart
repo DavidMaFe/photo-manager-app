@@ -84,6 +84,7 @@ void main() {
       subfolders: testSubfolders,
       files: testFiles,
       hasMoreFiles: false,
+      totalFilesCount: 0,
     );
 
     // Helper to create grouped files for tests
@@ -147,6 +148,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const LoadFolderContent(folderId: 'folder-2')),
         wait: const Duration(milliseconds: 500),
@@ -187,6 +189,7 @@ void main() {
             subfolders: const [],
             files: const [],
             hasMoreFiles: false,
+            totalFilesCount: 0,
           );
 
           when(() => mockGetFolderContentUseCase.call(
@@ -230,6 +233,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const RefreshFolderContent()),
         wait: const Duration(milliseconds: 500),
@@ -256,6 +260,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const RefreshFolderContent()),
         wait: const Duration(milliseconds: 500),
@@ -281,6 +286,7 @@ void main() {
             subfolders: const [],
             files: moreFiles,
             hasMoreFiles: false,
+            totalFilesCount: 0,
           );
 
           when(() => mockGetFolderContentUseCase.call(
@@ -301,6 +307,7 @@ void main() {
           hasMoreFiles: true,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const LoadMoreFiles()),
         wait: const Duration(milliseconds: 500),
@@ -326,6 +333,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const LoadMoreFiles()),
         expect: () => [],
@@ -348,6 +356,7 @@ void main() {
             subfolders: testSubfolders,
             files: [testFiles[0]],
             hasMoreFiles: false,
+            totalFilesCount: 0,
           );
 
           when(() => mockGetFolderContentUseCase.call(
@@ -367,6 +376,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const FilterFilesInFolder(filter: FileFilter.images)),
         wait: const Duration(milliseconds: 500),
@@ -393,6 +403,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const FilterFilesInFolder(filter: FileFilter.videos)),
         wait: const Duration(milliseconds: 500),
@@ -415,6 +426,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const EnterSelectionMode()),
         expect: () => [
@@ -437,6 +449,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {'file-1', 'file-2'},
           isSelectionMode: true,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const ExitSelectionMode()),
         expect: () => [
@@ -460,6 +473,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: true,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const ToggleFileSelection('file-1')),
         expect: () => [
@@ -482,6 +496,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {'file-1'},
           isSelectionMode: true,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const ToggleFileSelection('file-1')),
         expect: () => [

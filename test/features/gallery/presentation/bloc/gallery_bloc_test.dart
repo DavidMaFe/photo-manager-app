@@ -291,8 +291,12 @@ void main() {
       act: (bloc) => bloc.add(const RefreshGallery()),
       wait: const Duration(milliseconds: 500),
       expect: () => [
-        const GalleryLoading(filter: FileFilter.images),
+        // Refresh keeps the grid visible (no GalleryLoading) to preserve scroll
         isA<GalleryLoaded>()
+            .having((s) => s.isRefreshing, 'is refreshing', true)
+            .having((s) => s.filter, 'filter', FileFilter.images),
+        isA<GalleryLoaded>()
+            .having((s) => s.isRefreshing, 'is refreshing', false)
             .having((s) => s.filter, 'filter', FileFilter.images)
             .having((s) => s.currentPage, 'current page', 0),
       ],
@@ -457,8 +461,11 @@ void main() {
       act: (bloc) => bloc.add(const RefreshGallery()),
       wait: const Duration(milliseconds: 500),
       expect: () => [
-        const GalleryLoading(filter: FileFilter.all),
         isA<GalleryLoaded>()
+            .having((s) => s.isRefreshing, 'is refreshing', true)
+            .having((s) => s.isSelectionMode, 'selection mode', true),
+        isA<GalleryLoaded>()
+            .having((s) => s.isRefreshing, 'is refreshing', false)
             .having((s) => s.isSelectionMode, 'selection mode', true)
             .having((s) => s.selectedFileIds, 'selected files', {'file-1'}),
       ],

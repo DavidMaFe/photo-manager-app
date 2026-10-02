@@ -91,6 +91,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
       );
       when(() => mockFolderContentBloc.stream).thenAnswer(
@@ -103,6 +104,7 @@ void main() {
             hasMoreFiles: false,
             selectedFileIds: const {},
             isSelectionMode: false,
+            totalFilesCount: 0,
           ),
         ),
       );
@@ -145,6 +147,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
       );
       when(() => mockFolderContentBloc.stream).thenAnswer(
@@ -157,6 +160,7 @@ void main() {
             hasMoreFiles: false,
             selectedFileIds: const {},
             isSelectionMode: false,
+            totalFilesCount: 0,
           ),
         ),
       );
@@ -203,6 +207,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
       );
       when(() => mockFolderContentBloc.stream).thenAnswer(
@@ -215,6 +220,7 @@ void main() {
             hasMoreFiles: false,
             selectedFileIds: const {},
             isSelectionMode: false,
+            totalFilesCount: 0,
           ),
         ),
       );
@@ -248,6 +254,7 @@ void main() {
           hasMoreFiles: true,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
       );
       when(() => mockFolderContentBloc.stream).thenAnswer(
@@ -260,6 +267,7 @@ void main() {
             hasMoreFiles: true,
             selectedFileIds: const {},
             isSelectionMode: false,
+            totalFilesCount: 0,
           ),
         ),
       );
