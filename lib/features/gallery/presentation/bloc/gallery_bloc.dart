@@ -36,6 +36,7 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     on<ToggleFileSelection>(_onToggleFileSelection);
     on<SelectAllFiles>(_onSelectAllFiles);
     on<ClearSelection>(_onClearSelection);
+    on<ReviewPendingFiles>(_onReviewPendingFiles);
 
     // Listen to file updates and auto-refresh
     _fileUpdateSubscription = eventBus.on<FileUpdatedEvent>().listen((_) {
@@ -188,6 +189,42 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
       ));
 
     } catch(e) {
+      Failure failure = ErrorHandler.handleError(e);
+      emit(GalleryError(failure));
+    }
+  }
+
+  /// Loads up to [kMaxFileSelection] pending files (in regular pages so
+  /// pagination keeps working), selects them and flags the review.
+  Future<void> _onReviewPendingFiles(ReviewPendingFiles event, Emitter<GalleryState> emit) async {
+
+    emit(const GalleryLoading(filter: FileFilter.pending));
+
+    try {
+      var result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: FileFilter.pending);
+      final files = [...result.files];
+
+      while (result.hasNext && files.length < kMaxFileSelection) {
+        result = await getFilesUseCase(page: result.currentPage + 1, pageSize: _pageSize, filter: FileFilter.pending);
+        files.addAll(result.files);
+      }
+
+      final selected = files.take(kMaxFileSelection).map((f) => f.id).toSet();
+
+      emit(GalleryLoaded(
+        files: files,
+        groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+        isSelectionMode: selected.isNotEmpty,
+        selectedFileIds: selected,
+        hasNext: result.hasNext,
+        currentPage: result.currentPage,
+        totalFilesCount: result.totalFilesCount,
+        totalPendingCount: result.totalPendingCount,
+        filter: FileFilter.pending,
+        selectionLimitReached: result.totalPendingCount > kMaxFileSelection,
+        reviewRequested: selected.isNotEmpty,
+      ));
+    } catch (e) {
       Failure failure = ErrorHandler.handleError(e);
       emit(GalleryError(failure));
     }

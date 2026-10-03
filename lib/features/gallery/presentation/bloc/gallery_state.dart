@@ -42,6 +42,9 @@ class GalleryLoaded extends GalleryState {
   final bool selectionLimitReached;
   final bool isRefreshing;
 
+  /// One-shot: the pending files are selected and the manage sheet should open.
+  final bool reviewRequested;
+
   const GalleryLoaded({
     required this.files,
     required this.groupedFiles,
@@ -54,6 +57,7 @@ class GalleryLoaded extends GalleryState {
     required this.filter,
     this.selectionLimitReached = false,
     this.isRefreshing = false,
+    this.reviewRequested = false,
   });
 
   int get pendingCount => totalPendingCount;
@@ -76,6 +80,7 @@ class GalleryLoaded extends GalleryState {
     bool selectionLimitReached = false,
     bool isRefreshing = false,
   }) {
+    // One-shot flags (limit reached, review requested) reset on every copy.
     return GalleryLoaded(
       files: files ?? this.files,
       groupedFiles: groupedFiles ?? this.groupedFiles,
@@ -93,7 +98,8 @@ class GalleryLoaded extends GalleryState {
 
   @override
   List<Object?> get props => [files, groupedFiles, isSelectionMode, selectedFileIds, hasNext,
-    currentPage, totalFilesCount, totalPendingCount, filter, selectionLimitReached, isRefreshing];
+    currentPage, totalFilesCount, totalPendingCount, filter, selectionLimitReached, isRefreshing,
+    reviewRequested];
 }
 
 

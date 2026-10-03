@@ -499,5 +499,109 @@ void main() {
             .having((s) => s.isEmpty, 'isEmpty', true),
       ],
     );
-  });
+      // ==================== REVIEW PENDING TESTS ====================
+
+    GalleryFile pendingFile(int i) => GalleryFile(
+          id: 'pending-$i',
+          type: FileType.image,
+          status: FileStatus.pending,
+          capturedAt: DateTime(2024, 1, 15),
+        );
+
+    GalleryPage pendingPage(int page, int count, {required bool hasNext, int total = 0}) => GalleryPage(
+          files: List.generate(count, (i) => pendingFile(page * 50 + i)),
+          currentPage: page,
+          pageSize: 50,
+          hasNext: hasNext,
+          totalFilesCount: total,
+          totalPendingCount: total,
+        );
+
+    blocTest<GalleryBloc, GalleryState>(
+      'selects every pending file and requests the review',
+      setUp: () {
+        when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
+            .thenAnswer((_) async => pendingPage(0, 3, hasNext: false, total: 3));
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const ReviewPendingFiles()),
+      expect: () => [
+        const GalleryLoading(filter: FileFilter.pending),
+        isA<GalleryLoaded>()
+            .having((s) => s.filter, 'filter', FileFilter.pending)
+            .having((s) => s.isSelectionMode, 'selection mode', true)
+            .having((s) => s.selectedFileIds, 'selected', {'pending-0', 'pending-1', 'pending-2'})
+            .having((s) => s.reviewRequested, 'review requested', true)
+            .having((s) => s.selectionLimitReached, 'limit', false),
+      ],
+    );
+
+    blocTest<GalleryBloc, GalleryState>(
+      'loads a second page and caps the selection at the limit',
+      setUp: () {
+        when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
+            .thenAnswer((_) async => pendingPage(0, 50, hasNext: true, total: 130));
+        when(() => mockGetFilesUseCase.call(page: 1, pageSize: 50, filter: FileFilter.pending))
+            .thenAnswer((_) async => pendingPage(1, 50, hasNext: true, total: 130));
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const ReviewPendingFiles()),
+      expect: () => [
+        const GalleryLoading(filter: FileFilter.pending),
+        isA<GalleryLoaded>()
+            .having((s) => s.files.length, 'files', 100)
+            .having((s) => s.selectedFileIds.length, 'selected', 100)
+            .having((s) => s.currentPage, 'current page', 1)
+            .having((s) => s.hasNext, 'has next', true)
+            .having((s) => s.selectionLimitReached, 'limit', true),
+      ],
+    );
+
+    blocTest<GalleryBloc, GalleryState>(
+      'does not request a review without pending files',
+      setUp: () {
+        when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
+            .thenAnswer((_) async => pendingPage(0, 0, hasNext: false));
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const ReviewPendingFiles()),
+      expect: () => [
+        const GalleryLoading(filter: FileFilter.pending),
+        isA<GalleryLoaded>()
+            .having((s) => s.reviewRequested, 'review requested', false)
+            .having((s) => s.isSelectionMode, 'selection mode', false),
+      ],
+    );
+
+    blocTest<GalleryBloc, GalleryState>(
+      'emits an error when loading the pending files fails',
+      setUp: () {
+        when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
+            .thenThrow(Exception('Network error'));
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const ReviewPendingFiles()),
+      expect: () => [
+        const GalleryLoading(filter: FileFilter.pending),
+        isA<GalleryError>(),
+      ],
+    );
+
+    test('reviewRequested is a one-shot flag cleared by copyWith', () {
+      const state = GalleryLoaded(
+        files: [],
+        groupedFiles: [],
+        isSelectionMode: true,
+        selectedFileIds: {'a'},
+        hasNext: false,
+        currentPage: 0,
+        totalFilesCount: 0,
+        totalPendingCount: 1,
+        filter: FileFilter.pending,
+        reviewRequested: true,
+      );
+      expect(state.copyWith().reviewRequested, isFalse);
+    });
+
+});
 }

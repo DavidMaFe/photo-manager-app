@@ -58,3 +58,10 @@ class SelectAllFiles extends GalleryEvent {
 class ClearSelection extends GalleryEvent {
   const ClearSelection();
 }
+
+
+/// Loads the files to review (pending), selects them (up to the selection
+/// limit) and asks the page to open the manage sheet.
+class ReviewPendingFiles extends GalleryEvent {
+  const ReviewPendingFiles();
+}

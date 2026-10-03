@@ -12,6 +12,7 @@ import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
 import 'package:photo_manager_app/core/widgets/user_avatar.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
@@ -95,6 +96,13 @@ class GalleryPage extends StatelessWidget {
     );
   }
 
+  /// Manage sheet with every pending file selected by [ReviewPendingFiles].
+  Future<void> _openReviewSheet(BuildContext context, List<String> fileIds) async {
+    final bloc = context.read<GalleryBloc>();
+    await ManageFileModal.show(context, fileIds: fileIds);
+    bloc.add(const ExitSelectionMode());
+  }
+
   Widget _buildAvatar(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
@@ -112,6 +120,10 @@ class GalleryPage extends StatelessWidget {
   }
 
   void _handleStateChanges(BuildContext context, GalleryState state) {
+    if (state is GalleryLoaded && state.reviewRequested) {
+      _openReviewSheet(context, state.selectedFileIds.toList());
+    }
+
     // GalleryError is handled by the full-page ErrorDisplay in _buildContent.
     // No snackbar here to avoid showing two error surfaces simultaneously.
     if (state is GalleryLoaded && state.selectionLimitReached) {
@@ -247,10 +259,7 @@ class GalleryPage extends StatelessWidget {
           SliverToBoxAdapter(
             child: PendingReviewCard(
               pendingCount: pendingCount,
-              // Phase 5 opens the manage sheet with every pending file instead.
-              onReview: () {
-                context.read<GalleryBloc>().add(const LoadGallery(filter: FileFilter.pending));
-              },
+              onReview: () => context.read<GalleryBloc>().add(const ReviewPendingFiles()),
             ),
           ),
       ],

@@ -15,6 +15,9 @@ import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_state.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_state.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
@@ -38,6 +41,8 @@ class MockAuthBloc extends Mock implements AuthBloc {}
 
 class MockFileManagementBloc extends Mock implements FileManagementBloc {}
 
+class MockManageFolderBloc extends Mock implements ManageFolderBloc {}
+
 class FakeGalleryEvent extends Fake implements GalleryEvent {}
 
 void main() {
@@ -45,6 +50,7 @@ void main() {
   late MockSyncSessionBloc mockSyncSessionBloc;
   late MockAuthBloc mockAuthBloc;
   late MockFileManagementBloc mockFileManagementBloc;
+  late MockManageFolderBloc mockManageFolderBloc;
 
   setUpAll(() => registerFallbackValue(FakeGalleryEvent()));
 
@@ -56,6 +62,10 @@ void main() {
     mockSyncSessionBloc = MockSyncSessionBloc();
     when(() => mockSyncSessionBloc.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockSyncSessionBloc.state).thenReturn(const SyncSessionInitial());
+
+    mockManageFolderBloc = MockManageFolderBloc();
+    when(() => mockManageFolderBloc.stream).thenAnswer((_) => const Stream.empty());
+    when(() => mockManageFolderBloc.state).thenReturn(const ManageFoldersLoaded(folders: []));
 
     mockFileManagementBloc = MockFileManagementBloc();
     when(() => mockFileManagementBloc.stream).thenAnswer((_) => const Stream.empty());
@@ -75,6 +85,7 @@ void main() {
         BlocProvider<SyncSessionBloc>.value(value: mockSyncSessionBloc),
         BlocProvider<AuthBloc>.value(value: mockAuthBloc),
         BlocProvider<FileManagementBloc>.value(value: mockFileManagementBloc),
+        BlocProvider<ManageFolderBloc>.value(value: mockManageFolderBloc),
       ],
       child: const GalleryPage(),
     );
@@ -195,7 +206,7 @@ void main() {
       expect(find.text('3 items to review'), findsOneWidget);
     });
 
-    testWidgets('should filter by pending files when tapping review', (tester) async {
+    testWidgets('should start the pending review when tapping review', (tester) async {
       // Arrange
       when(() => mockGalleryBloc.state).thenReturn(loaded(pending: 3));
       await tester.pumpWidget(createWidgetUnderTest());
@@ -204,8 +215,35 @@ void main() {
       await tester.tap(find.text('Review'));
 
       // Assert
-      final event = verify(() => mockGalleryBloc.add(captureAny())).captured.last;
-      expect(event, isA<LoadGallery>().having((e) => e.filter, 'filter', FileFilter.pending));
+      verify(() => mockGalleryBloc.add(const ReviewPendingFiles())).called(1);
+    });
+
+    testWidgets('should open the manage sheet with the pending files', (tester) async {
+      // Arrange
+      final review = GalleryLoaded(
+        files: testFiles,
+        groupedFiles: DateGroupingUtil.groupFilesByDate(testFiles),
+        isSelectionMode: true,
+        selectedFileIds: const {'file-2'},
+        hasNext: false,
+        currentPage: 0,
+        totalFilesCount: 2,
+        totalPendingCount: 1,
+        filter: FileFilter.pending,
+        reviewRequested: true,
+      );
+      when(() => mockGalleryBloc.state).thenReturn(loaded());
+      when(() => mockGalleryBloc.stream).thenAnswer((_) => Stream.value(review));
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest());
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+
+      // Assert
+      final sheet = tester.widget<ManageFileModal>(find.byType(ManageFileModal));
+      expect(sheet.fileIds, ['file-2']);
     });
 
     testWidgets('should hide the review card without pending files', (tester) async {
