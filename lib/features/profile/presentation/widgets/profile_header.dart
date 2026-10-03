@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 
 import '../../../../core/widgets/authenticated_image.dart';
@@ -30,10 +30,10 @@ class ProfileHeader extends StatelessWidget {
             )
                 : CircleAvatar(
               radius: 50,
-              backgroundColor: PhotoManagerColors.primary,
+              backgroundColor: context.palette.accent,
               child: Text(
                   _getInitials(profile.fullName),
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.palette.onAccent)
               ),
             ),
           ],
@@ -41,10 +41,10 @@ class ProfileHeader extends StatelessWidget {
 
         Text(
           profile.fullName,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.black87
+            color: context.palette.ink
           )
         ),
 
@@ -56,7 +56,7 @@ class ProfileHeader extends StatelessWidget {
             profile.email,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.blue[600],
+              color: context.palette.accentInk,
             ),
           ),
         )

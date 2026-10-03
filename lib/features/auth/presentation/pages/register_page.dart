@@ -1,4 +1,5 @@
 
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -70,7 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.surface,
       body: SafeArea(
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
@@ -85,7 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(l10n.accountCreated),
-                    backgroundColor: Colors.green,
+                    backgroundColor: context.palette.safe,
                     duration: const Duration(seconds: 3),
                   )
               );

@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 
@@ -29,17 +29,17 @@ class RegisterActions extends StatelessWidget {
           child: ElevatedButton(
             onPressed: isLoading ? null : onRegister,
             style: ElevatedButton.styleFrom(
-              backgroundColor: PhotoManagerColors.primary,
-              disabledBackgroundColor: Colors.grey[300],
-              foregroundColor: Colors.white,
+              backgroundColor: context.palette.accent,
+              disabledBackgroundColor: context.palette.line,
+              foregroundColor: context.palette.onAccent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12)
               ),
               elevation: 0
             ),
-            child: isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(
+            child: isLoading ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              valueColor: AlwaysStoppedAnimation<Color>(context.palette.onAccent),
             )) : Text(l10n.registerButton, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600))
           ),
         ),
@@ -50,7 +50,7 @@ class RegisterActions extends StatelessWidget {
             Text(
               l10n.alreadyHaveAccount,
               style: TextStyle(
-                color: Colors.grey[600],
+                color: context.palette.ink2,
                 fontSize: 15
               ),
             ),
@@ -64,7 +64,7 @@ class RegisterActions extends StatelessWidget {
               child: Text(
                 l10n.signIn,
                 style: TextStyle(
-                  color: isLoading ? Colors.grey : PhotoManagerColors.primary,
+                  color: isLoading ? context.palette.ink2 : context.palette.accentInk,
                   fontSize: 14,
                   fontWeight: FontWeight.w600
                 ),
@@ -78,7 +78,7 @@ class RegisterActions extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 13,
-            color: Colors.grey[500]
+            color: context.palette.ink2
           ),
         )
       ],

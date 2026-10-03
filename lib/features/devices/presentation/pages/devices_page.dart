@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -19,12 +20,11 @@ class DevicesPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: context.palette.surface2,
       appBar: AppBar(
         title: Text(l10n.myDevices),
-        backgroundColor: Colors.white,
+        backgroundColor: context.palette.surface,
         elevation: 0,
-        surfaceTintColor: Colors.transparent,
       ),
       body: SafeArea(
         child: BlocConsumer<DeviceBloc, DeviceState>(
@@ -46,7 +46,7 @@ class DevicesPage extends StatelessWidget {
                 SnackBar(
                   content: Text(l10n.deviceActionSuccess),
                   duration: const Duration(seconds: 2),
-                  backgroundColor: Colors.green,
+                  backgroundColor: context.palette.safe,
                 ),
               );
             }

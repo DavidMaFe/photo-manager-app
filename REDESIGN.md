@@ -531,22 +531,22 @@ Eliminar del `.arb` las claves que queden sin uso al final (comprobar con búsqu
 
 ## 10. Fases y criterios de aceptación
 
-**Fase 1 · Base visual**
-- [ ] Dependencias (sección 3).
-- [ ] `AppColors`, `AppPalette`, `AppSpacing`, `AppRadius`, tipografía y `AppTheme` claro/oscuro (sección 2).
-- [ ] `main.dart` usa los temas; `themeMode` desde preferencias.
-- [ ] La app compila y se ve con la nueva fuente y colores sin tocar todavía las pantallas.
+**Fase 1 · Base visual** ✅
+- [x] Dependencias (sección 3).
+- [x] `AppColors`, `AppPalette`, `AppSpacing`, `AppRadius`, tipografía y `AppTheme` claro/oscuro (sección 2).
+- [x] `main.dart` usa los temas; `themeMode` desde preferencias.
+- [x] La app compila y se ve con la nueva fuente y colores sin tocar todavía las pantallas.
 
-**Fase 2 · Logo e iconos**
-- [ ] Assets de `assets/branding/` copiados y declarados.
-- [ ] `AppLogo` creado.
-- [ ] Iconos de app y splash regenerados (sección 4).
+**Fase 2 · Logo e iconos** ✅
+- [x] Assets de `assets/branding/` copiados y declarados.
+- [x] `AppLogo` creado.
+- [x] Iconos de app y splash regenerados (sección 4).
 
-**Fase 3 · Componentes compartidos**
-- [ ] Todos los widgets de la sección 5 en `lib/core/widgets/`.
-- [ ] `ModernDialog` reimplementado sobre `AppDialog` (misma API).
-- [ ] Ningún `Colors.`/`Color(0x` fuera de `config/theme/` (comprobar con `grep -rn "Colors\.\|Color(0x" lib --include=*.dart | grep -v config/theme`).
-- [ ] `photo_manager_colors.dart` eliminado.
+**Fase 3 · Componentes compartidos** ✅
+- [x] Todos los widgets de la sección 5 en `lib/core/widgets/`.
+- [x] `ModernDialog` reimplementado sobre `AppDialog` (misma API).
+- [x] Ningún `Colors.`/`Color(0x` fuera de `config/theme/` (comprobar con `grep -rn "Colors\.\|Color(0x" lib --include=*.dart | grep -v config/theme`).
+- [x] `photo_manager_colors.dart` eliminado.
 
 **Fase 4 · Pantallas** (un commit por feature)
 - [ ] Acceso: 6.1, 6.2, 6.3

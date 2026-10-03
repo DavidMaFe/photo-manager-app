@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -55,7 +56,7 @@ class _SyncConfigurationPageContent extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(l10n.configurationSaved),
-                backgroundColor: Colors.green,
+                backgroundColor: context.palette.safe,
                 duration: const Duration(seconds: 2),
               ),
             );
@@ -84,7 +85,7 @@ class _SyncConfigurationPageContent extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  Icon(Icons.error_outline, size: 64, color: context.palette.danger),
                   const SizedBox(height: 16),
                   Text(
                     l10n.configurationLoadError,
@@ -126,7 +127,7 @@ class _SyncConfigurationPageContent extends StatelessWidget {
                 Text(
                   l10n.syncConfigurationDescription,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
+                        color: context.palette.ink2,
                       ),
                 ),
                 const SizedBox(height: 24),

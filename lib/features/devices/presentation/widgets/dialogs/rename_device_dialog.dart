@@ -1,6 +1,6 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 class RenameDeviceDialog extends StatefulWidget {
@@ -22,7 +22,7 @@ class RenameDeviceDialog extends StatefulWidget {
       context: context,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
+      barrierColor: context.palette.media.withValues(alpha: 0.5),
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Material(
@@ -121,15 +121,15 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.95),
+                  color: context.palette.surface.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: context.palette.surface.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: context.palette.shadow,
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -162,8 +162,8 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            PhotoManagerColors.primary,
-            PhotoManagerColors.primary.withValues(alpha: 0.8),
+            context.palette.accent,
+            context.palette.accent.withValues(alpha: 0.8),
           ],
         ),
       ),
@@ -174,20 +174,20 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: context.palette.surface.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.edit,
-              color: Colors.white,
+              color: context.palette.onAccent,
               size: 28,
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: DefaultTextStyle(
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: context.palette.onAccent,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.none,
@@ -209,7 +209,7 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
         children: [
           DefaultTextStyle(
             style: TextStyle(
-              color: Colors.grey.shade800,
+              color: context.palette.ink,
               fontSize: 15,
               height: 1.5,
               decoration: TextDecoration.none,
@@ -228,15 +228,15 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: PhotoManagerColors.primary,
+                borderSide: BorderSide(
+                  color: context.palette.accent,
                   width: 2,
                 ),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: Colors.red,
+                borderSide: BorderSide(
+                  color: context.palette.danger,
                   width: 1.5,
                 ),
               ),
@@ -267,14 +267,14 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 side: BorderSide(
-                  color: Colors.grey.shade300,
+                  color: context.palette.line,
                   width: 1.5,
                 ),
               ),
               child: Text(
                 l10n.cancel,
                 style: TextStyle(
-                  color: Colors.grey.shade700,
+                  color: context.palette.ink2,
                   fontWeight: FontWeight.w600,
                   fontSize: 15,
                 ),
@@ -286,7 +286,7 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
             child: FilledButton(
               onPressed: _isValid ? _handleConfirm : null,
               style: FilledButton.styleFrom(
-                backgroundColor: PhotoManagerColors.primary,
+                backgroundColor: context.palette.accent,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -295,8 +295,8 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
               ),
               child: Text(
                 l10n.rename,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: context.palette.onAccent,
                   fontWeight: FontWeight.w600,
                   fontSize: 15,
                 ),

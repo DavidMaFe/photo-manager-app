@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
@@ -114,17 +115,17 @@ class ErrorNotificationService {
       SnackBar(
         content: Row(
           children: [
-            Icon(icon, color: Colors.white),
+            Icon(icon, color: context.palette.onAccent),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: context.palette.onAccent),
               ),
             ),
           ],
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: context.palette.safe,
         duration: duration,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(

@@ -1,4 +1,5 @@
 
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -14,17 +15,17 @@ class NotificationsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.notificationsTitle),
-        backgroundColor: Colors.white,
+        backgroundColor: context.palette.surface,
       ),
       body: _buildContent(context, l10n),
     );
   }
 
   Widget _buildContent(BuildContext context, AppLocalizations l10n) {
-    return _buildEmptyState(l10n);
+    return _buildEmptyState(context, l10n);
   }
 
-  Widget _buildEmptyState(AppLocalizations l10n) {
+  Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
 
     return Center(
       child: Column(
@@ -33,7 +34,7 @@ class NotificationsPage extends StatelessWidget {
           Icon(
             Icons.notifications_off_outlined,
             size: 80,
-            color: Colors.grey[400],
+            color: context.palette.ink3,
           ),
           const SizedBox(height: 24),
           Text(
@@ -41,7 +42,7 @@ class NotificationsPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[800]
+              color: context.palette.ink
             ),
           ),
           const SizedBox(height: 8),
@@ -49,7 +50,7 @@ class NotificationsPage extends StatelessWidget {
             l10n.noNotificationsYet,
             style: TextStyle(
               fontSize: 15,
-              color: Colors.grey[600]
+              color: context.palette.ink2
             ),
           )
         ],

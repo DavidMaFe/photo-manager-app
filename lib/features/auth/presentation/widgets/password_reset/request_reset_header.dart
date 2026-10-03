@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import '../../../../../l10n/app_localizations.dart';
 
@@ -27,10 +28,10 @@ class RequestResetHeader extends StatelessWidget {
           child: Text(
             l10n.forgotPasswordTitle,
             maxLines: 1,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Colors.black87
+              color: context.palette.ink
             ),
           ),
         ),
@@ -39,7 +40,7 @@ class RequestResetHeader extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey[600],
+            color: context.palette.ink2,
             fontWeight: FontWeight.w400
           ),
         )

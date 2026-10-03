@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
 import 'package:photo_manager_app/features/trash/presentation/widgets/trash_file_card.dart';
@@ -100,7 +101,7 @@ class _TrashFilesGridState extends State<TrashFilesGrid> {
         ),
         if (widget.isProcessing)
           Container(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: context.palette.media.withValues(alpha: 0.3),
             child: const Center(
               child: CircularProgressIndicator(),
             ),

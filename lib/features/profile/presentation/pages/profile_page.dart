@@ -1,4 +1,5 @@
 
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -29,7 +30,7 @@ class ProfilePage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: context.palette.surface2,
       body: SafeArea(
         child: BlocConsumer<ProfileBloc, ProfileState>(
           listener: (context, state) {
@@ -69,11 +70,11 @@ class ProfilePage extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.palette.surface,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
+                              color: context.palette.shadow,
                               blurRadius: 10,
                               offset: const Offset(0, 2)
                             )
@@ -91,11 +92,11 @@ class ProfilePage extends StatelessWidget {
                       const SizedBox(height: 24),
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.palette.surface,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
+                                color: context.palette.shadow,
                                 blurRadius: 10,
                                 offset: const Offset(0, 2)
                             )
@@ -152,14 +153,14 @@ class ProfilePage extends StatelessWidget {
                           onPressed: () {
                             _showLogoutDialog(context, l10n);
                           },
-                          icon: const Icon(Icons.logout, color: Colors.red),
+                          icon: Icon(Icons.logout, color: context.palette.danger),
                           label: Text(
                             l10n.logoutButton,
-                            style: const TextStyle(color: Colors.red),
+                            style: TextStyle(color: context.palette.dangerInk),
                           ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: const BorderSide(color: Colors.red),
+                            side: BorderSide(color: context.palette.danger),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadiusGeometry.circular(12)
                             )

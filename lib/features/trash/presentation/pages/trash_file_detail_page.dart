@@ -1,7 +1,7 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/video_player_widget.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
@@ -55,7 +55,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: context.palette.media,
       appBar: _buildAppBar(context, l10n),
       body: PageView.builder(
         controller: _pageController,
@@ -75,23 +75,23 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context, AppLocalizations l10n) {
     return AppBar(
-      backgroundColor: Colors.black.withValues(alpha: 0.5),
+      backgroundColor: context.palette.media.withValues(alpha: 0.5),
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: Icon(Icons.arrow_back, color: context.palette.onMedia),
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
         l10n.fileCountLabel(_currentIndex + 1, widget.files.length),
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: context.palette.onMedia,
           fontSize: 15
         ),
       ),
       actions: [
         _buildDaysRemainingBadge(l10n),
         IconButton(
-          icon: const Icon(Icons.more_vert, color: Colors.white),
+          icon: Icon(Icons.more_vert, color: context.palette.onMedia),
           onPressed: () => _showOptionsMenu(context, l10n),
         )
       ],
@@ -107,13 +107,13 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isImminent ? Colors.red : Colors.orange,
+          color: isImminent ? context.palette.danger : context.palette.review,
           borderRadius: BorderRadius.circular(12)
         ),
         child: Text(
           l10n.daysRemaining(daysRemaining),
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.palette.onMedia,
             fontSize: 14,
             fontWeight: FontWeight.bold
           ),
@@ -132,7 +132,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
         minScale: 0.5,
         maxScale: 4.0,
         child: Container(
-          color: Colors.black,
+          color: context.palette.media,
           child: Center(
             child: AuthenticatedImage(
               imageUrl: fullUrl,
@@ -143,7 +143,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
       );
     } else if (file.isVideo) {
       return Container(
-        color: Colors.black,
+        color: context.palette.media,
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: VideoPlayerWidget(
           videoUrl: fullUrl,
@@ -211,7 +211,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
 
   Widget _buildFloatingActionButton(IconData icon, VoidCallback onPressed) {
     return Material(
-      color: Colors.transparent,
+      type: MaterialType.transparency,
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(30),
@@ -219,11 +219,11 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.4),
+            color: context.palette.media.withValues(alpha: 0.4),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
+                color: context.palette.shadow,
                 blurRadius: 8,
                 offset: const Offset(0, 2)
               )
@@ -231,7 +231,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
           ),
           child: Icon(
             icon,
-            color: Colors.white,
+            color: context.palette.onMedia,
             size: 28,
           ),
         ),
@@ -247,13 +247,13 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
           Icon(
             Icons.error_outline,
             size: 80,
-            color: Colors.white.withValues(alpha: 0.7)
+            color: context.palette.onMedia.withValues(alpha: 0.7)
           ),
           const SizedBox(height: 16),
           Text(
             l10n.fileTypeNotSupported,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: context.palette.onMedia.withValues(alpha: 0.7),
               fontSize: 16
             ),
             textAlign: TextAlign.center,
@@ -325,8 +325,8 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.white,
-                Colors.grey.shade50
+                context.palette.onMedia,
+                context.palette.ink3
               ]
             )
           ),
@@ -336,7 +336,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: PhotoManagerColors.primary.withValues(alpha: 0.1),
+                  color: context.palette.accent.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20)
@@ -347,12 +347,12 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: PhotoManagerColors.primary,
+                        color: context.palette.accent,
                         borderRadius: BorderRadius.circular(12)
                       ),
                       child: Icon(
                         _currentFile.isImage ? Icons.image : Icons.videocam,
-                        color: Colors.white,
+                        color: context.palette.onMedia,
                         size: 28,
                       ),
                     ),
@@ -363,10 +363,10 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
                         children: [
                           Text(
                             l10n.fileProperties,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87
+                              color: context.palette.ink
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -374,7 +374,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
                             _currentFile.isImage ? l10n.filePropertyTypeImage : l10n.filePropertyTypeVideo,
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey.shade600
+                              color: context.palette.ink2
                             ),
                           )
                         ],
@@ -420,13 +420,13 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: PhotoManagerColors.primary.withValues(alpha: 0.1),
+                      backgroundColor: context.palette.accent.withValues(alpha: 0.1),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
                     ),
                     child: Text(
                       l10n.close,
-                      style: const TextStyle(
-                        color: PhotoManagerColors.primary,
+                      style: TextStyle(
+                        color: context.palette.accentInk,
                         fontWeight: FontWeight.w600,
                         fontSize: 16
                       ),
@@ -452,10 +452,10 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: context.palette.surface2,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.grey.shade200,
+          color: context.palette.line,
           width: 1
         ),
       ),
@@ -464,13 +464,13 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.palette.onMedia,
               borderRadius: BorderRadius.circular(8)
             ),
             child: Icon(
               icon,
               size: 20,
-              color: PhotoManagerColors.primary
+              color: context.palette.accent
             ),
           ),
           const SizedBox(width: 12),
@@ -482,7 +482,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
                   label,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey.shade600,
+                    color: context.palette.ink2,
                     fontWeight: FontWeight.w500
                   ),
                 ),
@@ -491,7 +491,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
                     ? Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: (valueColor ?? Colors.grey).withValues(alpha: 0.2),
+                          color: (valueColor ?? context.palette.ink2).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6)
                         ),
                         child: Text(
@@ -499,7 +499,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: valueColor ?? Colors.black87
+                            color: valueColor ?? context.palette.ink
                           ),
                         ),
                       )
@@ -508,7 +508,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: valueColor ?? Colors.black87,
+                          color: valueColor ?? context.palette.ink,
                           fontFamily: isMonospace ? 'monospace' : null
                         ),
                         maxLines: 2,

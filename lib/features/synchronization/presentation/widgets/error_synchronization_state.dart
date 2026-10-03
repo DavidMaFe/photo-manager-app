@@ -1,6 +1,6 @@
 
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 class ErrorSynchronizationState extends StatelessWidget {
@@ -28,23 +28,23 @@ class ErrorSynchronizationState extends StatelessWidget {
             Container(
               width: 120,
               height: 120,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFEE2E2),
+              decoration: BoxDecoration(
+                color: context.palette.dangerSoft,
                 shape: BoxShape.circle
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.error_outline,
                 size: 60,
-                color: Color(0xFFEF4444),
+                color: context.palette.danger,
               ),
             ),
             const SizedBox(height: 24),
             Text(
               l10n.syncErrorLoad,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF111111)
+                color: context.palette.ink
               ),
             ),
             const SizedBox(height: 8),
@@ -52,7 +52,7 @@ class ErrorSynchronizationState extends StatelessWidget {
               message,
               style: TextStyle(
                 fontSize: 14,
-                color: const Color(0xFF111111).withValues(alpha: 0.6)
+                color: context.palette.ink2
               ),
             ),
             const SizedBox(height: 24),
@@ -61,8 +61,8 @@ class ErrorSynchronizationState extends StatelessWidget {
               icon: const Icon(Icons.refresh),
               label: Text(l10n.tryAgain),
               style: ElevatedButton.styleFrom(
-                backgroundColor: PhotoManagerColors.primary,
-                foregroundColor: Colors.white,
+                backgroundColor: context.palette.accent,
+                foregroundColor: context.palette.onAccent,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
               ),
             )

@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -46,27 +47,27 @@ class AuthenticatedImage extends StatelessWidget {
 
   Widget _defaultPlaceholder(BuildContext context, String url) {
     return Container(
-      color: Colors.black,
-      child: const Center(
-        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+      color: context.palette.media,
+      child: Center(
+        child: CircularProgressIndicator(strokeWidth: 2, color: context.palette.onMedia),
       )
     );
   }
 
   Widget _defaultErrorWidget(BuildContext context, String url, Object error) {
     return Container(
-      color: Colors.grey.shade300,
+      color: context.palette.line,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.broken_image,
-            color: Colors.grey.shade600,
+            color: context.palette.ink2,
             size: 32
           ),
           const SizedBox(height: 4),
           Text('Error', style: TextStyle(
-            color: Colors.grey.shade600,
+            color: context.palette.ink2,
             fontSize: 10
           ))
         ],

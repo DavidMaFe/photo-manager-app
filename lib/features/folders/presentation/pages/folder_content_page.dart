@@ -1,7 +1,7 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
@@ -95,9 +95,9 @@ class _FolderContentPageState extends State<FolderContentPage> {
                   // causing the CustomScrollView to be remounted and losing scroll position.
                   SizedBox(
                     height: (state is FolderContentLoaded && state.isRefreshing) ? 2 : 0,
-                    child: const LinearProgressIndicator(
-                      backgroundColor: Colors.transparent,
-                      color: PhotoManagerColors.primary,
+                    child: LinearProgressIndicator(
+                      backgroundColor: context.palette.background,
+                      color: context.palette.accent,
                     ),
                   ),
                   _buildFilters(context, state),
@@ -128,7 +128,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
         title: Text(l10n.selectedFilesWithLimit(selectedCount)),
         centerTitle: false,
         elevation: 0,
-        backgroundColor: PhotoManagerColors.primary.withValues(alpha: 0.1),
+        backgroundColor: context.palette.accent.withValues(alpha: 0.1),
         actions: [
           if (areAllFilesSelected)
             TextButton.icon(
@@ -138,7 +138,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
               icon: const Icon(Icons.deselect, size: 20),
               label: Text(l10n.deselectAll),
               style: TextButton.styleFrom(
-                foregroundColor: PhotoManagerColors.primary
+                foregroundColor: context.palette.accent
               ),
             )
           else
@@ -149,7 +149,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
               icon: const Icon(Icons.select_all, size: 20),
               label: Text(l10n.selectAll),
               style: TextButton.styleFrom(
-                foregroundColor: PhotoManagerColors.primary
+                foregroundColor: context.palette.accent
               ),
             ),
           const SizedBox(width: 8)
@@ -200,7 +200,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
       ),
       centerTitle: false,
       elevation: 0,
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.surface,
     );
   }
 
@@ -431,7 +431,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
           Icon(
             Icons.folder_open,
             size: 80,
-            color: Colors.grey.shade400
+            color: context.palette.ink3
           ),
           const SizedBox(height: 16),
           Text(
@@ -439,7 +439,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700
+              color: context.palette.ink2
             ),
           ),
           const SizedBox(height: 8),
@@ -447,7 +447,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
             l10n.emptyFolderDescription,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade500
+              color: context.palette.ink2
             ),
             textAlign: TextAlign.center,
           )
@@ -475,7 +475,7 @@ class _FolderContentPageState extends State<FolderContentPage> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: PhotoManagerColors.primary.withValues(alpha: 0.3),
+              color: context.palette.accent.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4)
             )
@@ -483,14 +483,14 @@ class _FolderContentPageState extends State<FolderContentPage> {
         ),
         child: FloatingActionButton.extended(
           onPressed: () => _showManageModal(context, (state as FolderContentLoaded).selectedFileIds.toList()),
-          backgroundColor: PhotoManagerColors.primary,
+          backgroundColor: context.palette.accent,
           elevation: 0,
-          icon: const Icon(Icons.tune, size: 22, color: Colors.white),
+          icon: Icon(Icons.tune, size: 22, color: context.palette.onAccent),
           label: Text(
             selectedCount == 1 ? l10n.manageSingleFile : l10n.manageMultipleFiles(selectedCount),
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: context.palette.onAccent,
               fontSize: 15
             ),
           ),
@@ -500,8 +500,8 @@ class _FolderContentPageState extends State<FolderContentPage> {
     
     return FloatingActionButton(
         onPressed: () => _showCreateModal(context),
-        backgroundColor: PhotoManagerColors.primary,
-        child: const Icon(Icons.add, color: Colors.white)
+        backgroundColor: context.palette.accent,
+        child: Icon(Icons.add, color: context.palette.onAccent)
     );
   }
 
@@ -509,7 +509,9 @@ class _FolderContentPageState extends State<FolderContentPage> {
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.transparent,
+        // The sheet content draws its own surface and drag handle.
+        backgroundColor: context.palette.surface.withValues(alpha: 0),
+        showDragHandle: false,
         builder: (modalContext) => BlocProvider.value(
           value: context.read<FolderBloc>(),
           child: CreateFolderModal(parentFolderId: widget.folderId),
@@ -522,7 +524,9 @@ class _FolderContentPageState extends State<FolderContentPage> {
       useSafeArea: true,
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      // The sheet content draws its own surface and drag handle.
+      backgroundColor: context.palette.surface.withValues(alpha: 0),
+      showDragHandle: false,
       builder: (modalContext) => MultiBlocProvider(
         providers: [
           BlocProvider.value(value: context.read<FileManagementBloc>()),

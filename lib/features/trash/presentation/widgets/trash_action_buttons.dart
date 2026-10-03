@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 class TrashActionButtons extends StatelessWidget {
@@ -33,7 +33,7 @@ class TrashActionButtons extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: PhotoManagerColors.primary.withValues(alpha: 0.3),
+                    color: context.palette.accent.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -42,14 +42,14 @@ class TrashActionButtons extends StatelessWidget {
               child: FloatingActionButton.extended(
                 onPressed: onRestore,
                 heroTag: 'restore_button',
-                backgroundColor: PhotoManagerColors.primary,
+                backgroundColor: context.palette.accent,
                 elevation: 0,
-                icon: const Icon(Icons.restore, size: 20, color: Colors.white),
+                icon: Icon(Icons.restore, size: 20, color: context.palette.onAccent),
                 label: Text(
                   l10n.restore,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: context.palette.onAccent,
                     fontSize: 14,
                   ),
                 ),
@@ -61,7 +61,7 @@ class TrashActionButtons extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: PhotoManagerColors.primary.withValues(alpha: 0.3),
+                    color: context.palette.accent.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -70,14 +70,14 @@ class TrashActionButtons extends StatelessWidget {
               child: FloatingActionButton.extended(
                 onPressed: onDelete,
                 heroTag: 'delete_button',
-                backgroundColor: Colors.white,
+                backgroundColor: context.palette.surface,
                 elevation: 0,
-                icon: const Icon(Icons.delete_forever, size: 20, color: PhotoManagerColors.primary),
+                icon: Icon(Icons.delete_forever, size: 20, color: context.palette.accent),
                 label: Text(
                   l10n.delete,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: PhotoManagerColors.primary,
+                    color: context.palette.accentInk,
                     fontSize: 14,
                   ),
                 ),

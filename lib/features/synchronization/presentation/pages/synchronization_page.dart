@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_bloc.dart';
@@ -62,7 +63,7 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
         return Scaffold(
           appBar: AppBar(
             title: Text(l10n.syncSessionTitle),
-            backgroundColor: Colors.white,
+            backgroundColor: context.palette.surface,
           ),
           body: _buildContent(context, state, l10n),
         );
@@ -112,10 +113,10 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                   child: Text(
                     l10n.syncHistoric,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF111111)
+                      color: context.palette.ink
                     ),
                   ),
                 ),

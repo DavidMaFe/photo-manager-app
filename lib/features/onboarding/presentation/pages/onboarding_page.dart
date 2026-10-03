@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -38,7 +39,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.surface,
       body: BlocConsumer<OnboardingBloc, OnboardingState>(
         listener: (context, state) async {
           // Handle state changes
@@ -75,10 +76,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 ] else ...[
                   // Show app logo or branding
-                  const Icon(
+                  Icon(
                     Icons.photo_library,
                     size: 100,
-                    color: Color(0xFF5D5BE9),
+                    color: context.palette.accent,
                   ),
                   const SizedBox(height: 24),
                   Text(

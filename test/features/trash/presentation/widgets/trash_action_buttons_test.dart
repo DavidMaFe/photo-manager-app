@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/features/trash/presentation/widgets/trash_action_buttons.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -89,7 +89,7 @@ void main() {
         find.byType(FloatingActionButton),
       ).firstWhere((fab) => fab.heroTag == 'restore_button');
 
-      expect(restoreButton.backgroundColor, PhotoManagerColors.primary);
+      expect(restoreButton.backgroundColor, AppPalette.light.accent);
     });
 
     testWidgets('should have correct delete button color', (tester) async {
@@ -99,7 +99,7 @@ void main() {
         find.byType(FloatingActionButton),
       ).firstWhere((fab) => fab.heroTag == 'delete_button');
 
-      expect(deleteButton.backgroundColor, Colors.white);
+      expect(deleteButton.backgroundColor, AppPalette.light.surface);
     });
 
     testWidgets('should have unique hero tags', (tester) async {

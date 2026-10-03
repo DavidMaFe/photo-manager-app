@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import '../../../../../l10n/app_localizations.dart';
 
@@ -24,10 +25,10 @@ class ResetPasswordHeader extends StatelessWidget {
 
         Text(
           l10n.resetPasswordTitle,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: Colors.black87
+            color: context.palette.ink
           ),
         ),
         const SizedBox(height: 8),
@@ -36,7 +37,7 @@ class ResetPasswordHeader extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey[600],
+            color: context.palette.ink2,
             fontWeight: FontWeight.w400
           ),
         )

@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -22,17 +23,17 @@ class RegisterHeader extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           l10n.createAccount,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: Colors.black87
+            color: context.palette.ink
           ),
         ),
         Text(
           l10n.registerTitle,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey[600],
+            color: context.palette.ink2,
             fontWeight: FontWeight.w400
           ),
         )

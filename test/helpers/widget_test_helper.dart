@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/config/theme/app_theme.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 /// Widget Test Helper Utilities
@@ -47,8 +48,12 @@ Widget makeTestableWidget(
   String? initialRoute,
   Locale locale = const Locale('en'),
   Map<String, WidgetBuilder>? routes,
+  ThemeMode themeMode = ThemeMode.light,
 }) {
   return MaterialApp(
+    theme: AppTheme.light(),
+    darkTheme: AppTheme.dark(),
+    themeMode: themeMode,
     locale: locale,
     localizationsDelegates: const [
       AppLocalizations.delegate,

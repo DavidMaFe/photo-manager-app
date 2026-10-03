@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 
 
@@ -27,33 +28,33 @@ class ProfileMenuItem extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: context.palette.surface2,
           borderRadius: BorderRadius.circular(8)
         ),
         child: Icon(
           icon,
-          color: Colors.grey[700],
+          color: context.palette.ink2,
           size: 24,
         ),
       ),
       title: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: Colors.black87
+          color: context.palette.ink
         ),
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
           fontSize: 13,
-          color: Colors.grey[600]
+          color: context.palette.ink2
         ),
       ),
       trailing: Icon(
         Icons.chevron_right,
-        color: Colors.grey[400],
+        color: context.palette.ink3,
       ),
     );
   }

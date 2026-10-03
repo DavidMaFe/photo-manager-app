@@ -1,6 +1,6 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
@@ -60,9 +60,9 @@ class _ManageFileModalState extends State<ManageFileModal> {
             top: 32,
             bottom: MediaQuery.of(context).viewInsets.bottom + 24
           ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24))
+          decoration: BoxDecoration(
+            color: context.palette.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24))
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -123,7 +123,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
             height: 4,
             margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: context.palette.line,
               borderRadius: BorderRadius.circular(2)
             ),
           ),
@@ -133,12 +133,12 @@ class _ManageFileModalState extends State<ManageFileModal> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: PhotoManagerColors.primary.withValues(alpha: 0.1),
+                color: context.palette.accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.tune,
-                color: PhotoManagerColors.primary,
+                color: context.palette.accent,
                 size: 24,
               ),
             ),
@@ -150,10 +150,10 @@ class _ManageFileModalState extends State<ManageFileModal> {
                   Text(widget.isMultiple
                       ? l10n.manageMultipleFiles(widget.fileIds.length)
                       : l10n.manageSingleFile,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87
+                      color: context.palette.ink
                     ),
                   ),
                   if (widget.isMultiple) ...[
@@ -162,7 +162,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
                       l10n.sameActionWarning,
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey[600]
+                        color: context.palette.ink2
                       ),
                     )
                   ]
@@ -185,18 +185,18 @@ class _ManageFileModalState extends State<ManageFileModal> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            PhotoManagerColors.primary.withValues(alpha: 0.05),
-            PhotoManagerColors.primary.withValues(alpha: 0.02)
+            context.palette.accent.withValues(alpha: 0.05),
+            context.palette.accent.withValues(alpha: 0.02)
           ]
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: PhotoManagerColors.primary.withValues(alpha: 0.2),
+          color: context.palette.accent.withValues(alpha: 0.2),
           width: 1.5
         ),
       ),
       child: Material(
-        color: Colors.transparent,
+        type: MaterialType.transparency,
         child: InkWell(
           onTap: () {
             setState(() {
@@ -212,12 +212,12 @@ class _ManageFileModalState extends State<ManageFileModal> {
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: _keepOnDevice ? PhotoManagerColors.primary : Colors.grey.shade300,
+                    color: _keepOnDevice ? context.palette.accent : context.palette.line,
                     borderRadius: BorderRadius.circular(12)
                   ),
                   child: Icon(
                     _keepOnDevice ? Icons.smartphone : Icons.cloud_upload,
-                    color: _keepOnDevice ? Colors.white : Colors.grey.shade600,
+                    color: _keepOnDevice ? context.palette.onAccent : context.palette.ink2,
                     size: 14,
                   ),
                 ),
@@ -228,10 +228,10 @@ class _ManageFileModalState extends State<ManageFileModal> {
                     children: [
                       Text(
                         l10n.keepInDeviceTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87
+                          color: context.palette.ink
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -239,7 +239,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
                         l10n.keepInDeviceSubtitle,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.grey.shade600
+                          color: context.palette.ink2
                         ),
                       )
                     ],
@@ -251,7 +251,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
                   width: 52,
                     height: 30,
                   decoration: BoxDecoration(
-                    color: _keepOnDevice ? PhotoManagerColors.primary : Colors.grey.shade300,
+                    color: _keepOnDevice ? context.palette.accent : context.palette.line,
                     borderRadius: BorderRadius.circular(15)
                   ),
                   child: Stack(
@@ -265,11 +265,11 @@ class _ManageFileModalState extends State<ManageFileModal> {
                           width: 26,
                           height: 26,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.palette.surface,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
+                                color: context.palette.shadow,
                                 blurRadius: 4,
                                 offset: const Offset(0, 2)
                               )
@@ -298,7 +298,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: Colors.grey.shade200,
+            color: context.palette.line,
             width: 1
           )
         )
@@ -314,7 +314,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
                   borderRadius: BorderRadius.circular(12)
                 ),
                 side: BorderSide(
-                  color:Colors.grey.shade300,
+                  color:context.palette.line,
                   width: 1.5
                 )
               ),
@@ -323,7 +323,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700
+                  color: context.palette.ink2
                 ),
               ),
             ),
@@ -334,20 +334,20 @@ class _ManageFileModalState extends State<ManageFileModal> {
               onPressed: isLoading ? null : () => _handleApply(l10n),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: PhotoManagerColors.primary,
-                foregroundColor: Colors.white,
+                backgroundColor: context.palette.accent,
+                foregroundColor: context.palette.onAccent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)
                 ),
                 elevation: 0,
-                disabledBackgroundColor: Colors.grey.shade300
+                disabledBackgroundColor: context.palette.line
               ),
-              child: isLoading ? const SizedBox(
+              child: isLoading ? SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(context.palette.onAccent),
                 ),
               ) : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -469,7 +469,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: context.palette.danger,
       )
     );
   }
@@ -479,12 +479,12 @@ class _ManageFileModalState extends State<ManageFileModal> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle, color: Colors.white),
+            Icon(Icons.check_circle, color: context.palette.onAccent),
             const SizedBox(width: 8),
             Text(message)
           ],
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: context.palette.safe,
       )
     );
   }

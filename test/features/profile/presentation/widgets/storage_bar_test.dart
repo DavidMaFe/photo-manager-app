@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
@@ -66,7 +67,7 @@ void main() {
       expect(progressIndicator.value, closeTo(0.5, 0.01));
     });
 
-    testWidgets('should show blue color for low usage (< 50%)', (tester) async {
+    testWidgets('should show accent color for low usage (< 50%)', (tester) async {
       // Arrange
       final testProfile = UserProfile(
         id: '1',
@@ -88,10 +89,10 @@ void main() {
         find.byType(LinearProgressIndicator),
       );
       final valueColor = progressIndicator.valueColor as AlwaysStoppedAnimation<Color>;
-      expect(valueColor.value, Colors.blue);
+      expect(valueColor.value, AppPalette.light.accent);
     });
 
-    testWidgets('should show orange color for medium usage (50-75%)', (tester) async {
+    testWidgets('should show review color for medium usage (50-75%)', (tester) async {
       // Arrange
       final testProfile = UserProfile(
         id: '1',
@@ -113,10 +114,10 @@ void main() {
         find.byType(LinearProgressIndicator),
       );
       final valueColor = progressIndicator.valueColor as AlwaysStoppedAnimation<Color>;
-      expect(valueColor.value, Colors.orange);
+      expect(valueColor.value, AppPalette.light.review);
     });
 
-    testWidgets('should show deep orange color for high usage (75-90%)', (tester) async {
+    testWidgets('should show review color for high usage (75-90%)', (tester) async {
       // Arrange
       final testProfile = UserProfile(
         id: '1',
@@ -138,10 +139,10 @@ void main() {
         find.byType(LinearProgressIndicator),
       );
       final valueColor = progressIndicator.valueColor as AlwaysStoppedAnimation<Color>;
-      expect(valueColor.value, Colors.deepOrange);
+      expect(valueColor.value, AppPalette.light.review);
     });
 
-    testWidgets('should show red color for very high usage (>= 90%)', (tester) async {
+    testWidgets('should show danger color for very high usage (>= 90%)', (tester) async {
       // Arrange
       final testProfile = UserProfile(
         id: '1',
@@ -163,7 +164,7 @@ void main() {
         find.byType(LinearProgressIndicator),
       );
       final valueColor = progressIndicator.valueColor as AlwaysStoppedAnimation<Color>;
-      expect(valueColor.value, Colors.red);
+      expect(valueColor.value, AppPalette.light.danger);
     });
   });
 }

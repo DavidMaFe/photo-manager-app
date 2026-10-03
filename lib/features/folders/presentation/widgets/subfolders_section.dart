@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -26,7 +26,7 @@ class SubfoldersSection extends StatelessWidget {
               Icon(
                 Icons.folder,
                 size: 20,
-                color: Colors.grey.shade700,
+                color: context.palette.ink2,
               ),
               const SizedBox(width: 8),
               Text(
@@ -34,22 +34,22 @@ class SubfoldersSection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade800
+                  color: context.palette.ink
                 ),
               ),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: PhotoManagerColors.primary.withValues(alpha: 0.1),
+                  color: context.palette.accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12)
                 ),
                 child: Text(
                   '${subfolders.length}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: PhotoManagerColors.primary
+                    color: context.palette.accentInk
                   ),
                 ),
               )
@@ -72,7 +72,7 @@ class SubfoldersSection extends StatelessWidget {
         Divider(
           height: 1,
           thickness: 1,
-          color: Colors.grey.shade200,
+          color: context.palette.line,
         ),
         const SizedBox(height: 8)
       ],
@@ -99,13 +99,13 @@ class _SubfolderCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              PhotoManagerColors.primary.withValues(alpha: 0.1),
-              PhotoManagerColors.primary.withValues(alpha: 0.05)
+              context.palette.accent.withValues(alpha: 0.1),
+              context.palette.accent.withValues(alpha: 0.05)
             ]
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: PhotoManagerColors.primary.withValues(alpha: 0.2),
+            color: context.palette.accent.withValues(alpha: 0.2),
             width: 1
           )
         ),
@@ -116,22 +116,22 @@ class _SubfolderCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: PhotoManagerColors.primary.withValues(alpha: 0.2),
+                color: context.palette.accent.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8)
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.folder,
-                color: PhotoManagerColors.primary,
+                color: context.palette.accent,
                 size: 24,
               ),
             ),
             const Spacer(),
             Text(
               folder.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87
+                color: context.palette.ink
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -142,14 +142,14 @@ class _SubfolderCard extends StatelessWidget {
                 Icon(
                   Icons.photo_library,
                   size: 12,
-                  color: Colors.grey.shade600
+                  color: context.palette.ink2
                 ),
                 const SizedBox(width: 4),
                 Text(
                   '${folder.fileCount}',
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.grey.shade600
+                    color: context.palette.ink2
                   ),
                 )
               ],

@@ -1,4 +1,5 @@
 
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/core/utils/date_formatter.dart';
 import 'package:photo_manager_app/features/synchronization/domain/entities/synchronization.dart';
@@ -21,12 +22,12 @@ class SynchronizationListItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF3F4F6))
+        border: Border.all(color: context.palette.surface2)
       ),
       child: Material(
-        color: Colors.transparent,
+        type: MaterialType.transparency,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
@@ -34,7 +35,7 @@ class SynchronizationListItem extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                _buildStatusIcon(),
+                _buildStatusIcon(context),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -42,26 +43,26 @@ class SynchronizationListItem extends StatelessWidget {
                     children: [
                       Text(
                         l10n.syncFiles(session.uploadedFiles),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF111111),
+                          color: context.palette.ink,
                           fontSize: 14
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         DateFormatter.formatRelativeTime(session.startedAt, context),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF6B7280)
+                          color: context.palette.ink2
                         ),
                       )
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.chevron_right,
-                  color: Color(0xFFD1D5DB),
+                  color: context.palette.line,
                   size: 20,
                 )
               ],
@@ -72,30 +73,30 @@ class SynchronizationListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusIcon() {
+  Widget _buildStatusIcon(BuildContext context) {
     Color backgroundColor;
     Color iconColor;
     IconData icon;
 
     switch (session.status) {
       case SynchronizationStatus.completed:
-        backgroundColor = const Color(0xFFDCFCE7);
-        iconColor = const Color(0xFF16A34A);
+        backgroundColor = context.palette.safeSoft;
+        iconColor = context.palette.safe;
         icon = Icons.check;
         break;
       case SynchronizationStatus.inProgress:
-        backgroundColor = const Color(0xFFFEF3C7);
-        iconColor = const Color(0xFFF59E0B);
+        backgroundColor = context.palette.reviewSoft;
+        iconColor = context.palette.review;
         icon = Icons.sync;
         break;
       case SynchronizationStatus.failed:
-        backgroundColor = const Color(0xFFFEE2E2);
-        iconColor = const Color(0xFFEF4444);
+        backgroundColor = context.palette.dangerSoft;
+        iconColor = context.palette.danger;
         icon = Icons.close;
         break;
       case SynchronizationStatus.cancelled:
-        backgroundColor = const Color(0xFFF3F4F6);
-        iconColor = const Color(0xFF6B7280);
+        backgroundColor = context.palette.surface2;
+        iconColor = context.palette.ink2;
         icon = Icons.cancel_outlined;
         break;
     }

@@ -1,9 +1,9 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_event.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-import '../../../../config/theme/photo_manager_colors.dart';
 import '../../domain/entities/folder.dart';
 import '../bloc/folder/folder_bloc.dart';
 
@@ -51,9 +51,9 @@ class _RenameFolderModalState extends State<RenameFolderModal> {
           top: 32,
           bottom: MediaQuery.of(context).viewInsets.bottom + 24
       ),
-      decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))
+      decoration: BoxDecoration(
+          color: context.palette.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24))
       ),
       child: Form(
         key: _formKey,
@@ -67,7 +67,7 @@ class _RenameFolderModalState extends State<RenameFolderModal> {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: context.palette.line,
                     borderRadius: BorderRadius.circular(2)
                 ),
               ),
@@ -77,12 +77,12 @@ class _RenameFolderModalState extends State<RenameFolderModal> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                      color: PhotoManagerColors.primary.withValues(alpha: 0.1),
+                      color: context.palette.accent.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12)
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.edit,
-                    color: PhotoManagerColors.primary,
+                    color: context.palette.accent,
                     size: 24,
                   ),
                 ),
@@ -93,17 +93,17 @@ class _RenameFolderModalState extends State<RenameFolderModal> {
                     children: [
                       Text(
                         l10n.renameFolder,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87
+                          color: context.palette.ink
                         ),
                       ),
                       Text(
                         widget.folder.name,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade600
+                          color: context.palette.ink2
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -126,8 +126,8 @@ class _RenameFolderModalState extends State<RenameFolderModal> {
                   ),
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: PhotoManagerColors.primary,
+                      borderSide: BorderSide(
+                          color: context.palette.accent,
                           width: 2
                       )
                   )
@@ -155,14 +155,14 @@ class _RenameFolderModalState extends State<RenameFolderModal> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)
                         ),
-                        side: BorderSide(color: Colors.grey.shade300)
+                        side: BorderSide(color: context.palette.line)
                     ),
                     child: Text(
                       l10n.cancel,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700
+                          color: context.palette.ink2
                       ),
                     ),
                   ),
@@ -174,8 +174,8 @@ class _RenameFolderModalState extends State<RenameFolderModal> {
                     onPressed: _handleRename,
                     style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: PhotoManagerColors.primary,
-                        foregroundColor: Colors.white,
+                        backgroundColor: context.palette.accent,
+                        foregroundColor: context.palette.onAccent,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)
                         ),

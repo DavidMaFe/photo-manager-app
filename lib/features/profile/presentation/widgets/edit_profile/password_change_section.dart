@@ -1,6 +1,6 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 
 class PasswordChangeSection extends StatefulWidget {
   final TextEditingController currentPasswordController;
@@ -34,10 +34,10 @@ class _PasswordChangeSectionState extends State<PasswordChangeSection> {
       children: [
         Text(
           l10n.passwordSection,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: context.palette.ink,
           ),
         ),
         const SizedBox(height: 8),
@@ -45,17 +45,17 @@ class _PasswordChangeSectionState extends State<PasswordChangeSection> {
           l10n.leavePasswordEmptyHint,
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey[600],
+            color: context.palette.ink2,
             fontStyle: FontStyle.italic,
           ),
         ),
         const SizedBox(height: 16),
         Text(
           l10n.currentPasswordLabel,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: context.palette.ink,
           ),
         ),
         const SizedBox(height: 8),
@@ -78,7 +78,7 @@ class _PasswordChangeSectionState extends State<PasswordChangeSection> {
             suffixIcon: IconButton(
               icon: Icon(
                 _obscureCurrentPassword ? Icons.visibility_off : Icons.visibility,
-                color: Colors.grey[600],
+                color: context.palette.ink2,
               ),
               onPressed: () {
                 setState(() {
@@ -91,10 +91,10 @@ class _PasswordChangeSectionState extends State<PasswordChangeSection> {
         const SizedBox(height: 20),
         Text(
           l10n.newPasswordLabel,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: context.palette.ink,
           ),
         ),
         const SizedBox(height: 8),
@@ -116,7 +116,7 @@ class _PasswordChangeSectionState extends State<PasswordChangeSection> {
             suffixIcon: IconButton(
               icon: Icon(
                 _obscureNewPassword ? Icons.visibility_off : Icons.visibility,
-                color: Colors.grey[600],
+                color: context.palette.ink2,
               ),
               onPressed: () {
                 setState(() {
@@ -129,10 +129,10 @@ class _PasswordChangeSectionState extends State<PasswordChangeSection> {
         const SizedBox(height: 20),
         Text(
           l10n.confirmNewPasswordLabel,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: context.palette.ink,
           ),
         ),
         const SizedBox(height: 8),
@@ -157,7 +157,7 @@ class _PasswordChangeSectionState extends State<PasswordChangeSection> {
             suffixIcon: IconButton(
               icon: Icon(
                 _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
-                color: Colors.grey[600],
+                color: context.palette.ink2,
               ),
               onPressed: () {
                 setState(() {
@@ -177,28 +177,28 @@ class _PasswordChangeSectionState extends State<PasswordChangeSection> {
   }) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: Colors.grey[400]),
+      hintStyle: TextStyle(color: context.palette.ink3),
       filled: true,
-      fillColor: Colors.grey[50],
+      fillColor: context.palette.background,
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red, width: 2),
+        borderSide: BorderSide(color: context.palette.danger, width: 2),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red, width: 2),
+        borderSide: BorderSide(color: context.palette.danger, width: 2),
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey[300]!),
+        borderSide: BorderSide(color: context.palette.line),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey[300]!),
+        borderSide: BorderSide(color: context.palette.line),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2),
+        borderSide: BorderSide(color: context.palette.accent, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       suffixIcon: suffixIcon,

@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 
 class DateSectionHeader extends StatelessWidget {
@@ -15,10 +16,10 @@ class DateSectionHeader extends StatelessWidget {
       color: Theme.of(context).scaffoldBackgroundColor,
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: context.palette.ink,
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 
@@ -26,10 +27,10 @@ class StorageBar extends StatelessWidget {
           children: [
             Text(
               l10n.storage,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87
+                color: context.palette.ink
               ),
             ),
             Text(
@@ -37,7 +38,7 @@ class StorageBar extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey[600]
+                color: context.palette.ink2
               ),
             )
           ],
@@ -50,9 +51,9 @@ class StorageBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: percentage,
             minHeight: 8,
-            backgroundColor: Colors.grey[200],
+            backgroundColor: context.palette.surface2,
             valueColor: AlwaysStoppedAnimation<Color>(
-              _getStorageColor(percentage)
+              _getStorageColor(context, percentage)
             ),
           ),
         )
@@ -60,15 +61,15 @@ class StorageBar extends StatelessWidget {
     );
   }
 
-  Color _getStorageColor(double percentage) {
+  Color _getStorageColor(BuildContext context, double percentage) {
     if (percentage < 0.5) {
-      return Colors.blue;
+      return context.palette.accent;
     } else if (percentage < 0.75) {
-      return Colors.orange;
+      return context.palette.review;
     } else if (percentage < 0.9) {
-      return Colors.deepOrange;
+      return context.palette.review;
     } else {
-      return Colors.red;
+      return context.palette.danger;
     }
   }
 }

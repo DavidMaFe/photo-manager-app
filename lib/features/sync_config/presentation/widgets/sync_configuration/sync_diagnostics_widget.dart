@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -70,6 +71,7 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
   Future<void> _requestBatteryExemption() async {
     // Capture messenger before async gap to avoid use_build_context_synchronously.
     final messenger = ScaffoldMessenger.of(context);
+    final palette = context.palette;
 
     final granted =
         await BackgroundTaskPermissionHelper.requestBatteryOptimizationExemption();
@@ -84,7 +86,7 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
               ? 'Optimización de batería desactivada — sync puede ejecutarse'
               : 'Permiso no concedido — sync puede ser bloqueado por el SO',
         ),
-        backgroundColor: granted ? Colors.green : Colors.orange,
+        backgroundColor: granted ? palette.safe : palette.review,
         duration: const Duration(seconds: 3),
       ),
     );
@@ -105,12 +107,12 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
+          SnackBar(
+            content: const Text(
               'Sincronización programada — puede tardar unos minutos en ejecutarse',
             ),
-            backgroundColor: Colors.blue,
-            duration: Duration(seconds: 3),
+            backgroundColor: context.palette.accent,
+            duration: const Duration(seconds: 3),
           ),
         );
         await _loadDiagnostics();
@@ -120,7 +122,7 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error al programar sync: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.palette.danger,
           ),
         );
       }
@@ -215,7 +217,7 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
         Icon(
           isExempt == true ? Icons.battery_full : Icons.battery_alert,
           size: 18,
-          color: isExempt == true ? Colors.green : Colors.orange,
+          color: isExempt == true ? context.palette.safe : context.palette.reviewIcon,
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -237,8 +239,8 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
                         : 'Comprobando...',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: isExempt == true
-                          ? Colors.green[700]
-                          : Colors.orange[700],
+                          ? context.palette.safeInk
+                          : context.palette.reviewInk,
                     ),
               ),
             ],
@@ -262,7 +264,7 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Icon(Icons.history, size: 18, color: Colors.blue),
+        Icon(Icons.history, size: 18, color: context.palette.accent),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -280,7 +282,7 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
                     ? '${_formatRelativeTime(_lastResultTime)} — ${_lastResult ?? 'Desconocido'}'
                     : 'Nunca',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[700],
+                      color: context.palette.ink2,
                     ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -319,7 +321,7 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
               'Registro de actividad (últimas ${_logEntries.length})',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
+                    color: context.palette.ink2,
                   ),
             ),
             const Spacer(),
@@ -328,7 +330,7 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
               icon: const Icon(Icons.delete_outline, size: 14),
               label: const Text('Limpiar', style: TextStyle(fontSize: 12)),
               style: TextButton.styleFrom(
-                foregroundColor: Colors.red[400],
+                foregroundColor: context.palette.danger,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 minimumSize: Size.zero,
@@ -346,7 +348,7 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
                 'Sin registros — pulsa "Probar sincronización ahora" para generar actividad',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey,
+                      color: context.palette.ink2,
                       fontStyle: FontStyle.italic,
                     ),
               ),
@@ -356,7 +358,7 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
           Container(
             height: 200,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: context.palette.surface2,
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListView.builder(
@@ -368,16 +370,16 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
                   padding: const EdgeInsets.symmetric(vertical: 1),
                   child: RichText(
                     text: TextSpan(
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'monospace',
                         fontSize: 11,
-                        color: Colors.black87,
+                        color: context.palette.ink,
                         height: 1.4,
                       ),
                       children: [
                         TextSpan(
                           text: '[${entry.timeLabel}] ',
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: TextStyle(color: context.palette.ink2),
                         ),
                         TextSpan(text: entry.message),
                       ],

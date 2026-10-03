@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -15,14 +16,14 @@ class TrashEmptyState extends StatelessWidget {
           Icon(
             Icons.delete_outline,
             size: 80,
-            color: Colors.grey[400],
+            color: context.palette.ink3,
           ),
           const SizedBox(height: 24),
           Text(
             l10n.trashIsEmpty,
             style: TextStyle(
               fontSize: 20,
-              color: Colors.grey[800],
+              color: context.palette.ink,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -33,7 +34,7 @@ class TrashEmptyState extends StatelessWidget {
               l10n.trashEmptyDescription,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: context.palette.ink2,
                 height: 1.5,
               ),
               textAlign: TextAlign.center,

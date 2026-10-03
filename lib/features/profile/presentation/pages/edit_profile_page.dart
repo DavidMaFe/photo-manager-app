@@ -1,7 +1,7 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
@@ -109,13 +109,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: context.palette.surface2,
       appBar: AppBar(
         title: Text(l10n.editProfileTitle),
-        backgroundColor: Colors.white,
+        backgroundColor: context.palette.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: context.palette.ink),
           onPressed: () => context.pop(),
         ),
       ),
@@ -133,7 +133,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(l10n.profileUpdatedSuccessfully),
-                backgroundColor: Colors.green,
+                backgroundColor: context.palette.safe,
               ),
             );
 
@@ -149,7 +149,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(l10n.passwordChangedSuccessfully),
-                backgroundColor: Colors.green,
+                backgroundColor: context.palette.safe,
               ),
             );
 
@@ -215,11 +215,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.palette.surface,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: context.palette.shadow,
                           blurRadius: 10,
                           offset: const Offset(0, 2),
                         ),
@@ -238,11 +238,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.palette.surface,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: context.palette.shadow,
                           blurRadius: 10,
                           offset: const Offset(0, 2),
                         ),
@@ -262,8 +262,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _saveChanges,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: PhotoManagerColors.primary,
-                      foregroundColor: Colors.white,
+                      backgroundColor: context.palette.accent,
+                      foregroundColor: context.palette.onAccent,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -271,12 +271,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       elevation: 0,
                     ),
                     child: _isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(context.palette.onAccent),
                             ),
                           )
                         : Text(

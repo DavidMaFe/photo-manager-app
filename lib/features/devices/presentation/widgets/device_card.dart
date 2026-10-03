@@ -1,6 +1,6 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/features/devices/domain/entities/device.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
@@ -28,13 +28,13 @@ class DeviceCard extends StatelessWidget {
     }
   }
 
-  Color _getDeviceIconColor() {
+  Color _getDeviceIconColor(BuildContext context) {
     if (device.isAndroid) {
-      return Colors.green;
+      return context.palette.safe;
     } else if (device.isIOS) {
-      return Colors.grey[700]!;
+      return context.palette.ink2;
     } else {
-      return Colors.blue;
+      return context.palette.accent;
     }
   }
 
@@ -44,11 +44,11 @@ class DeviceCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: PhotoManagerColors.primary.withValues(alpha: 0.08),
+            color: context.palette.accent.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -68,8 +68,8 @@ class DeviceCard extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    PhotoManagerColors.primary,
-                    PhotoManagerColors.primary.withValues(alpha: 0.6),
+                    context.palette.accent,
+                    context.palette.accent.withValues(alpha: 0.6),
                   ],
                 ),
                 borderRadius: const BorderRadius.only(
@@ -97,19 +97,19 @@ class DeviceCard extends StatelessWidget {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            _getDeviceIconColor().withValues(alpha: 0.15),
-                            _getDeviceIconColor().withValues(alpha: 0.08),
+                            _getDeviceIconColor(context).withValues(alpha: 0.15),
+                            _getDeviceIconColor(context).withValues(alpha: 0.08),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: _getDeviceIconColor().withValues(alpha: 0.2),
+                          color: _getDeviceIconColor(context).withValues(alpha: 0.2),
                           width: 1.5,
                         ),
                       ),
                       child: Icon(
                         _getDeviceIcon(),
-                        color: _getDeviceIconColor(),
+                        color: _getDeviceIconColor(context),
                         size: 30,
                       ),
                     ),
@@ -121,10 +121,10 @@ class DeviceCard extends StatelessWidget {
                         children: [
                           Text(
                             device.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
-                              color: Colors.black87,
+                              color: context.palette.ink,
                               letterSpacing: -0.2,
                             ),
                             maxLines: 1,
@@ -139,10 +139,10 @@ class DeviceCard extends StatelessWidget {
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
+                                  color: context.palette.surface2,
                                   borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
-                                    color: Colors.grey.shade300,
+                                    color: context.palette.line,
                                     width: 0.5,
                                   ),
                                 ),
@@ -150,7 +150,7 @@ class DeviceCard extends StatelessWidget {
                                   '${device.osType} ${device.osVersion}',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey[700],
+                                    color: context.palette.ink2,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -163,14 +163,14 @@ class DeviceCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     // Actions: Rename and Delete
                     if (isPerformingAction)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: SizedBox(
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            color: PhotoManagerColors.primary,
+                            color: context.palette.accent,
                           ),
                         ),
                       )
@@ -178,13 +178,13 @@ class DeviceCard extends StatelessWidget {
                       // Rename Button
                       Container(
                         decoration: BoxDecoration(
-                          color: PhotoManagerColors.primary.withValues(alpha: 0.08),
+                          color: context.palette.accent.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.edit_outlined,
-                            color: PhotoManagerColors.primary,
+                            color: context.palette.accent,
                           ),
                           iconSize: 20,
                           onPressed: () => _handleRename(context),
@@ -197,13 +197,13 @@ class DeviceCard extends StatelessWidget {
                       // Delete Button
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.red.shade50,
+                          color: context.palette.dangerSoft,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: IconButton(
                           icon: Icon(
                             Icons.delete_outline,
-                            color: Colors.red.shade400,
+                            color: context.palette.danger,
                           ),
                           iconSize: 20,
                           onPressed: () => _handleUnlink(context),
@@ -223,13 +223,13 @@ class DeviceCard extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        PhotoManagerColors.primary.withValues(alpha: 0.06),
-                        PhotoManagerColors.primary.withValues(alpha: 0.02),
+                        context.palette.accent.withValues(alpha: 0.06),
+                        context.palette.accent.withValues(alpha: 0.02),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: PhotoManagerColors.primary.withValues(alpha: 0.12),
+                      color: context.palette.accent.withValues(alpha: 0.12),
                       width: 1,
                     ),
                   ),
@@ -247,16 +247,16 @@ class DeviceCard extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              PhotoManagerColors.primary.withValues(alpha: 0.15),
-                              PhotoManagerColors.primary.withValues(alpha: 0.08),
+                              context.palette.accent.withValues(alpha: 0.15),
+                              context.palette.accent.withValues(alpha: 0.08),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.sync_rounded,
                           size: 20,
-                          color: PhotoManagerColors.primary,
+                          color: context.palette.accent,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -267,9 +267,9 @@ class DeviceCard extends StatelessWidget {
                           children: [
                             Text(
                               l10n.autoSync,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
-                                color: Colors.black87,
+                                color: context.palette.ink,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: -0.2,
                               ),
@@ -280,8 +280,8 @@ class DeviceCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 color: device.autoSync
-                                    ? PhotoManagerColors.primary
-                                    : Colors.grey[600],
+                                    ? context.palette.accentInk
+                                    : context.palette.ink2,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -296,9 +296,9 @@ class DeviceCard extends StatelessWidget {
                           onChanged: isPerformingAction
                               ? null
                               : (value) => _handleToggleAutoSync(context, value),
-                          activeThumbColor: PhotoManagerColors.primary,
+                          activeThumbColor: context.palette.accent,
                           activeTrackColor:
-                              PhotoManagerColors.primary.withValues(alpha: 0.4),
+                              context.palette.accent.withValues(alpha: 0.4),
                         ),
                       ),
                     ],

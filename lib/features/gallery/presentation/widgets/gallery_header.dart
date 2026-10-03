@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 
@@ -38,7 +38,7 @@ class GalleryHeader extends StatelessWidget implements PreferredSizeWidget {
       title: Text(l10n.gallery),
       centerTitle: false,
       elevation: 0,
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.surface,
     );
   }
 
@@ -55,7 +55,7 @@ class GalleryHeader extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: false,
       elevation: 0,
-      backgroundColor: PhotoManagerColors.primary.withValues(alpha: 0.1),
+      backgroundColor: context.palette.accent.withValues(alpha: 0.1),
       actions: [
         if (areAllFilesSelected && onDeselectAll != null)
           TextButton.icon(
@@ -63,7 +63,7 @@ class GalleryHeader extends StatelessWidget implements PreferredSizeWidget {
             icon: const Icon(Icons.deselect, size: 20),
             label: Text(l10n.deselectAll),
             style: TextButton.styleFrom(
-              foregroundColor: PhotoManagerColors.primary
+              foregroundColor: context.palette.accent
             ),
           )
         else if (!areAllFilesSelected && onSelectAll != null)
@@ -72,7 +72,7 @@ class GalleryHeader extends StatelessWidget implements PreferredSizeWidget {
             icon: const Icon(Icons.select_all, size: 20),
             label: Text(l10n.selectAll),
             style: TextButton.styleFrom(
-              foregroundColor: PhotoManagerColors.primary
+              foregroundColor: context.palette.accent
             ),
           ),
         const SizedBox(width: 8)

@@ -1,6 +1,6 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
@@ -35,11 +35,11 @@ class SyncSessionProcessPage extends StatelessWidget {
             await _handleBackPressed(context, state, l10n);
           },
           child: Scaffold(
-            backgroundColor: const Color(0xFFF5F5F5),
+            backgroundColor: context.palette.surface2,
             appBar: AppBar(
               title: Text(l10n.syncSessionTitle),
-              backgroundColor: PhotoManagerColors.primary,
-              foregroundColor: Colors.white,
+              backgroundColor: context.palette.accent,
+              foregroundColor: context.palette.onAccent,
               elevation: 0,
               automaticallyImplyLeading: canPopDirectly,
             ),

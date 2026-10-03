@@ -1,4 +1,5 @@
 
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -20,23 +21,23 @@ class EmptySynchronizationState extends StatelessWidget {
             Container(
               width: 120,
               height: 120,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF3F4F6),
+              decoration: BoxDecoration(
+                color: context.palette.surface2,
                 shape: BoxShape.circle
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.sync_disabled,
                 size: 60,
-                color: Color(0xFF9CA3AF),
+                color: context.palette.ink3,
               ),
             ),
             const SizedBox(height: 24),
             Text(
               l10n.notSyncYet,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF111111)
+                color: context.palette.ink
               ),
             ),
             const SizedBox(height: 8),
@@ -45,7 +46,7 @@ class EmptySynchronizationState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: const Color(0xFF111111).withValues(alpha: 0.6)
+                color: context.palette.ink2
               ),
             )
           ],

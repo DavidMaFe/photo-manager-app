@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 
 import '../../../../l10n/app_localizations.dart';
 
@@ -21,27 +21,27 @@ class SyncSessionErrorView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline,
             size: 100,
-            color: Color(0xFFF44336),
+            color: context.palette.danger,
           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFEBEE),
+              color: context.palette.dangerSoft,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: const Color(0xFFEF5350),
+                color: context.palette.danger,
                 width: 1
               )
             ),
             child: Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFFC62828)
+                color: context.palette.dangerInk
               ),
               textAlign: TextAlign.center,
             ),
@@ -52,16 +52,16 @@ class SyncSessionErrorView extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: PhotoManagerColors.primary,
+                backgroundColor: context.palette.accent,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)
                 )
               ),
-              child: Text(l10n.tryAgain, style: const TextStyle(
+              child: Text(l10n.tryAgain, style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.white
+                color: context.palette.onAccent
               )),
             )
           ),
@@ -74,15 +74,15 @@ class SyncSessionErrorView extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: PhotoManagerColors.primary, width: 2),
+                    side: BorderSide(color: context.palette.accent, width: 2),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)
                     )
                 ),
-                child: Text(l10n.goBack, style: const TextStyle(
+                child: Text(l10n.goBack, style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: PhotoManagerColors.primary
+                    color: context.palette.accentInk
                 )),
               )
           )

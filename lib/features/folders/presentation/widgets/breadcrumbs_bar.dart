@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 import '../../domain/entities/folder.dart';
@@ -24,17 +24,17 @@ class BreadcrumbsBar extends StatelessWidget {
           onTap: () => onNavigate?.call(null),
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.folder,
                 size: 20,
-                color: PhotoManagerColors.primary
+                color: context.palette.accent
               ),
               const SizedBox(width: 4),
               Text(
                 l10n.folders,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: PhotoManagerColors.primary,
+                  color: context.palette.accentInk,
                   fontWeight: FontWeight.w500
                 ),
               )
@@ -47,16 +47,16 @@ class BreadcrumbsBar extends StatelessWidget {
             child: Icon(
               Icons.chevron_right,
               size: 16,
-              color: Colors.grey.shade600
+              color: context.palette.ink2
             ),
           ),
           Expanded(
             child: Text(
               currentFolder.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87
+                color: context.palette.ink
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

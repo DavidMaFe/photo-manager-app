@@ -1,6 +1,6 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
 
@@ -32,16 +32,16 @@ class SyncSessionUploadingFiles extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.cloud_upload_outlined,
             size: 80,
-            color: PhotoManagerColors.primary
+            color: context.palette.accent
           ),
           const SizedBox(height: 32),
-          Text(l10n.syncSessionUploadingFiles, style: const TextStyle(
+          Text(l10n.syncSessionUploadingFiles, style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF212121)
+            color: context.palette.ink
           )),
           const SizedBox(height: 40),
           
@@ -50,8 +50,8 @@ class SyncSessionUploadingFiles extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 12,
-              backgroundColor: const Color(0xFFE0E0E0),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+              backgroundColor: context.palette.line,
+              valueColor: AlwaysStoppedAnimation<Color>(context.palette.safe),
             ),
           ),
           const SizedBox(height: 16),
@@ -61,17 +61,17 @@ class SyncSessionUploadingFiles extends StatelessWidget {
             children: [
               Text(
                 l10n.syncSessionFiles(totalCount, uploadCount),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF212121)
+                  color: context.palette.ink
                 ),
               ),
               
-              Text('$progressPercentage%', style: const TextStyle(
+              Text('$progressPercentage%', style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: PhotoManagerColors.primary
+                color: context.palette.accentInk
               ))
             ],
           ),
@@ -84,15 +84,15 @@ class SyncSessionUploadingFiles extends StatelessWidget {
               },
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                side: const BorderSide(color: Color(0xFFF44336), width: 2),
+                side: BorderSide(color: context.palette.danger, width: 2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)
                 )
               ),
-              child: Text(l10n.syncSessionCancel, style: const TextStyle(
+              child: Text(l10n.syncSessionCancel, style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFFF44336)
+                color: context.palette.danger
               )),
             ),
           )
@@ -115,7 +115,7 @@ class SyncSessionUploadingFiles extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: TextButton.styleFrom(foregroundColor: const Color(0xFFF44336)),
+            style: TextButton.styleFrom(foregroundColor: context.palette.danger),
             child: Text(l10n.syncSessionCancelConfirm),
           )
         ],

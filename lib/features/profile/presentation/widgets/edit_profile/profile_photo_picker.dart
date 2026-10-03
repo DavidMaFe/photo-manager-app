@@ -1,9 +1,9 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 import '../../../../../core/widgets/authenticated_image.dart';
@@ -110,13 +110,13 @@ class _ProfilePhotoPickerState extends State<ProfilePhotoPicker> {
               )
                   : CircleAvatar(
                 radius: 60,
-                backgroundColor: PhotoManagerColors.primary,
+                backgroundColor: context.palette.accent,
                 child: Text(
                   _getInitials(widget.fullName),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: context.palette.onAccent,
                   ),
                 ),
               ),
@@ -128,11 +128,11 @@ class _ProfilePhotoPickerState extends State<ProfilePhotoPicker> {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.palette.surface,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
+                          color: context.palette.shadow,
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -141,7 +141,7 @@ class _ProfilePhotoPickerState extends State<ProfilePhotoPicker> {
                     child: Icon(
                       Icons.camera_alt,
                       size: 20,
-                      color: Colors.grey[700],
+                      color: context.palette.ink2,
                     ),
                   ),
                 ),

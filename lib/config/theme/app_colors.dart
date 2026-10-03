@@ -7,6 +7,7 @@ class AppColors {
   static const accentInk = Color(0xFF3B31C4); // texto/icono violeta sobre fondo claro
   static const accentSoft = Color(0xFFECEBFD); // fondos violeta suaves, pastilla activa nav
   static const accentAlt = Color(0xFF6C63F2); // segundo tono del logo
+  static const onAccent = Color(0xFFFFFFFF); // texto/icono sobre accent o danger
   static const ink = Color(0xFF131318); // texto principal
   static const ink2 = Color(0xFF5A5A66); // texto secundario (contraste AA sobre blanco)
   static const ink3 = Color(0xFF8A8A96); // solo iconos/placeholder, nunca texto importante
@@ -21,12 +22,24 @@ class AppColors {
   static const reviewInk = Color(0xFF8A4B00);
   static const reviewSoft = Color(0xFFFFF3DF);
   static const reviewIcon = Color(0xFFC47A00);
+  static const onReview = Color(0xFF3D2300); // texto sobre review (contador)
   static const safe = Color(0xFF17885C); // a salvo / éxito
   static const safeInk = Color(0xFF0F6544);
   static const safeSoft = Color(0xFFE5F5EE);
   static const danger = Color(0xFFD23A3A); // borrar / error
   static const dangerInk = Color(0xFFA62626);
   static const dangerSoft = Color(0xFFFDECEC);
+
+  // Sombras
+  static const shadow = Color(0x1F131318); // rgba(19,19,24,.12)
+  static const shadowSoft = Color(0x0D131318); // rgba(19,19,24,.05), borde de la barra flotante
+  static const darkShadow = Color(0x66000000);
+  static const darkShadowSoft = Color(0x14FFFFFF);
+
+  // Sobre fotos y vídeos (iguales en claro y oscuro)
+  static const media = Color(0xFF000000); // fondo del visor
+  static const onMedia = Color(0xFFFFFFFF); // texto/iconos sobre fotos
+  static const scrim = Color(0x8C000000); // rgba(0,0,0,.55), pastillas sobre fotos
 
   // Oscuro (mismos roles)
   static const darkBackground = Color(0xFF0E0E12);
@@ -39,4 +52,10 @@ class AppColors {
   static const darkAccentSoft = Color(0xFF26234D);
   static const darkAccentAlt = Color(0xFFB3ADFF);
   static const darkDanger = Color(0xFFFF8A8A);
+  // Fondos *Soft* y textos *Ink* de estado en oscuro (contraste AA sobre su fondo)
+  static const darkReviewSoft = Color(0xFF3A2C12);
+  static const darkReviewInk = Color(0xFFFFC766);
+  static const darkSafeSoft = Color(0xFF12322A);
+  static const darkSafeInk = Color(0xFF6FD3A8);
+  static const darkDangerSoft = Color(0xFF3D1C1F);
 }

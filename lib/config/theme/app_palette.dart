@@ -9,10 +9,12 @@ import 'app_colors.dart';
 class AppPalette extends ThemeExtension<AppPalette> {
   final Color background, surface, surface2, line, lineSoft;
   final Color ink, ink2, ink3;
-  final Color accent, accentInk, accentSoft;
-  final Color review, reviewInk, reviewSoft, reviewIcon;
+  final Color accent, accentInk, accentSoft, onAccent;
+  final Color review, reviewInk, reviewSoft, reviewIcon, onReview;
   final Color safe, safeInk, safeSoft;
   final Color danger, dangerInk, dangerSoft;
+  final Color shadow, shadowSoft;
+  final Color media, onMedia, scrim;
 
   const AppPalette({
     required this.background,
@@ -26,16 +28,23 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.accent,
     required this.accentInk,
     required this.accentSoft,
+    required this.onAccent,
     required this.review,
     required this.reviewInk,
     required this.reviewSoft,
     required this.reviewIcon,
+    required this.onReview,
     required this.safe,
     required this.safeInk,
     required this.safeSoft,
     required this.danger,
     required this.dangerInk,
     required this.dangerSoft,
+    required this.shadow,
+    required this.shadowSoft,
+    required this.media,
+    required this.onMedia,
+    required this.scrim,
   });
 
   static const light = AppPalette(
@@ -50,16 +59,23 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accent: AppColors.accent,
     accentInk: AppColors.accentInk,
     accentSoft: AppColors.accentSoft,
+    onAccent: AppColors.onAccent,
     review: AppColors.review,
     reviewInk: AppColors.reviewInk,
     reviewSoft: AppColors.reviewSoft,
     reviewIcon: AppColors.reviewIcon,
+    onReview: AppColors.onReview,
     safe: AppColors.safe,
     safeInk: AppColors.safeInk,
     safeSoft: AppColors.safeSoft,
     danger: AppColors.danger,
     dangerInk: AppColors.dangerInk,
     dangerSoft: AppColors.dangerSoft,
+    shadow: AppColors.shadow,
+    shadowSoft: AppColors.shadowSoft,
+    media: AppColors.media,
+    onMedia: AppColors.onMedia,
+    scrim: AppColors.scrim,
   );
 
   static const dark = AppPalette(
@@ -74,16 +90,23 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accent: AppColors.darkAccent,
     accentInk: AppColors.darkAccentAlt,
     accentSoft: AppColors.darkAccentSoft,
+    onAccent: AppColors.onAccent,
     review: AppColors.review,
-    reviewInk: AppColors.reviewInk,
-    reviewSoft: AppColors.reviewSoft,
+    reviewInk: AppColors.darkReviewInk,
+    reviewSoft: AppColors.darkReviewSoft,
     reviewIcon: AppColors.reviewIcon,
+    onReview: AppColors.onReview,
     safe: AppColors.safe,
-    safeInk: AppColors.safeInk,
-    safeSoft: AppColors.safeSoft,
+    safeInk: AppColors.darkSafeInk,
+    safeSoft: AppColors.darkSafeSoft,
     danger: AppColors.danger,
     dangerInk: AppColors.darkDanger,
-    dangerSoft: AppColors.dangerSoft,
+    dangerSoft: AppColors.darkDangerSoft,
+    shadow: AppColors.darkShadow,
+    shadowSoft: AppColors.darkShadowSoft,
+    media: AppColors.media,
+    onMedia: AppColors.onMedia,
+    scrim: AppColors.scrim,
   );
 
   @override
@@ -99,16 +122,23 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? accent,
     Color? accentInk,
     Color? accentSoft,
+    Color? onAccent,
     Color? review,
     Color? reviewInk,
     Color? reviewSoft,
     Color? reviewIcon,
+    Color? onReview,
     Color? safe,
     Color? safeInk,
     Color? safeSoft,
     Color? danger,
     Color? dangerInk,
     Color? dangerSoft,
+    Color? shadow,
+    Color? shadowSoft,
+    Color? media,
+    Color? onMedia,
+    Color? scrim,
   }) {
     return AppPalette(
       background: background ?? this.background,
@@ -122,16 +152,23 @@ class AppPalette extends ThemeExtension<AppPalette> {
       accent: accent ?? this.accent,
       accentInk: accentInk ?? this.accentInk,
       accentSoft: accentSoft ?? this.accentSoft,
+      onAccent: onAccent ?? this.onAccent,
       review: review ?? this.review,
       reviewInk: reviewInk ?? this.reviewInk,
       reviewSoft: reviewSoft ?? this.reviewSoft,
       reviewIcon: reviewIcon ?? this.reviewIcon,
+      onReview: onReview ?? this.onReview,
       safe: safe ?? this.safe,
       safeInk: safeInk ?? this.safeInk,
       safeSoft: safeSoft ?? this.safeSoft,
       danger: danger ?? this.danger,
       dangerInk: dangerInk ?? this.dangerInk,
       dangerSoft: dangerSoft ?? this.dangerSoft,
+      shadow: shadow ?? this.shadow,
+      shadowSoft: shadowSoft ?? this.shadowSoft,
+      media: media ?? this.media,
+      onMedia: onMedia ?? this.onMedia,
+      scrim: scrim ?? this.scrim,
     );
   }
 
@@ -151,20 +188,38 @@ class AppPalette extends ThemeExtension<AppPalette> {
       accent: l(accent, other.accent),
       accentInk: l(accentInk, other.accentInk),
       accentSoft: l(accentSoft, other.accentSoft),
+      onAccent: l(onAccent, other.onAccent),
       review: l(review, other.review),
       reviewInk: l(reviewInk, other.reviewInk),
       reviewSoft: l(reviewSoft, other.reviewSoft),
       reviewIcon: l(reviewIcon, other.reviewIcon),
+      onReview: l(onReview, other.onReview),
       safe: l(safe, other.safe),
       safeInk: l(safeInk, other.safeInk),
       safeSoft: l(safeSoft, other.safeSoft),
       danger: l(danger, other.danger),
       dangerInk: l(dangerInk, other.dangerInk),
       dangerSoft: l(dangerSoft, other.dangerSoft),
+      shadow: l(shadow, other.shadow),
+      shadowSoft: l(shadowSoft, other.shadowSoft),
+      media: l(media, other.media),
+      onMedia: l(onMedia, other.onMedia),
+      scrim: l(scrim, other.scrim),
     );
   }
 }
 
 extension AppPaletteX on BuildContext {
-  AppPalette get palette => Theme.of(this).extension<AppPalette>()!;
+  /// Paleta del tema actual. Si el tema no la registra (p. ej. un MaterialApp
+  /// sin AppTheme), se usa la paleta por defecto según el brillo.
+  AppPalette get palette {
+    final theme = Theme.of(this);
+    return theme.extension<AppPalette>() ??
+        (theme.brightness == Brightness.dark ? AppPalette.dark : AppPalette.light);
+  }
+
+  /// Paleta del modo contrario, para contenido sobre superficies invertidas
+  /// (snackbar oscuro en modo claro y viceversa).
+  AppPalette get inversePalette =>
+      Theme.of(this).brightness == Brightness.dark ? AppPalette.light : AppPalette.dark;
 }

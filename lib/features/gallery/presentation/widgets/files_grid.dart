@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
@@ -166,17 +167,17 @@ class _FilesGridState extends State<FilesGrid> {
           Icon(
             Icons.photo_library_outlined,
             size: 64,
-            color: Colors.grey.shade400
+            color: context.palette.ink3
           ),
           const SizedBox(height: 16),
           Text(l10n.noFiles, style: TextStyle(
-            fontSize: 16, color: Colors.grey.shade600,
+            fontSize: 16, color: context.palette.ink2,
             fontWeight: FontWeight.w500
           )),
           const SizedBox(height: 8),
           Text(l10n.syncToHaveFiles, style: TextStyle(
             fontSize: 14,
-            color: Colors.grey.shade500
+            color: context.palette.ink2
           ), textAlign: TextAlign.center)
         ],
       ),

@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 
@@ -24,7 +24,7 @@ class FileSelectionBar extends StatelessWidget {
       child: Container(
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        color: PhotoManagerColors.primary.withValues(alpha: 0.1),
+        color: context.palette.accent.withValues(alpha: 0.1),
         child: Row(
           children: [
             IconButton(

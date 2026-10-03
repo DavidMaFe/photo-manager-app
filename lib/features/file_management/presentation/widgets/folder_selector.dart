@@ -1,6 +1,6 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/errors/widgets/error_banner.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_folder.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
@@ -94,13 +94,13 @@ class _FolderList extends StatelessWidget {
     if (folders.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Text(l10n.noFolders, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+        child: Text(l10n.noFolders, style: TextStyle(color: context.palette.ink2, fontSize: 13)),
       );
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: context.palette.background,
         borderRadius: BorderRadius.circular(8)
       ),
       child: Column(
@@ -114,7 +114,7 @@ class _FolderList extends StatelessWidget {
           return Column(
             children: [
               Material(
-                color: Colors.transparent,
+                type: MaterialType.transparency,
                 child: InkWell(
                   onTap: () => onFolderSelected(folder.id),
                   child: Padding(
@@ -123,7 +123,7 @@ class _FolderList extends StatelessWidget {
                       children: [
                         Icon(
                             isSelected ? Icons.check_circle : Icons.circle_outlined,
-                            color: isSelected ? PhotoManagerColors.primary : Colors.grey.shade400,
+                            color: isSelected ? context.palette.accent : context.palette.ink3,
                             size: 20
                         ),
 
@@ -131,7 +131,7 @@ class _FolderList extends StatelessWidget {
 
                         Icon(
                           Icons.folder,
-                          color: Colors.grey[600],
+                          color: context.palette.ink2,
                           size: 18,
                         ),
 
@@ -146,7 +146,7 @@ class _FolderList extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                    color: isSelected ? PhotoManagerColors.primary : Colors.black87
+                                    color: isSelected ? context.palette.accentInk : context.palette.ink
                                 ),
                               ),
                               if (folder.fileCount > 0)
@@ -154,7 +154,7 @@ class _FolderList extends StatelessWidget {
                                   '${folder.fileCount} ${l10n.files}',
                                   style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey[600]
+                                      color: context.palette.ink2
                                   ),
                                 )
                             ],
@@ -166,7 +166,7 @@ class _FolderList extends StatelessWidget {
                 ),
               ),
               if(!isLast)
-                Divider(height: 1, color: Colors.grey.shade200)
+                Divider(height: 1, color: context.palette.line)
             ],
           );
         }).toList(),

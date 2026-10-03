@@ -1,7 +1,7 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
@@ -31,7 +31,7 @@ class FoldersPage extends StatelessWidget {
         title: Text(l10n.folders),
         centerTitle: false,
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: context.palette.surface,
       ),
       body: BlocConsumer<FolderBloc, FolderState>(
         listener: _handleStateChanges,
@@ -69,12 +69,12 @@ class FoldersPage extends StatelessWidget {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.white),
+              Icon(Icons.check_circle, color: context.palette.onAccent),
               const SizedBox(width: 8),
               Text(state.message)
             ],
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: context.palette.safe,
           behavior: SnackBarBehavior.floating,
         )
       );
@@ -139,7 +139,7 @@ class FoldersPage extends StatelessWidget {
           const SizedBox(height: 16),
           Text(_getOperationMessage(state.operation, AppLocalizations.of(context)!), style: TextStyle(
             fontSize: 14,
-            color: Colors.grey.shade600
+            color: context.palette.ink2
           ))
         ],
       )
@@ -149,8 +149,8 @@ class FoldersPage extends StatelessWidget {
   Widget _buildFAB(BuildContext context, AppLocalizations l10n) {
     return FloatingActionButton(
       onPressed: () => _showCreateModal(context),
-      backgroundColor: PhotoManagerColors.primary,
-      child: const Icon(Icons.add, color: Colors.white)
+      backgroundColor: context.palette.accent,
+      child: Icon(Icons.add, color: context.palette.onAccent)
     );
   }
 
@@ -165,7 +165,7 @@ class FoldersPage extends StatelessWidget {
           Icon(
             Icons.folder_outlined,
             size: 80,
-            color: Colors.grey.shade400,
+            color: context.palette.ink3,
           ),
           const SizedBox(height: 16),
           Text(
@@ -173,7 +173,7 @@ class FoldersPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700
+              color: context.palette.ink2
             ),
           ),
           const SizedBox(height: 8),
@@ -181,7 +181,7 @@ class FoldersPage extends StatelessWidget {
             l10n.createFirstFolder,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade500
+              color: context.palette.ink2
             ),
             textAlign: TextAlign.center,
           )
@@ -214,7 +214,9 @@ class FoldersPage extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      // The sheet content draws its own surface and drag handle.
+      backgroundColor: context.palette.surface.withValues(alpha: 0),
+      showDragHandle: false,
       builder: (modalContext) => BlocProvider.value(
         value: context.read<FolderBloc>(),
         child: const CreateFolderModal(),
@@ -226,7 +228,9 @@ class FoldersPage extends StatelessWidget {
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.transparent,
+        // The sheet content draws its own surface and drag handle.
+        backgroundColor: context.palette.surface.withValues(alpha: 0),
+        showDragHandle: false,
         builder: (modalContext) => BlocProvider.value(
           value: context.read<FolderBloc>(),
           child: RenameFolderModal(folder: folder),

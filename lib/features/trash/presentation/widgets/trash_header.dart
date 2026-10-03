@@ -1,7 +1,7 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-import '../../../../config/theme/photo_manager_colors.dart';
 
 class TrashHeader extends StatelessWidget implements PreferredSizeWidget {
   final bool isSelectionMode;
@@ -44,7 +44,7 @@ class TrashHeader extends StatelessWidget implements PreferredSizeWidget {
             tooltip: l10n.selectAll,
           ),
         ],
-        backgroundColor: PhotoManagerColors.primary.withValues(alpha: 0.1),
+        backgroundColor: context.palette.accent.withValues(alpha: 0.1),
       );
     }
 
@@ -61,7 +61,7 @@ class TrashHeader extends StatelessWidget implements PreferredSizeWidget {
           tooltip: l10n.emptyTrash,
         ),
       ],
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.surface,
     );
   }
 }

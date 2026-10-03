@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import '../../../../../l10n/app_localizations.dart';
 
 
@@ -24,10 +24,10 @@ class RequestResetInputs extends StatelessWidget {
       children: [
         Text(
           l10n.emailLabel,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.black87
+            color: context.palette.ink
           ),
         ),
 
@@ -52,33 +52,33 @@ class RequestResetInputs extends StatelessWidget {
 
           decoration: InputDecoration(
             hintText: l10n.emailPlaceholder,
-            hintStyle: TextStyle(color: Colors.grey[400]),
+            hintStyle: TextStyle(color: context.palette.ink3),
             filled: true,
-            fillColor: Colors.grey[50],
+            fillColor: context.palette.background,
 
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red, width: 2)
+              borderSide: BorderSide(color: context.palette.danger, width: 2)
             ),
 
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red, width: 2)
+              borderSide: BorderSide(color: context.palette.danger, width: 2)
             ),
 
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!)
+              borderSide: BorderSide(color: context.palette.line)
             ),
 
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!)
+              borderSide: BorderSide(color: context.palette.line)
             ),
 
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2)
+              borderSide: BorderSide(color: context.palette.accent, width: 2)
             ),
 
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16)

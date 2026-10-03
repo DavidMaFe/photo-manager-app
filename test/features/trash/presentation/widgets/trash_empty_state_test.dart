@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_manager_app/features/trash/presentation/widgets/trash_empty_state.dart';
@@ -74,7 +75,7 @@ void main() {
       final icon = tester.widget<Icon>(find.byIcon(Icons.delete_outline));
 
       // Assert
-      expect(icon.color, Colors.grey[400]);
+      expect(icon.color, AppPalette.light.ink3);
     });
 
     // ==================== TEXT TESTS ====================
@@ -118,7 +119,7 @@ void main() {
 
       // Assert
       expect(titleText.style?.fontSize, 20);
-      expect(titleText.style?.color, Colors.grey[800]);
+      expect(titleText.style?.color, AppPalette.light.ink);
       expect(titleText.style?.fontWeight, FontWeight.w600);
     });
 
@@ -134,7 +135,7 @@ void main() {
 
       // Assert
       expect(descriptionText.style?.fontSize, 14);
-      expect(descriptionText.style?.color, Colors.grey[600]);
+      expect(descriptionText.style?.color, AppPalette.light.ink2);
       expect(descriptionText.style?.height, 1.5);
       expect(descriptionText.textAlign, TextAlign.center);
     });
@@ -298,7 +299,7 @@ void main() {
 
     // ==================== COLOR TESTS ====================
 
-    testWidgets('should use grey color scheme', (tester) async {
+    testWidgets('should use palette ink colors', (tester) async {
       // Arrange
       await tester.pumpWidget(createWidgetUnderTest());
 
@@ -311,9 +312,9 @@ void main() {
       );
 
       // Assert - All colors should be grey variants
-      expect(icon.color, Colors.grey[400]);
-      expect(titleText.style?.color, Colors.grey[800]);
-      expect(descriptionText.style?.color, Colors.grey[600]);
+      expect(icon.color, AppPalette.light.ink3);
+      expect(titleText.style?.color, AppPalette.light.ink);
+      expect(descriptionText.style?.color, AppPalette.light.ink2);
     });
 
     // ==================== CONST CONSTRUCTOR TEST ====================

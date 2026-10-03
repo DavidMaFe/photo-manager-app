@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -61,7 +62,7 @@ class _ValidateResetCodePageState extends State<ValidateResetCodePage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.surface,
       body: SafeArea(
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
@@ -80,7 +81,7 @@ class _ValidateResetCodePageState extends State<ValidateResetCodePage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(l10n.codeResent),
-                  backgroundColor: Colors.green
+                  backgroundColor: context.palette.safe
                 )
               );
             }

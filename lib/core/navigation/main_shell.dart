@@ -1,7 +1,7 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 
 import '../../features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import '../../features/file_management/presentation/bloc/file_management/file_management_state.dart';
@@ -57,9 +57,9 @@ class MainShell extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
           currentIndex: navigationShell.currentIndex,
           onTap: (index) => navigationShell.goBranch(index),
-          selectedItemColor: PhotoManagerColors.primary,
-          backgroundColor: Colors.white,
-          unselectedItemColor: Colors.grey,
+          selectedItemColor: context.palette.accent,
+          backgroundColor: context.palette.surface,
+          unselectedItemColor: context.palette.ink2,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home, size: 28), label: ''),
             BottomNavigationBarItem(icon: Icon(Icons.folder, size: 28), label: ''),

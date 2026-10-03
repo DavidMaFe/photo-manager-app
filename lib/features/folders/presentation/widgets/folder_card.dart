@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 import '../../domain/entities/folder.dart';
@@ -34,13 +34,13 @@ class FolderCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              PhotoManagerColors.primary.withValues(alpha: 0.1),
-              PhotoManagerColors.primary.withValues(alpha: 0.05)
+              context.palette.accent.withValues(alpha: 0.1),
+              context.palette.accent.withValues(alpha: 0.05)
             ]
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: PhotoManagerColors.primary.withValues(alpha: 0.2),
+            color: context.palette.accent.withValues(alpha: 0.2),
             width: 1
           )
         ),
@@ -54,22 +54,22 @@ class FolderCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: PhotoManagerColors.primary.withValues(alpha: 0.2),
+                      color: context.palette.accent.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12)
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.folder,
-                      color: PhotoManagerColors.primary,
+                      color: context.palette.accent,
                       size: 32,
                     ),
                   ),
                   const Spacer(),
                   Text(
                     folder.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87
+                      color: context.palette.ink
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -80,28 +80,28 @@ class FolderCard extends StatelessWidget {
                       Icon(
                         Icons.photo_library,
                         size: 14,
-                        color: Colors.grey.shade600
+                        color: context.palette.ink2
                       ),
                       const SizedBox(width: 4),
                       Text(
                         '${folder.fileCount}',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600
+                          color: context.palette.ink2
                         ),
                       ),
                       const SizedBox(width: 12),
                       Icon(
                         Icons.folder,
                         size: 14,
-                        color: Colors.grey.shade600
+                        color: context.palette.ink2
                       ),
                       const SizedBox(width: 4),
                       Text(
                         '${folder.subfolderCount}',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600
+                          color: context.palette.ink2
                         ),
                       )
                     ],
@@ -116,7 +116,7 @@ class FolderCard extends StatelessWidget {
                 child: PopupMenuButton<String>(
                   icon: Icon(
                     Icons.more_vert,
-                    color: Colors.grey.shade700,
+                    color: context.palette.ink2,
                     size: 20
                   ),
                   shape: RoundedRectangleBorder(
@@ -146,9 +146,9 @@ class FolderCard extends StatelessWidget {
                         value: 'delete',
                         child: Row(
                           children: [
-                            const Icon(Icons.delete, size: 20, color: Colors.red),
+                            Icon(Icons.delete, size: 20, color: context.palette.danger),
                             const SizedBox(width: 12),
-                            Text(l10n.delete, style: const TextStyle(color: Colors.red))
+                            Text(l10n.delete, style: TextStyle(color: context.palette.dangerInk))
                           ],
                         ),
                       )

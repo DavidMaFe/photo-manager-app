@@ -1,6 +1,6 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_event.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -27,9 +27,9 @@ class SaveButtonWidget extends StatelessWidget {
                 context.read<SyncConfigBloc>().add(SaveSyncConfig());
               },
         style: ElevatedButton.styleFrom(
-          backgroundColor: PhotoManagerColors.primary,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: Colors.grey[300],
+          backgroundColor: context.palette.accent,
+          foregroundColor: context.palette.onAccent,
+          disabledBackgroundColor: context.palette.line,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -38,12 +38,12 @@ class SaveButtonWidget extends StatelessWidget {
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(context.palette.onAccent),
                     ),
                   ),
                   const SizedBox(width: 12),

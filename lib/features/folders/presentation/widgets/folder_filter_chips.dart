@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 
@@ -84,7 +84,7 @@ class FolderFilterChips extends StatelessWidget {
             Icon(
               icon,
               size: 18,
-              color: isSelected ? Colors.white : PhotoManagerColors.primary
+              color: isSelected ? context.palette.onAccent : context.palette.accent
             ),
             const SizedBox(width: 6)
           ],
@@ -93,18 +93,18 @@ class FolderFilterChips extends StatelessWidget {
       ),
       selected: isSelected,
       onSelected: (_) => onTap(),
-      backgroundColor: Colors.white,
-      selectedColor: PhotoManagerColors.primary,
-      checkmarkColor: Colors.white,
+      backgroundColor: context.palette.surface,
+      selectedColor: context.palette.accent,
+      checkmarkColor: context.palette.surface,
       labelStyle: TextStyle(
-        color: isSelected ? Colors.white : PhotoManagerColors.primary,
+        color: isSelected ? context.palette.onAccent : context.palette.accentInk,
         fontWeight: FontWeight.w600,
         fontSize: 14
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? PhotoManagerColors.primary : Colors.grey.shade300,
+          color: isSelected ? context.palette.accent : context.palette.line,
           width: 1.5
         )
       ),

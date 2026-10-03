@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -21,7 +22,7 @@ class LocalDeletionWarningDialog {
       context: context,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
+      barrierColor: context.palette.media.withValues(alpha: 0.5),
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (context, animation, secondaryAnimation) {
         return StatefulBuilder(
@@ -85,18 +86,18 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 400),
         margin: const EdgeInsets.symmetric(horizontal: 24),
         child: Material(
-          color: Colors.transparent,
+          type: MaterialType.transparency,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.95),
+              color: context.palette.surface.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
+                color: context.palette.surface.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
+                  color: context.palette.shadow,
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -107,10 +108,10 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildHeader(),
-                  _buildContent(),
-                  _buildCheckbox(),
-                  _buildActions(),
+                  _buildHeader(context),
+                  _buildContent(context),
+                  _buildCheckbox(context),
+                  _buildActions(context),
                 ],
               ),
             ),
@@ -120,7 +121,7 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Container(
       height: 80,
       decoration: BoxDecoration(
@@ -128,8 +129,8 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.orange,
-            Colors.orange.withValues(alpha: 0.8),
+            context.palette.review,
+            context.palette.review.withValues(alpha: 0.8),
           ],
         ),
       ),
@@ -140,12 +141,12 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: context.palette.surface.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.info_outline,
-              color: Colors.white,
+              color: context.palette.onAccent,
               size: 28,
             ),
           ),
@@ -153,8 +154,8 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
           Expanded(
             child: Text(
               l10n.filesManaged,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: context.palette.onAccent,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.none,
@@ -167,13 +168,13 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Text(
         message,
         style: TextStyle(
-          color: Colors.grey.shade800,
+          color: context.palette.ink,
           fontSize: 15,
           height: 1.5,
           decoration: TextDecoration.none,
@@ -185,7 +186,7 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
     );
   }
 
-  Widget _buildCheckbox() {
+  Widget _buildCheckbox(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
       child: InkWell(
@@ -209,7 +210,7 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
               child: Text(
                 l10n.dontShowAgain,
                 style: TextStyle(
-                  color: Colors.grey.shade700,
+                  color: context.palette.ink2,
                   fontSize: 14,
                   decoration: TextDecoration.none,
                   fontFamily: 'Roboto',
@@ -223,7 +224,7 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
     );
   }
 
-  Widget _buildActions() {
+  Widget _buildActions(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       child: Row(
@@ -233,7 +234,7 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
             child: FilledButton(
               onPressed: onConfirm,
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: context.palette.review,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -242,8 +243,8 @@ class _LocalDeletionWarningDialogContent extends StatelessWidget {
               ),
               child: Text(
                 l10n.ok,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: context.palette.onAccent,
                   fontWeight: FontWeight.w600,
                   fontSize: 15,
                 ),

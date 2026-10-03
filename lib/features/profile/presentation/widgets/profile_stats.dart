@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 
@@ -23,13 +24,13 @@ class ProfileStats extends StatelessWidget {
           label: l10n.files,
           onTap: () {},
         ),
-        _buildDivider(),
+        _buildDivider(context),
         _StatItem(
           value: _formatNumber(profile.folderCount),
           label: l10n.folders,
           onTap: () {},
         ),
-        _buildDivider(),
+        _buildDivider(context),
         _StatItem(
           value: _formatNumber(profile.deviceCount),
           label: l10n.devices,
@@ -39,11 +40,11 @@ class ProfileStats extends StatelessWidget {
     );
   }
   
-  Widget _buildDivider() {
+  Widget _buildDivider(BuildContext context) {
     return Container(
       height: 40,
       width: 1,
-      color: Colors.grey[300]
+      color: context.palette.line
     );
   }
   
@@ -76,10 +77,10 @@ class _StatItem extends StatelessWidget {
           children: [
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87
+                color: context.palette.ink
               ),
             ),
             const SizedBox(height: 4),
@@ -87,7 +88,7 @@ class _StatItem extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey[600]
+                color: context.palette.ink2
               ),
             )
           ],

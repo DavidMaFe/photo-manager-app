@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_manager_app/features/synchronization/domain/entities/synchronization.dart';
@@ -180,7 +181,7 @@ void main() {
 
       expect(
         (container.decoration as BoxDecoration).color,
-        const Color(0xFFDCFCE7), // Green background for completed
+        AppPalette.light.safeSoft, // Safe background for completed
       );
     });
 
@@ -206,7 +207,7 @@ void main() {
 
       expect(
         (container.decoration as BoxDecoration).color,
-        const Color(0xFFFEF3C7), // Yellow background for in progress
+        AppPalette.light.reviewSoft, // Review background for in progress
       );
     });
 
@@ -231,7 +232,7 @@ void main() {
 
       expect(
         (container.decoration as BoxDecoration).color,
-        const Color(0xFFFEE2E2), // Red background for failed
+        AppPalette.light.dangerSoft, // Danger background for failed
       );
     });
 
@@ -256,7 +257,7 @@ void main() {
 
       expect(
         (container.decoration as BoxDecoration).color,
-        const Color(0xFFF3F4F6), // Gray background for cancelled
+        AppPalette.light.surface2, // Neutral background for cancelled
       );
     });
 

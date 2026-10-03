@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations.dart';
@@ -22,10 +23,10 @@ class PendingInfoBanner extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: context.palette.reviewSoft,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Colors.orange.shade200,
+          color: context.palette.review,
           width: 1
         )
       ),
@@ -33,7 +34,7 @@ class PendingInfoBanner extends StatelessWidget {
         children: [
           Icon(
             Icons.info_outline,
-            color: Colors.orange.shade700,
+            color: context.palette.reviewInk,
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -41,7 +42,7 @@ class PendingInfoBanner extends StatelessWidget {
             child: Text(
               pendingCount == 1 ? l10n.pendingFilesInfoSingle : l10n.pendingFilesInfo(pendingCount),
               style: TextStyle(
-                color: Colors.orange.shade900,
+                color: context.palette.reviewInk,
                 fontSize: 14,
                 fontWeight: FontWeight.w500
               ),

@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/errors/helper/failure_message_helper.dart';
@@ -19,11 +20,13 @@ class ErrorSnackBar {
     VoidCallback? onRetry,
     Duration duration = const Duration(seconds: 4),
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // The snackbar is inverted (ink background), so its content uses the
+    // palette of the opposite brightness.
+    final inverse = context.inversePalette;
 
     // Get failure-specific icon and color
     final iconData = _getIconForFailure(failure);
-    final iconColor = _getColorForFailure(failure, isDark);
+    final iconColor = _getColorForFailure(failure, inverse);
 
     // Get localized messages
     final title = FailureMessageHelper.getTitle(context, failure);
@@ -39,14 +42,10 @@ class ErrorSnackBar {
           failure: failure,
           onRetry: onRetry,
         ),
-        backgroundColor: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+        backgroundColor: context.palette.ink,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1),
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(16),
         ),
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.all(16),
@@ -69,24 +68,22 @@ class ErrorSnackBar {
     return Icons.error_outline_rounded;
   }
 
-  static Color _getColorForFailure(Failure failure, bool isDark) {
-    // Network/connectivity issues - blue
+  static Color _getColorForFailure(Failure failure, AppPalette p) {
+    // Network/connectivity issues - accent
     if (failure is NetworkFailure || failure is TimeoutFailure) {
-      return isDark ? Colors.blue.shade300 : Colors.blue.shade700;
+      return p.accent;
     }
 
-    // Validation/warning issues - orange
-    if (failure is ValidationFailure || failure is StorageSpaceExceededFailure) {
-      return isDark ? Colors.orange.shade300 : Colors.orange.shade700;
+    // Validation, warning, auth and permission issues - review
+    if (failure is ValidationFailure ||
+        failure is StorageSpaceExceededFailure ||
+        failure is UnauthorizedFailure ||
+        failure is PermissionDeniedFailure) {
+      return p.review;
     }
 
-    // Auth/permission issues - amber
-    if (failure is UnauthorizedFailure || failure is PermissionDeniedFailure) {
-      return isDark ? Colors.amber.shade300 : Colors.amber.shade800;
-    }
-
-    // Critical errors - red
-    return isDark ? Colors.red.shade300 : Colors.red.shade700;
+    // Critical errors - danger
+    return p.dangerInk;
   }
 }
 
@@ -109,9 +106,9 @@ class _ErrorSnackBarContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final subtextColor = isDark ? Colors.white70 : Colors.black54;
+    final inverse = context.inversePalette;
+    final textColor = inverse.ink;
+    final subtextColor = inverse.ink2;
 
     // Check if this is a ValidationFailure with field errors
     final hasFieldErrors = failure is ValidationFailure &&

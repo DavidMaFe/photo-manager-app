@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/widgets/error_synchronization_state.dart';
@@ -109,7 +110,7 @@ void main() {
 
       expect(
         (circularContainer.decoration as BoxDecoration).color,
-        const Color(0xFFFEE2E2),
+        AppPalette.light.dangerSoft,
       );
     });
 

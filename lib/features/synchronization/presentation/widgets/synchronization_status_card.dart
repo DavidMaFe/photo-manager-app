@@ -1,5 +1,5 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 import '../../../../core/utils/date_formatter.dart';
@@ -26,15 +26,15 @@ class SynchronizationStatusCard extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)]
+          colors: [context.palette.accent, context.palette.accent]
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+            color: context.palette.accent.withValues(alpha: 0.2),
             blurRadius: 16,
             offset: const Offset(0, 4)
           )
@@ -46,26 +46,26 @@ class SynchronizationStatusCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(l10n.syncCurrentState, style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.9),
+                color: context.palette.onAccent.withValues(alpha: 0.9),
                 fontSize: 14,
                 fontWeight: FontWeight.w500
               )),
-              _buildStatusBadge(l10n)
+              _buildStatusBadge(context, l10n)
             ],
           ),
           const SizedBox(height: 20),
-          _buildStatusIcon(),
+          _buildStatusIcon(context),
           const SizedBox(height: 24),
           if (latestSync != null) ...[
             Text(l10n.syncLast, style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: context.palette.onAccent.withValues(alpha: 0.9),
               fontSize: 14
             )),
             const SizedBox(height: 6),
             Text(
               DateFormatter.formatRelativeTime(latestSync!.startedAt, context),
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: context.palette.onAccent,
                 fontSize: 18,
                 fontWeight: FontWeight.w700
               ),
@@ -73,8 +73,8 @@ class SynchronizationStatusCard extends StatelessWidget {
           ] else ...[
             Text(
               l10n.syncEmpty,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: context.palette.onAccent,
                 fontSize: 18,
                 fontWeight: FontWeight.w700
               ),
@@ -86,8 +86,8 @@ class SynchronizationStatusCard extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onSyncNowPressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: PhotoManagerColors.primary,
+                backgroundColor: context.palette.surface,
+                foregroundColor: context.palette.accent,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)
@@ -108,20 +108,20 @@ class SynchronizationStatusCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(AppLocalizations l10n) {
+  Widget _buildStatusBadge(BuildContext context, AppLocalizations l10n) {
 
     final text = latestSync?.isCompleted == true ? l10n.synchronized : l10n.syncPending;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: context.palette.surface.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20)
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: context.palette.onAccent,
           fontSize: 12,
           fontWeight: FontWeight.w600
         ),
@@ -129,7 +129,7 @@ class SynchronizationStatusCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusIcon() {
+  Widget _buildStatusIcon(BuildContext context) {
     IconData icon;
 
     if (latestSync == null) {
@@ -148,12 +148,12 @@ class SynchronizationStatusCard extends StatelessWidget {
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: context.palette.surface.withValues(alpha: 0.2),
         shape: BoxShape.circle,
       ),
       child: Icon(
         icon,
-        color: Colors.white,
+        color: context.palette.onAccent,
         size: 40,
       ),
     );

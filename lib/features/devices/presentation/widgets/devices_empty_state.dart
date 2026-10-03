@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -17,15 +18,15 @@ class DevicesEmptyState extends StatelessWidget {
             Icon(
               Icons.devices_outlined,
               size: 80,
-              color: Colors.grey[300],
+              color: context.palette.ink3,
             ),
             const SizedBox(height: 24),
             Text(
               l10n.noDevices,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: context.palette.ink,
               ),
             ),
             const SizedBox(height: 12),
@@ -34,7 +35,7 @@ class DevicesEmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
-                color: Colors.grey[600],
+                color: context.palette.ink2,
                 height: 1.5,
               ),
             ),

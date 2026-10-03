@@ -1,7 +1,7 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
@@ -58,9 +58,9 @@ class GalleryPage extends StatelessWidget {
                 // causing FilesGrid to be recreated and losing the scroll position.
                 SizedBox(
                   height: (state is GalleryLoaded && state.isRefreshing) ? 2 : 0,
-                  child: const LinearProgressIndicator(
-                    backgroundColor: Colors.transparent,
-                    color: PhotoManagerColors.primary,
+                  child: LinearProgressIndicator(
+                    backgroundColor: context.palette.background,
+                    color: context.palette.accent,
                   ),
                 ),
                 _buildFilters(context, state),
@@ -92,7 +92,7 @@ class GalleryPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: PhotoManagerColors.primary.withValues(alpha: 0.3),
+            color: context.palette.accent.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4)
           )
@@ -100,16 +100,16 @@ class GalleryPage extends StatelessWidget {
       ),
       child: FloatingActionButton.extended(
         onPressed: () => _showManageModal(context, state.selectedFileIds.toList()),
-        backgroundColor: PhotoManagerColors.primary,
+        backgroundColor: context.palette.accent,
         elevation: 0,
-        icon: const Icon(Icons.tune, size: 22, color: Colors.white),
+        icon: Icon(Icons.tune, size: 22, color: context.palette.onAccent),
         label: Row(
           children: [
             Text(
               selectedCount == 1 ? l10n.manageSingleFile : l10n.manageMultipleFiles(selectedCount),
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: context.palette.onAccent,
                 fontSize: 15
               )
             ),
@@ -125,7 +125,9 @@ class GalleryPage extends StatelessWidget {
       useSafeArea: true,
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      // The sheet content draws its own surface and drag handle.
+      backgroundColor: context.palette.surface.withValues(alpha: 0),
+      showDragHandle: false,
       builder: (modalContext) => MultiBlocProvider(
         providers: [
           BlocProvider.value(value: context.read<FileManagementBloc>()),

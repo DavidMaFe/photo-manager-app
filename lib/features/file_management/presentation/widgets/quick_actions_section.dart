@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
@@ -21,7 +22,7 @@ class QuickActionsSection extends StatelessWidget {
         Text(
           l10n.quickActionsTitle,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Colors.grey[600],
+            color: context.palette.ink2,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5
           ),
@@ -32,8 +33,8 @@ class QuickActionsSection extends StatelessWidget {
             Expanded(
               child: _QuickActionCard(
                 icon: Icons.save,
-                iconColor: Colors.green,
-                backgroundColor: Colors.green.withValues(alpha: 0.1),
+                iconColor: context.palette.safe,
+                backgroundColor: context.palette.safe.withValues(alpha: 0.1),
                 title: l10n.saveAndKeepTitle,
                 subtitle: l10n.saveAndKeepSubtitle,
                 onTap: () {
@@ -48,8 +49,8 @@ class QuickActionsSection extends StatelessWidget {
             Expanded(
               child: _QuickActionCard(
                 icon: Icons.cloud_upload,
-                iconColor: Colors.blue,
-                backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                iconColor: context.palette.accent,
+                backgroundColor: context.palette.accent.withValues(alpha: 0.1),
                 title: l10n.saveAndDeleteTitle,
                 subtitle: l10n.saveAndDeleteSubtitle,
                 onTap: () {
@@ -68,8 +69,8 @@ class QuickActionsSection extends StatelessWidget {
             Expanded(
               child: _QuickActionCard(
                 icon: Icons.folder,
-                iconColor: Colors.orange,
-                backgroundColor: Colors.orange.withValues(alpha: 0.1),
+                iconColor: context.palette.review,
+                backgroundColor: context.palette.review.withValues(alpha: 0.1),
                 title: l10n.saveInFolderTitle,
                 subtitle: l10n.saveInFolderSubtitle,
                 onTap: () {
@@ -84,8 +85,8 @@ class QuickActionsSection extends StatelessWidget {
             Expanded(
               child: _QuickActionCard(
                 icon: Icons.delete,
-                iconColor: Colors.red,
-                backgroundColor: Colors.red.withValues(alpha: 0.1),
+                iconColor: context.palette.danger,
+                backgroundColor: context.palette.danger.withValues(alpha: 0.1),
                 title: l10n.deleteBothTitle,
                 subtitle: l10n.deleteBothSubtitle,
                 onTap: () {
