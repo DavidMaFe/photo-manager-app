@@ -15,6 +15,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color danger, dangerInk, dangerSoft;
   final Color shadow, shadowSoft;
   final Color media, onMedia, scrim;
+  final Color mediaChrome, mediaChromeRaised, onMediaMuted, mediaDanger, mediaReview;
 
   const AppPalette({
     required this.background,
@@ -45,6 +46,11 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.media,
     required this.onMedia,
     required this.scrim,
+    required this.mediaChrome,
+    required this.mediaChromeRaised,
+    required this.onMediaMuted,
+    required this.mediaDanger,
+    required this.mediaReview,
   });
 
   static const light = AppPalette(
@@ -76,6 +82,11 @@ class AppPalette extends ThemeExtension<AppPalette> {
     media: AppColors.media,
     onMedia: AppColors.onMedia,
     scrim: AppColors.scrim,
+    mediaChrome: AppColors.mediaChrome,
+    mediaChromeRaised: AppColors.mediaChromeRaised,
+    onMediaMuted: AppColors.onMediaMuted,
+    mediaDanger: AppColors.mediaDanger,
+    mediaReview: AppColors.mediaReview,
   );
 
   static const dark = AppPalette(
@@ -107,6 +118,11 @@ class AppPalette extends ThemeExtension<AppPalette> {
     media: AppColors.media,
     onMedia: AppColors.onMedia,
     scrim: AppColors.scrim,
+    mediaChrome: AppColors.mediaChrome,
+    mediaChromeRaised: AppColors.mediaChromeRaised,
+    onMediaMuted: AppColors.onMediaMuted,
+    mediaDanger: AppColors.mediaDanger,
+    mediaReview: AppColors.mediaReview,
   );
 
   @override
@@ -139,6 +155,11 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? media,
     Color? onMedia,
     Color? scrim,
+    Color? mediaChrome,
+    Color? mediaChromeRaised,
+    Color? onMediaMuted,
+    Color? mediaDanger,
+    Color? mediaReview,
   }) {
     return AppPalette(
       background: background ?? this.background,
@@ -169,6 +190,11 @@ class AppPalette extends ThemeExtension<AppPalette> {
       media: media ?? this.media,
       onMedia: onMedia ?? this.onMedia,
       scrim: scrim ?? this.scrim,
+      mediaChrome: mediaChrome ?? this.mediaChrome,
+      mediaChromeRaised: mediaChromeRaised ?? this.mediaChromeRaised,
+      onMediaMuted: onMediaMuted ?? this.onMediaMuted,
+      mediaDanger: mediaDanger ?? this.mediaDanger,
+      mediaReview: mediaReview ?? this.mediaReview,
     );
   }
 
@@ -205,6 +231,11 @@ class AppPalette extends ThemeExtension<AppPalette> {
       media: l(media, other.media),
       onMedia: l(onMedia, other.onMedia),
       scrim: l(scrim, other.scrim),
+      mediaChrome: l(mediaChrome, other.mediaChrome),
+      mediaChromeRaised: l(mediaChromeRaised, other.mediaChromeRaised),
+      onMediaMuted: l(onMediaMuted, other.onMediaMuted),
+      mediaDanger: l(mediaDanger, other.mediaDanger),
+      mediaReview: l(mediaReview, other.mediaReview),
     );
   }
 }

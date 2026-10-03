@@ -472,5 +472,65 @@
     }
   },
   "newPasswordHeadline": "Crea una contraseña nueva",
-  "newPasswordBody": "Usa una que no hayas usado antes en esta cuenta."
+  "newPasswordBody": "Usa una que no hayas usado antes en esta cuenta.",
+
+  "navPhotos": "Fotos",
+  "backupUpToDate": "Al día",
+  "backupInProgress": "Copiando {percent} %",
+  "@backupInProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "backupFailed": "Copia con fallos",
+  "filterAll": "Todo",
+  "filterToReview": "Por revisar",
+  "toReviewTitle": "{count, plural, =1{1 elemento por revisar} other{{count} elementos por revisar}}",
+  "@toReviewTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "toReviewBody": "Decide si guardarlos o liberar espacio del móvil",
+  "review": "Revisar",
+  "select": "Seleccionar",
+  "selectedCount": "{count, plural, =1{1 seleccionada} other{{count} seleccionadas}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectAllShort": "Todas",
+  "selectNone": "Ninguna",
+  "noPhotosYet": "Aún no hay fotos",
+  "noPhotosBody": "Sincroniza tu móvil para verlas aquí",
+  "backupNow": "Hacer copia ahora",
+  "openProfile": "Abrir perfil",
+  "closeSelection": "Salir de la selección",
+
+  "dayAndTime": "{day}, {time}",
+  "@dayAndTime": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerInfo": "Información",
+  "actionSave": "Guardar",
+  "actionDelete": "Eliminar",
+  "deleteFileTitle": "¿Eliminar este archivo?",
+  "deleteFileBody": "Se borrará de tu nube y de este móvil. Podrás recuperarlo desde la papelera durante 30 días.",
+  "copyId": "Copiar ID",
+  "copiedToClipboard": "Copiado",
+  "statusSafe": "A salvo"
 }

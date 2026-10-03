@@ -1275,4 +1275,105 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newPasswordBody => 'Use one you haven\'t used before on this account.';
+
+  @override
+  String get navPhotos => 'Photos';
+
+  @override
+  String get backupUpToDate => 'Up to date';
+
+  @override
+  String backupInProgress(int percent) {
+    return 'Backing up $percent%';
+  }
+
+  @override
+  String get backupFailed => 'Backup failed';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterToReview => 'To review';
+
+  @override
+  String toReviewTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items to review',
+      one: '1 item to review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get toReviewBody => 'Decide whether to keep them or free up space on your phone';
+
+  @override
+  String get review => 'Review';
+
+  @override
+  String get select => 'Select';
+
+  @override
+  String selectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get selectAllShort => 'All';
+
+  @override
+  String get selectNone => 'None';
+
+  @override
+  String get noPhotosYet => 'No photos yet';
+
+  @override
+  String get noPhotosBody => 'Back up your phone to see them here';
+
+  @override
+  String get backupNow => 'Back up now';
+
+  @override
+  String get openProfile => 'Open profile';
+
+  @override
+  String get closeSelection => 'Exit selection';
+
+  @override
+  String dayAndTime(String day, String time) {
+    return '$day, $time';
+  }
+
+  @override
+  String get viewerInfo => 'Info';
+
+  @override
+  String get actionSave => 'Save';
+
+  @override
+  String get actionDelete => 'Delete';
+
+  @override
+  String get deleteFileTitle => 'Delete this file?';
+
+  @override
+  String get deleteFileBody => 'It will be removed from your cloud and this phone. You can restore it from the trash for 30 days.';
+
+  @override
+  String get copyId => 'Copy ID';
+
+  @override
+  String get copiedToClipboard => 'Copied';
+
+  @override
+  String get statusSafe => 'Backed up';
 }

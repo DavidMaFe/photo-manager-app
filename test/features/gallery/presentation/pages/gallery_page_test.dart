@@ -5,107 +5,220 @@ import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
 import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
-import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
+import 'package:photo_manager_app/core/widgets/empty_state.dart';
+import 'package:photo_manager_app/core/widgets/filter_pill.dart';
+import 'package:photo_manager_app/core/widgets/media_grid.dart';
+import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
+import 'package:photo_manager_app/core/widgets/user_avatar.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
+import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_state.dart';
 import 'package:photo_manager_app/features/gallery/presentation/pages/gallery_page.dart';
-import 'package:photo_manager_app/features/gallery/presentation/widgets/filter_chips.dart';
-import 'package:photo_manager_app/features/gallery/presentation/widgets/gallery_header.dart';
-import 'package:photo_manager_app/l10n/app_localizations.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/backup_status_chip.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/gallery_top_bar.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/pending_review_card.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
+
+import '../../../../helpers/widget_test_helper.dart';
 
 class MockGalleryBloc extends Mock implements GalleryBloc {}
 
+class MockSyncSessionBloc extends Mock implements SyncSessionBloc {}
+
+class MockAuthBloc extends Mock implements AuthBloc {}
+
+class FakeGalleryEvent extends Fake implements GalleryEvent {}
+
 void main() {
   late MockGalleryBloc mockGalleryBloc;
+  late MockSyncSessionBloc mockSyncSessionBloc;
+  late MockAuthBloc mockAuthBloc;
+
+  setUpAll(() => registerFallbackValue(FakeGalleryEvent()));
 
   setUp(() {
     mockGalleryBloc = MockGalleryBloc();
-    when(() => mockGalleryBloc.stream)
-        .thenAnswer((_) => Stream.value(const GalleryStarting()));
+    when(() => mockGalleryBloc.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockGalleryBloc.state).thenReturn(const GalleryStarting());
+
+    mockSyncSessionBloc = MockSyncSessionBloc();
+    when(() => mockSyncSessionBloc.stream).thenAnswer((_) => const Stream.empty());
+    when(() => mockSyncSessionBloc.state).thenReturn(const SyncSessionInitial());
+
+    mockAuthBloc = MockAuthBloc();
+    when(() => mockAuthBloc.stream).thenAnswer((_) => const Stream.empty());
+    when(() => mockAuthBloc.state).thenReturn(
+      AuthSuccessful(User(id: '1', email: 'ana@example.com', name: 'Ana', surname: 'López')),
+    );
   });
 
   Widget createWidgetUnderTest() {
-    return MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: BlocProvider<GalleryBloc>.value(
-        value: mockGalleryBloc,
-        child: const GalleryPage(),
-      ),
+    return makeTestableWidgetWithBlocs(
+      providers: [
+        BlocProvider<GalleryBloc>.value(value: mockGalleryBloc),
+        BlocProvider<SyncSessionBloc>.value(value: mockSyncSessionBloc),
+        BlocProvider<AuthBloc>.value(value: mockAuthBloc),
+      ],
+      child: const GalleryPage(),
     );
   }
 
-  final testDate = DateTime(2024, 1, 15);
+  final today = DateTime.now();
 
   final testFiles = [
-    GalleryFile(
-      id: 'file-1',
-      type: FileType.image,
-      status: FileStatus.managed,
-      capturedAt: testDate,
-    ),
+    GalleryFile(id: 'file-1', type: FileType.image, status: FileStatus.managed, capturedAt: today),
     GalleryFile(
       id: 'file-2',
       type: FileType.video,
       status: FileStatus.pending,
       durationSeconds: 120,
-      capturedAt: testDate,
+      capturedAt: today,
     ),
   ];
 
-  // Helper to create grouped files for tests
-  List<FileDateGroup> groupTestFiles(List<GalleryFile> files) {
-    return DateGroupingUtil.groupFilesByDate(files);
+  GalleryLoaded loaded({
+    List<GalleryFile>? files,
+    bool isSelectionMode = false,
+    Set<String> selectedFileIds = const {},
+    int pending = 1,
+    FileFilter filter = FileFilter.all,
+  }) {
+    final list = files ?? testFiles;
+    return GalleryLoaded(
+      files: list,
+      groupedFiles: DateGroupingUtil.groupFilesByDate(list),
+      isSelectionMode: isSelectionMode,
+      selectedFileIds: selectedFileIds,
+      hasNext: false,
+      currentPage: 0,
+      totalFilesCount: list.length,
+      totalPendingCount: pending,
+      filter: filter,
+    );
   }
 
   group('GalleryPage', () {
-    testWidgets('should render Scaffold', (tester) async {
+    // ==================== HAPPY PATH TESTS ====================
+
+    testWidgets('should show the Photos header with backup status and avatar', (tester) async {
       // Arrange & Act
       await tester.pumpWidget(createWidgetUnderTest());
 
       // Assert
-      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.text('Photos'), findsWidgets);
+      expect(find.byType(BackupStatusChip), findsOneWidget);
+      expect(find.text('Up to date'), findsOneWidget);
+      expect(find.text('AL'), findsOneWidget);
+      expect(find.byType(UserAvatar), findsOneWidget);
     });
 
-    testWidgets('should render GalleryHeader as app bar', (tester) async {
-      // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest());
-
-      // Assert
-      expect(find.byType(GalleryHeader), findsOneWidget);
-    });
-
-    testWidgets('should use BlocConsumer to listen to GalleryBloc', (tester) async {
-      // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest());
-
-      // Assert
-      expect(find.byType(BlocConsumer<GalleryBloc, GalleryState>), findsOneWidget);
-    });
-
-    testWidgets('should render FilterChips', (tester) async {
-      // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest());
-
-      // Assert
-      expect(find.byType(FilterChips), findsOneWidget);
-    });
-
-    testWidgets('should show loading indicator for GalleryStarting state', (tester) async {
+    testWidgets('should render the filter pills with the pending counter', (tester) async {
       // Arrange
-      when(() => mockGalleryBloc.state).thenReturn(const GalleryStarting());
+      when(() => mockGalleryBloc.state).thenReturn(loaded(pending: 7, filter: FileFilter.images));
 
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
 
       // Assert
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(FilterPill), findsNWidgets(4));
+      final selected = tester.widgetList<FilterPill>(find.byType(FilterPill)).where((p) => p.selected);
+      expect(selected.single.label, 'Photos');
+      expect(find.text('7'), findsOneWidget);
     });
 
-    testWidgets('should show loading indicator for GalleryLoading state', (tester) async {
+    testWidgets('should load the filter tapped in the pill bar', (tester) async {
+      // Arrange
+      when(() => mockGalleryBloc.state).thenReturn(loaded());
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Act
+      await tester.tap(find.text('Videos'));
+
+      // Assert
+      final event = verify(() => mockGalleryBloc.add(captureAny())).captured.last;
+      expect(event, isA<LoadGallery>().having((e) => e.filter, 'filter', FileFilter.videos));
+    });
+
+    testWidgets('should render the grouped grid for loaded files', (tester) async {
+      // Arrange
+      when(() => mockGalleryBloc.state).thenReturn(loaded());
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Assert
+      expect(find.byType(MediaGrid), findsOneWidget);
+      expect(find.text('Today'), findsOneWidget);
+      expect(find.text('Select'), findsOneWidget);
+    });
+
+    testWidgets('should enter selection mode from the group header', (tester) async {
+      // Arrange
+      when(() => mockGalleryBloc.state).thenReturn(loaded());
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Act
+      await tester.tap(find.text('Select'));
+
+      // Assert
+      verify(() => mockGalleryBloc.add(const EnterSelectionMode())).called(1);
+    });
+
+    // ==================== PENDING REVIEW TESTS ====================
+
+    testWidgets('should show the review card when there are pending files', (tester) async {
+      // Arrange
+      when(() => mockGalleryBloc.state).thenReturn(loaded(pending: 3));
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Assert
+      expect(find.byType(PendingReviewCard), findsOneWidget);
+      expect(find.text('3 items to review'), findsOneWidget);
+    });
+
+    testWidgets('should filter by pending files when tapping review', (tester) async {
+      // Arrange
+      when(() => mockGalleryBloc.state).thenReturn(loaded(pending: 3));
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Act
+      await tester.tap(find.text('Review'));
+
+      // Assert
+      final event = verify(() => mockGalleryBloc.add(captureAny())).captured.last;
+      expect(event, isA<LoadGallery>().having((e) => e.filter, 'filter', FileFilter.pending));
+    });
+
+    testWidgets('should hide the review card without pending files', (tester) async {
+      // Arrange
+      when(() => mockGalleryBloc.state).thenReturn(loaded(pending: 0));
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Assert
+      expect(find.text('Review'), findsNothing);
+    });
+
+    // ==================== LOADING & EMPTY STATE TESTS ====================
+
+    testWidgets('should show the skeleton while starting', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Assert
+      expect(find.byType(MediaGridSkeleton), findsOneWidget);
+    });
+
+    testWidgets('should show the skeleton while loading', (tester) async {
       // Arrange
       when(() => mockGalleryBloc.state).thenReturn(const GalleryLoading());
 
@@ -113,70 +226,92 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest());
 
       // Assert
+      expect(find.byType(MediaGridSkeleton), findsOneWidget);
+    });
+
+    testWidgets('should show the empty state with a backup action', (tester) async {
+      // Arrange
+      when(() => mockGalleryBloc.state).thenReturn(loaded(files: const [], pending: 0));
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Assert
+      expect(find.byType(EmptyState), findsOneWidget);
+      expect(find.text('No photos yet'), findsOneWidget);
+      expect(find.text('Back up now'), findsOneWidget);
+    });
+
+    testWidgets('should show a plain empty state for empty filters', (tester) async {
+      // Arrange
+      when(() => mockGalleryBloc.state)
+          .thenReturn(loaded(files: const [], pending: 0, filter: FileFilter.videos));
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Assert
+      expect(find.text('Back up now'), findsNothing);
+      expect(find.byType(EmptyState), findsOneWidget);
+    });
+
+    testWidgets('should handle GalleryLoadingMore state', (tester) async {
+      // Arrange: tall screen so the bottom loader is built.
+      setUpCustomScreenSize(tester, 390, 2000);
+      when(() => mockGalleryBloc.state).thenReturn(GalleryLoadingMore(
+        files: testFiles,
+        groupedFiles: DateGroupingUtil.groupFilesByDate(testFiles),
+        isSelectionMode: false,
+        selectedFileIds: const {},
+        currentPage: 0,
+        totalFilesCount: 100,
+        totalPendingCount: 1,
+        filter: FileFilter.all,
+      ));
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Assert
+      expect(find.byType(MediaGrid), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('should render grid when in GalleryLoaded state', (tester) async {
+    // ==================== SELECTION MODE TESTS ====================
+
+    testWidgets('should show the selection header with the selected count', (tester) async {
       // Arrange
-      when(() => mockGalleryBloc.state).thenReturn(
-        GalleryLoaded(
-          files: testFiles,
-          groupedFiles: groupTestFiles(testFiles),
-          isSelectionMode: false,
-          selectedFileIds: const {},
-          hasNext: true,
-          currentPage: 0,
-          totalFilesCount: 100,
-          totalPendingCount: 1,
-          filter: FileFilter.all,
-        ),
-      );
+      when(() => mockGalleryBloc.state)
+          .thenReturn(loaded(isSelectionMode: true, selectedFileIds: const {'file-1', 'file-2'}));
 
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
 
       // Assert
-      expect(find.byType(Scaffold), findsOneWidget);
+      final header = tester.widget<GalleryTopBar>(find.byType(GalleryTopBar));
+      expect(header.isSelectionMode, true);
+      expect(header.selectedCount, 2);
+      expect(find.text('2 selected'), findsOneWidget);
+      expect(find.text('None'), findsOneWidget);
+      expect(find.text('Select'), findsNothing);
     });
 
-    testWidgets('should handle empty files list', (tester) async {
+    testWidgets('should exit selection mode from the close button', (tester) async {
       // Arrange
-      when(() => mockGalleryBloc.state).thenReturn(
-        const GalleryLoaded(
-          files: [],
-          groupedFiles: [],
-          isSelectionMode: false,
-          selectedFileIds: {},
-          hasNext: false,
-          currentPage: 0,
-          totalFilesCount: 0,
-          totalPendingCount: 0,
-          filter: FileFilter.all,
-        ),
-      );
-
-      // Act
+      when(() => mockGalleryBloc.state)
+          .thenReturn(loaded(isSelectionMode: true, selectedFileIds: const {'file-1'}));
       await tester.pumpWidget(createWidgetUnderTest());
 
+      // Act
+      await tester.tap(find.byTooltip('Exit selection'));
+
       // Assert
-      expect(find.byType(Scaffold), findsOneWidget);
+      verify(() => mockGalleryBloc.add(const ExitSelectionMode())).called(1);
     });
 
     testWidgets('should not show FAB when not in selection mode', (tester) async {
       // Arrange
-      when(() => mockGalleryBloc.state).thenReturn(
-        GalleryLoaded(
-          files: testFiles,
-          groupedFiles: groupTestFiles(testFiles),
-          isSelectionMode: false,
-          selectedFileIds: const {},
-          hasNext: true,
-          currentPage: 0,
-          totalFilesCount: 100,
-          totalPendingCount: 1,
-          filter: FileFilter.all,
-        ),
-      );
+      when(() => mockGalleryBloc.state).thenReturn(loaded());
 
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
@@ -187,19 +322,8 @@ void main() {
 
     testWidgets('should show FAB when in selection mode with files selected', (tester) async {
       // Arrange
-      when(() => mockGalleryBloc.state).thenReturn(
-        GalleryLoaded(
-          files: testFiles,
-          groupedFiles: groupTestFiles(testFiles),
-          isSelectionMode: true,
-          selectedFileIds: const {'file-1'},
-          hasNext: true,
-          currentPage: 0,
-          totalFilesCount: 100,
-          totalPendingCount: 1,
-          filter: FileFilter.all,
-        ),
-      );
+      when(() => mockGalleryBloc.state)
+          .thenReturn(loaded(isSelectionMode: true, selectedFileIds: const {'file-1'}));
 
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
@@ -210,19 +334,7 @@ void main() {
 
     testWidgets('should not show FAB when in selection mode but no files selected', (tester) async {
       // Arrange
-      when(() => mockGalleryBloc.state).thenReturn(
-        GalleryLoaded(
-          files: testFiles,
-          groupedFiles: groupTestFiles(testFiles),
-          isSelectionMode: true,
-          selectedFileIds: const {},
-          hasNext: true,
-          currentPage: 0,
-          totalFilesCount: 100,
-          totalPendingCount: 1,
-          filter: FileFilter.all,
-        ),
-      );
+      when(() => mockGalleryBloc.state).thenReturn(loaded(isSelectionMode: true));
 
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
@@ -231,121 +343,21 @@ void main() {
       expect(find.byType(FloatingActionButton), findsNothing);
     });
 
-    testWidgets('should handle GalleryLoadingMore state', (tester) async {
-      // Arrange
-      when(() => mockGalleryBloc.state).thenReturn(
-        GalleryLoadingMore(
-          files: testFiles,
-          groupedFiles: groupTestFiles(testFiles),
-          isSelectionMode: false,
-          selectedFileIds: const {},
-          currentPage: 0,
-          totalFilesCount: 100,
-          totalPendingCount: 1,
-          filter: FileFilter.all,
-        ),
-      );
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest());
-
-      // Assert
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('should pass correct filter to FilterChips', (tester) async {
-      // Arrange
-      when(() => mockGalleryBloc.stream)
-          .thenAnswer((_) => Stream.value(GalleryLoaded(
-        files: testFiles,
-        groupedFiles: groupTestFiles(testFiles),
-        isSelectionMode: false,
-        selectedFileIds: const {},
-        hasNext: true,
-        currentPage: 0,
-        totalFilesCount: 100,
-        totalPendingCount: 1,
-        filter: FileFilter.images,
-      )));
-      when(() => mockGalleryBloc.state).thenReturn(
-        GalleryLoaded(
-          files: testFiles,
-          groupedFiles: groupTestFiles(testFiles),
-          isSelectionMode: false,
-          selectedFileIds: const {},
-          hasNext: true,
-          currentPage: 0,
-          filter: FileFilter.images,
-          totalFilesCount: 0,
-          totalPendingCount: 0,
-        ),
-      );
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pump();
-
-      // Assert
-      final filterChips = tester.widget<FilterChips>(find.byType(FilterChips));
-      expect(filterChips.selectedFilter, FileFilter.images);
-    });
-
-    testWidgets('should pass selection mode state to GalleryHeader', (tester) async {
-      // Arrange
-      when(() => mockGalleryBloc.state).thenReturn(
-        GalleryLoaded(
-          files: testFiles,
-          groupedFiles: groupTestFiles(testFiles),
-          isSelectionMode: true,
-          selectedFileIds: const {'file-1', 'file-2'},
-          hasNext: true,
-          currentPage: 0,
-          filter: FileFilter.all,
-          totalFilesCount: 0,
-          totalPendingCount: 0,
-        ),
-      );
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest());
-
-      // Assert
-      final header = tester.widget<GalleryHeader>(find.byType(GalleryHeader));
-      expect(header.isSelectionMode, true);
-      expect(header.selectedCount, 2);
-    });
+    // ==================== EDGE CASE TESTS ====================
 
     testWidgets('should handle many files', (tester) async {
       // Arrange
       final manyFiles = List.generate(
         100,
-        (index) => GalleryFile(
-          id: 'file-$index',
-          type: FileType.image,
-          status: FileStatus.managed,
-          capturedAt: testDate,
-        ),
+        (i) => GalleryFile(id: 'file-$i', type: FileType.image, status: FileStatus.managed, capturedAt: today),
       );
-
-      when(() => mockGalleryBloc.state).thenReturn(
-        GalleryLoaded(
-          files: manyFiles,
-          groupedFiles: groupTestFiles(manyFiles),
-          isSelectionMode: false,
-          selectedFileIds: const {},
-          hasNext: true,
-          currentPage: 0,
-          filter: FileFilter.all,
-          totalFilesCount: 0,
-          totalPendingCount: 0,
-        ),
-      );
+      when(() => mockGalleryBloc.state).thenReturn(loaded(files: manyFiles, pending: 0));
 
       // Act
       await tester.pumpWidget(createWidgetUnderTest());
 
       // Assert
-      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.byType(MediaGrid), findsOneWidget);
     });
   });
 }

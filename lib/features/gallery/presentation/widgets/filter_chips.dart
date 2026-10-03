@@ -1,5 +1,7 @@
+import 'package:photo_manager_app/features/gallery/presentation/widgets/file_filter_label.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_manager_app/l10n/app_localizations.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
 
 
@@ -35,6 +37,7 @@ class FilterChips extends StatelessWidget {
   Widget _buildFilterChip(BuildContext context, FileFilter filter) {
 
     final isSelected = selectedFilter == filter;
+    final l10n = AppLocalizations.of(context)!;
 
     return FilterChip(
       label: Row(
@@ -48,7 +51,7 @@ class FilterChips extends StatelessWidget {
             ),
             const SizedBox(width: 6)
           ],
-          Text(filter.displayName),
+          Text(filter.label(l10n)),
         ],
       ),
       selected: isSelected,

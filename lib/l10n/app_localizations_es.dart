@@ -1275,4 +1275,105 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get newPasswordBody => 'Usa una que no hayas usado antes en esta cuenta.';
+
+  @override
+  String get navPhotos => 'Fotos';
+
+  @override
+  String get backupUpToDate => 'Al día';
+
+  @override
+  String backupInProgress(int percent) {
+    return 'Copiando $percent %';
+  }
+
+  @override
+  String get backupFailed => 'Copia con fallos';
+
+  @override
+  String get filterAll => 'Todo';
+
+  @override
+  String get filterToReview => 'Por revisar';
+
+  @override
+  String toReviewTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count elementos por revisar',
+      one: '1 elemento por revisar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get toReviewBody => 'Decide si guardarlos o liberar espacio del móvil';
+
+  @override
+  String get review => 'Revisar';
+
+  @override
+  String get select => 'Seleccionar';
+
+  @override
+  String selectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seleccionadas',
+      one: '1 seleccionada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get selectAllShort => 'Todas';
+
+  @override
+  String get selectNone => 'Ninguna';
+
+  @override
+  String get noPhotosYet => 'Aún no hay fotos';
+
+  @override
+  String get noPhotosBody => 'Sincroniza tu móvil para verlas aquí';
+
+  @override
+  String get backupNow => 'Hacer copia ahora';
+
+  @override
+  String get openProfile => 'Abrir perfil';
+
+  @override
+  String get closeSelection => 'Salir de la selección';
+
+  @override
+  String dayAndTime(String day, String time) {
+    return '$day, $time';
+  }
+
+  @override
+  String get viewerInfo => 'Información';
+
+  @override
+  String get actionSave => 'Guardar';
+
+  @override
+  String get actionDelete => 'Eliminar';
+
+  @override
+  String get deleteFileTitle => '¿Eliminar este archivo?';
+
+  @override
+  String get deleteFileBody => 'Se borrará de tu nube y de este móvil. Podrás recuperarlo desde la papelera durante 30 días.';
+
+  @override
+  String get copyId => 'Copiar ID';
+
+  @override
+  String get copiedToClipboard => 'Copiado';
+
+  @override
+  String get statusSafe => 'A salvo';
 }

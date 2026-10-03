@@ -40,6 +40,11 @@ class AppColors {
   static const media = Color(0xFF000000); // fondo del visor
   static const onMedia = Color(0xFFFFFFFF); // texto/iconos sobre fotos
   static const scrim = Color(0x8C000000); // rgba(0,0,0,.55), pastillas sobre fotos
+  static const mediaChrome = Color(0xE624242C); // rgba(36,36,44,.9), barras flotantes oscuras
+  static const mediaChromeRaised = Color(0xFF24242C); // botones dentro de esas barras
+  static const onMediaMuted = Color(0xFFB9B9C4); // texto secundario en esas barras
+  static const mediaDanger = Color(0xFFFF8A8A); // «Eliminar» sobre fondo oscuro
+  static const mediaReview = Color(0xFFFFC766); // «Por revisar» sobre fondo oscuro
 
   // Oscuro (mismos roles)
   static const darkBackground = Color(0xFF0E0E12);

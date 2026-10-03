@@ -29,20 +29,6 @@ enum FileFilter {
     }
   }
 
-  // TODO: Gestionar con l10n
-  String get displayName {
-    switch (this) {
-      case FileFilter.all:
-        return 'Todos';
-      case FileFilter.images:
-        return 'Fotos';
-      case FileFilter.videos:
-        return 'Videos';
-      case FileFilter.pending:
-        return 'Pendientes';
-    }
-  }
-
   IconData? get icon {
     switch (this) {
       case FileFilter.all:

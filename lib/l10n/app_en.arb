@@ -472,5 +472,65 @@
     }
   },
   "newPasswordHeadline": "Create a new password",
-  "newPasswordBody": "Use one you haven't used before on this account."
+  "newPasswordBody": "Use one you haven't used before on this account.",
+
+  "navPhotos": "Photos",
+  "backupUpToDate": "Up to date",
+  "backupInProgress": "Backing up {percent}%",
+  "@backupInProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "backupFailed": "Backup failed",
+  "filterAll": "All",
+  "filterToReview": "To review",
+  "toReviewTitle": "{count, plural, =1{1 item to review} other{{count} items to review}}",
+  "@toReviewTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "toReviewBody": "Decide whether to keep them or free up space on your phone",
+  "review": "Review",
+  "select": "Select",
+  "selectedCount": "{count, plural, =1{1 selected} other{{count} selected}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectAllShort": "All",
+  "selectNone": "None",
+  "noPhotosYet": "No photos yet",
+  "noPhotosBody": "Back up your phone to see them here",
+  "backupNow": "Back up now",
+  "openProfile": "Open profile",
+  "closeSelection": "Exit selection",
+
+  "dayAndTime": "{day}, {time}",
+  "@dayAndTime": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerInfo": "Info",
+  "actionSave": "Save",
+  "actionDelete": "Delete",
+  "deleteFileTitle": "Delete this file?",
+  "deleteFileBody": "It will be removed from your cloud and this phone. You can restore it from the trash for 30 days.",
+  "copyId": "Copy ID",
+  "copiedToClipboard": "Copied",
+  "statusSafe": "Backed up"
 }

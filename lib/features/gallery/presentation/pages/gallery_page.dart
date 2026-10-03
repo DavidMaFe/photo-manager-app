@@ -1,9 +1,16 @@
-import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
+import 'package:photo_manager_app/core/widgets/empty_state.dart';
+import 'package:photo_manager_app/core/widgets/filter_pill.dart';
+import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
+import 'package:photo_manager_app/core/widgets/user_avatar.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
@@ -13,12 +20,12 @@ import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_state.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/backup_status_chip.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/file_filter_label.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/files_grid.dart';
-import 'package:photo_manager_app/features/gallery/presentation/widgets/filter_chips.dart';
-import 'package:photo_manager_app/features/gallery/presentation/widgets/gallery_header.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/gallery_top_bar.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/pending_review_card.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
-
-import '../widgets/pending_info_banner.dart';
 
 
 class GalleryPage extends StatelessWidget {
@@ -37,40 +44,63 @@ class GalleryPage extends StatelessWidget {
           final areAllFilesSelected = state is GalleryLoaded && state.areAllFilesSelected;
 
           return Scaffold(
-            appBar: GalleryHeader(
-              isSelectionMode: isSelectionMode,
-              selectedCount: selectedCount,
-              areAllFilesSelected: areAllFilesSelected,
-              onCancelSelection: () {
-                context.read<GalleryBloc>().add(const ExitSelectionMode());
-              },
-              onSelectAll: () {
-                context.read<GalleryBloc>().add(const SelectAllFiles());
-              },
-              onDeselectAll: () {
-                context.read<GalleryBloc>().add(const ClearSelection());
-              },
-            ),
-            body: Column(
-              children: [
-                // Always at index 0 — height is 0 when not refreshing.
-                // A conditional `if` would shift the indices of all siblings,
-                // causing FilesGrid to be recreated and losing the scroll position.
-                SizedBox(
-                  height: (state is GalleryLoaded && state.isRefreshing) ? 2 : 0,
-                  child: LinearProgressIndicator(
-                    backgroundColor: context.palette.background,
-                    color: context.palette.accent,
+            body: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  // Always at index 0 — height is 0 when not refreshing.
+                  // A conditional `if` would shift the indices of all siblings,
+                  // causing FilesGrid to be recreated and losing the scroll position.
+                  SizedBox(
+                    height: (state is GalleryLoaded && state.isRefreshing) ? 2 : 0,
+                    child: LinearProgressIndicator(
+                      backgroundColor: context.palette.background,
+                      color: context.palette.accent,
+                    ),
                   ),
-                ),
-                _buildFilters(context, state),
-                _buildPendingBanner(state),
-                Expanded(child: _buildContent(context, state))
-              ],
+                  GalleryTopBar(
+                    isSelectionMode: isSelectionMode,
+                    selectedCount: selectedCount,
+                    areAllFilesSelected: areAllFilesSelected,
+                    actions: [
+                      BackupStatusChip(onTap: () => context.go(RoutePaths.sync)),
+                      _buildAvatar(context),
+                    ],
+                    onCancelSelection: () {
+                      context.read<GalleryBloc>().add(const ExitSelectionMode());
+                    },
+                    onSelectAll: () {
+                      context.read<GalleryBloc>().add(const SelectAllFiles());
+                    },
+                    onDeselectAll: () {
+                      context.read<GalleryBloc>().add(const ClearSelection());
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildFilters(context, state),
+                  Expanded(child: _buildContent(context, state))
+                ],
+              ),
             ),
             floatingActionButton: _buildFAB(context, state),
           );
         }
+    );
+  }
+
+  Widget _buildAvatar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        final user = state is AuthSuccessful ? state.user : null;
+        return UserAvatar(
+          name: user?.name ?? '',
+          surname: user?.surname,
+          semanticLabel: l10n.openProfile,
+          onTap: () => context.go(RoutePaths.profile),
+        );
+      },
     );
   }
 
@@ -169,25 +199,27 @@ class GalleryPage extends StatelessWidget {
       currentFilter = state.filter;
     }
 
-    return FilterChips(
-      selectedFilter: currentFilter,
-      onFilterSelected: (filter) {
+    final l10n = AppLocalizations.of(context)!;
+    final pendingCount = switch (state) {
+      GalleryLoaded() => state.pendingCount,
+      GalleryLoadingMore() => state.pendingCount,
+      _ => 0,
+    };
+
+    return FilterPillBar<FileFilter>(
+      items: [
+        for (final filter in FileFilter.values)
+          FilterPillItem(
+            value: filter,
+            label: filter.label(l10n),
+            count: filter == FileFilter.pending ? pendingCount : null,
+          ),
+      ],
+      selected: currentFilter,
+      onSelected: (filter) {
         context.read<GalleryBloc>().add(LoadGallery(filter: filter));
       },
     );
-  }
-
-  Widget _buildPendingBanner(GalleryState state) {
-
-    int pendingCount = 0;
-
-    if (state is GalleryLoaded) {
-      pendingCount = state.pendingCount;
-    } else if (state is GalleryLoadingMore) {
-      pendingCount = state.pendingCount;
-    }
-
-    return PendingInfoBanner(pendingCount: pendingCount);
   }
 
   Widget _buildContent(BuildContext context, GalleryState state) {
@@ -196,13 +228,11 @@ class GalleryPage extends StatelessWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<GalleryBloc>().add(const LoadGallery());
       });
-      return const Center(child: CircularProgressIndicator());
+      return const MediaGridSkeleton();
     }
 
     if (state is GalleryLoading) {
-      return const Center(
-        child: CircularProgressIndicator(strokeWidth: 2),
-      );
+      return const MediaGridSkeleton();
     }
 
     if (state is GalleryLoaded) {
@@ -232,6 +262,8 @@ class GalleryPage extends StatelessWidget {
     bool isSelectionMode = false;
     Set<String> selectedFileIds = {};
     int totalFilesCount = 0;
+    int pendingCount = 0;
+    FileFilter filter = FileFilter.all;
 
     if (state is GalleryLoaded) {
       files = state.files;
@@ -241,6 +273,8 @@ class GalleryPage extends StatelessWidget {
       isSelectionMode = state.isSelectionMode;
       selectedFileIds = state.selectedFileIds;
       totalFilesCount = state.totalFilesCount;
+      pendingCount = state.pendingCount;
+      filter = state.filter;
     } else if (state is GalleryLoadingMore) {
       files = state.files;
       groupedFiles = state.groupedFiles;
@@ -249,7 +283,11 @@ class GalleryPage extends StatelessWidget {
       isSelectionMode = state.isSelectionMode;
       selectedFileIds = state.selectedFileIds;
       totalFilesCount = state.totalFilesCount;
+      pendingCount = state.pendingCount;
+      filter = state.filter;
     }
+
+    final l10n = AppLocalizations.of(context)!;
 
     return FilesGrid(
       groupedFiles: groupedFiles,
@@ -263,6 +301,34 @@ class GalleryPage extends StatelessWidget {
       onRefresh: () {
         context.read<GalleryBloc>().add(const RefreshGallery());
       },
+      onSelect: () {
+        context.read<GalleryBloc>().add(const EnterSelectionMode());
+      },
+      leading: [
+        if (!isSelectionMode && filter != FileFilter.pending)
+          SliverToBoxAdapter(
+            child: PendingReviewCard(
+              pendingCount: pendingCount,
+              // Phase 5 opens the manage sheet with every pending file instead.
+              onReview: () {
+                context.read<GalleryBloc>().add(const LoadGallery(filter: FileFilter.pending));
+              },
+            ),
+          ),
+      ],
+      emptyState: filter == FileFilter.all
+          ? EmptyState(
+              icon: Symbols.photo_library_rounded,
+              title: l10n.noPhotosYet,
+              message: l10n.noPhotosBody,
+              actionLabel: l10n.backupNow,
+              actionIcon: Symbols.sync_rounded,
+              onAction: () => context.go(RoutePaths.sync),
+            )
+          : EmptyState(
+              icon: Symbols.filter_alt_off_rounded,
+              title: l10n.noFiles,
+            ),
       onFileTap: (file) {
         if (isSelectionMode) {
           context.read<GalleryBloc>().add(ToggleFileSelection(file.id));

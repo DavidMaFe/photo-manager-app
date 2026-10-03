@@ -1,17 +1,14 @@
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/file_management_feedback.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
-import 'package:photo_manager_app/core/injection_container.dart';
-import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
-import 'package:photo_manager_app/core/widgets/modern_dialog.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_event.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_state.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/advanced_options_section.dart';
-import 'package:photo_manager_app/features/file_management/presentation/widgets/local_deletion_warning_dialog.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/quick_actions_section.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -430,26 +427,14 @@ class _ManageFileModalState extends State<ManageFileModal> {
 
   void _handleStateChange(BuildContext context, FileManagementState state) {
 
-    final l10n = AppLocalizations.of(context)!;
-
     if (state is FileManagementSuccess) {
       // Close modal first
       Navigator.pop(context, true);
 
-      // Show appropriate message based on whether local files may remain
-      if (state.mayHaveLocalFiles) {
-        // Files removed from server but may remain locally - show dialog after closing modal
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (!context.mounted) return;
-          _showSuccessWithWarningDialog(state.message, l10n);
-        });
-      } else {
-        // Everything went perfectly - show success snackbar
-        _showSuccessSnackBar(state.message);
-      }
+      FileManagementFeedback.showSuccess(context, state, deferWarning: true);
     } else if (state is FileManagementPartialSuccess) {
       Navigator.pop(context, true); // Return true to indicate success
-      _showPartialSuccessDialog(state, l10n);
+      FileManagementFeedback.showPartialSuccess(context, state);
     } else if (state is FileManagementError) {
       ErrorNotificationService.showError(
         context,
@@ -471,43 +456,6 @@ class _ManageFileModalState extends State<ManageFileModal> {
         content: Text(message),
         backgroundColor: context.palette.danger,
       )
-    );
-  }
-
-  void _showSuccessSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.check_circle, color: context.palette.onAccent),
-            const SizedBox(width: 8),
-            Text(message)
-          ],
-        ),
-        backgroundColor: context.palette.safe,
-      )
-    );
-  }
-
-  Future<void> _showSuccessWithWarningDialog(String message, AppLocalizations l10n) async {
-    // Show warning dialog about files potentially remaining on device
-    // This dialog includes a "Don't show again" checkbox
-    await LocalDeletionWarningDialog.show(
-      context: context,
-      message: '$message\n\n${l10n.filesRemovedFromServerLocalMayRemain}',
-      preferencesService: sl<UiPreferencesService>(),
-    );
-  }
-
-  void _showPartialSuccessDialog(FileManagementPartialSuccess state, AppLocalizations l10n) {
-    ModernDialog.show(
-      context: context,
-      type: DialogType.warning,
-      icon: Icons.warning_amber,
-      title: l10n.partialManageTitle,
-      message: '${l10n.correctManage(state.successCount)} ${l10n.failedManage(state.failedFiles.length)}',
-      cancelText: '',
-      confirmText: l10n.ok,
     );
   }
 

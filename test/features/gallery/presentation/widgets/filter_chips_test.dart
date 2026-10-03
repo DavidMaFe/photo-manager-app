@@ -11,6 +11,7 @@ void main() {
       required ValueChanged<FileFilter> onFilterSelected,
     }) {
       return MaterialApp(
+        locale: const Locale('es'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
@@ -155,11 +156,11 @@ void main() {
         onFilterSelected: (_) {},
       ));
 
-      // Assert - Check that filter display names are shown
-      expect(find.text('Todos'), findsOneWidget);
+      // Assert - Localized filter labels are shown
+      expect(find.text('Todo'), findsOneWidget);
       expect(find.text('Fotos'), findsOneWidget);
-      expect(find.text('Videos'), findsOneWidget);
-      expect(find.text('Pendientes'), findsOneWidget);
+      expect(find.text('Vídeos'), findsOneWidget);
+      expect(find.text('Por revisar'), findsOneWidget);
     });
   });
 }

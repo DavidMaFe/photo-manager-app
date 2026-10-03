@@ -2482,6 +2482,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use one you haven\'t used before on this account.'**
   String get newPasswordBody;
+
+  /// No description provided for @navPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get navPhotos;
+
+  /// No description provided for @backupUpToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to date'**
+  String get backupUpToDate;
+
+  /// No description provided for @backupInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Backing up {percent}%'**
+  String backupInProgress(int percent);
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup failed'**
+  String get backupFailed;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'To review'**
+  String get filterToReview;
+
+  /// No description provided for @toReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item to review} other{{count} items to review}}'**
+  String toReviewTitle(int count);
+
+  /// No description provided for @toReviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Decide whether to keep them or free up space on your phone'**
+  String get toReviewBody;
+
+  /// No description provided for @review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get review;
+
+  /// No description provided for @select.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get select;
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 selected} other{{count} selected}}'**
+  String selectedCount(int count);
+
+  /// No description provided for @selectAllShort.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get selectAllShort;
+
+  /// No description provided for @selectNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get selectNone;
+
+  /// No description provided for @noPhotosYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos yet'**
+  String get noPhotosYet;
+
+  /// No description provided for @noPhotosBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up your phone to see them here'**
+  String get noPhotosBody;
+
+  /// No description provided for @backupNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get backupNow;
+
+  /// No description provided for @openProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open profile'**
+  String get openProfile;
+
+  /// No description provided for @closeSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit selection'**
+  String get closeSelection;
+
+  /// No description provided for @dayAndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {time}'**
+  String dayAndTime(String day, String time);
+
+  /// No description provided for @viewerInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get viewerInfo;
+
+  /// No description provided for @actionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get actionSave;
+
+  /// No description provided for @actionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get actionDelete;
+
+  /// No description provided for @deleteFileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this file?'**
+  String get deleteFileTitle;
+
+  /// No description provided for @deleteFileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be removed from your cloud and this phone. You can restore it from the trash for 30 days.'**
+  String get deleteFileBody;
+
+  /// No description provided for @copyId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy ID'**
+  String get copyId;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copiedToClipboard;
+
+  /// No description provided for @statusSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed up'**
+  String get statusSafe;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

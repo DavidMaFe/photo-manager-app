@@ -32,6 +32,8 @@ class TrashFileCard extends StatelessWidget {
       image: AuthenticatedImage(
         imageUrl: thumbnailUrl,
         fit: BoxFit.cover,
+        // MediaThumbnail paints the surface2 placeholder behind the image.
+        placeholder: (_, __) => const SizedBox.shrink(),
       ),
       isVideo: file.isVideo,
       selectable: isSelectionMode,
