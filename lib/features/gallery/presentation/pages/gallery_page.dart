@@ -12,9 +12,7 @@ import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
 import 'package:photo_manager_app/core/widgets/user_avatar.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
-import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
-import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
-import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
@@ -85,7 +83,12 @@ class GalleryPage extends StatelessWidget {
                   ],
                 ),
               ),
-              floatingActionButton: _buildFAB(context, state),
+              bottomNavigationBar: isSelectionMode
+                  ? ManageSelectionBar(
+                      fileIds: state.selectedFileIds.toList(),
+                      onFinished: () => context.read<GalleryBloc>().add(const ExitSelectionMode()),
+                    )
+                  : null,
             ),
           );
         }
@@ -106,75 +109,6 @@ class GalleryPage extends StatelessWidget {
         );
       },
     );
-  }
-
-  Widget? _buildFAB(BuildContext context, GalleryState state) {
-
-    if (state is! GalleryLoaded || !state.isSelectionMode) {
-      return null;
-    }
-
-    final selectedCount = state.selectedFileIds.length;
-
-    if (selectedCount == 0) {
-      return null;
-    }
-
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: context.palette.accent.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4)
-          )
-        ]
-      ),
-      child: FloatingActionButton.extended(
-        onPressed: () => _showManageModal(context, state.selectedFileIds.toList()),
-        backgroundColor: context.palette.accent,
-        elevation: 0,
-        icon: Icon(Icons.tune, size: 22, color: context.palette.onAccent),
-        label: Row(
-          children: [
-            Text(
-              selectedCount == 1 ? l10n.manageSingleFile : l10n.manageMultipleFiles(selectedCount),
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: context.palette.onAccent,
-                fontSize: 15
-              )
-            ),
-            const SizedBox(width: 4),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showManageModal(BuildContext context, List<String> fileIds) async {
-    await showModalBottomSheet<bool>(
-      useSafeArea: true,
-      context: context,
-      isScrollControlled: true,
-      // The sheet content draws its own surface and drag handle.
-      backgroundColor: context.palette.surface.withValues(alpha: 0),
-      showDragHandle: false,
-      builder: (modalContext) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: context.read<FileManagementBloc>()),
-          BlocProvider.value(value: context.read<ManageFolderBloc>())
-        ],
-        child: ManageFileModal(fileIds: fileIds, isMultiple: fileIds.length > 1),
-      )
-    );
-
-    if (!context.mounted) return;
-
-    // Exit selection mode after modal is dismissed (regardless of result)
-    context.read<GalleryBloc>().add(const ExitSelectionMode());
   }
 
   void _handleStateChanges(BuildContext context, GalleryState state) {

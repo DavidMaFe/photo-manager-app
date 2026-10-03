@@ -13,6 +13,9 @@ import 'package:photo_manager_app/core/widgets/user_avatar.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_state.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
@@ -33,12 +36,15 @@ class MockSyncSessionBloc extends Mock implements SyncSessionBloc {}
 
 class MockAuthBloc extends Mock implements AuthBloc {}
 
+class MockFileManagementBloc extends Mock implements FileManagementBloc {}
+
 class FakeGalleryEvent extends Fake implements GalleryEvent {}
 
 void main() {
   late MockGalleryBloc mockGalleryBloc;
   late MockSyncSessionBloc mockSyncSessionBloc;
   late MockAuthBloc mockAuthBloc;
+  late MockFileManagementBloc mockFileManagementBloc;
 
   setUpAll(() => registerFallbackValue(FakeGalleryEvent()));
 
@@ -50,6 +56,10 @@ void main() {
     mockSyncSessionBloc = MockSyncSessionBloc();
     when(() => mockSyncSessionBloc.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockSyncSessionBloc.state).thenReturn(const SyncSessionInitial());
+
+    mockFileManagementBloc = MockFileManagementBloc();
+    when(() => mockFileManagementBloc.stream).thenAnswer((_) => const Stream.empty());
+    when(() => mockFileManagementBloc.state).thenReturn(const FileManagementStarting());
 
     mockAuthBloc = MockAuthBloc();
     when(() => mockAuthBloc.stream).thenAnswer((_) => const Stream.empty());
@@ -64,6 +74,7 @@ void main() {
         BlocProvider<GalleryBloc>.value(value: mockGalleryBloc),
         BlocProvider<SyncSessionBloc>.value(value: mockSyncSessionBloc),
         BlocProvider<AuthBloc>.value(value: mockAuthBloc),
+        BlocProvider<FileManagementBloc>.value(value: mockFileManagementBloc),
       ],
       child: const GalleryPage(),
     );
@@ -309,7 +320,7 @@ void main() {
       verify(() => mockGalleryBloc.add(const ExitSelectionMode())).called(1);
     });
 
-    testWidgets('should not show FAB when not in selection mode', (tester) async {
+    testWidgets('should not show the action bar outside selection mode', (tester) async {
       // Arrange
       when(() => mockGalleryBloc.state).thenReturn(loaded());
 
@@ -317,10 +328,11 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest());
 
       // Assert
+      expect(find.byType(ManageSelectionBar), findsNothing);
       expect(find.byType(FloatingActionButton), findsNothing);
     });
 
-    testWidgets('should show FAB when in selection mode with files selected', (tester) async {
+    testWidgets('should show the action bar with the selected files', (tester) async {
       // Arrange
       when(() => mockGalleryBloc.state)
           .thenReturn(loaded(isSelectionMode: true, selectedFileIds: const {'file-1'}));
@@ -329,18 +341,12 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest());
 
       // Assert
-      expect(find.byType(FloatingActionButton), findsOneWidget);
-    });
-
-    testWidgets('should not show FAB when in selection mode but no files selected', (tester) async {
-      // Arrange
-      when(() => mockGalleryBloc.state).thenReturn(loaded(isSelectionMode: true));
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest());
-
-      // Assert
-      expect(find.byType(FloatingActionButton), findsNothing);
+      final bar = tester.widget<ManageSelectionBar>(find.byType(ManageSelectionBar));
+      expect(bar.fileIds, ['file-1']);
+      expect(find.text('Save'), findsOneWidget);
+      expect(find.text('To album'), findsOneWidget);
+      expect(find.text('Free up'), findsOneWidget);
+      expect(find.text('Delete'), findsOneWidget);
     });
 
     // ==================== EDGE CASE TESTS ====================

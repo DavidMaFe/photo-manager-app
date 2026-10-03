@@ -2380,6 +2380,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Diagnostics'**
   String get sectionDiagnostics;
+
+  /// No description provided for @manageQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{What should we do with this photo?} other{What should we do with these {count} photos?}}'**
+  String manageQuestion(int count);
+
+  /// No description provided for @photosSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo selected} other{{count} photos selected}}'**
+  String photosSelected(int count);
+
+  /// No description provided for @photosCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo} other{{count} photos}}'**
+  String photosCount(int count);
+
+  /// No description provided for @optSaveFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and free up space'**
+  String get optSaveFree;
+
+  /// No description provided for @optSaveFreeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They\'re saved to your cloud and removed from the phone.'**
+  String get optSaveFreeBody;
+
+  /// No description provided for @recommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get recommended;
+
+  /// No description provided for @optSaveKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and keep on the phone'**
+  String get optSaveKeep;
+
+  /// No description provided for @optSaveKeepBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll have a copy in the cloud and another one here.'**
+  String get optSaveKeepBody;
+
+  /// No description provided for @optAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to an album'**
+  String get optAlbum;
+
+  /// No description provided for @optAlbumBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an existing one or create a new one.'**
+  String get optAlbumBody;
+
+  /// No description provided for @newAlbumChip.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get newAlbumChip;
+
+  /// No description provided for @deleteAfterSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from the phone afterwards'**
+  String get deleteAfterSaving;
+
+  /// No description provided for @deleteEverywhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everywhere'**
+  String get deleteEverywhere;
+
+  /// No description provided for @saveToAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to {album}'**
+  String saveToAlbum(String album);
+
+  /// No description provided for @chooseAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an album'**
+  String get chooseAlbum;
+
+  /// No description provided for @actionToAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'To album'**
+  String get actionToAlbum;
+
+  /// No description provided for @actionFreeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Free up'**
+  String get actionFreeUp;
+
+  /// No description provided for @freeUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Free up space on the phone?'**
+  String get freeUpTitle;
+
+  /// No description provided for @freeUpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The photo will be saved to your cloud and removed from this phone.} other{The {count} photos will be saved to your cloud and removed from this phone.}}'**
+  String freeUpBody(int count);
+
+  /// No description provided for @deleteFilesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete this photo?} other{Delete {count} photos?}}'**
+  String deleteFilesTitle(int count);
+
+  /// No description provided for @deleteFilesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They\'ll be removed from your cloud and this phone. You can restore them from the trash for 30 days.'**
+  String get deleteFilesBody;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

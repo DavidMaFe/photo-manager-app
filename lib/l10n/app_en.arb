@@ -648,5 +648,69 @@
   "alertSuccessBody": "A notice with what was saved",
   "alertFailure": "If something fails",
   "alertFailureBody": "So you can retry it",
-  "sectionDiagnostics": "Diagnostics"
+  "sectionDiagnostics": "Diagnostics",
+
+  "manageQuestion": "{count, plural, =1{What should we do with this photo?} other{What should we do with these {count} photos?}}",
+  "@manageQuestion": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photosSelected": "{count, plural, =1{1 photo selected} other{{count} photos selected}}",
+  "@photosSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photosCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "@photosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "optSaveFree": "Save and free up space",
+  "optSaveFreeBody": "They're saved to your cloud and removed from the phone.",
+  "recommended": "Recommended",
+  "optSaveKeep": "Save and keep on the phone",
+  "optSaveKeepBody": "You'll have a copy in the cloud and another one here.",
+  "optAlbum": "Save to an album",
+  "optAlbumBody": "Pick an existing one or create a new one.",
+  "newAlbumChip": "New",
+  "deleteAfterSaving": "Remove from the phone afterwards",
+  "deleteEverywhere": "Delete everywhere",
+  "saveToAlbum": "Save to {album}",
+  "@saveToAlbum": {
+    "placeholders": {
+      "album": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseAlbum": "Choose an album",
+  "actionToAlbum": "To album",
+  "actionFreeUp": "Free up",
+  "freeUpTitle": "Free up space on the phone?",
+  "freeUpBody": "{count, plural, =1{The photo will be saved to your cloud and removed from this phone.} other{The {count} photos will be saved to your cloud and removed from this phone.}}",
+  "@freeUpBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteFilesTitle": "{count, plural, =1{Delete this photo?} other{Delete {count} photos?}}",
+  "@deleteFilesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteFilesBody": "They'll be removed from your cloud and this phone. You can restore them from the trash for 30 days."
 }

@@ -648,5 +648,69 @@
   "alertSuccessBody": "Un aviso con lo que se guardó",
   "alertFailure": "Si algo falla",
   "alertFailureBody": "Para que puedas reintentarlo",
-  "sectionDiagnostics": "Diagnóstico"
+  "sectionDiagnostics": "Diagnóstico",
+
+  "manageQuestion": "{count, plural, =1{¿Qué hacemos con esta foto?} other{¿Qué hacemos con estas {count} fotos?}}",
+  "@manageQuestion": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photosSelected": "{count, plural, =1{1 foto seleccionada} other{{count} fotos seleccionadas}}",
+  "@photosSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photosCount": "{count, plural, =1{1 foto} other{{count} fotos}}",
+  "@photosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "optSaveFree": "Guardar y liberar espacio",
+  "optSaveFreeBody": "Se guardan en tu nube y se borran del móvil.",
+  "recommended": "Recomendado",
+  "optSaveKeep": "Guardar y mantener en el móvil",
+  "optSaveKeepBody": "Tendrás una copia en la nube y otra aquí.",
+  "optAlbum": "Guardar en un álbum",
+  "optAlbumBody": "Elige uno existente o crea uno nuevo.",
+  "newAlbumChip": "Nuevo",
+  "deleteAfterSaving": "Borrar del móvil después",
+  "deleteEverywhere": "Eliminar de todas partes",
+  "saveToAlbum": "Guardar en {album}",
+  "@saveToAlbum": {
+    "placeholders": {
+      "album": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseAlbum": "Elige un álbum",
+  "actionToAlbum": "A un álbum",
+  "actionFreeUp": "Liberar",
+  "freeUpTitle": "¿Liberar espacio del móvil?",
+  "freeUpBody": "{count, plural, =1{La foto se guardará en tu nube y se borrará de este móvil.} other{Las {count} fotos se guardarán en tu nube y se borrarán de este móvil.}}",
+  "@freeUpBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteFilesTitle": "{count, plural, =1{¿Eliminar esta foto?} other{¿Eliminar {count} fotos?}}",
+  "@deleteFilesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteFilesBody": "Se borrarán de tu nube y de este móvil. Podrás recuperarlas desde la papelera durante 30 días."
 }

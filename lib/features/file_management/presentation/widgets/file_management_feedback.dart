@@ -12,16 +12,9 @@ import 'package:photo_manager_app/l10n/app_localizations.dart';
 /// manage sheet and the viewer.
 class FileManagementFeedback {
 
-  /// Success snackbar, or the local-files warning when the device copy may remain.
-  ///
-  /// With [deferWarning] the warning is shown shortly after, once the caller
-  /// has closed its sheet; otherwise the returned future completes when the
-  /// warning is dismissed.
-  static Future<void> showSuccess(
-    BuildContext context,
-    FileManagementSuccess state, {
-    bool deferWarning = false,
-  }) async {
+  /// Success snackbar, or the local-files warning when the device copy may
+  /// remain. Completes when the warning is dismissed.
+  static Future<void> showSuccess(BuildContext context, FileManagementSuccess state) async {
     final l10n = AppLocalizations.of(context)!;
 
     if (!state.mayHaveLocalFiles) {
@@ -29,21 +22,16 @@ class FileManagementFeedback {
       return;
     }
 
-    Future<void> showWarning() => LocalDeletionWarningDialog.show(
-          context: context,
-          message: '${state.message}\n\n${l10n.filesRemovedFromServerLocalMayRemain}',
-          preferencesService: sl<UiPreferencesService>(),
-        );
-
-    if (!deferWarning) return showWarning();
-
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (context.mounted) await showWarning();
+    await LocalDeletionWarningDialog.show(
+      context: context,
+      message: '${state.message}\n\n${l10n.filesRemovedFromServerLocalMayRemain}',
+      preferencesService: sl<UiPreferencesService>(),
+    );
   }
 
-  static void showPartialSuccess(BuildContext context, FileManagementPartialSuccess state) {
+  static Future<void> showPartialSuccess(BuildContext context, FileManagementPartialSuccess state) async {
     final l10n = AppLocalizations.of(context)!;
-    AppDialog.show(
+    await AppDialog.show(
       context: context,
       icon: Symbols.warning_rounded,
       tone: AppDialogTone.review,

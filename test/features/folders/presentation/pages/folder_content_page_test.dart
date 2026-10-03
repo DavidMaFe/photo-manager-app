@@ -11,6 +11,9 @@ import 'package:photo_manager_app/core/widgets/media_grid.dart';
 import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
 import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
 import 'package:photo_manager_app/core/widgets/selection_header.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_state.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_state.dart';
@@ -30,11 +33,14 @@ class MockFolderContentBloc extends Mock implements FolderContentBloc {}
 
 class MockFolderBloc extends Mock implements FolderBloc {}
 
+class MockFileManagementBloc extends Mock implements FileManagementBloc {}
+
 class FakeFolderContentEvent extends Fake implements FolderContentEvent {}
 
 void main() {
   late MockFolderContentBloc contentBloc;
   late MockFolderBloc folderBloc;
+  late MockFileManagementBloc fileManagementBloc;
 
   setUpAll(() => registerFallbackValue(FakeFolderContentEvent()));
 
@@ -42,6 +48,10 @@ void main() {
     contentBloc = MockFolderContentBloc();
     when(() => contentBloc.stream).thenAnswer((_) => const Stream.empty());
     when(() => contentBloc.state).thenReturn(const FolderContentStarting());
+
+    fileManagementBloc = MockFileManagementBloc();
+    when(() => fileManagementBloc.stream).thenAnswer((_) => const Stream.empty());
+    when(() => fileManagementBloc.state).thenReturn(const FileManagementStarting());
 
     folderBloc = MockFolderBloc();
     when(() => folderBloc.stream).thenAnswer((_) => const Stream.empty());
@@ -98,6 +108,7 @@ void main() {
       providers: [
         BlocProvider<FolderContentBloc>.value(value: contentBloc),
         BlocProvider<FolderBloc>.value(value: folderBloc),
+        BlocProvider<FileManagementBloc>.value(value: fileManagementBloc),
       ],
       child: const FolderContentPage(folderId: 'folder-1'),
     ));
@@ -195,7 +206,7 @@ void main() {
       expect(find.byType(SelectionHeader), findsOneWidget);
       expect(find.text('1 selected'), findsOneWidget);
       expect(find.byType(SecondaryTopBar), findsNothing);
-      expect(find.byType(FloatingActionButton), findsOneWidget);
+      expect(find.byType(ManageSelectionBar), findsOneWidget);
     });
 
     testWidgets('should select every file from the header', (tester) async {

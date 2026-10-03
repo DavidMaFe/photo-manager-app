@@ -13,9 +13,7 @@ import 'package:photo_manager_app/core/widgets/icon_circle_button.dart';
 import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
 import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
 import 'package:photo_manager_app/core/widgets/selection_header.dart';
-import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
-import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
-import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_event.dart';
@@ -84,7 +82,12 @@ class FolderContentPage extends StatelessWidget {
                 ],
               ),
             ),
-            floatingActionButton: _buildManageFAB(context, state, isSelectionMode, selectedCount),
+            bottomNavigationBar: isSelectionMode
+                ? ManageSelectionBar(
+                    fileIds: state.selectedFileIds.toList(),
+                    onFinished: () => context.read<FolderContentBloc>().add(const ExitSelectionMode()),
+                  )
+                : null,
           ),
         );
       }
@@ -266,43 +269,6 @@ class FolderContentPage extends StatelessWidget {
         bloc.add(ToggleFileSelection(file.id));
       },
     );
-  }
-
-  /// Manage button for the selection (replaced by the selection action bar in phase 5).
-  Widget? _buildManageFAB(BuildContext context, FolderContentState state, bool isSelectionMode, int selectedCount) {
-
-    if (!isSelectionMode || selectedCount == 0) return null;
-
-    final l10n = AppLocalizations.of(context)!;
-
-    return FloatingActionButton.extended(
-      onPressed: () => _showManageModal(context, (state as FolderContentLoaded).selectedFileIds.toList()),
-      icon: const Icon(Symbols.tune_rounded, size: 22),
-      label: Text(selectedCount == 1 ? l10n.manageSingleFile : l10n.manageMultipleFiles(selectedCount)),
-    );
-  }
-
-  void _showManageModal(BuildContext context, List<String> fileIds) async {
-    await showModalBottomSheet<bool>(
-      useSafeArea: true,
-      context: context,
-      isScrollControlled: true,
-      // The sheet content draws its own surface and drag handle.
-      backgroundColor: context.palette.surface.withValues(alpha: 0),
-      showDragHandle: false,
-      builder: (modalContext) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: context.read<FileManagementBloc>()),
-          BlocProvider.value(value: context.read<ManageFolderBloc>())
-        ],
-        child: ManageFileModal(fileIds: fileIds, isMultiple: fileIds.length > 1),
-      )
-    );
-
-    if (!context.mounted) return;
-
-    // Exit selection mode after modal is dismissed (regardless of result)
-    context.read<FolderContentBloc>().add(const ExitSelectionMode());
   }
 
   void _navigateToFileDetail(BuildContext context, List<GalleryFile> files, int index, int totalFilesCount) {

@@ -1337,4 +1337,109 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get sectionDiagnostics => 'Diagnóstico';
+
+  @override
+  String manageQuestion(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '¿Qué hacemos con estas $count fotos?',
+      one: '¿Qué hacemos con esta foto?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String photosSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotos seleccionadas',
+      one: '1 foto seleccionada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String photosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotos',
+      one: '1 foto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get optSaveFree => 'Guardar y liberar espacio';
+
+  @override
+  String get optSaveFreeBody => 'Se guardan en tu nube y se borran del móvil.';
+
+  @override
+  String get recommended => 'Recomendado';
+
+  @override
+  String get optSaveKeep => 'Guardar y mantener en el móvil';
+
+  @override
+  String get optSaveKeepBody => 'Tendrás una copia en la nube y otra aquí.';
+
+  @override
+  String get optAlbum => 'Guardar en un álbum';
+
+  @override
+  String get optAlbumBody => 'Elige uno existente o crea uno nuevo.';
+
+  @override
+  String get newAlbumChip => 'Nuevo';
+
+  @override
+  String get deleteAfterSaving => 'Borrar del móvil después';
+
+  @override
+  String get deleteEverywhere => 'Eliminar de todas partes';
+
+  @override
+  String saveToAlbum(String album) {
+    return 'Guardar en $album';
+  }
+
+  @override
+  String get chooseAlbum => 'Elige un álbum';
+
+  @override
+  String get actionToAlbum => 'A un álbum';
+
+  @override
+  String get actionFreeUp => 'Liberar';
+
+  @override
+  String get freeUpTitle => '¿Liberar espacio del móvil?';
+
+  @override
+  String freeUpBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Las $count fotos se guardarán en tu nube y se borrarán de este móvil.',
+      one: 'La foto se guardará en tu nube y se borrará de este móvil.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deleteFilesTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '¿Eliminar $count fotos?',
+      one: '¿Eliminar esta foto?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFilesBody => 'Se borrarán de tu nube y de este móvil. Podrás recuperarlas desde la papelera durante 30 días.';
 }

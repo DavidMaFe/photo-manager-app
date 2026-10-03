@@ -15,7 +15,6 @@ import 'package:photo_manager_app/features/file_management/domain/enums/server_a
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_event.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_state.dart';
-import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/file_management_feedback.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/file_properties_sheet.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
@@ -296,21 +295,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
   }
 
   void _showManageModal(BuildContext context) async {
-    final result = await showModalBottomSheet<bool>(
-      useSafeArea: true,
-      context: context,
-      isScrollControlled: true,
-      // The sheet content draws its own surface and drag handle.
-      backgroundColor: context.palette.surface.withValues(alpha: 0),
-      showDragHandle: false,
-      builder: (modalContext) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: context.read<FileManagementBloc>()),
-          BlocProvider.value(value: context.read<ManageFolderBloc>())
-        ],
-        child: ManageFileModal(fileIds: [_currentFile.id], isMultiple: false),
-      )
-    );
+    final result = await ManageFileModal.show(context, fileIds: [_currentFile.id]);
 
     // If the file was successfully managed (deleted, moved, etc.), close the detail page
     // and return to the previous page (gallery or folder content)
