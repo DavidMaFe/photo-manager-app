@@ -2560,6 +2560,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See less'**
   String get seeLess;
+
+  /// No description provided for @welcomeUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, {name}'**
+  String welcomeUser(String name);
+
+  /// No description provided for @welcomeGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get welcomeGeneric;
+
+  /// No description provided for @permissionsHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Three permissions and we\'re ready'**
+  String get permissionsHeadline;
+
+  /// No description provided for @permissionsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'That way we can save your photos automatically and let you know when each backup finishes.'**
+  String get permissionsBody;
+
+  /// No description provided for @permPhotosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos and videos'**
+  String get permPhotosTitle;
+
+  /// No description provided for @permPhotosBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To back them up and free up space'**
+  String get permPhotosBody;
+
+  /// No description provided for @permNotifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get permNotifTitle;
+
+  /// No description provided for @permNotifBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We let you know when it\'s done or if it fails'**
+  String get permNotifBody;
+
+  /// No description provided for @permBgTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get permBgTitle;
+
+  /// No description provided for @permBgBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups with the app closed'**
+  String get permBgBody;
+
+  /// No description provided for @allow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get allow;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @permSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get permSettings;
+
+  /// No description provided for @privacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photos are private. You can change these permissions any time from Profile.'**
+  String get privacyNote;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
+  /// No description provided for @later.
+  ///
+  /// In en, this message translates to:
+  /// **'Do it later'**
+  String get later;
+
+  /// No description provided for @continueAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue anyway'**
+  String get continueAnyway;
+
+  /// No description provided for @reviewPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Review permissions'**
+  String get reviewPermissions;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

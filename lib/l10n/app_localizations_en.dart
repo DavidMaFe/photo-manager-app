@@ -1477,4 +1477,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get seeLess => 'See less';
+
+  @override
+  String welcomeUser(String name) {
+    return 'Welcome, $name';
+  }
+
+  @override
+  String get welcomeGeneric => 'Welcome';
+
+  @override
+  String get permissionsHeadline => 'Three permissions and we\'re ready';
+
+  @override
+  String get permissionsBody => 'That way we can save your photos automatically and let you know when each backup finishes.';
+
+  @override
+  String get permPhotosTitle => 'Photos and videos';
+
+  @override
+  String get permPhotosBody => 'To back them up and free up space';
+
+  @override
+  String get permNotifTitle => 'Notifications';
+
+  @override
+  String get permNotifBody => 'We let you know when it\'s done or if it fails';
+
+  @override
+  String get permBgTitle => 'Background';
+
+  @override
+  String get permBgBody => 'Backups with the app closed';
+
+  @override
+  String get allow => 'Allow';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get permSettings => 'Settings';
+
+  @override
+  String get privacyNote => 'Your photos are private. You can change these permissions any time from Profile.';
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
+  String get later => 'Do it later';
+
+  @override
+  String get continueAnyway => 'Continue anyway';
+
+  @override
+  String get reviewPermissions => 'Review permissions';
 }

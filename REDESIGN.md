@@ -562,7 +562,7 @@ Eliminar del `.arb` las claves que queden sin uso al final (comprobar con búsqu
 - [x] Selección con barra de acciones (6.7) + hoja Gestionar nueva (6.8)
 - [x] Tarjeta «Por revisar» → Gestionar con todos los pendientes
 - [x] Proceso de sync y Actividad dentro de Copia (6.12)
-- [ ] Pantalla de permisos (6.4)
+- [x] Pantalla de permisos (6.4)
 - [ ] Apariencia en Perfil
 - [ ] Alternativas de la sección 9 aplicadas
 

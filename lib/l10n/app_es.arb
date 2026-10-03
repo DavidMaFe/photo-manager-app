@@ -729,5 +729,31 @@
   "remainingLessThanMinute": "Queda menos de un minuto",
   "backgroundInfo": "Puedes salir de la app: la copia sigue en segundo plano y te avisaremos al terminar.",
   "seeAll": "Ver todo",
-  "seeLess": "Ver menos"
+  "seeLess": "Ver menos",
+
+  "welcomeUser": "Bienvenido, {name}",
+  "@welcomeUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomeGeneric": "Te damos la bienvenida",
+  "permissionsHeadline": "Tres permisos y empezamos",
+  "permissionsBody": "Así podremos guardar tus fotos de forma automática y avisarte cuando termine cada copia.",
+  "permPhotosTitle": "Fotos y vídeos",
+  "permPhotosBody": "Para copiarlas y liberar espacio",
+  "permNotifTitle": "Notificaciones",
+  "permNotifBody": "Te avisamos al terminar o si falla",
+  "permBgTitle": "Segundo plano",
+  "permBgBody": "Copias con la app cerrada",
+  "allow": "Permitir",
+  "done": "Listo",
+  "permSettings": "Ajustes",
+  "privacyNote": "Tus fotos son privadas. Puedes cambiar estos permisos cuando quieras desde Perfil.",
+  "continueLabel": "Continuar",
+  "later": "Hacerlo más tarde",
+  "continueAnyway": "Continuar igualmente",
+  "reviewPermissions": "Revisar permisos"
 }

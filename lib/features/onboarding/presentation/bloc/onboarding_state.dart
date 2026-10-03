@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:photo_manager_app/core/permissions/app_permission.dart';
+import 'package:photo_manager_app/core/permissions/permission_access.dart';
 
 /// Base class for onboarding states
 abstract class OnboardingState extends Equatable {
@@ -13,14 +15,71 @@ class OnboardingInitial extends OnboardingState {
   const OnboardingInitial();
 }
 
-/// Showing welcome dialog
-class OnboardingWelcome extends OnboardingState {
-  const OnboardingWelcome();
-}
+/// The permissions screen: where each of the three permissions stands.
+class OnboardingPermissions extends OnboardingState {
+  final PermissionAccess photos;
+  final PermissionAccess notifications;
+  final PermissionAccess background;
 
-/// Requesting permissions
-class OnboardingRequestingPermissions extends OnboardingState {
-  const OnboardingRequestingPermissions();
+  /// Permission whose system prompt is showing.
+  final AppPermission? requesting;
+
+  const OnboardingPermissions({
+    this.photos = PermissionAccess.pending,
+    this.notifications = PermissionAccess.pending,
+    this.background = PermissionAccess.pending,
+    this.requesting,
+  });
+
+  PermissionAccess accessOf(AppPermission permission) {
+    return switch (permission) {
+      AppPermission.photos => photos,
+      AppPermission.notifications => notifications,
+      AppPermission.background => background,
+    };
+  }
+
+  bool get allGranted => AppPermission.values.every((p) => accessOf(p) == PermissionAccess.granted);
+
+  /// First permission still to grant, in screen order.
+  AppPermission? get nextRecommended {
+    for (final permission in AppPermission.values) {
+      if (accessOf(permission) != PermissionAccess.granted) return permission;
+    }
+    return null;
+  }
+
+  OnboardingPermissions copyWith({
+    PermissionAccess? photos,
+    PermissionAccess? notifications,
+    PermissionAccess? background,
+  }) {
+    return OnboardingPermissions(
+      photos: photos ?? this.photos,
+      notifications: notifications ?? this.notifications,
+      background: background ?? this.background,
+    );
+  }
+
+  OnboardingPermissions withAccess(AppPermission permission, PermissionAccess access) {
+    return switch (permission) {
+      AppPermission.photos => copyWith(photos: access),
+      AppPermission.notifications => copyWith(notifications: access),
+      AppPermission.background => copyWith(background: access),
+    };
+  }
+
+  OnboardingPermissions requestingPermission(AppPermission permission) {
+    return OnboardingPermissions(
+      photos: photos,
+      notifications: notifications,
+      background: background,
+      requesting: permission,
+    );
+  }
+
+  @override
+  List<Object?> get props => [photos, notifications, background, requesting];
 }
 
 /// Some permissions were denied

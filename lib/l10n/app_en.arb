@@ -729,5 +729,31 @@
   "remainingLessThanMinute": "Less than a minute left",
   "backgroundInfo": "You can leave the app: the backup continues in the background and we'll let you know when it's done.",
   "seeAll": "See all",
-  "seeLess": "See less"
+  "seeLess": "See less",
+
+  "welcomeUser": "Welcome, {name}",
+  "@welcomeUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomeGeneric": "Welcome",
+  "permissionsHeadline": "Three permissions and we're ready",
+  "permissionsBody": "That way we can save your photos automatically and let you know when each backup finishes.",
+  "permPhotosTitle": "Photos and videos",
+  "permPhotosBody": "To back them up and free up space",
+  "permNotifTitle": "Notifications",
+  "permNotifBody": "We let you know when it's done or if it fails",
+  "permBgTitle": "Background",
+  "permBgBody": "Backups with the app closed",
+  "allow": "Allow",
+  "done": "Done",
+  "permSettings": "Settings",
+  "privacyNote": "Your photos are private. You can change these permissions any time from Profile.",
+  "continueLabel": "Continue",
+  "later": "Do it later",
+  "continueAnyway": "Continue anyway",
+  "reviewPermissions": "Review permissions"
 }

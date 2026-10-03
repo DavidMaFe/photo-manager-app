@@ -1,4 +1,6 @@
 
+import 'package:photo_manager_app/core/permissions/device_permission_service.dart';
+import 'package:photo_manager_app/core/permissions/permission_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
@@ -885,10 +887,13 @@ Future<void> init() async {
     () => CompleteOnboardingUseCase(sl<OnboardingRepository>()),
   );
 
+  sl.registerLazySingleton<PermissionService>(() => DevicePermissionService());
+
   // BLoC
   sl.registerFactory(
     () => OnboardingBloc(
       completeOnboardingUseCase: sl<CompleteOnboardingUseCase>(),
+      permissionService: sl<PermissionService>(),
     ),
   );
 
