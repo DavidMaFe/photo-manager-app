@@ -132,7 +132,9 @@ class _FilesGridState extends State<FilesGrid> {
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
             ),
-          SliverPadding(padding: EdgeInsets.only(bottom: widget.bottomPadding)),
+          SliverPadding(
+            padding: EdgeInsets.only(bottom: widget.bottomPadding + MediaQuery.paddingOf(context).bottom),
+          ),
         ],
       ),
     );

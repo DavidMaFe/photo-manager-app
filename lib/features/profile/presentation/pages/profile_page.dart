@@ -96,7 +96,7 @@ class _ProfilePageState extends State<ProfilePage> {
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 32),
+        padding: EdgeInsets.only(bottom: 32 + MediaQuery.paddingOf(context).bottom),
         children: [
           ScreenHeader(title: l10n.navProfile),
           Padding(

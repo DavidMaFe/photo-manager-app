@@ -53,6 +53,7 @@ class _DevicesPageState extends State<DevicesPage> {
       appBar: SecondaryTopBar(title: l10n.myDevices),
       body: SafeArea(
         top: false,
+        bottom: false,
         child: BlocConsumer<DeviceBloc, DeviceState>(
           listener: (context, state) {
             if (state is DeviceError) {
@@ -113,7 +114,7 @@ class _DevicesPageState extends State<DevicesPage> {
                 },
                 child: ListView.builder(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.paddingOf(context).bottom),
                   itemCount: devices.length,
                   itemBuilder: (context, index) {
                     final device = devices[index];

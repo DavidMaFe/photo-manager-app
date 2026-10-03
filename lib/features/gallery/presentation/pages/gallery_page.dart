@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/core/navigation/shell_selection_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -43,46 +44,49 @@ class GalleryPage extends StatelessWidget {
           final selectedCount = isSelectionMode ? state.selectedFileIds.length : 0;
           final areAllFilesSelected = state is GalleryLoaded && state.areAllFilesSelected;
 
-          return Scaffold(
-            body: SafeArea(
-              bottom: false,
-              child: Column(
-                children: [
-                  // Always at index 0 — height is 0 when not refreshing.
-                  // A conditional `if` would shift the indices of all siblings,
-                  // causing FilesGrid to be recreated and losing the scroll position.
-                  SizedBox(
-                    height: (state is GalleryLoaded && state.isRefreshing) ? 2 : 0,
-                    child: LinearProgressIndicator(
-                      backgroundColor: context.palette.background,
-                      color: context.palette.accent,
+          return ReportSelectionMode(
+            active: isSelectionMode,
+            child: Scaffold(
+              body: SafeArea(
+                bottom: false,
+                child: Column(
+                  children: [
+                    // Always at index 0 — height is 0 when not refreshing.
+                    // A conditional `if` would shift the indices of all siblings,
+                    // causing FilesGrid to be recreated and losing the scroll position.
+                    SizedBox(
+                      height: (state is GalleryLoaded && state.isRefreshing) ? 2 : 0,
+                      child: LinearProgressIndicator(
+                        backgroundColor: context.palette.background,
+                        color: context.palette.accent,
+                      ),
                     ),
-                  ),
-                  GalleryTopBar(
-                    isSelectionMode: isSelectionMode,
-                    selectedCount: selectedCount,
-                    areAllFilesSelected: areAllFilesSelected,
-                    actions: [
-                      BackupStatusChip(onTap: () => context.go(RoutePaths.sync)),
-                      _buildAvatar(context),
-                    ],
-                    onCancelSelection: () {
-                      context.read<GalleryBloc>().add(const ExitSelectionMode());
-                    },
-                    onSelectAll: () {
-                      context.read<GalleryBloc>().add(const SelectAllFiles());
-                    },
-                    onDeselectAll: () {
-                      context.read<GalleryBloc>().add(const ClearSelection());
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildFilters(context, state),
-                  Expanded(child: _buildContent(context, state))
-                ],
+                    GalleryTopBar(
+                      isSelectionMode: isSelectionMode,
+                      selectedCount: selectedCount,
+                      areAllFilesSelected: areAllFilesSelected,
+                      actions: [
+                        BackupStatusChip(onTap: () => context.go(RoutePaths.sync)),
+                        _buildAvatar(context),
+                      ],
+                      onCancelSelection: () {
+                        context.read<GalleryBloc>().add(const ExitSelectionMode());
+                      },
+                      onSelectAll: () {
+                        context.read<GalleryBloc>().add(const SelectAllFiles());
+                      },
+                      onDeselectAll: () {
+                        context.read<GalleryBloc>().add(const ClearSelection());
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildFilters(context, state),
+                    Expanded(child: _buildContent(context, state))
+                  ],
+                ),
               ),
+              floatingActionButton: _buildFAB(context, state),
             ),
-            floatingActionButton: _buildFAB(context, state),
           );
         }
     );

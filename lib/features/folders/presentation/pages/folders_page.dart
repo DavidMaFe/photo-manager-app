@@ -167,7 +167,7 @@ class _FoldersPageState extends State<FoldersPage> {
               MediaQuery.textScalerOf(context).scale(12) * 1.4;
 
           return GridView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 24 + MediaQuery.paddingOf(context).bottom),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 14,

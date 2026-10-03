@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/core/navigation/shell_selection_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -48,21 +49,24 @@ class TrashPageView extends StatelessWidget {
         final hasFiles = state is TrashLoaded && state.files.isNotEmpty;
         final areAllFilesSelected = state is TrashLoaded && state.areAllFilesSelected;
 
-        return Scaffold(
-          appBar: TrashHeader(
-            isSelectionMode: isSelectionMode,
-            selectedCount: selectedCount,
-            areAllFilesSelected: areAllFilesSelected,
-            canEmpty: hasFiles,
-            onCancelSelection: () {
-              context.read<TrashBloc>().add(const ExitSelectionMode());
-            },
-            onSelectAll: () => context.read<TrashBloc>().add(const SelectAllFiles()),
-            onClearSelection: () => context.read<TrashBloc>().add(const ClearSelection()),
-            onEmptyTrash: () => _showEmptyTrashDialog(context),
+        return ReportSelectionMode(
+          active: isSelectionMode,
+          child: Scaffold(
+            appBar: TrashHeader(
+              isSelectionMode: isSelectionMode,
+              selectedCount: selectedCount,
+              areAllFilesSelected: areAllFilesSelected,
+              canEmpty: hasFiles,
+              onCancelSelection: () {
+                context.read<TrashBloc>().add(const ExitSelectionMode());
+              },
+              onSelectAll: () => context.read<TrashBloc>().add(const SelectAllFiles()),
+              onClearSelection: () => context.read<TrashBloc>().add(const ClearSelection()),
+              onEmptyTrash: () => _showEmptyTrashDialog(context),
+            ),
+            body: _buildContent(context, state),
+            bottomNavigationBar: _buildSelectionBar(context, state),
           ),
-          body: _buildContent(context, state),
-          bottomNavigationBar: _buildSelectionBar(context, state),
         );
       },
     );

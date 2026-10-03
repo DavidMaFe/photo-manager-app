@@ -558,7 +558,7 @@ Eliminar del `.arb` las claves que queden sin uso al final (comprobar con búsqu
 - [x] Textos de la sección 8.
 
 **Fase 5 · Cambios de funcionamiento**
-- [ ] Navegación de 4 pestañas (6.5)
+- [x] Navegación de 4 pestañas (6.5)
 - [ ] Selección con barra de acciones (6.7) + hoja Gestionar nueva (6.8)
 - [ ] Tarjeta «Por revisar» → Gestionar con todos los pendientes
 - [ ] Proceso de sync y Actividad dentro de Copia (6.12)

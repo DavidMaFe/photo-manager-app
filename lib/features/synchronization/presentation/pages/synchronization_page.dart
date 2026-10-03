@@ -153,7 +153,7 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
                 ),
               ),
           ],
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          SliverToBoxAdapter(child: SizedBox(height: 24 + MediaQuery.paddingOf(context).bottom)),
         ],
       ),
     );

@@ -22,7 +22,6 @@ import 'package:photo_manager_app/features/folders/presentation/pages/folders_pa
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/pages/gallery_page.dart';
-import 'package:photo_manager_app/features/notification/presentation/pages/notifications_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
@@ -139,6 +138,12 @@ class AppRouter {
               );
             },
           ),
+          // Notifications are now the Activity section of the Backup tab.
+          GoRoute(
+            path: RoutePaths.notifications,
+            redirect: (context, state) => RoutePaths.sync,
+          ),
+
           GoRoute(
               path: '/file/:fileId',
               name: RouteNames.fileDetail,
@@ -252,18 +257,7 @@ class AppRouter {
                   ],
                 ),
 
-                // Branch 3: Notifications
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: RoutePaths.notifications,
-                      name: RouteNames.notifications,
-                      builder: (context, state) => const NotificationsPage()
-                    ),
-                  ],
-                ),
-
-                // Branch 4: Profile
+                // Branch 3: Profile
                 StatefulShellBranch(
                   routes: [
                     GoRoute(

@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/core/navigation/shell_selection_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -59,29 +60,32 @@ class FolderContentPage extends StatelessWidget {
         final isSelectionMode = state is FolderContentLoaded && state.isSelectionMode;
         final selectedCount = isSelectionMode ? state.selectedFileIds.length : 0;
 
-        return Scaffold(
-          appBar: isSelectionMode ? null : _buildTopBar(context),
-          body: SafeArea(
-            top: isSelectionMode,
-            bottom: false,
-            child: Column(
-              children: [
-                if (isSelectionMode) _buildSelectionHeader(context, state, selectedCount),
-                // Always present — height is 0 when not refreshing.
-                // A conditional `if` would shift the indices of all siblings,
-                // causing the scroll view to be remounted and losing scroll position.
-                SizedBox(
-                  height: (state is FolderContentLoaded && state.isRefreshing) ? 2 : 0,
-                  child: LinearProgressIndicator(
-                    backgroundColor: context.palette.background,
-                    color: context.palette.accent,
+        return ReportSelectionMode(
+          active: isSelectionMode,
+          child: Scaffold(
+            appBar: isSelectionMode ? null : _buildTopBar(context),
+            body: SafeArea(
+              top: isSelectionMode,
+              bottom: false,
+              child: Column(
+                children: [
+                  if (isSelectionMode) _buildSelectionHeader(context, state, selectedCount),
+                  // Always present — height is 0 when not refreshing.
+                  // A conditional `if` would shift the indices of all siblings,
+                  // causing the scroll view to be remounted and losing scroll position.
+                  SizedBox(
+                    height: (state is FolderContentLoaded && state.isRefreshing) ? 2 : 0,
+                    child: LinearProgressIndicator(
+                      backgroundColor: context.palette.background,
+                      color: context.palette.accent,
+                    ),
                   ),
-                ),
-                Expanded(child: _buildMainContent(context, state))
-              ],
+                  Expanded(child: _buildMainContent(context, state))
+                ],
+              ),
             ),
+            floatingActionButton: _buildManageFAB(context, state, isSelectionMode, selectedCount),
           ),
-          floatingActionButton: _buildManageFAB(context, state, isSelectionMode, selectedCount),
         );
       }
     );
