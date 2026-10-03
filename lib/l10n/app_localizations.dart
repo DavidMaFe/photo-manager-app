@@ -368,13 +368,13 @@ abstract class AppLocalizations {
   /// No description provided for @noFolders.
   ///
   /// In en, this message translates to:
-  /// **'You don\'t have any folder. Create a new one.'**
+  /// **'You don\'t have any album. Create a new one.'**
   String get noFolders;
 
   /// No description provided for @selectFolder.
   ///
   /// In en, this message translates to:
-  /// **'Select one folder'**
+  /// **'Select an album'**
   String get selectFolder;
 
   /// No description provided for @quickActionsTitle.
@@ -410,13 +410,13 @@ abstract class AppLocalizations {
   /// No description provided for @saveInFolderTitle.
   ///
   /// In en, this message translates to:
-  /// **'To folder'**
+  /// **'To an album'**
   String get saveInFolderTitle;
 
   /// No description provided for @saveInFolderSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Save in a folder'**
+  /// **'Save in an album'**
   String get saveInFolderSubtitle;
 
   /// No description provided for @deleteBothTitle.
@@ -440,7 +440,7 @@ abstract class AppLocalizations {
   /// No description provided for @nameFolder.
   ///
   /// In en, this message translates to:
-  /// **'Name of the folder'**
+  /// **'Album name'**
   String get nameFolder;
 
   /// No description provided for @saveInRootTitle.
@@ -452,31 +452,31 @@ abstract class AppLocalizations {
   /// No description provided for @saveInRootSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Without specific folder'**
+  /// **'Without a specific album'**
   String get saveInRootSubtitle;
 
   /// No description provided for @moveToFolderTitle.
   ///
   /// In en, this message translates to:
-  /// **'Move to existing folder'**
+  /// **'Move to an existing album'**
   String get moveToFolderTitle;
 
   /// No description provided for @moveToFolderSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Select one folder'**
+  /// **'Select an album'**
   String get moveToFolderSubtitle;
 
   /// No description provided for @newFolderTitle.
   ///
   /// In en, this message translates to:
-  /// **'Create a new folder'**
+  /// **'New album'**
   String get newFolderTitle;
 
   /// No description provided for @newFolderSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Write the folder name'**
+  /// **'Write the album name'**
   String get newFolderSubtitle;
 
   /// No description provided for @deleteTitle.
@@ -596,13 +596,13 @@ abstract class AppLocalizations {
   /// No description provided for @selectFolderError.
   ///
   /// In en, this message translates to:
-  /// **'You must select a folder'**
+  /// **'You must select an album'**
   String get selectFolderError;
 
   /// No description provided for @newFolderNameError.
   ///
   /// In en, this message translates to:
-  /// **'You must write a name for the new folder'**
+  /// **'You must write a name for the new album'**
   String get newFolderNameError;
 
   /// No description provided for @invalidActionError.
@@ -740,19 +740,19 @@ abstract class AppLocalizations {
   /// No description provided for @foldersTitle.
   ///
   /// In en, this message translates to:
-  /// **'Folders'**
+  /// **'Albums'**
   String get foldersTitle;
 
   /// No description provided for @folder.
   ///
   /// In en, this message translates to:
-  /// **'Folder'**
+  /// **'Album'**
   String get folder;
 
   /// No description provided for @subfolders.
   ///
   /// In en, this message translates to:
-  /// **'Subfolders'**
+  /// **'Sub-albums'**
   String get subfolders;
 
   /// No description provided for @rename.
@@ -776,7 +776,7 @@ abstract class AppLocalizations {
   /// No description provided for @folderName.
   ///
   /// In en, this message translates to:
-  /// **'Folder name'**
+  /// **'Album name'**
   String get folderName;
 
   /// No description provided for @hintFolderName.
@@ -788,7 +788,7 @@ abstract class AppLocalizations {
   /// No description provided for @folderNameRequiredError.
   ///
   /// In en, this message translates to:
-  /// **'Folder name is required'**
+  /// **'Album name is required'**
   String get folderNameRequiredError;
 
   /// No description provided for @folderMaxHundredCharactersError.
@@ -800,7 +800,7 @@ abstract class AppLocalizations {
   /// No description provided for @renameFolder.
   ///
   /// In en, this message translates to:
-  /// **'Rename folder'**
+  /// **'Rename album'**
   String get renameFolder;
 
   /// No description provided for @newName.
@@ -812,19 +812,19 @@ abstract class AppLocalizations {
   /// No description provided for @creatingFolder.
   ///
   /// In en, this message translates to:
-  /// **'Creating folder...'**
+  /// **'Creating album...'**
   String get creatingFolder;
 
   /// No description provided for @renamingFolder.
   ///
   /// In en, this message translates to:
-  /// **'Renaming folder...'**
+  /// **'Renaming album...'**
   String get renamingFolder;
 
   /// No description provided for @deletingFolder.
   ///
   /// In en, this message translates to:
-  /// **'Deleting folder...'**
+  /// **'Deleting album...'**
   String get deletingFolder;
 
   /// No description provided for @processing.
@@ -836,55 +836,55 @@ abstract class AppLocalizations {
   /// No description provided for @emptyFolders.
   ///
   /// In en, this message translates to:
-  /// **'You don\'t have folders'**
+  /// **'You don\'t have albums'**
   String get emptyFolders;
 
   /// No description provided for @emptyFolder.
   ///
   /// In en, this message translates to:
-  /// **'This folder is empty'**
+  /// **'This album is empty'**
   String get emptyFolder;
 
   /// No description provided for @emptyFolderDescription.
   ///
   /// In en, this message translates to:
-  /// **'Move files here to organize them'**
+  /// **'Move photos here to organise them'**
   String get emptyFolderDescription;
 
   /// No description provided for @createFirstFolder.
   ///
   /// In en, this message translates to:
-  /// **'Tap the + button to create your first folder'**
+  /// **'Create your first album to organise your photos'**
   String get createFirstFolder;
 
   /// No description provided for @deleteFolder.
   ///
   /// In en, this message translates to:
-  /// **'Delete folder'**
+  /// **'Delete album'**
   String get deleteFolder;
 
   /// No description provided for @deleteEmptyFolder.
   ///
   /// In en, this message translates to:
-  /// **'¿Are you sure you want to delete the folder {folderName}?'**
+  /// **'Are you sure you want to delete the album {folderName}?'**
   String deleteEmptyFolder(Object folderName);
 
   /// No description provided for @deleteFolderWithFiles.
   ///
   /// In en, this message translates to:
-  /// **'The folder {folderName} contains {files} files. Are you sure you want to delete all the content?'**
+  /// **'The album {folderName} contains {files} files. Are you sure you want to delete all its content?'**
   String deleteFolderWithFiles(Object files, Object folderName);
 
   /// No description provided for @deleteFolderWithSubfolders.
   ///
   /// In en, this message translates to:
-  /// **'The folder {folderName} contains {subfolders} folders. Are you sure you want to delete all the content?'**
+  /// **'The album {folderName} contains {subfolders} sub-albums. Are you sure you want to delete all its content?'**
   String deleteFolderWithSubfolders(Object folderName, Object subfolders);
 
   /// No description provided for @deleteFolderWithFilesAndSubfoldersWarning.
   ///
   /// In en, this message translates to:
-  /// **'The folder {folderName} contains {files} files and {subfolders} folders. Are you sure you want to delete all the content?'**
+  /// **'The album {folderName} contains {files} files and {subfolders} sub-albums. Are you sure you want to delete all its content?'**
   String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders);
 
   /// No description provided for @syncCurrentState.
@@ -1136,7 +1136,7 @@ abstract class AppLocalizations {
   /// No description provided for @folders.
   ///
   /// In en, this message translates to:
-  /// **'Folders'**
+  /// **'Albums'**
   String get folders;
 
   /// No description provided for @devices.
@@ -2644,6 +2644,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Backed up'**
   String get statusSafe;
+
+  /// No description provided for @navAlbums.
+  ///
+  /// In en, this message translates to:
+  /// **'Albums'**
+  String get navAlbums;
+
+  /// No description provided for @searchAlbums.
+  ///
+  /// In en, this message translates to:
+  /// **'Search albums'**
+  String get searchAlbums;
+
+  /// No description provided for @newAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get newAlbum;
+
+  /// No description provided for @createAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Create album'**
+  String get createAlbum;
+
+  /// No description provided for @albumMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} · {subcount, plural, =1{1 sub-album} other{{subcount} sub-albums}}'**
+  String albumMeta(int count, int subcount);
+
+  /// No description provided for @itemsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Empty} =1{1 item} other{{count} items}}'**
+  String itemsCount(int count);
+
+  /// No description provided for @subalbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Sub-album'**
+  String get subalbum;
+
+  /// No description provided for @newSubalbum.
+  ///
+  /// In en, this message translates to:
+  /// **'New sub-album'**
+  String get newSubalbum;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get moreOptions;
+
+  /// No description provided for @noAlbumsMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No album matches “{query}”'**
+  String noAlbumsMatch(String query);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

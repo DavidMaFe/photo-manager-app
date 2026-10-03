@@ -55,25 +55,25 @@
     }
   },
   "selectionLimitReached": "Solo puedes seleccionar hasta 100 archivos a la vez.",
-  "noFolders": "No tienes ninguna carpeta. Crea una nueva.",
-  "selectFolder": "Selecciona una carpeta",
+  "noFolders": "No tienes ningún álbum. Crea uno nuevo.",
+  "selectFolder": "Selecciona un álbum",
   "quickActionsTitle": "ACCIONES RÁPIDAS",
   "saveAndKeepTitle": "Guardar",
   "saveAndKeepSubtitle": "Guardar y mantener en dispositivo",
   "saveAndDeleteTitle": "Guardar y liberar espacio",
   "saveAndDeleteSubtitle": "Guardar y eliminar del dispositivo",
-  "saveInFolderTitle": "A carpeta",
-  "saveInFolderSubtitle": "Guardar en carpeta",
+  "saveInFolderTitle": "A un álbum",
+  "saveInFolderSubtitle": "Guardar en un álbum",
   "deleteBothTitle": "Eliminar todo",
   "deleteBothSubtitle": "Eliminar de todos los lugares",
   "advancedOptionsTitle": "OPCIONES AVANZADAS",
-  "nameFolder": "Nombre de la carpeta",
+  "nameFolder": "Nombre del álbum",
   "saveInRootTitle": "Guardar en raíz",
-  "saveInRootSubtitle": "Sin carpeta específica",
-  "moveToFolderTitle": "Mover a carpeta existente",
-  "moveToFolderSubtitle": "Selecciona una carpeta",
-  "newFolderTitle": "Crear una nueva carpeta",
-  "newFolderSubtitle": "Escribe el nombre de la carpeta",
+  "saveInRootSubtitle": "Sin álbum específico",
+  "moveToFolderTitle": "Mover a un álbum existente",
+  "moveToFolderSubtitle": "Selecciona un álbum",
+  "newFolderTitle": "Nuevo álbum",
+  "newFolderSubtitle": "Escribe el nombre del álbum",
   "deleteTitle": "Borrar del servidor",
   "deleteSubtitle": "Esta acción es permanente",
   "keepInDeviceTitle": "Mantener el archivo en mi dispositivo",
@@ -93,8 +93,8 @@
   "dontShowAgain": "No mostrar de nuevo",
   "correctManage": "{files} archivos gestionados correctamente.\n",
   "failedManage": "{files} archivos fallidos.",
-  "selectFolderError": "Debes seleccionar una carpeta",
-  "newFolderNameError": "Debes escribir un nombre para la nueva carpeta",
+  "selectFolderError": "Debes seleccionar un álbum",
+  "newFolderNameError": "Debes escribir un nombre para el nuevo álbum",
   "invalidActionError": "Acción inválida",
   "fileCountLabel": "{currentFile} de {totalFiles}",
   "fileTypeNotSupported": "Tipo de archivo no soportado",
@@ -118,32 +118,31 @@
   "fileDownload": "Descargar archivo",
   "loadingVideoError": "Error al cargar el vídeo",
 
-  "foldersTitle": "Carpetas",
-  "folder": "Carpeta",
-  "subfolders": "Subcarpetas",
+  "foldersTitle": "Álbumes",
+  "folder": "Álbum",
+  "subfolders": "Subálbumes",
   "rename": "Renombrar",
   "create": "Crear",
   "save": "Guardar",
-  "folderName": "Nombre de la carpeta",
+  "folderName": "Nombre del álbum",
   "hintFolderName": "Ex: Vacaciones 2024",
   "folderNameRequiredError": "El nombre es obligatorio",
   "folderMaxHundredCharactersError": "Máximo 100 caracteres",
-  "renameFolder": "Renombrar carpeta",
+  "renameFolder": "Renombrar álbum",
   "newName": "Nuevo nombre",
-  "creatingFolder": "Creando carpeta...",
-  "renamingFolder": "Renombrando carpeta...",
-  "deletingFolder": "Eliminando carpeta...",
+  "creatingFolder": "Creando álbum...",
+  "renamingFolder": "Renombrando álbum...",
+  "deletingFolder": "Eliminando álbum...",
   "processing": "Procesando...",
-  "emptyFolders": "No tienes carpetas",
-  "emptyFolder": "Esta carpeta está vacía",
-  "emptyFolderDescription": "Mueve archivos aquí para organizarlos",
-  "createFirstFolder": "Toca el botón + para crear tu primera carpeta",
-  "deleteFolder": "Eliminar carpeta",
-  "deleteEmptyFolder": "¿Estás seguro de que quieres eliminar la carpeta {folderName}?",
-  "deleteFolderWithFiles": "La carpeta {folderName} contiene {files} archivos. ¿Estás seguro de que quieres eliminar todo el contenido?",
-  "deleteFolderWithSubfolders": "La carpeta {folderName} contiene {subfolders} carpetas. ¿Estás seguro de que quieres eliminar todo el contenido?",
-  "deleteFolderWithFilesAndSubfoldersWarning": "La carpeta {folderName} contiene {files} archivos y {subfolders} carpetas. ¿Estás seguro de que quieres eliminar todo el contenido?",
-
+  "emptyFolders": "No tienes álbumes",
+  "emptyFolder": "Este álbum está vacío",
+  "emptyFolderDescription": "Mueve fotos aquí para ordenarlas",
+  "createFirstFolder": "Crea tu primer álbum para ordenar tus fotos",
+  "deleteFolder": "Eliminar álbum",
+  "deleteEmptyFolder": "¿Seguro que quieres eliminar el álbum {folderName}?",
+  "deleteFolderWithFiles": "El álbum {folderName} contiene {files} archivos. ¿Seguro que quieres eliminar todo su contenido?",
+  "deleteFolderWithSubfolders": "El álbum {folderName} contiene {subfolders} subálbumes. ¿Seguro que quieres eliminar todo su contenido?",
+  "deleteFolderWithFilesAndSubfoldersWarning": "El álbum {folderName} contiene {files} archivos y {subfolders} subálbumes. ¿Seguro que quieres eliminar todo su contenido?",
   "syncCurrentState": "Estado actual",
   "syncLast": "Última sincronización",
   "syncEmpty": "Sin sincronizaciones",
@@ -532,5 +531,40 @@
   "deleteFileBody": "Se borrará de tu nube y de este móvil. Podrás recuperarlo desde la papelera durante 30 días.",
   "copyId": "Copiar ID",
   "copiedToClipboard": "Copiado",
-  "statusSafe": "A salvo"
+  "statusSafe": "A salvo",
+
+  "navAlbums": "Álbumes",
+  "searchAlbums": "Buscar álbumes",
+  "newAlbum": "Nuevo",
+  "createAlbum": "Crear álbum",
+  "albumMeta": "{count} · {subcount, plural, =1{1 subálbum} other{{subcount} subálbumes}}",
+  "@albumMeta": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "subcount": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsCount": "{count, plural, =0{Vacío} =1{1 elemento} other{{count} elementos}}",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subalbum": "Subálbum",
+  "newSubalbum": "Nuevo subálbum",
+  "moreOptions": "Más opciones",
+  "noAlbumsMatch": "Ningún álbum coincide con «{query}»",
+  "@noAlbumsMatch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  }
 }

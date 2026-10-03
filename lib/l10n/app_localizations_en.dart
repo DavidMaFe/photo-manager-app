@@ -150,10 +150,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectionLimitReached => 'You can only select up to 100 files at a time.';
 
   @override
-  String get noFolders => 'You don\'t have any folder. Create a new one.';
+  String get noFolders => 'You don\'t have any album. Create a new one.';
 
   @override
-  String get selectFolder => 'Select one folder';
+  String get selectFolder => 'Select an album';
 
   @override
   String get quickActionsTitle => 'QUICK ACTIONS';
@@ -171,10 +171,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveAndDeleteSubtitle => 'Save and delete from the device';
 
   @override
-  String get saveInFolderTitle => 'To folder';
+  String get saveInFolderTitle => 'To an album';
 
   @override
-  String get saveInFolderSubtitle => 'Save in a folder';
+  String get saveInFolderSubtitle => 'Save in an album';
 
   @override
   String get deleteBothTitle => 'Delete all';
@@ -186,25 +186,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advancedOptionsTitle => 'ADVANCED OPTIONS';
 
   @override
-  String get nameFolder => 'Name of the folder';
+  String get nameFolder => 'Album name';
 
   @override
   String get saveInRootTitle => 'Save in root';
 
   @override
-  String get saveInRootSubtitle => 'Without specific folder';
+  String get saveInRootSubtitle => 'Without a specific album';
 
   @override
-  String get moveToFolderTitle => 'Move to existing folder';
+  String get moveToFolderTitle => 'Move to an existing album';
 
   @override
-  String get moveToFolderSubtitle => 'Select one folder';
+  String get moveToFolderSubtitle => 'Select an album';
 
   @override
-  String get newFolderTitle => 'Create a new folder';
+  String get newFolderTitle => 'New album';
 
   @override
-  String get newFolderSubtitle => 'Write the folder name';
+  String get newFolderSubtitle => 'Write the album name';
 
   @override
   String get deleteTitle => 'Delete from server';
@@ -272,10 +272,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get selectFolderError => 'You must select a folder';
+  String get selectFolderError => 'You must select an album';
 
   @override
-  String get newFolderNameError => 'You must write a name for the new folder';
+  String get newFolderNameError => 'You must write a name for the new album';
 
   @override
   String get invalidActionError => 'Invalid action';
@@ -352,13 +352,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadingVideoError => 'Error loading the video';
 
   @override
-  String get foldersTitle => 'Folders';
+  String get foldersTitle => 'Albums';
 
   @override
-  String get folder => 'Folder';
+  String get folder => 'Album';
 
   @override
-  String get subfolders => 'Subfolders';
+  String get subfolders => 'Sub-albums';
 
   @override
   String get rename => 'Rename';
@@ -370,68 +370,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
-  String get folderName => 'Folder name';
+  String get folderName => 'Album name';
 
   @override
   String get hintFolderName => 'Ex: Holidays 2024';
 
   @override
-  String get folderNameRequiredError => 'Folder name is required';
+  String get folderNameRequiredError => 'Album name is required';
 
   @override
   String get folderMaxHundredCharactersError => 'Max 100 characters';
 
   @override
-  String get renameFolder => 'Rename folder';
+  String get renameFolder => 'Rename album';
 
   @override
   String get newName => 'New name';
 
   @override
-  String get creatingFolder => 'Creating folder...';
+  String get creatingFolder => 'Creating album...';
 
   @override
-  String get renamingFolder => 'Renaming folder...';
+  String get renamingFolder => 'Renaming album...';
 
   @override
-  String get deletingFolder => 'Deleting folder...';
+  String get deletingFolder => 'Deleting album...';
 
   @override
   String get processing => 'Processing...';
 
   @override
-  String get emptyFolders => 'You don\'t have folders';
+  String get emptyFolders => 'You don\'t have albums';
 
   @override
-  String get emptyFolder => 'This folder is empty';
+  String get emptyFolder => 'This album is empty';
 
   @override
-  String get emptyFolderDescription => 'Move files here to organize them';
+  String get emptyFolderDescription => 'Move photos here to organise them';
 
   @override
-  String get createFirstFolder => 'Tap the + button to create your first folder';
+  String get createFirstFolder => 'Create your first album to organise your photos';
 
   @override
-  String get deleteFolder => 'Delete folder';
+  String get deleteFolder => 'Delete album';
 
   @override
   String deleteEmptyFolder(Object folderName) {
-    return '¿Are you sure you want to delete the folder $folderName?';
+    return 'Are you sure you want to delete the album $folderName?';
   }
 
   @override
   String deleteFolderWithFiles(Object files, Object folderName) {
-    return 'The folder $folderName contains $files files. Are you sure you want to delete all the content?';
+    return 'The album $folderName contains $files files. Are you sure you want to delete all its content?';
   }
 
   @override
   String deleteFolderWithSubfolders(Object folderName, Object subfolders) {
-    return 'The folder $folderName contains $subfolders folders. Are you sure you want to delete all the content?';
+    return 'The album $folderName contains $subfolders sub-albums. Are you sure you want to delete all its content?';
   }
 
   @override
   String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders) {
-    return 'The folder $folderName contains $files files and $subfolders folders. Are you sure you want to delete all the content?';
+    return 'The album $folderName contains $files files and $subfolders sub-albums. Are you sure you want to delete all its content?';
   }
 
   @override
@@ -564,7 +564,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get files => 'Files';
 
   @override
-  String get folders => 'Folders';
+  String get folders => 'Albums';
 
   @override
   String get devices => 'Devices';
@@ -1376,4 +1376,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusSafe => 'Backed up';
+
+  @override
+  String get navAlbums => 'Albums';
+
+  @override
+  String get searchAlbums => 'Search albums';
+
+  @override
+  String get newAlbum => 'New';
+
+  @override
+  String get createAlbum => 'Create album';
+
+  @override
+  String albumMeta(int count, int subcount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      subcount,
+      locale: localeName,
+      other: '$subcount sub-albums',
+      one: '1 sub-album',
+    );
+    return '$count · $_temp0';
+  }
+
+  @override
+  String itemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+      zero: 'Empty',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get subalbum => 'Sub-album';
+
+  @override
+  String get newSubalbum => 'New sub-album';
+
+  @override
+  String get moreOptions => 'More options';
+
+  @override
+  String noAlbumsMatch(String query) {
+    return 'No album matches “$query”';
+  }
 }

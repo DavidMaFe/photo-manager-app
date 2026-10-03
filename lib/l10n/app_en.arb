@@ -55,25 +55,25 @@
     }
   },
   "selectionLimitReached": "You can only select up to 100 files at a time.",
-  "noFolders": "You don't have any folder. Create a new one.",
-  "selectFolder": "Select one folder",
+  "noFolders": "You don't have any album. Create a new one.",
+  "selectFolder": "Select an album",
   "quickActionsTitle": "QUICK ACTIONS",
   "saveAndKeepTitle": "Save",
   "saveAndKeepSubtitle": "Save and keep in the device",
   "saveAndDeleteTitle": "Save and free up space",
   "saveAndDeleteSubtitle": "Save and delete from the device",
-  "saveInFolderTitle": "To folder",
-  "saveInFolderSubtitle": "Save in a folder",
+  "saveInFolderTitle": "To an album",
+  "saveInFolderSubtitle": "Save in an album",
   "deleteBothTitle": "Delete all",
   "deleteBothSubtitle": "Delete from all places",
   "advancedOptionsTitle": "ADVANCED OPTIONS",
-  "nameFolder": "Name of the folder",
+  "nameFolder": "Album name",
   "saveInRootTitle": "Save in root",
-  "saveInRootSubtitle": "Without specific folder",
-  "moveToFolderTitle": "Move to existing folder",
-  "moveToFolderSubtitle": "Select one folder",
-  "newFolderTitle": "Create a new folder",
-  "newFolderSubtitle": "Write the folder name",
+  "saveInRootSubtitle": "Without a specific album",
+  "moveToFolderTitle": "Move to an existing album",
+  "moveToFolderSubtitle": "Select an album",
+  "newFolderTitle": "New album",
+  "newFolderSubtitle": "Write the album name",
   "deleteTitle": "Delete from server",
   "deleteSubtitle": "This action is permanent",
   "keepInDeviceTitle": "Keep file in my device",
@@ -93,8 +93,8 @@
   "dontShowAgain": "Don't show this again",
   "correctManage": "{files} files were managed successfully",
   "failedManage": "{files} files failed",
-  "selectFolderError": "You must select a folder",
-  "newFolderNameError": "You must write a name for the new folder",
+  "selectFolderError": "You must select an album",
+  "newFolderNameError": "You must write a name for the new album",
   "invalidActionError": "Invalid action",
   "fileCountLabel": "{currentFile} of {totalFiles}",
   "fileTypeNotSupported": "File type not supported",
@@ -118,32 +118,31 @@
   "fileDownload": "Download file",
   "loadingVideoError": "Error loading the video",
 
-  "foldersTitle": "Folders",
-  "folder": "Folder",
-  "subfolders": "Subfolders",
+  "foldersTitle": "Albums",
+  "folder": "Album",
+  "subfolders": "Sub-albums",
   "rename": "Rename",
   "create": "Create",
   "save": "Save",
-  "folderName": "Folder name",
+  "folderName": "Album name",
   "hintFolderName": "Ex: Holidays 2024",
-  "folderNameRequiredError": "Folder name is required",
+  "folderNameRequiredError": "Album name is required",
   "folderMaxHundredCharactersError": "Max 100 characters",
-  "renameFolder": "Rename folder",
+  "renameFolder": "Rename album",
   "newName": "New name",
-  "creatingFolder": "Creating folder...",
-  "renamingFolder": "Renaming folder...",
-  "deletingFolder": "Deleting folder...",
+  "creatingFolder": "Creating album...",
+  "renamingFolder": "Renaming album...",
+  "deletingFolder": "Deleting album...",
   "processing": "Processing...",
-  "emptyFolders": "You don't have folders",
-  "emptyFolder": "This folder is empty",
-  "emptyFolderDescription": "Move files here to organize them",
-  "createFirstFolder": "Tap the + button to create your first folder",
-  "deleteFolder": "Delete folder",
-  "deleteEmptyFolder": "¿Are you sure you want to delete the folder {folderName}?",
-  "deleteFolderWithFiles": "The folder {folderName} contains {files} files. Are you sure you want to delete all the content?",
-  "deleteFolderWithSubfolders": "The folder {folderName} contains {subfolders} folders. Are you sure you want to delete all the content?",
-  "deleteFolderWithFilesAndSubfoldersWarning": "The folder {folderName} contains {files} files and {subfolders} folders. Are you sure you want to delete all the content?",
-
+  "emptyFolders": "You don't have albums",
+  "emptyFolder": "This album is empty",
+  "emptyFolderDescription": "Move photos here to organise them",
+  "createFirstFolder": "Create your first album to organise your photos",
+  "deleteFolder": "Delete album",
+  "deleteEmptyFolder": "Are you sure you want to delete the album {folderName}?",
+  "deleteFolderWithFiles": "The album {folderName} contains {files} files. Are you sure you want to delete all its content?",
+  "deleteFolderWithSubfolders": "The album {folderName} contains {subfolders} sub-albums. Are you sure you want to delete all its content?",
+  "deleteFolderWithFilesAndSubfoldersWarning": "The album {folderName} contains {files} files and {subfolders} sub-albums. Are you sure you want to delete all its content?",
   "syncCurrentState": "Current state",
   "syncLast": "Last synchronization",
   "syncEmpty": "Without synchronizations",
@@ -188,7 +187,7 @@
   "tryAgain": "Try again",
   "storage": "Storage",
   "files": "Files",
-  "folders": "Folders",
+  "folders": "Albums",
   "devices": "Devices",
   "editProfile": "Edit profile",
   "editProfileSubtitle": "Change name and surname",
@@ -532,5 +531,40 @@
   "deleteFileBody": "It will be removed from your cloud and this phone. You can restore it from the trash for 30 days.",
   "copyId": "Copy ID",
   "copiedToClipboard": "Copied",
-  "statusSafe": "Backed up"
+  "statusSafe": "Backed up",
+
+  "navAlbums": "Albums",
+  "searchAlbums": "Search albums",
+  "newAlbum": "New",
+  "createAlbum": "Create album",
+  "albumMeta": "{count} · {subcount, plural, =1{1 sub-album} other{{subcount} sub-albums}}",
+  "@albumMeta": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "subcount": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsCount": "{count, plural, =0{Empty} =1{1 item} other{{count} items}}",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subalbum": "Sub-album",
+  "newSubalbum": "New sub-album",
+  "moreOptions": "More options",
+  "noAlbumsMatch": "No album matches “{query}”",
+  "@noAlbumsMatch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  }
 }

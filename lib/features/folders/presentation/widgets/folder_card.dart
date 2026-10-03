@@ -1,10 +1,17 @@
-import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/config/theme/app_radius.dart';
+import 'package:photo_manager_app/core/widgets/app_context_menu.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 import '../../domain/entities/folder.dart';
 
 
+enum _AlbumMenuAction { rename, delete }
+
+/// Album card: square cover, name and "items · sub-albums".
+/// A long press opens the rename/delete menu.
 class FolderCard extends StatelessWidget {
 
   final Folder folder;
@@ -20,141 +27,85 @@ class FolderCard extends StatelessWidget {
     this.onDelete
   });
 
+  /// "148 · 3 sub-albums", or just the item count without sub-albums.
+  static String metaFor(Folder folder, AppLocalizations l10n) {
+    return folder.subfolderCount > 0
+        ? l10n.albumMeta(folder.fileCount, folder.subfolderCount)
+        : l10n.itemsCount(folder.fileCount);
+  }
+
+  bool get _hasMenu => onRename != null || onDelete != null;
+
+  Future<void> _showMenu(BuildContext context, Offset position) async {
+    final l10n = AppLocalizations.of(context)!;
+    final action = await showAppContextMenu<_AlbumMenuAction>(
+      context,
+      position: position,
+      items: [
+        if (onRename != null)
+          AppMenuItem(value: _AlbumMenuAction.rename, label: l10n.rename, icon: Symbols.edit_rounded),
+        if (onDelete != null)
+          AppMenuItem(
+            value: _AlbumMenuAction.delete,
+            label: l10n.delete,
+            icon: Symbols.delete_rounded,
+            destructive: true,
+          ),
+      ],
+    );
+    switch (action) {
+      case _AlbumMenuAction.rename:
+        onRename?.call();
+      case _AlbumMenuAction.delete:
+        onDelete?.call();
+      case null:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
     final l10n = AppLocalizations.of(context)!;
+    final p = context.palette;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              context.palette.accent.withValues(alpha: 0.1),
-              context.palette.accent.withValues(alpha: 0.05)
-            ]
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: context.palette.accent.withValues(alpha: 0.2),
-            width: 1
-          )
-        ),
-        child: Stack(
+    return Semantics(
+      button: true,
+      label: '${folder.name}, ${metaFor(folder, l10n)}',
+      excludeSemantics: true,
+      onLongPressHint: _hasMenu ? l10n.moreOptions : null,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        onLongPressStart: _hasMenu ? (details) => _showMenu(context, details.globalPosition) : null,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: context.palette.accent.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12)
-                    ),
-                    child: Icon(
-                      Icons.folder,
-                      color: context.palette.accent,
-                      size: 32,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    folder.name,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: context.palette.ink
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.photo_library,
-                        size: 14,
-                        color: context.palette.ink2
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${folder.fileCount}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: context.palette.ink2
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Icon(
-                        Icons.folder,
-                        size: 14,
-                        color: context.palette.ink2
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${folder.subfolderCount}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: context.palette.ink2
-                        ),
-                      )
-                    ],
-                  )
-                ],
+            AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: p.surface2,
+                  borderRadius: BorderRadius.circular(AppRadius.card),
+                ),
+                child: Icon(Symbols.photo_album_rounded, size: 36, color: p.ink3),
               ),
             ),
-            if (onRename != null || onDelete != null)
-              Positioned(
-                top: 4,
-                right: 4,
-                child: PopupMenuButton<String>(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: context.palette.ink2,
-                    size: 20
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)
-                  ),
-                  onSelected: (value) {
-                    if (value == 'rename' && onRename != null) {
-                      onRename!();
-                    } else if (value == 'delete' && onDelete != null) {
-                      onDelete!();
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    if (onRename != null)
-                      PopupMenuItem(
-                        value: 'rename',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.edit, size: 20),
-                            const SizedBox(width: 12),
-                            Text(l10n.rename)
-                          ],
-                        ),
-                      ),
-                    if (onDelete != null)
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, size: 20, color: context.palette.danger),
-                            const SizedBox(width: 12),
-                            Text(l10n.delete, style: TextStyle(color: context.palette.dangerInk))
-                          ],
-                        ),
-                      )
-                  ],
-                ),
-              )
+            const SizedBox(height: 8),
+            Text(
+              folder.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: p.ink),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              metaFor(folder, l10n),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: p.ink2),
+            ),
           ],
         ),
       ),

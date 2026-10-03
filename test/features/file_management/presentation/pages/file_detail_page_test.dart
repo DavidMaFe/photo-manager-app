@@ -68,7 +68,11 @@ void main() {
   }
 
   /// The viewer images show endless loading spinners, so pumpAndSettle never settles.
-  Future<void> settle(WidgetTester tester) => tester.pump(const Duration(milliseconds: 600));
+  Future<void> settle(WidgetTester tester) async {
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+  }
 
   double chromeOpacity(WidgetTester tester) => tester
       .widget<AnimatedOpacity>(find.ancestor(

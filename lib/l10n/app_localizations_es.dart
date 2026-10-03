@@ -150,10 +150,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get selectionLimitReached => 'Solo puedes seleccionar hasta 100 archivos a la vez.';
 
   @override
-  String get noFolders => 'No tienes ninguna carpeta. Crea una nueva.';
+  String get noFolders => 'No tienes ningún álbum. Crea uno nuevo.';
 
   @override
-  String get selectFolder => 'Selecciona una carpeta';
+  String get selectFolder => 'Selecciona un álbum';
 
   @override
   String get quickActionsTitle => 'ACCIONES RÁPIDAS';
@@ -171,10 +171,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get saveAndDeleteSubtitle => 'Guardar y eliminar del dispositivo';
 
   @override
-  String get saveInFolderTitle => 'A carpeta';
+  String get saveInFolderTitle => 'A un álbum';
 
   @override
-  String get saveInFolderSubtitle => 'Guardar en carpeta';
+  String get saveInFolderSubtitle => 'Guardar en un álbum';
 
   @override
   String get deleteBothTitle => 'Eliminar todo';
@@ -186,25 +186,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String get advancedOptionsTitle => 'OPCIONES AVANZADAS';
 
   @override
-  String get nameFolder => 'Nombre de la carpeta';
+  String get nameFolder => 'Nombre del álbum';
 
   @override
   String get saveInRootTitle => 'Guardar en raíz';
 
   @override
-  String get saveInRootSubtitle => 'Sin carpeta específica';
+  String get saveInRootSubtitle => 'Sin álbum específico';
 
   @override
-  String get moveToFolderTitle => 'Mover a carpeta existente';
+  String get moveToFolderTitle => 'Mover a un álbum existente';
 
   @override
-  String get moveToFolderSubtitle => 'Selecciona una carpeta';
+  String get moveToFolderSubtitle => 'Selecciona un álbum';
 
   @override
-  String get newFolderTitle => 'Crear una nueva carpeta';
+  String get newFolderTitle => 'Nuevo álbum';
 
   @override
-  String get newFolderSubtitle => 'Escribe el nombre de la carpeta';
+  String get newFolderSubtitle => 'Escribe el nombre del álbum';
 
   @override
   String get deleteTitle => 'Borrar del servidor';
@@ -272,10 +272,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get selectFolderError => 'Debes seleccionar una carpeta';
+  String get selectFolderError => 'Debes seleccionar un álbum';
 
   @override
-  String get newFolderNameError => 'Debes escribir un nombre para la nueva carpeta';
+  String get newFolderNameError => 'Debes escribir un nombre para el nuevo álbum';
 
   @override
   String get invalidActionError => 'Acción inválida';
@@ -352,13 +352,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get loadingVideoError => 'Error al cargar el vídeo';
 
   @override
-  String get foldersTitle => 'Carpetas';
+  String get foldersTitle => 'Álbumes';
 
   @override
-  String get folder => 'Carpeta';
+  String get folder => 'Álbum';
 
   @override
-  String get subfolders => 'Subcarpetas';
+  String get subfolders => 'Subálbumes';
 
   @override
   String get rename => 'Renombrar';
@@ -370,7 +370,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get save => 'Guardar';
 
   @override
-  String get folderName => 'Nombre de la carpeta';
+  String get folderName => 'Nombre del álbum';
 
   @override
   String get hintFolderName => 'Ex: Vacaciones 2024';
@@ -382,56 +382,56 @@ class AppLocalizationsEs extends AppLocalizations {
   String get folderMaxHundredCharactersError => 'Máximo 100 caracteres';
 
   @override
-  String get renameFolder => 'Renombrar carpeta';
+  String get renameFolder => 'Renombrar álbum';
 
   @override
   String get newName => 'Nuevo nombre';
 
   @override
-  String get creatingFolder => 'Creando carpeta...';
+  String get creatingFolder => 'Creando álbum...';
 
   @override
-  String get renamingFolder => 'Renombrando carpeta...';
+  String get renamingFolder => 'Renombrando álbum...';
 
   @override
-  String get deletingFolder => 'Eliminando carpeta...';
+  String get deletingFolder => 'Eliminando álbum...';
 
   @override
   String get processing => 'Procesando...';
 
   @override
-  String get emptyFolders => 'No tienes carpetas';
+  String get emptyFolders => 'No tienes álbumes';
 
   @override
-  String get emptyFolder => 'Esta carpeta está vacía';
+  String get emptyFolder => 'Este álbum está vacío';
 
   @override
-  String get emptyFolderDescription => 'Mueve archivos aquí para organizarlos';
+  String get emptyFolderDescription => 'Mueve fotos aquí para ordenarlas';
 
   @override
-  String get createFirstFolder => 'Toca el botón + para crear tu primera carpeta';
+  String get createFirstFolder => 'Crea tu primer álbum para ordenar tus fotos';
 
   @override
-  String get deleteFolder => 'Eliminar carpeta';
+  String get deleteFolder => 'Eliminar álbum';
 
   @override
   String deleteEmptyFolder(Object folderName) {
-    return '¿Estás seguro de que quieres eliminar la carpeta $folderName?';
+    return '¿Seguro que quieres eliminar el álbum $folderName?';
   }
 
   @override
   String deleteFolderWithFiles(Object files, Object folderName) {
-    return 'La carpeta $folderName contiene $files archivos. ¿Estás seguro de que quieres eliminar todo el contenido?';
+    return 'El álbum $folderName contiene $files archivos. ¿Seguro que quieres eliminar todo su contenido?';
   }
 
   @override
   String deleteFolderWithSubfolders(Object folderName, Object subfolders) {
-    return 'La carpeta $folderName contiene $subfolders carpetas. ¿Estás seguro de que quieres eliminar todo el contenido?';
+    return 'El álbum $folderName contiene $subfolders subálbumes. ¿Seguro que quieres eliminar todo su contenido?';
   }
 
   @override
   String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders) {
-    return 'La carpeta $folderName contiene $files archivos y $subfolders carpetas. ¿Estás seguro de que quieres eliminar todo el contenido?';
+    return 'El álbum $folderName contiene $files archivos y $subfolders subálbumes. ¿Seguro que quieres eliminar todo su contenido?';
   }
 
   @override
@@ -1376,4 +1376,53 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get statusSafe => 'A salvo';
+
+  @override
+  String get navAlbums => 'Álbumes';
+
+  @override
+  String get searchAlbums => 'Buscar álbumes';
+
+  @override
+  String get newAlbum => 'Nuevo';
+
+  @override
+  String get createAlbum => 'Crear álbum';
+
+  @override
+  String albumMeta(int count, int subcount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      subcount,
+      locale: localeName,
+      other: '$subcount subálbumes',
+      one: '1 subálbum',
+    );
+    return '$count · $_temp0';
+  }
+
+  @override
+  String itemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count elementos',
+      one: '1 elemento',
+      zero: 'Vacío',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get subalbum => 'Subálbum';
+
+  @override
+  String get newSubalbum => 'Nuevo subálbum';
+
+  @override
+  String get moreOptions => 'Más opciones';
+
+  @override
+  String noAlbumsMatch(String query) {
+    return 'Ningún álbum coincide con «$query»';
+  }
 }
