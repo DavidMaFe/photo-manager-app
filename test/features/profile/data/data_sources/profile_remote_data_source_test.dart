@@ -30,7 +30,6 @@ void main() {
   });
 
   group('ProfileRemoteDataSource', () {
-    const testToken = 'test_token_123';
     const baseUrl = 'http://10.0.2.2:8080';
 
     final successResponse = {

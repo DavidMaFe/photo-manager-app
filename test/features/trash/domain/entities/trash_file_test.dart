@@ -8,7 +8,6 @@ void main() {
   group('TrashFile', () {
     final now = DateTime.now();
     final recentlyDeleted = now.subtract(const Duration(days: 2));
-    final deletionImminent = now.subtract(const Duration(days: 25));
 
     group('constructor', () {
       test('should create TrashFile with all required properties', () {

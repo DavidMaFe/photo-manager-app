@@ -13,8 +13,6 @@ import '../../features/file_management/presentation/bloc/manage_folder/manage_fo
 import '../../features/folders/presentation/bloc/folder/folder_bloc.dart';
 import '../../features/folders/presentation/bloc/folder/folder_event.dart' hide LoadFolders;
 import '../../features/folders/presentation/bloc/folder/folder_state.dart';
-import '../../features/folders/presentation/bloc/folder_content/folder_content_bloc.dart';
-import '../../features/folders/presentation/bloc/folder_content/folder_content_event.dart';
 import '../../features/gallery/presentation/bloc/gallery_bloc.dart';
 import '../../features/gallery/presentation/bloc/gallery_event.dart';
 
@@ -101,18 +99,11 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
+  /// Refreshes the views provided above the shell. An open album lives below
+  /// it and refreshes itself through the event bus.
   void _syncAllViews(BuildContext context) {
-
-    try {
-      context.read<GalleryBloc>().add(const RefreshGallery());
-    } catch (e) {}
-
+    context.read<GalleryBloc>().add(const RefreshGallery());
     context.read<FolderBloc>().add(const RefreshFolders());
-
-    try {
-      context.read<FolderContentBloc>().add(const RefreshFolderContent());
-    } catch (e) {}
-
     context.read<ManageFolderBloc>().add(const LoadFolders());
   }
 }

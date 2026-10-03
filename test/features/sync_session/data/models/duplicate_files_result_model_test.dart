@@ -85,7 +85,7 @@ void main() {
         final model = DuplicateFilesResultModel.fromJson(json);
 
         // Assert
-        expect(model.filesToUpload.every((hash) => hash is String), true);
+        expect(model.filesToUpload, everyElement(isA<String>()));
       });
     });
 

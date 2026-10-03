@@ -5,8 +5,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
-import 'package:photo_manager_app/features/sync_session/domain/entities/sync_result.dart';
-import 'package:photo_manager_app/features/sync_session/domain/entities/sync_session.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
@@ -94,15 +92,16 @@ void main() {
 
     group('SyncSessionStarted', () {
       const deviceUuid = 'device-uuid-123';
-      const sessionId = 'session-123';
-      final session = SyncSession(id: sessionId, lastCompletedAt: DateTime(2024, 1, 1));
-      final syncResult = SyncResult(totalFiles: 0, uploadedFiles: 0, failedFiles: 0);
 
       // TODO: These tests are commented out because they require PermissionHelper.requestPhotoAccess()
       // which needs a real BuildContext with AppLocalizations. Permission flow should be tested
       // with widget/integration tests in test/features/sync_session/presentation/pages/
 
-      /* blocTest<SyncSessionBloc, SyncSessionState>(
+      /* const sessionId = 'session-123';
+      final session = SyncSession(id: sessionId, lastCompletedAt: DateTime(2024, 1, 1));
+      final syncResult = SyncResult(totalFiles: 0, uploadedFiles: 0, failedFiles: 0);
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
         'emits success when no files to upload',
         setUp: () {
           when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => deviceUuid);

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
@@ -69,7 +70,7 @@ class ErrorLogger {
     }
 
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    print(buffer.toString());
+    debugPrint(buffer.toString());
   }
 
   /// Log a raw Exception with stack trace
@@ -108,7 +109,7 @@ class ErrorLogger {
     }
 
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    print(buffer.toString());
+    debugPrint(buffer.toString());
   }
 
   /// Log an ApiException with full backend error details
@@ -137,7 +138,7 @@ class ErrorLogger {
     }
 
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    print(buffer.toString());
+    debugPrint(buffer.toString());
   }
 
   /// Log a network/connectivity error
@@ -162,7 +163,7 @@ class ErrorLogger {
     buffer.writeln('║ Type: ${exception.runtimeType}');
     buffer.writeln('║ Message: ${exception.toString()}');
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    print(buffer.toString());
+    debugPrint(buffer.toString());
   }
 
   /// Helper method to log ErrorResponseModel details
@@ -196,7 +197,7 @@ class ErrorLogger {
 
     buffer.writeln('║ Message: $message');
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    print(buffer.toString());
+    debugPrint(buffer.toString());
   }
 
   /// Log warning (for recoverable issues)
@@ -212,6 +213,6 @@ class ErrorLogger {
 
     buffer.writeln('║ Message: $message');
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    print(buffer.toString());
+    debugPrint(buffer.toString());
   }
 }
