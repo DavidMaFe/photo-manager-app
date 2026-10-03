@@ -96,100 +96,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noFiles => 'There is no files to show';
 
   @override
-  String selectedFilesWithLimit(int count) {
-    return '$count / 100 selected';
-  }
-
-  @override
   String get selectionLimitReached => 'You can only select up to 100 files at a time.';
 
   @override
-  String get noFolders => 'You don\'t have any album. Create a new one.';
-
-  @override
-  String get quickActionsTitle => 'QUICK ACTIONS';
-
-  @override
-  String get saveAndKeepTitle => 'Save';
-
-  @override
-  String get saveAndKeepSubtitle => 'Save and keep in the device';
-
-  @override
-  String get saveAndDeleteTitle => 'Save and free up space';
-
-  @override
-  String get saveAndDeleteSubtitle => 'Save and delete from the device';
-
-  @override
-  String get saveInFolderTitle => 'To an album';
-
-  @override
-  String get saveInFolderSubtitle => 'Save in an album';
-
-  @override
-  String get deleteBothTitle => 'Delete all';
-
-  @override
-  String get deleteBothSubtitle => 'Delete from all places';
-
-  @override
-  String get advancedOptionsTitle => 'ADVANCED OPTIONS';
-
-  @override
-  String get nameFolder => 'Album name';
-
-  @override
-  String get saveInRootTitle => 'Save in root';
-
-  @override
-  String get saveInRootSubtitle => 'Without a specific album';
-
-  @override
-  String get moveToFolderTitle => 'Move to an existing album';
-
-  @override
-  String get moveToFolderSubtitle => 'Select an album';
-
-  @override
   String get newFolderTitle => 'New album';
-
-  @override
-  String get newFolderSubtitle => 'Write the album name';
-
-  @override
-  String get deleteTitle => 'Delete from server';
-
-  @override
-  String get deleteSubtitle => 'This action is permanent';
-
-  @override
-  String get keepInDeviceTitle => 'Keep file in my device';
-
-  @override
-  String get keepInDeviceSubtitle => 'The file will continue to occupy local storage space.';
-
-  @override
-  String manageMultipleFiles(Object files) {
-    return 'Manage $files files';
-  }
-
-  @override
-  String get manageSingleFile => 'What would you like to do with this file?';
-
-  @override
-  String get sameActionWarning => 'The same action will be applied to all the selected files';
-
-  @override
-  String applyMultiple(Object files) {
-    return 'Apply to $files';
-  }
-
-  @override
-  String get applySingle => 'Apply';
-
-  @override
-  String get selectAction => 'Please, select an action';
 
   @override
   String get partialManageTitle => 'Partial management';
@@ -218,15 +128,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String failedManage(Object files) {
     return '$files files failed';
   }
-
-  @override
-  String get selectFolderError => 'You must select an album';
-
-  @override
-  String get newFolderNameError => 'You must write a name for the new album';
-
-  @override
-  String get invalidActionError => 'Invalid action';
 
   @override
   String get fileTypeNotSupported => 'File type not supported';
@@ -333,32 +234,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get syncSessionTitle => 'Synchronization';
-
-  @override
-  String get syncSessionInit => 'Starting synchronization...';
-
-  @override
-  String get syncSessionConnecting => 'Connecting with the server';
-
-  @override
-  String get syncSessionFetchingFiles => 'Fetching files from the gallery...';
-
-  @override
-  String get syncSessionWaitWarning => 'This may take a few seconds';
-
-  @override
-  String get syncSessionUploadingFiles => 'Uploading files...';
-
-  @override
-  String syncSessionFiles(Object totalFiles, Object uploadedFiles) {
-    return '$uploadedFiles/$totalFiles files';
-  }
-
-  @override
-  String get syncSessionCancel => 'Cancel synchronization';
-
-  @override
   String get syncSessionCancelWarning => 'Cancel synchronization?';
 
   @override
@@ -368,18 +243,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncSessionCancelConfirm => 'Yes, cancel';
 
   @override
-  String get syncSessionCompleting => 'Completing synchronization...';
-
-  @override
-  String get syncSessionSave => 'Saving information';
-
-  @override
-  String get syncSessionCompleted => 'Synchronization completed';
-
-  @override
-  String get syncSessionFinished => 'Synchronization finished';
-
-  @override
   String get total => 'Total';
 
   @override
@@ -387,23 +250,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failed => 'Failed';
-
-  @override
-  String infoFiles(Object info) {
-    return '$info files';
-  }
-
-  @override
-  String get goBack => 'Return';
-
-  @override
-  String get notificationsTitle => 'Notifications';
-
-  @override
-  String get emptyNotifications => 'Without notifications';
-
-  @override
-  String get noNotificationsYet => 'You don\'t have notifications yet';
 
   @override
   String get close => 'Close';
@@ -770,52 +616,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get configurationLoadError => 'Error loading configuration';
 
   @override
-  String get onboardingWelcomeTitle => 'Welcome to Photo Manager!';
-
-  @override
-  String get onboardingWelcomeMessage => 'To give you the best experience, we need your permission to access your photos, send you notifications, and run automatic syncs in the background.\n\nThese permissions allow us to:\n\n• Automatically sync your photos and videos\n• Keep your files safely backed up\n• Notify you about sync progress\n• Run syncs while the app is closed';
-
-  @override
-  String get onboardingWelcomeButton => 'Get Started';
-
-  @override
-  String get permissionNotificationTitle => 'Notifications';
-
-  @override
-  String get permissionNotificationMessage => 'We\'ll send you notifications to inform you about the progress of your automatic syncs and when they complete successfully or fail.';
-
-  @override
-  String get permissionNotificationDeniedTitle => 'Notifications Disabled';
-
-  @override
-  String get permissionNotificationDeniedMessage => 'Without notification permission, you won\'t receive updates about your sync status. You can enable notifications later in Settings.';
-
-  @override
-  String get permissionBackgroundTitle => 'Background Sync';
-
-  @override
-  String get permissionBackgroundMessageAndroid => 'For automatic sync to work properly, we need to:\n\n• Allow the app to run in the background\n• Disable battery optimization for this app\n\nThis allows your photos to sync even when the app is closed.';
-
-  @override
-  String get permissionBackgroundMessageIOS => 'For automatic sync to work properly, we need to:\n\n• Enable background app refresh\n• Allow the app to run in the background\n\nThis allows your photos to sync even when the app is closed.';
-
-  @override
-  String get permissionBackgroundDeniedTitle => 'Background Sync Disabled';
-
-  @override
-  String get permissionBackgroundDeniedMessage => 'Without permission to run in the background, automatic sync will only work when you have the app open. You can enable this later in Settings.';
-
-  @override
   String get onboardingPermissionsRejectedTitle => 'Some Permissions Were Not Granted';
 
   @override
   String get onboardingPermissionsRejectedMessage => 'You have denied some required permissions. The app will work with limited functionality. You can enable these permissions later from the app settings:';
-
-  @override
-  String get onboardingPermissionsRejectedButton => 'I Understand';
-
-  @override
-  String get onboardingPermissionsRetryButton => 'Try Again';
 
   @override
   String get permissionLimitationPhoto => '• You won\'t be able to sync photos or videos';

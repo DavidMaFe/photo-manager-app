@@ -269,185 +269,17 @@ abstract class AppLocalizations {
   /// **'There is no files to show'**
   String get noFiles;
 
-  /// No description provided for @selectedFilesWithLimit.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} / 100 selected'**
-  String selectedFilesWithLimit(int count);
-
   /// No description provided for @selectionLimitReached.
   ///
   /// In en, this message translates to:
   /// **'You can only select up to 100 files at a time.'**
   String get selectionLimitReached;
 
-  /// No description provided for @noFolders.
-  ///
-  /// In en, this message translates to:
-  /// **'You don\'t have any album. Create a new one.'**
-  String get noFolders;
-
-  /// No description provided for @quickActionsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'QUICK ACTIONS'**
-  String get quickActionsTitle;
-
-  /// No description provided for @saveAndKeepTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save'**
-  String get saveAndKeepTitle;
-
-  /// No description provided for @saveAndKeepSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save and keep in the device'**
-  String get saveAndKeepSubtitle;
-
-  /// No description provided for @saveAndDeleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save and free up space'**
-  String get saveAndDeleteTitle;
-
-  /// No description provided for @saveAndDeleteSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save and delete from the device'**
-  String get saveAndDeleteSubtitle;
-
-  /// No description provided for @saveInFolderTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'To an album'**
-  String get saveInFolderTitle;
-
-  /// No description provided for @saveInFolderSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save in an album'**
-  String get saveInFolderSubtitle;
-
-  /// No description provided for @deleteBothTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete all'**
-  String get deleteBothTitle;
-
-  /// No description provided for @deleteBothSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete from all places'**
-  String get deleteBothSubtitle;
-
-  /// No description provided for @advancedOptionsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'ADVANCED OPTIONS'**
-  String get advancedOptionsTitle;
-
-  /// No description provided for @nameFolder.
-  ///
-  /// In en, this message translates to:
-  /// **'Album name'**
-  String get nameFolder;
-
-  /// No description provided for @saveInRootTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save in root'**
-  String get saveInRootTitle;
-
-  /// No description provided for @saveInRootSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Without a specific album'**
-  String get saveInRootSubtitle;
-
-  /// No description provided for @moveToFolderTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Move to an existing album'**
-  String get moveToFolderTitle;
-
-  /// No description provided for @moveToFolderSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Select an album'**
-  String get moveToFolderSubtitle;
-
   /// No description provided for @newFolderTitle.
   ///
   /// In en, this message translates to:
   /// **'New album'**
   String get newFolderTitle;
-
-  /// No description provided for @newFolderSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Write the album name'**
-  String get newFolderSubtitle;
-
-  /// No description provided for @deleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete from server'**
-  String get deleteTitle;
-
-  /// No description provided for @deleteSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'This action is permanent'**
-  String get deleteSubtitle;
-
-  /// No description provided for @keepInDeviceTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep file in my device'**
-  String get keepInDeviceTitle;
-
-  /// No description provided for @keepInDeviceSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'The file will continue to occupy local storage space.'**
-  String get keepInDeviceSubtitle;
-
-  /// No description provided for @manageMultipleFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage {files} files'**
-  String manageMultipleFiles(Object files);
-
-  /// No description provided for @manageSingleFile.
-  ///
-  /// In en, this message translates to:
-  /// **'What would you like to do with this file?'**
-  String get manageSingleFile;
-
-  /// No description provided for @sameActionWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'The same action will be applied to all the selected files'**
-  String get sameActionWarning;
-
-  /// No description provided for @applyMultiple.
-  ///
-  /// In en, this message translates to:
-  /// **'Apply to {files}'**
-  String applyMultiple(Object files);
-
-  /// No description provided for @applySingle.
-  ///
-  /// In en, this message translates to:
-  /// **'Apply'**
-  String get applySingle;
-
-  /// No description provided for @selectAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Please, select an action'**
-  String get selectAction;
 
   /// No description provided for @partialManageTitle.
   ///
@@ -496,24 +328,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{files} files failed'**
   String failedManage(Object files);
-
-  /// No description provided for @selectFolderError.
-  ///
-  /// In en, this message translates to:
-  /// **'You must select an album'**
-  String get selectFolderError;
-
-  /// No description provided for @newFolderNameError.
-  ///
-  /// In en, this message translates to:
-  /// **'You must write a name for the new album'**
-  String get newFolderNameError;
-
-  /// No description provided for @invalidActionError.
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid action'**
-  String get invalidActionError;
 
   /// No description provided for @fileTypeNotSupported.
   ///
@@ -707,54 +521,6 @@ abstract class AppLocalizations {
   /// **'The album {folderName} contains {files} files and {subfolders} sub-albums. Are you sure you want to delete all its content?'**
   String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders);
 
-  /// No description provided for @syncSessionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronization'**
-  String get syncSessionTitle;
-
-  /// No description provided for @syncSessionInit.
-  ///
-  /// In en, this message translates to:
-  /// **'Starting synchronization...'**
-  String get syncSessionInit;
-
-  /// No description provided for @syncSessionConnecting.
-  ///
-  /// In en, this message translates to:
-  /// **'Connecting with the server'**
-  String get syncSessionConnecting;
-
-  /// No description provided for @syncSessionFetchingFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'Fetching files from the gallery...'**
-  String get syncSessionFetchingFiles;
-
-  /// No description provided for @syncSessionWaitWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'This may take a few seconds'**
-  String get syncSessionWaitWarning;
-
-  /// No description provided for @syncSessionUploadingFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'Uploading files...'**
-  String get syncSessionUploadingFiles;
-
-  /// No description provided for @syncSessionFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'{uploadedFiles}/{totalFiles} files'**
-  String syncSessionFiles(Object totalFiles, Object uploadedFiles);
-
-  /// No description provided for @syncSessionCancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel synchronization'**
-  String get syncSessionCancel;
-
   /// No description provided for @syncSessionCancelWarning.
   ///
   /// In en, this message translates to:
@@ -773,30 +539,6 @@ abstract class AppLocalizations {
   /// **'Yes, cancel'**
   String get syncSessionCancelConfirm;
 
-  /// No description provided for @syncSessionCompleting.
-  ///
-  /// In en, this message translates to:
-  /// **'Completing synchronization...'**
-  String get syncSessionCompleting;
-
-  /// No description provided for @syncSessionSave.
-  ///
-  /// In en, this message translates to:
-  /// **'Saving information'**
-  String get syncSessionSave;
-
-  /// No description provided for @syncSessionCompleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronization completed'**
-  String get syncSessionCompleted;
-
-  /// No description provided for @syncSessionFinished.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronization finished'**
-  String get syncSessionFinished;
-
   /// No description provided for @total.
   ///
   /// In en, this message translates to:
@@ -814,36 +556,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed'**
   String get failed;
-
-  /// No description provided for @infoFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'{info} files'**
-  String infoFiles(Object info);
-
-  /// No description provided for @goBack.
-  ///
-  /// In en, this message translates to:
-  /// **'Return'**
-  String get goBack;
-
-  /// No description provided for @notificationsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications'**
-  String get notificationsTitle;
-
-  /// No description provided for @emptyNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'Without notifications'**
-  String get emptyNotifications;
-
-  /// No description provided for @noNotificationsYet.
-  ///
-  /// In en, this message translates to:
-  /// **'You don\'t have notifications yet'**
-  String get noNotificationsYet;
 
   /// No description provided for @close.
   ///
@@ -1529,78 +1241,6 @@ abstract class AppLocalizations {
   /// **'Error loading configuration'**
   String get configurationLoadError;
 
-  /// No description provided for @onboardingWelcomeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to Photo Manager!'**
-  String get onboardingWelcomeTitle;
-
-  /// No description provided for @onboardingWelcomeMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'To give you the best experience, we need your permission to access your photos, send you notifications, and run automatic syncs in the background.\n\nThese permissions allow us to:\n\n• Automatically sync your photos and videos\n• Keep your files safely backed up\n• Notify you about sync progress\n• Run syncs while the app is closed'**
-  String get onboardingWelcomeMessage;
-
-  /// No description provided for @onboardingWelcomeButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Get Started'**
-  String get onboardingWelcomeButton;
-
-  /// No description provided for @permissionNotificationTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications'**
-  String get permissionNotificationTitle;
-
-  /// No description provided for @permissionNotificationMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'We\'ll send you notifications to inform you about the progress of your automatic syncs and when they complete successfully or fail.'**
-  String get permissionNotificationMessage;
-
-  /// No description provided for @permissionNotificationDeniedTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications Disabled'**
-  String get permissionNotificationDeniedTitle;
-
-  /// No description provided for @permissionNotificationDeniedMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Without notification permission, you won\'t receive updates about your sync status. You can enable notifications later in Settings.'**
-  String get permissionNotificationDeniedMessage;
-
-  /// No description provided for @permissionBackgroundTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Background Sync'**
-  String get permissionBackgroundTitle;
-
-  /// No description provided for @permissionBackgroundMessageAndroid.
-  ///
-  /// In en, this message translates to:
-  /// **'For automatic sync to work properly, we need to:\n\n• Allow the app to run in the background\n• Disable battery optimization for this app\n\nThis allows your photos to sync even when the app is closed.'**
-  String get permissionBackgroundMessageAndroid;
-
-  /// No description provided for @permissionBackgroundMessageIOS.
-  ///
-  /// In en, this message translates to:
-  /// **'For automatic sync to work properly, we need to:\n\n• Enable background app refresh\n• Allow the app to run in the background\n\nThis allows your photos to sync even when the app is closed.'**
-  String get permissionBackgroundMessageIOS;
-
-  /// No description provided for @permissionBackgroundDeniedTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Background Sync Disabled'**
-  String get permissionBackgroundDeniedTitle;
-
-  /// No description provided for @permissionBackgroundDeniedMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Without permission to run in the background, automatic sync will only work when you have the app open. You can enable this later in Settings.'**
-  String get permissionBackgroundDeniedMessage;
-
   /// No description provided for @onboardingPermissionsRejectedTitle.
   ///
   /// In en, this message translates to:
@@ -1612,18 +1252,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have denied some required permissions. The app will work with limited functionality. You can enable these permissions later from the app settings:'**
   String get onboardingPermissionsRejectedMessage;
-
-  /// No description provided for @onboardingPermissionsRejectedButton.
-  ///
-  /// In en, this message translates to:
-  /// **'I Understand'**
-  String get onboardingPermissionsRejectedButton;
-
-  /// No description provided for @onboardingPermissionsRetryButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Try Again'**
-  String get onboardingPermissionsRetryButton;
 
   /// No description provided for @permissionLimitationPhoto.
   ///
