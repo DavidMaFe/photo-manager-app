@@ -1533,4 +1533,19 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get reviewPermissions => 'Revisar permisos';
+
+  @override
+  String get appearance => 'Apariencia';
+
+  @override
+  String get themeSystem => 'Automática';
+
+  @override
+  String get themeSystemHint => 'Sigue el modo de tu teléfono';
+
+  @override
+  String get themeLight => 'Clara';
+
+  @override
+  String get themeDark => 'Oscura';
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
@@ -15,6 +16,8 @@ import 'package:photo_manager_app/features/profile/presentation/pages/profile_pa
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_header.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_stats.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/storage_bar.dart';
+import 'package:photo_manager_app/features/profile/presentation/widgets/theme_mode_sheet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../fixtures/test_data.dart';
 import '../../../../helpers/widget_test_helper.dart';
@@ -28,10 +31,13 @@ class FakeAuthEvent extends Fake implements AuthEvent {}
 void main() {
   late MockProfileBloc mockProfileBloc;
   late MockAuthBloc mockAuthBloc;
+  late UiPreferencesService uiPreferences;
 
   setUpAll(() => registerFallbackValue(FakeAuthEvent()));
 
-  setUp(() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    uiPreferences = UiPreferencesService(await SharedPreferences.getInstance());
     mockProfileBloc = MockProfileBloc();
     mockAuthBloc = MockAuthBloc();
     when(() => mockProfileBloc.stream).thenAnswer((_) => const Stream.empty());
@@ -46,9 +52,16 @@ void main() {
         BlocProvider<ProfileBloc>.value(value: mockProfileBloc),
         BlocProvider<AuthBloc>.value(value: mockAuthBloc),
       ],
-      child: const ProfilePage(),
+      child: ProfilePage(uiPreferences: uiPreferences),
     ));
     await tester.pump();
+  }
+
+  /// The backup summary keeps a spinner running, so pumpAndSettle never settles.
+  Future<void> settle(WidgetTester tester) async {
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
   }
 
   group('ProfilePage', () {
@@ -77,8 +90,9 @@ void main() {
       expect(find.text('2 linked'), findsOneWidget);
       expect(find.text('Emptied after 30 days'), findsOneWidget);
       expect(find.text('Notifications'), findsOneWidget);
+      expect(find.text('Appearance'), findsOneWidget);
       expect(find.text('Password'), findsOneWidget);
-      expect(find.byType(ListRow), findsNWidgets(5));
+      expect(find.byType(ListRow), findsNWidgets(6));
     });
 
     testWidgets('should summarize the backup as off when it cannot be loaded', (tester) async {
@@ -132,6 +146,52 @@ void main() {
 
       // Assert
       expect(find.byType(ErrorDisplay), findsOneWidget);
+    });
+
+    // ==================== APPEARANCE TESTS ====================
+
+    testWidgets('should show the saved appearance', (tester) async {
+      // Arrange
+      await uiPreferences.setThemeMode(ThemeMode.dark);
+
+      // Act
+      await pump(tester, ProfileLoaded(TestProfiles.johnDoeProfile));
+
+      // Assert
+      final row = tester.widget<ListRow>(find.widgetWithText(ListRow, 'Appearance'));
+      expect(row.value, 'Dark');
+    });
+
+    testWidgets('should change the appearance from its sheet', (tester) async {
+      // Arrange
+      await pump(tester, ProfileLoaded(TestProfiles.johnDoeProfile));
+      expect(tester.widget<ListRow>(find.widgetWithText(ListRow, 'Appearance')).value, 'Automatic');
+
+      // Act
+      await tester.tap(find.text('Appearance'));
+      await settle(tester);
+      expect(find.byType(ThemeModeSheet), findsOneWidget);
+      await tester.tap(find.text('Light'));
+      await settle(tester);
+
+      // Assert
+      expect(find.byType(ThemeModeSheet), findsNothing);
+      expect(uiPreferences.themeMode.value, ThemeMode.light);
+      expect(tester.widget<ListRow>(find.widgetWithText(ListRow, 'Appearance')).value, 'Light');
+    });
+
+    testWidgets('should keep the appearance when the sheet is dismissed', (tester) async {
+      // Arrange
+      await pump(tester, ProfileLoaded(TestProfiles.johnDoeProfile));
+      await tester.tap(find.text('Appearance'));
+      await settle(tester);
+
+      // Act
+      await tester.tapAt(const Offset(195, 40));
+      await settle(tester);
+
+      // Assert
+      expect(uiPreferences.themeMode.value, ThemeMode.system);
     });
   });
 }

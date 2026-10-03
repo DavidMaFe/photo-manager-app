@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
+import 'package:photo_manager_app/core/injection_container.dart';
+import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_card.dart';
@@ -18,6 +20,7 @@ import 'package:photo_manager_app/features/profile/presentation/widgets/profile_
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_stats.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/storage_bar.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/sync_config_summary.dart';
+import 'package:photo_manager_app/features/profile/presentation/widgets/theme_mode_sheet.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/profile_bloc.dart';
@@ -29,7 +32,10 @@ class ProfilePage extends StatefulWidget {
   /// Extra passed to the edit profile route to open it on the password section.
   static const String passwordSection = 'password';
 
-  const ProfilePage({super.key});
+  /// Where the theme is saved (injectable for tests).
+  final UiPreferencesService? uiPreferences;
+
+  const ProfilePage({super.key, this.uiPreferences});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -38,6 +44,13 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
 
   final _syncConfigKey = GlobalKey<SyncConfigLoaderState>();
+
+  UiPreferencesService get _uiPreferences => widget.uiPreferences ?? sl<UiPreferencesService>();
+
+  Future<void> _chooseTheme(BuildContext context, ThemeMode current) async {
+    final mode = await ThemeModeSheet.show(context, selected: current);
+    if (mode != null && mode != current) await _uiPreferences.setThemeMode(mode);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,6 +169,15 @@ class _ProfilePageState extends State<ProfilePage> {
                       title: l10n.notifications,
                       value: loading ? null : SyncConfigSummary.notifications(config, l10n),
                       onTap: () => _openSyncSettings(context),
+                    ),
+                    ValueListenableBuilder<ThemeMode>(
+                      valueListenable: _uiPreferences.themeMode,
+                      builder: (context, mode, _) => ListRow(
+                        icon: Symbols.contrast_rounded,
+                        title: l10n.appearance,
+                        value: ThemeModeSheet.labelOf(mode, l10n),
+                        onTap: () => _chooseTheme(context, mode),
+                      ),
                     ),
                     ListRow(
                       icon: Symbols.password_rounded,

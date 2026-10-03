@@ -563,7 +563,7 @@ Eliminar del `.arb` las claves que queden sin uso al final (comprobar con búsqu
 - [x] Tarjeta «Por revisar» → Gestionar con todos los pendientes
 - [x] Proceso de sync y Actividad dentro de Copia (6.12)
 - [x] Pantalla de permisos (6.4)
-- [ ] Apariencia en Perfil
+- [x] Apariencia en Perfil
 - [ ] Alternativas de la sección 9 aplicadas
 
 **En cada fase:** `flutter analyze` limpio, `flutter test` en verde (actualizando los tests de widgets afectados: `login_page_test`, `login_actions_test`, `login_inputs_test`, `synchronization_page_test`, `synchronization_status_card_test`, `synchronization_list_item_test`, `empty_/error_synchronization_state_test`), y prueba manual en un dispositivo en modo claro y oscuro.

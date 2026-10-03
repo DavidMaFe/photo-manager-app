@@ -755,5 +755,11 @@
   "continueLabel": "Continue",
   "later": "Do it later",
   "continueAnyway": "Continue anyway",
-  "reviewPermissions": "Review permissions"
+  "reviewPermissions": "Review permissions",
+
+  "appearance": "Appearance",
+  "themeSystem": "Automatic",
+  "themeSystemHint": "Follows your phone's mode",
+  "themeLight": "Light",
+  "themeDark": "Dark"
 }

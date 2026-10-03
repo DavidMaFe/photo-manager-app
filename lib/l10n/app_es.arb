@@ -755,5 +755,11 @@
   "continueLabel": "Continuar",
   "later": "Hacerlo más tarde",
   "continueAnyway": "Continuar igualmente",
-  "reviewPermissions": "Revisar permisos"
+  "reviewPermissions": "Revisar permisos",
+
+  "appearance": "Apariencia",
+  "themeSystem": "Automática",
+  "themeSystemHint": "Sigue el modo de tu teléfono",
+  "themeLight": "Clara",
+  "themeDark": "Oscura"
 }
