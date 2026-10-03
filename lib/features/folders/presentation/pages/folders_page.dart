@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/config/theme/app_radius.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/empty_state.dart';
+import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
 import 'package:photo_manager_app/core/widgets/screen_header.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_event.dart';
@@ -77,7 +79,13 @@ class _FoldersPageState extends State<FoldersPage> {
                 builder: (context, state) {
 
                   if (state is FolderLoading) {
-                    return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+                    return const MediaGridSkeleton(
+                      itemCount: 6,
+                      columns: 2,
+                      radius: AppRadius.card,
+                      spacing: 14,
+                      padding: EdgeInsets.all(16),
+                    );
                   }
 
                   if (state is FolderLoaded) {

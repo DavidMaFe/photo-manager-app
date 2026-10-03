@@ -452,10 +452,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: context.palette.danger,
-      )
+      SnackBar(content: Text(message))
     );
   }
 

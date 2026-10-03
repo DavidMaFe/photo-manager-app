@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/widgets/empty_state.dart';
+import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/pages/folders_page.dart';
@@ -101,12 +102,12 @@ void main() {
 
     // ==================== LOADING & EMPTY STATE TESTS ====================
 
-    testWidgets('should show a spinner while loading', (tester) async {
+    testWidgets('should show the skeleton while loading', (tester) async {
       // Arrange & Act
       await pumpPage(tester, const FolderLoading());
 
       // Assert
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(MediaGridSkeleton), findsOneWidget);
     });
 
     testWidgets('should show the empty state with a create action', (tester) async {

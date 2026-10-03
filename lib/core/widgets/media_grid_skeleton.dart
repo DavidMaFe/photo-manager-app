@@ -7,8 +7,19 @@ import '../../config/theme/app_spacing.dart';
 /// Esqueleto de carga de rejillas: cuadrados surface2 con un brillo suave.
 class MediaGridSkeleton extends StatefulWidget {
   final int itemCount;
+  final int columns;
+  final double radius;
+  final double spacing;
+  final EdgeInsetsGeometry padding;
 
-  const MediaGridSkeleton({super.key, this.itemCount = 18});
+  const MediaGridSkeleton({
+    super.key,
+    this.itemCount = 18,
+    this.columns = 3,
+    this.radius = AppRadius.thumb,
+    this.spacing = AppSpacing.gridGap,
+    this.padding = const EdgeInsets.fromLTRB(AppSpacing.gridGap, 54, AppSpacing.gridGap, AppSpacing.gridGap),
+  });
 
   @override
   State<MediaGridSkeleton> createState() => _MediaGridSkeletonState();
@@ -39,18 +50,17 @@ class _MediaGridSkeletonState extends State<MediaGridSkeleton>
           ),
           child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.gridGap, 54, AppSpacing.gridGap, AppSpacing.gridGap),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: AppSpacing.gridGap,
-              crossAxisSpacing: AppSpacing.gridGap,
+            padding: widget.padding,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: widget.columns,
+              mainAxisSpacing: widget.spacing,
+              crossAxisSpacing: widget.spacing,
             ),
             itemCount: widget.itemCount,
             itemBuilder: (_, __) => DecoratedBox(
               decoration: BoxDecoration(
                 color: p.surface2,
-                borderRadius: BorderRadius.circular(AppRadius.thumb),
+                borderRadius: BorderRadius.circular(widget.radius),
               ),
             ),
           ),

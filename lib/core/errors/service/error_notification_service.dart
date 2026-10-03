@@ -111,26 +111,18 @@ class ErrorNotificationService {
     Duration duration = const Duration(seconds: 3),
     IconData icon = Icons.check_circle,
   }) {
+    // Dark floating snackbar from the theme; the icon uses the inverse palette.
+    final inverse = context.inversePalette;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            Icon(icon, color: context.palette.onAccent),
+            Icon(icon, color: inverse.safe),
             const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(color: context.palette.onAccent),
-              ),
-            ),
+            Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: context.palette.safe,
         duration: duration,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
       ),
     );
   }

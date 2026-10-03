@@ -72,7 +72,6 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
   Future<void> _requestBatteryExemption() async {
     // Capture messenger before async gap to avoid use_build_context_synchronously.
     final messenger = ScaffoldMessenger.of(context);
-    final palette = context.palette;
 
     final granted =
         await BackgroundTaskPermissionHelper.requestBatteryOptimizationExemption();
@@ -87,7 +86,6 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
               ? 'Optimización de batería desactivada — sync puede ejecutarse'
               : 'Permiso no concedido — sync puede ser bloqueado por el SO',
         ),
-        backgroundColor: granted ? palette.safe : palette.review,
         duration: const Duration(seconds: 3),
       ),
     );
@@ -108,12 +106,11 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
+          const SnackBar(
+            content: Text(
               'Sincronización programada — puede tardar unos minutos en ejecutarse',
             ),
-            backgroundColor: context.palette.accent,
-            duration: const Duration(seconds: 3),
+            duration: Duration(seconds: 3),
           ),
         );
         await _loadDiagnostics();
@@ -123,7 +120,6 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error al programar sync: $e'),
-            backgroundColor: context.palette.danger,
           ),
         );
       }

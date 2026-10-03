@@ -548,14 +548,14 @@ Eliminar del `.arb` las claves que queden sin uso al final (comprobar con búsqu
 - [x] Ningún `Colors.`/`Color(0x` fuera de `config/theme/` (comprobar con `grep -rn "Colors\.\|Color(0x" lib --include=*.dart | grep -v config/theme`).
 - [x] `photo_manager_colors.dart` eliminado.
 
-**Fase 4 · Pantallas** (un commit por feature)
+**Fase 4 · Pantallas** (un commit por feature) ✅
 - [x] Acceso: 6.1, 6.2, 6.3
 - [x] Fotos: 6.6, 6.9 (sin cambios de funcionamiento todavía)
 - [x] Álbumes: 6.10, 6.11
 - [x] Copia: 6.12 (solo visual de tarjeta y lista)
 - [x] Perfil y ajustes: 6.13, 6.14, 6.15, 6.16, 6.17
-- [ ] Estados globales: 6.18
-- [ ] Textos de la sección 8.
+- [x] Estados globales: 6.18
+- [x] Textos de la sección 8.
 
 **Fase 5 · Cambios de funcionamiento**
 - [ ] Navegación de 4 pestañas (6.5)

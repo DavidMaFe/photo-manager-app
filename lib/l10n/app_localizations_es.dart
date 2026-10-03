@@ -12,12 +12,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appTitle => 'Photo Manager';
 
   @override
-  String get welcome => 'Bienvenido';
-
-  @override
-  String get loginTitle => 'Iniciar Sesión';
-
-  @override
   String get emailLabel => 'Correo electrónico';
 
   @override
@@ -39,28 +33,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get forgotPassword => '¿La has olvidado?';
 
   @override
-  String get notHaveAccount => '¿No tienes cuenta? ';
-
-  @override
-  String get signUp => 'Regístrate';
-
-  @override
-  String get createAccount => 'Crear Cuenta';
-
-  @override
   String get accountCreated => '¡Cuenta creada! Por favor inicia sesión';
-
-  @override
-  String get registerTitle => 'Regístrate para comenzar';
 
   @override
   String get nameLabel => 'Nombre';
 
   @override
   String get namePlaceholder => 'Juan';
-
-  @override
-  String get surnameLabel => 'Apellido (opcional)';
 
   @override
   String get surnamePlaceholder => 'Pérez';
@@ -114,32 +93,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get lastWeek => 'Semana pasada';
 
   @override
-  String get pendingSingular => 'Pendiente';
-
-  @override
-  String get pendingPlural => 'Pendientes';
-
-  @override
-  String get pendingFilesInfoSingle => 'Tienes 1 archivo pendiente de gestionar';
-
-  @override
-  String pendingFilesInfo(Object files) {
-    return 'Tienes $files archivos pendientes de gestionar';
-  }
-
-  @override
   String get noFiles => 'No hay archivos que mostrar';
-
-  @override
-  String get syncToHaveFiles => 'Sincroniza tus dispositivos para ver tus archivos';
-
-  @override
-  String get selectedFilesSingle => '1 seleccionado';
-
-  @override
-  String selectedFiles(Object files) {
-    return '$files seleccionados';
-  }
 
   @override
   String selectedFilesWithLimit(int count) {
@@ -151,9 +105,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get noFolders => 'No tienes ningún álbum. Crea uno nuevo.';
-
-  @override
-  String get selectFolder => 'Selecciona un álbum';
 
   @override
   String get quickActionsTitle => 'ACCIONES RÁPIDAS';
@@ -219,9 +170,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get keepInDeviceSubtitle => 'El archivo seguirá ocupando espacio local';
 
   @override
-  String get deleteFromDeviceDescription => 'El archivo se eliminará de tu dispositivo pero seguirá en el servidor';
-
-  @override
   String manageMultipleFiles(Object files) {
     return '$files archivos';
   }
@@ -281,42 +229,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get invalidActionError => 'Acción inválida';
 
   @override
-  String fileCountLabel(Object currentFile, Object totalFiles) {
-    return '$currentFile de $totalFiles';
-  }
-
-  @override
   String get fileTypeNotSupported => 'Tipo de archivo no soportado';
 
   @override
-  String get timePassedInMinutesSingular => 'Hace 1 minuto';
-
-  @override
-  String timePassedInMinutesPlural(Object minutes) {
-    return 'Hace $minutes minutos';
-  }
-
-  @override
-  String get timePassedInHoursSingular => 'Hace 1 hora';
-
-  @override
-  String timePassedInHoursPlural(Object hours) {
-    return 'Hace $hours horas';
-  }
-
-  @override
-  String get timePassedInDaysSingular => 'Hace 1 día';
-
-  @override
-  String timePassedInDaysPlural(Object days) {
-    return 'Hace $days días';
-  }
-
-  @override
   String get fileProperties => 'Propiedades del archivo';
-
-  @override
-  String get filePropertyType => 'Tipo';
 
   @override
   String get filePropertyTypeImage => 'Imagen';
@@ -328,31 +244,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get filePropertyStatus => 'Estado';
 
   @override
-  String get filePropertyStatusManaged => 'Gestionado';
-
-  @override
-  String get filePropertyStatusPending => 'Pendiente';
-
-  @override
   String get filePropertyCapturedAt => 'Fecha de captura';
 
   @override
   String get filePropertyDuration => 'Duración';
 
   @override
-  String get fileDetailManageFile => 'Gestionar';
-
-  @override
-  String get fileShare => 'Compartir archivo';
-
-  @override
-  String get fileDownload => 'Descargar archivo';
-
-  @override
   String get loadingVideoError => 'Error al cargar el vídeo';
-
-  @override
-  String get foldersTitle => 'Álbumes';
 
   @override
   String get folder => 'Álbum';
@@ -435,41 +333,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get syncCurrentState => 'Estado actual';
-
-  @override
-  String get syncLast => 'Última sincronización';
-
-  @override
-  String get syncEmpty => 'Sin sincronizaciones';
-
-  @override
-  String get syncNow => 'Sincronizar ahora';
-
-  @override
-  String get synchronized => 'Sincronizado';
-
-  @override
-  String get syncPending => 'Pendiente';
-
-  @override
-  String syncFiles(Object syncFiles) {
-    return '$syncFiles archivos sincronizados';
-  }
-
-  @override
-  String get notSyncYet => 'Aún no has sincronizado';
-
-  @override
-  String get syncStart => 'Presiona el botón de sincronizar para empezar';
-
-  @override
-  String get syncErrorLoad => 'Error al cargar las sincronizaciones';
-
-  @override
-  String get syncHistoric => 'Historial Reciente';
-
-  @override
   String get syncSessionTitle => 'Sincronización';
 
   @override
@@ -502,9 +365,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get syncSessionCancelDescription => 'Se perderá el progreso actual. Los archivos subidos se mantendrán en el servidor.';
 
   @override
-  String get syncSessionCancelShortDescription => 'La sincronización está en progreso. ¿Deseas cancelar?';
-
-  @override
   String get syncSessionCancelConfirm => 'Sí, cancelar';
 
   @override
@@ -518,9 +378,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get syncSessionFinished => 'Sincronización finalizada';
-
-  @override
-  String get syncSessionError => 'Error en la sincronización';
 
   @override
   String get total => 'Total';
@@ -549,9 +406,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noNotificationsYet => 'Aún no tienes notificaciones';
 
   @override
-  String get errorLoadingProfile => 'Error al cargar el perfil';
-
-  @override
   String get close => 'Cerrar';
 
   @override
@@ -573,49 +427,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editProfile => 'Editar perfil';
 
   @override
-  String get editProfileSubtitle => 'Cambiar nombre y apellidos';
-
-  @override
   String get myDevices => 'Mis dispositivos';
-
-  @override
-  String myDevicesSubtitle(Object devices) {
-    return '$devices dispositivos vinculados';
-  }
 
   @override
   String get trash => 'Papelera';
 
   @override
-  String get trashSubtitle => 'Ver archivos eliminados';
-
-  @override
-  String get syncSettings => 'Ajustes de sincronización';
-
-  @override
-  String get syncSettingsSubtitle => 'Sincronización automática cada 6 horas';
-
-  @override
   String get notifications => 'Notificaciones';
-
-  @override
-  String get notificationsSubtitle => 'Gestionar notificaciones';
 
   @override
   String get trashIsEmpty => 'La papelera está vacía';
 
   @override
   String get trashEmptyDescription => 'Los archivos eliminados aparecerán aquí y se borrarán permanentemente después de 30 días';
-
-  @override
-  String daysRemaining(Object days) {
-    return '${days}d';
-  }
-
-  @override
-  String filesSelected(Object count) {
-    return '$count seleccionados';
-  }
 
   @override
   String get emptyTrash => 'Vaciar';
@@ -643,11 +467,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deletePermanently => 'Eliminar permanentemente';
 
   @override
-  String deleteFilesPermanently(Object count) {
-    return 'Eliminar $count permanentemente';
-  }
-
-  @override
   String get deletePermanentlyConfirmation => '¿Estás seguro de que quieres eliminar permanentemente este archivo? Esta acción no se puede deshacer.';
 
   @override
@@ -664,12 +483,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String filesDeletedPermanently(Object count) {
     return '$count archivos eliminados permanentemente';
   }
-
-  @override
-  String get selectAll => 'Seleccionar todo';
-
-  @override
-  String get deselectAll => 'Deseleccionar todo';
 
   @override
   String get cancel => 'Cancelar';
@@ -720,9 +533,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get errorUnknownTitle => 'Error Desconocido';
-
-  @override
   String get errorUnknown => 'Ocurrió un error inesperado. Por favor inténtalo más tarde.';
 
   @override
@@ -756,7 +566,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get errorValidationTitle => 'Datos Inválidos';
 
   @override
-  String get errorValidation => 'Los datos proporcionados són inválidos.';
+  String get errorValidation => 'Los datos proporcionados son inválidos.';
 
   @override
   String get errorInvalidEmail => 'El formato del email es inválido.';
@@ -805,30 +615,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get errorPasswordRequired => 'Por favor ingresa una contraseña';
 
   @override
-  String get forgotPasswordTitle => 'Recuperar contraseña';
-
-  @override
-  String get forgotPasswordSubtitle => 'Ingresa tu correo electrónico para recibir un código de verificación';
-
-  @override
   String get sendCodeButton => 'Enviar código';
 
   @override
   String get emailSentSuccess => 'Código enviado a tu correo electrónico';
-
-  @override
-  String get validateCodeTitle => 'Verificar código';
-
-  @override
-  String validateCodeSubtitle(String email) {
-    return 'Ingresa el código de 6 dígitos enviado a $email';
-  }
-
-  @override
-  String get codeLabel => 'Código de verificación';
-
-  @override
-  String get codePlaceholder => '123456';
 
   @override
   String get validateCodeButton => 'Verificar código';
@@ -838,18 +628,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get codeResent => 'Código reenviado exitosamente';
-
-  @override
-  String get errorCodeRequired => 'El código es requerido';
-
-  @override
-  String get errorCodeInvalid => 'El código debe tener 6 dígitos';
-
-  @override
-  String get resetPasswordTitle => 'Nueva contraseña';
-
-  @override
-  String get resetPasswordSubtitle => 'Ingresa tu nueva contraseña';
 
   @override
   String get newPasswordLabel => 'Nueva contraseña';
@@ -867,9 +645,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get errorNewPasswordRequired => 'La nueva contraseña es requerida';
 
   @override
-  String get backToLogin => 'Volver al inicio de sesión';
-
-  @override
   String get editProfileTitle => 'Editar perfil';
 
   @override
@@ -880,9 +655,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorCurrentPasswordRequired => 'La contraseña actual es requerida';
-
-  @override
-  String get errorCurrentPasswordIncorrect => 'La contraseña actual es incorrecta';
 
   @override
   String get saveChanges => 'Guardar cambios';
@@ -900,16 +672,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get changePhoto => 'Cambiar foto';
 
   @override
-  String get basicInfoSection => 'Información básica';
-
-  @override
   String get passwordSection => 'Cambiar contraseña';
 
   @override
   String get leavePasswordEmptyHint => 'Déjala en blanco si no quieres cambiarla';
-
-  @override
-  String get savingChanges => 'Guardando cambios...';
 
   @override
   String get january => 'Enero';
@@ -951,9 +717,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get renameDevice => 'Renombrar dispositivo';
 
   @override
-  String get renameDeviceDescription => 'Introduce un nuevo nombre para tu dispositivo';
-
-  @override
   String get deviceName => 'Nombre del dispositivo';
 
   @override
@@ -983,151 +746,28 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noDevicesDescription => 'Los dispositivos aparecerán aquí cuando inicies sesión en la aplicación desde otros dispositivos.';
 
   @override
-  String get devicesLoadError => 'No se pudieron cargar los dispositivos';
-
-  @override
   String get retry => 'Reintentar';
-
-  @override
-  String get syncConfigurationTitle => 'Configuración de Sincronización';
-
-  @override
-  String get syncConfigurationDescription => 'Configura cómo y cuándo se sincronizarán automáticamente tus archivos';
-
-  @override
-  String get enableAutoSync => 'Habilitar sincronización automática';
 
   @override
   String get autoSyncEnabled => 'La sincronización automática está activada';
 
   @override
-  String get autoSyncDisabled => 'La sincronización automática está desactivada';
-
-  @override
-  String get syncFrequencyTitle => 'Frecuencia de sincronización';
-
-  @override
-  String get syncFrequencyDaily => 'Diariamente';
-
-  @override
-  String get syncFrequencyWeekly => 'Semanalmente';
-
-  @override
-  String get syncFrequencyAt => 'a las';
-
-  @override
-  String get syncTimeTitle => 'Hora de sincronización';
-
-  @override
-  String get syncTimeDescription => 'Selecciona la hora a la que deseas que se ejecute la sincronización';
-
-  @override
-  String get selectTime => 'Seleccionar hora';
-
-  @override
-  String get syncDayOfWeekTitle => 'Día de la semana';
-
-  @override
-  String get syncDayOfWeekDescription => 'Selecciona el día en el que deseas que se ejecute la sincronización';
-
-  @override
   String get monday => 'Lunes';
-
-  @override
-  String get tuesday => 'Martes';
-
-  @override
-  String get wednesday => 'Miércoles';
-
-  @override
-  String get thursday => 'Jueves';
-
-  @override
-  String get friday => 'Viernes';
-
-  @override
-  String get saturday => 'Sábado';
-
-  @override
-  String get sunday => 'Domingo';
-
-  @override
-  String get networkPreferenceTitle => 'Preferencia de red';
-
-  @override
-  String get networkPreferenceWifiOnly => 'Solo WiFi';
-
-  @override
-  String get networkPreferenceWifiOnlyDescription => 'La sincronización solo se ejecutará cuando estés conectado a WiFi';
-
-  @override
-  String get networkPreferenceAnyNetwork => 'Cualquier red';
-
-  @override
-  String get networkPreferenceAnyNetworkDescription => 'La sincronización se ejecutará en WiFi o datos móviles';
-
-  @override
-  String get batteryPreferenceTitle => 'Preferencia de batería';
-
-  @override
-  String get batteryPreferenceAny => 'Cualquier nivel de batería';
-
-  @override
-  String get batteryPreferenceAnyDescription => 'La sincronización se ejecutará sin importar el nivel de batería';
-
-  @override
-  String get batteryPreferenceCharging => 'Cargando o batería >15%';
-
-  @override
-  String get batteryPreferenceChargingDescription => 'La sincronización solo se ejecutará cuando el dispositivo esté cargando o tenga más del 15% de batería';
 
   @override
   String get notifyOnSuccess => 'Notificar cuando la sincronización sea exitosa';
 
   @override
-  String get notifyOnSuccessDescription => 'Recibirás una notificación cuando la sincronización se complete correctamente';
-
-  @override
   String get notifyOnFailure => 'Notificar cuando la sincronización falle';
 
   @override
-  String get notifyOnFailureDescription => 'Recibirás una notificación cuando la sincronización falle';
-
-  @override
-  String get saveConfiguration => 'Guardar configuración';
-
-  @override
-  String get savingConfiguration => 'Guardando configuración...';
-
-  @override
   String get configurationSaved => 'Ajustes guardados';
-
-  @override
-  String get configurationSavedDescription => 'Tu configuración de sincronización automática ha sido guardada correctamente';
-
-  @override
-  String get configurationSaveError => 'Error al guardar la configuración';
 
   @override
   String get loadingConfiguration => 'Cargando configuración...';
 
   @override
   String get configurationLoadError => 'Error al cargar la configuración';
-
-  @override
-  String get syncInProgressError => 'Sincronización en progreso';
-
-  @override
-  String get syncInProgressErrorDescription => 'Ya hay una sincronización en progreso. Por favor, espera a que termine antes de iniciar una nueva.';
-
-  @override
-  String get syncInProgressDialogTitle => 'Sincronización en progreso';
-
-  @override
-  String get syncInProgressDialogMessage => 'Una sincronización automática está en progreso en segundo plano. Por favor, espera a que termine antes de iniciar una sincronización manual.';
-
-  @override
-  String get understood => 'Entendido';
 
   @override
   String get onboardingWelcomeTitle => '¡Bienvenido a Photo Manager!';
@@ -1139,16 +779,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get onboardingWelcomeButton => 'Comenzar';
 
   @override
-  String get onboardingGetStarted => 'Empezar configuración';
-
-  @override
   String get permissionNotificationTitle => 'Notificaciones';
 
   @override
   String get permissionNotificationMessage => 'Te enviaremos notificaciones para informarte sobre el progreso de tus sincronizaciones automáticas y cuando se completen exitosamente o fallen.';
-
-  @override
-  String get permissionNotificationContinue => 'Permitir notificaciones';
 
   @override
   String get permissionNotificationDeniedTitle => 'Notificaciones Deshabilitadas';
@@ -1160,16 +794,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get permissionBackgroundTitle => 'Sincronización en Segundo Plano';
 
   @override
-  String get permissionBackgroundMessage => 'Para que la sincronización automática funcione correctamente, la aplicación necesita ejecutarse en segundo plano. Esto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.';
-
-  @override
   String get permissionBackgroundMessageAndroid => 'Para que la sincronización automática funcione correctamente, necesitamos que:\n\n• La aplicación pueda ejecutarse en segundo plano\n• Se desactive la optimización de batería para esta app\n\nEsto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.';
 
   @override
   String get permissionBackgroundMessageIOS => 'Para que la sincronización automática funcione correctamente, necesitamos que:\n\n• Habilites la actualización en segundo plano\n• Permitas que la app se ejecute en segundo plano\n\nEsto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.';
-
-  @override
-  String get permissionBackgroundContinue => 'Permitir sincronización en segundo plano';
 
   @override
   String get permissionBackgroundDeniedTitle => 'Sincronización en Segundo Plano Deshabilitada';
@@ -1197,21 +825,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get permissionLimitationBackground => '• La sincronización automática solo funcionará con la app abierta';
-
-  @override
-  String get onboardingPermissionsAllGrantedTitle => '¡Todo Listo!';
-
-  @override
-  String get onboardingPermissionsAllGrantedMessage => 'Todos los permisos han sido otorgados correctamente. Ya puedes empezar a usar Photo Manager con todas sus funciones.';
-
-  @override
-  String get onboardingPermissionsAllGrantedButton => 'Ir a la galería';
-
-  @override
-  String get errorGalleryPermissionTitle => 'Permiso de Galería Requerido';
-
-  @override
-  String get errorGalleryPermission => 'La aplicación necesita acceso a tu galería para funcionar. Por favor, habilita el permiso en Configuración.';
 
   @override
   String get loginGreeting => 'Hola de nuevo';

@@ -101,18 +101,6 @@ abstract class AppLocalizations {
   /// **'File Manager'**
   String get appTitle;
 
-  /// No description provided for @welcome.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome'**
-  String get welcome;
-
-  /// No description provided for @loginTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Login'**
-  String get loginTitle;
-
   /// No description provided for @emailLabel.
   ///
   /// In en, this message translates to:
@@ -155,35 +143,11 @@ abstract class AppLocalizations {
   /// **'Forgot it?'**
   String get forgotPassword;
 
-  /// No description provided for @notHaveAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'You don\'t have an account? '**
-  String get notHaveAccount;
-
-  /// No description provided for @signUp.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign Up'**
-  String get signUp;
-
-  /// No description provided for @createAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Create Account'**
-  String get createAccount;
-
   /// No description provided for @accountCreated.
   ///
   /// In en, this message translates to:
   /// **'Account created! Please sign in'**
   String get accountCreated;
-
-  /// No description provided for @registerTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign up to get started'**
-  String get registerTitle;
 
   /// No description provided for @nameLabel.
   ///
@@ -196,12 +160,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'John'**
   String get namePlaceholder;
-
-  /// No description provided for @surnameLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Last Name (optional)'**
-  String get surnameLabel;
 
   /// No description provided for @surnamePlaceholder.
   ///
@@ -305,53 +263,11 @@ abstract class AppLocalizations {
   /// **'Last Week'**
   String get lastWeek;
 
-  /// No description provided for @pendingSingular.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending'**
-  String get pendingSingular;
-
-  /// No description provided for @pendingPlural.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending'**
-  String get pendingPlural;
-
-  /// No description provided for @pendingFilesInfoSingle.
-  ///
-  /// In en, this message translates to:
-  /// **'You have 1 file pending to manage'**
-  String get pendingFilesInfoSingle;
-
-  /// No description provided for @pendingFilesInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'You have {files} files pending to manage'**
-  String pendingFilesInfo(Object files);
-
   /// No description provided for @noFiles.
   ///
   /// In en, this message translates to:
   /// **'There is no files to show'**
   String get noFiles;
-
-  /// No description provided for @syncToHaveFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronize your devices to see your files'**
-  String get syncToHaveFiles;
-
-  /// No description provided for @selectedFilesSingle.
-  ///
-  /// In en, this message translates to:
-  /// **'1 selected'**
-  String get selectedFilesSingle;
-
-  /// No description provided for @selectedFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'{files} selected'**
-  String selectedFiles(Object files);
 
   /// No description provided for @selectedFilesWithLimit.
   ///
@@ -370,12 +286,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You don\'t have any album. Create a new one.'**
   String get noFolders;
-
-  /// No description provided for @selectFolder.
-  ///
-  /// In en, this message translates to:
-  /// **'Select an album'**
-  String get selectFolder;
 
   /// No description provided for @quickActionsTitle.
   ///
@@ -503,12 +413,6 @@ abstract class AppLocalizations {
   /// **'The file will continue to occupy local storage space.'**
   String get keepInDeviceSubtitle;
 
-  /// No description provided for @deleteFromDeviceDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'The file will be removed from the device but will remain on the server'**
-  String get deleteFromDeviceDescription;
-
   /// No description provided for @manageMultipleFiles.
   ///
   /// In en, this message translates to:
@@ -611,65 +515,17 @@ abstract class AppLocalizations {
   /// **'Invalid action'**
   String get invalidActionError;
 
-  /// No description provided for @fileCountLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'{currentFile} of {totalFiles}'**
-  String fileCountLabel(Object currentFile, Object totalFiles);
-
   /// No description provided for @fileTypeNotSupported.
   ///
   /// In en, this message translates to:
   /// **'File type not supported'**
   String get fileTypeNotSupported;
 
-  /// No description provided for @timePassedInMinutesSingular.
-  ///
-  /// In en, this message translates to:
-  /// **'1 minute ago'**
-  String get timePassedInMinutesSingular;
-
-  /// No description provided for @timePassedInMinutesPlural.
-  ///
-  /// In en, this message translates to:
-  /// **'{minutes} minutes ago'**
-  String timePassedInMinutesPlural(Object minutes);
-
-  /// No description provided for @timePassedInHoursSingular.
-  ///
-  /// In en, this message translates to:
-  /// **'1 hour ago'**
-  String get timePassedInHoursSingular;
-
-  /// No description provided for @timePassedInHoursPlural.
-  ///
-  /// In en, this message translates to:
-  /// **'{hours} hours ago'**
-  String timePassedInHoursPlural(Object hours);
-
-  /// No description provided for @timePassedInDaysSingular.
-  ///
-  /// In en, this message translates to:
-  /// **'1 day ago'**
-  String get timePassedInDaysSingular;
-
-  /// No description provided for @timePassedInDaysPlural.
-  ///
-  /// In en, this message translates to:
-  /// **'{days} days ago'**
-  String timePassedInDaysPlural(Object days);
-
   /// No description provided for @fileProperties.
   ///
   /// In en, this message translates to:
   /// **'File properties'**
   String get fileProperties;
-
-  /// No description provided for @filePropertyType.
-  ///
-  /// In en, this message translates to:
-  /// **'Type'**
-  String get filePropertyType;
 
   /// No description provided for @filePropertyTypeImage.
   ///
@@ -689,18 +545,6 @@ abstract class AppLocalizations {
   /// **'Status'**
   String get filePropertyStatus;
 
-  /// No description provided for @filePropertyStatusManaged.
-  ///
-  /// In en, this message translates to:
-  /// **'Managed'**
-  String get filePropertyStatusManaged;
-
-  /// No description provided for @filePropertyStatusPending.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending'**
-  String get filePropertyStatusPending;
-
   /// No description provided for @filePropertyCapturedAt.
   ///
   /// In en, this message translates to:
@@ -713,35 +557,11 @@ abstract class AppLocalizations {
   /// **'Duration'**
   String get filePropertyDuration;
 
-  /// No description provided for @fileDetailManageFile.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage'**
-  String get fileDetailManageFile;
-
-  /// No description provided for @fileShare.
-  ///
-  /// In en, this message translates to:
-  /// **'Share file'**
-  String get fileShare;
-
-  /// No description provided for @fileDownload.
-  ///
-  /// In en, this message translates to:
-  /// **'Download file'**
-  String get fileDownload;
-
   /// No description provided for @loadingVideoError.
   ///
   /// In en, this message translates to:
   /// **'Error loading the video'**
   String get loadingVideoError;
-
-  /// No description provided for @foldersTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Albums'**
-  String get foldersTitle;
 
   /// No description provided for @folder.
   ///
@@ -887,72 +707,6 @@ abstract class AppLocalizations {
   /// **'The album {folderName} contains {files} files and {subfolders} sub-albums. Are you sure you want to delete all its content?'**
   String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders);
 
-  /// No description provided for @syncCurrentState.
-  ///
-  /// In en, this message translates to:
-  /// **'Current state'**
-  String get syncCurrentState;
-
-  /// No description provided for @syncLast.
-  ///
-  /// In en, this message translates to:
-  /// **'Last synchronization'**
-  String get syncLast;
-
-  /// No description provided for @syncEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'Without synchronizations'**
-  String get syncEmpty;
-
-  /// No description provided for @syncNow.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronize now'**
-  String get syncNow;
-
-  /// No description provided for @synchronized.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronized'**
-  String get synchronized;
-
-  /// No description provided for @syncPending.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending'**
-  String get syncPending;
-
-  /// No description provided for @syncFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'{syncFiles} synchronized files'**
-  String syncFiles(Object syncFiles);
-
-  /// No description provided for @notSyncYet.
-  ///
-  /// In en, this message translates to:
-  /// **'You have not synchronized yet'**
-  String get notSyncYet;
-
-  /// No description provided for @syncStart.
-  ///
-  /// In en, this message translates to:
-  /// **'Press the synchronization button to start'**
-  String get syncStart;
-
-  /// No description provided for @syncErrorLoad.
-  ///
-  /// In en, this message translates to:
-  /// **'Error loading synchronizations'**
-  String get syncErrorLoad;
-
-  /// No description provided for @syncHistoric.
-  ///
-  /// In en, this message translates to:
-  /// **'Recent Activity'**
-  String get syncHistoric;
-
   /// No description provided for @syncSessionTitle.
   ///
   /// In en, this message translates to:
@@ -1013,12 +767,6 @@ abstract class AppLocalizations {
   /// **'The current progress will be lost. The files uploaded will remain in the server.'**
   String get syncSessionCancelDescription;
 
-  /// No description provided for @syncSessionCancelShortDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'The synchronization is in progress. You want to cancel?'**
-  String get syncSessionCancelShortDescription;
-
   /// No description provided for @syncSessionCancelConfirm.
   ///
   /// In en, this message translates to:
@@ -1048,12 +796,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Synchronization finished'**
   String get syncSessionFinished;
-
-  /// No description provided for @syncSessionError.
-  ///
-  /// In en, this message translates to:
-  /// **'Error in the synchronization'**
-  String get syncSessionError;
 
   /// No description provided for @total.
   ///
@@ -1103,12 +845,6 @@ abstract class AppLocalizations {
   /// **'You don\'t have notifications yet'**
   String get noNotificationsYet;
 
-  /// No description provided for @errorLoadingProfile.
-  ///
-  /// In en, this message translates to:
-  /// **'Error loading the profile'**
-  String get errorLoadingProfile;
-
   /// No description provided for @close.
   ///
   /// In en, this message translates to:
@@ -1151,23 +887,11 @@ abstract class AppLocalizations {
   /// **'Edit profile'**
   String get editProfile;
 
-  /// No description provided for @editProfileSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Change name and surname'**
-  String get editProfileSubtitle;
-
   /// No description provided for @myDevices.
   ///
   /// In en, this message translates to:
   /// **'My devices'**
   String get myDevices;
-
-  /// No description provided for @myDevicesSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'{devices} linked devices'**
-  String myDevicesSubtitle(Object devices);
 
   /// No description provided for @trash.
   ///
@@ -1175,35 +899,11 @@ abstract class AppLocalizations {
   /// **'Trash'**
   String get trash;
 
-  /// No description provided for @trashSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'View deleted files'**
-  String get trashSubtitle;
-
-  /// No description provided for @syncSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync Settings'**
-  String get syncSettings;
-
-  /// No description provided for @syncSettingsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Auto sync every 6 hours'**
-  String get syncSettingsSubtitle;
-
   /// No description provided for @notifications.
   ///
   /// In en, this message translates to:
   /// **'Notifications'**
   String get notifications;
-
-  /// No description provided for @notificationsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage notifications'**
-  String get notificationsSubtitle;
 
   /// No description provided for @trashIsEmpty.
   ///
@@ -1216,18 +916,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deleted files will appear here and be permanently deleted after 30 days'**
   String get trashEmptyDescription;
-
-  /// No description provided for @daysRemaining.
-  ///
-  /// In en, this message translates to:
-  /// **'{days}d'**
-  String daysRemaining(Object days);
-
-  /// No description provided for @filesSelected.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} selected'**
-  String filesSelected(Object count);
 
   /// No description provided for @emptyTrash.
   ///
@@ -1271,12 +959,6 @@ abstract class AppLocalizations {
   /// **'Delete permanently'**
   String get deletePermanently;
 
-  /// No description provided for @deleteFilesPermanently.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete {count} permanently'**
-  String deleteFilesPermanently(Object count);
-
   /// No description provided for @deletePermanentlyConfirmation.
   ///
   /// In en, this message translates to:
@@ -1300,18 +982,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} files permanently deleted'**
   String filesDeletedPermanently(Object count);
-
-  /// No description provided for @selectAll.
-  ///
-  /// In en, this message translates to:
-  /// **'Select all'**
-  String get selectAll;
-
-  /// No description provided for @deselectAll.
-  ///
-  /// In en, this message translates to:
-  /// **'Deselect all'**
-  String get deselectAll;
 
   /// No description provided for @cancel.
   ///
@@ -1396,12 +1066,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yesterday at {hour}'**
   String timeYesterday(Object hour);
-
-  /// No description provided for @errorUnknownTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Unknown Error'**
-  String get errorUnknownTitle;
 
   /// No description provided for @errorUnknown.
   ///
@@ -1559,18 +1223,6 @@ abstract class AppLocalizations {
   /// **'Please enter a password'**
   String get errorPasswordRequired;
 
-  /// No description provided for @forgotPasswordTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Recover password'**
-  String get forgotPasswordTitle;
-
-  /// No description provided for @forgotPasswordSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your email to receive a verification code'**
-  String get forgotPasswordSubtitle;
-
   /// No description provided for @sendCodeButton.
   ///
   /// In en, this message translates to:
@@ -1582,30 +1234,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Code sent to your email'**
   String get emailSentSuccess;
-
-  /// No description provided for @validateCodeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Verify code'**
-  String get validateCodeTitle;
-
-  /// No description provided for @validateCodeSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter the 6-digit code sent to {email}'**
-  String validateCodeSubtitle(String email);
-
-  /// No description provided for @codeLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Verification code'**
-  String get codeLabel;
-
-  /// No description provided for @codePlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'123456'**
-  String get codePlaceholder;
 
   /// No description provided for @validateCodeButton.
   ///
@@ -1624,30 +1252,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Code resent successfully'**
   String get codeResent;
-
-  /// No description provided for @errorCodeRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Code is required'**
-  String get errorCodeRequired;
-
-  /// No description provided for @errorCodeInvalid.
-  ///
-  /// In en, this message translates to:
-  /// **'Code must be 6 digits'**
-  String get errorCodeInvalid;
-
-  /// No description provided for @resetPasswordTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'New password'**
-  String get resetPasswordTitle;
-
-  /// No description provided for @resetPasswordSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your new password'**
-  String get resetPasswordSubtitle;
 
   /// No description provided for @newPasswordLabel.
   ///
@@ -1679,12 +1283,6 @@ abstract class AppLocalizations {
   /// **'New password is required'**
   String get errorNewPasswordRequired;
 
-  /// No description provided for @backToLogin.
-  ///
-  /// In en, this message translates to:
-  /// **'Back to login'**
-  String get backToLogin;
-
   /// No description provided for @editProfileTitle.
   ///
   /// In en, this message translates to:
@@ -1708,12 +1306,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current password is required'**
   String get errorCurrentPasswordRequired;
-
-  /// No description provided for @errorCurrentPasswordIncorrect.
-  ///
-  /// In en, this message translates to:
-  /// **'Current password is incorrect'**
-  String get errorCurrentPasswordIncorrect;
 
   /// No description provided for @saveChanges.
   ///
@@ -1745,12 +1337,6 @@ abstract class AppLocalizations {
   /// **'Change photo'**
   String get changePhoto;
 
-  /// No description provided for @basicInfoSection.
-  ///
-  /// In en, this message translates to:
-  /// **'Basic information'**
-  String get basicInfoSection;
-
   /// No description provided for @passwordSection.
   ///
   /// In en, this message translates to:
@@ -1762,12 +1348,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave it blank if you don\'t want to change it'**
   String get leavePasswordEmptyHint;
-
-  /// No description provided for @savingChanges.
-  ///
-  /// In en, this message translates to:
-  /// **'Saving changes...'**
-  String get savingChanges;
 
   /// No description provided for @january.
   ///
@@ -1847,12 +1427,6 @@ abstract class AppLocalizations {
   /// **'Rename device'**
   String get renameDevice;
 
-  /// No description provided for @renameDeviceDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a new name for your device'**
-  String get renameDeviceDescription;
-
   /// No description provided for @deviceName.
   ///
   /// In en, this message translates to:
@@ -1907,35 +1481,11 @@ abstract class AppLocalizations {
   /// **'Devices will appear here when you sign in to the app from other devices.'**
   String get noDevicesDescription;
 
-  /// No description provided for @devicesLoadError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load devices'**
-  String get devicesLoadError;
-
   /// No description provided for @retry.
   ///
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
-
-  /// No description provided for @syncConfigurationTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync Configuration'**
-  String get syncConfigurationTitle;
-
-  /// No description provided for @syncConfigurationDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Configure how and when your files will be automatically synced'**
-  String get syncConfigurationDescription;
-
-  /// No description provided for @enableAutoSync.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable automatic sync'**
-  String get enableAutoSync;
 
   /// No description provided for @autoSyncEnabled.
   ///
@@ -1943,167 +1493,11 @@ abstract class AppLocalizations {
   /// **'Automatic sync is enabled'**
   String get autoSyncEnabled;
 
-  /// No description provided for @autoSyncDisabled.
-  ///
-  /// In en, this message translates to:
-  /// **'Automatic sync is disabled'**
-  String get autoSyncDisabled;
-
-  /// No description provided for @syncFrequencyTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync frequency'**
-  String get syncFrequencyTitle;
-
-  /// No description provided for @syncFrequencyDaily.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily'**
-  String get syncFrequencyDaily;
-
-  /// No description provided for @syncFrequencyWeekly.
-  ///
-  /// In en, this message translates to:
-  /// **'Weekly'**
-  String get syncFrequencyWeekly;
-
-  /// No description provided for @syncFrequencyAt.
-  ///
-  /// In en, this message translates to:
-  /// **'at'**
-  String get syncFrequencyAt;
-
-  /// No description provided for @syncTimeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync time'**
-  String get syncTimeTitle;
-
-  /// No description provided for @syncTimeDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Select the time you want the sync to run'**
-  String get syncTimeDescription;
-
-  /// No description provided for @selectTime.
-  ///
-  /// In en, this message translates to:
-  /// **'Select time'**
-  String get selectTime;
-
-  /// No description provided for @syncDayOfWeekTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Day of the week'**
-  String get syncDayOfWeekTitle;
-
-  /// No description provided for @syncDayOfWeekDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Select the day you want the sync to run'**
-  String get syncDayOfWeekDescription;
-
   /// No description provided for @monday.
   ///
   /// In en, this message translates to:
   /// **'Monday'**
   String get monday;
-
-  /// No description provided for @tuesday.
-  ///
-  /// In en, this message translates to:
-  /// **'Tuesday'**
-  String get tuesday;
-
-  /// No description provided for @wednesday.
-  ///
-  /// In en, this message translates to:
-  /// **'Wednesday'**
-  String get wednesday;
-
-  /// No description provided for @thursday.
-  ///
-  /// In en, this message translates to:
-  /// **'Thursday'**
-  String get thursday;
-
-  /// No description provided for @friday.
-  ///
-  /// In en, this message translates to:
-  /// **'Friday'**
-  String get friday;
-
-  /// No description provided for @saturday.
-  ///
-  /// In en, this message translates to:
-  /// **'Saturday'**
-  String get saturday;
-
-  /// No description provided for @sunday.
-  ///
-  /// In en, this message translates to:
-  /// **'Sunday'**
-  String get sunday;
-
-  /// No description provided for @networkPreferenceTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Network preference'**
-  String get networkPreferenceTitle;
-
-  /// No description provided for @networkPreferenceWifiOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'WiFi only'**
-  String get networkPreferenceWifiOnly;
-
-  /// No description provided for @networkPreferenceWifiOnlyDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync will only run when connected to WiFi'**
-  String get networkPreferenceWifiOnlyDescription;
-
-  /// No description provided for @networkPreferenceAnyNetwork.
-  ///
-  /// In en, this message translates to:
-  /// **'Any network'**
-  String get networkPreferenceAnyNetwork;
-
-  /// No description provided for @networkPreferenceAnyNetworkDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync will run on WiFi or mobile data'**
-  String get networkPreferenceAnyNetworkDescription;
-
-  /// No description provided for @batteryPreferenceTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Battery preference'**
-  String get batteryPreferenceTitle;
-
-  /// No description provided for @batteryPreferenceAny.
-  ///
-  /// In en, this message translates to:
-  /// **'Any battery level'**
-  String get batteryPreferenceAny;
-
-  /// No description provided for @batteryPreferenceAnyDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync will run regardless of battery level'**
-  String get batteryPreferenceAnyDescription;
-
-  /// No description provided for @batteryPreferenceCharging.
-  ///
-  /// In en, this message translates to:
-  /// **'Charging or battery >15%'**
-  String get batteryPreferenceCharging;
-
-  /// No description provided for @batteryPreferenceChargingDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync will only run when device is charging or has more than 15% battery'**
-  String get batteryPreferenceChargingDescription;
 
   /// No description provided for @notifyOnSuccess.
   ///
@@ -2111,53 +1505,17 @@ abstract class AppLocalizations {
   /// **'Notify when sync is successful'**
   String get notifyOnSuccess;
 
-  /// No description provided for @notifyOnSuccessDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'You will receive a notification when sync completes successfully'**
-  String get notifyOnSuccessDescription;
-
   /// No description provided for @notifyOnFailure.
   ///
   /// In en, this message translates to:
   /// **'Notify when sync fails'**
   String get notifyOnFailure;
 
-  /// No description provided for @notifyOnFailureDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'You will receive a notification when sync fails'**
-  String get notifyOnFailureDescription;
-
-  /// No description provided for @saveConfiguration.
-  ///
-  /// In en, this message translates to:
-  /// **'Save configuration'**
-  String get saveConfiguration;
-
-  /// No description provided for @savingConfiguration.
-  ///
-  /// In en, this message translates to:
-  /// **'Saving configuration...'**
-  String get savingConfiguration;
-
   /// No description provided for @configurationSaved.
   ///
   /// In en, this message translates to:
   /// **'Settings saved'**
   String get configurationSaved;
-
-  /// No description provided for @configurationSavedDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Your automatic sync configuration has been saved successfully'**
-  String get configurationSavedDescription;
-
-  /// No description provided for @configurationSaveError.
-  ///
-  /// In en, this message translates to:
-  /// **'Error saving configuration'**
-  String get configurationSaveError;
 
   /// No description provided for @loadingConfiguration.
   ///
@@ -2170,36 +1528,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error loading configuration'**
   String get configurationLoadError;
-
-  /// No description provided for @syncInProgressError.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync in progress'**
-  String get syncInProgressError;
-
-  /// No description provided for @syncInProgressErrorDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'A sync is already in progress. Please wait for it to finish before starting a new one.'**
-  String get syncInProgressErrorDescription;
-
-  /// No description provided for @syncInProgressDialogTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync in progress'**
-  String get syncInProgressDialogTitle;
-
-  /// No description provided for @syncInProgressDialogMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'An automatic sync is in progress in the background. Please wait for it to finish before starting a manual sync.'**
-  String get syncInProgressDialogMessage;
-
-  /// No description provided for @understood.
-  ///
-  /// In en, this message translates to:
-  /// **'Understood'**
-  String get understood;
 
   /// No description provided for @onboardingWelcomeTitle.
   ///
@@ -2219,12 +1547,6 @@ abstract class AppLocalizations {
   /// **'Get Started'**
   String get onboardingWelcomeButton;
 
-  /// No description provided for @onboardingGetStarted.
-  ///
-  /// In en, this message translates to:
-  /// **'Start setup'**
-  String get onboardingGetStarted;
-
   /// No description provided for @permissionNotificationTitle.
   ///
   /// In en, this message translates to:
@@ -2236,12 +1558,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We\'ll send you notifications to inform you about the progress of your automatic syncs and when they complete successfully or fail.'**
   String get permissionNotificationMessage;
-
-  /// No description provided for @permissionNotificationContinue.
-  ///
-  /// In en, this message translates to:
-  /// **'Allow Notifications'**
-  String get permissionNotificationContinue;
 
   /// No description provided for @permissionNotificationDeniedTitle.
   ///
@@ -2261,12 +1577,6 @@ abstract class AppLocalizations {
   /// **'Background Sync'**
   String get permissionBackgroundTitle;
 
-  /// No description provided for @permissionBackgroundMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'For automatic sync to work properly, the app needs to run in the background. This allows your photos to sync even when the app is closed.'**
-  String get permissionBackgroundMessage;
-
   /// No description provided for @permissionBackgroundMessageAndroid.
   ///
   /// In en, this message translates to:
@@ -2278,12 +1588,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'For automatic sync to work properly, we need to:\n\n• Enable background app refresh\n• Allow the app to run in the background\n\nThis allows your photos to sync even when the app is closed.'**
   String get permissionBackgroundMessageIOS;
-
-  /// No description provided for @permissionBackgroundContinue.
-  ///
-  /// In en, this message translates to:
-  /// **'Allow Background Sync'**
-  String get permissionBackgroundContinue;
 
   /// No description provided for @permissionBackgroundDeniedTitle.
   ///
@@ -2338,36 +1642,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'• Automatic sync will only work with the app open'**
   String get permissionLimitationBackground;
-
-  /// No description provided for @onboardingPermissionsAllGrantedTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'All Set!'**
-  String get onboardingPermissionsAllGrantedTitle;
-
-  /// No description provided for @onboardingPermissionsAllGrantedMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'All permissions have been granted successfully. You can now start using Photo Manager with all its features.'**
-  String get onboardingPermissionsAllGrantedMessage;
-
-  /// No description provided for @onboardingPermissionsAllGrantedButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Go to Gallery'**
-  String get onboardingPermissionsAllGrantedButton;
-
-  /// No description provided for @errorGalleryPermissionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Gallery Permission Required'**
-  String get errorGalleryPermissionTitle;
-
-  /// No description provided for @errorGalleryPermission.
-  ///
-  /// In en, this message translates to:
-  /// **'The app needs access to your gallery to work. Please enable the permission in Settings.'**
-  String get errorGalleryPermission;
 
   /// No description provided for @loginGreeting.
   ///

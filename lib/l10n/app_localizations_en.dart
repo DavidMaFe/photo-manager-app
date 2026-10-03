@@ -12,12 +12,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'File Manager';
 
   @override
-  String get welcome => 'Welcome';
-
-  @override
-  String get loginTitle => 'Login';
-
-  @override
   String get emailLabel => 'Email';
 
   @override
@@ -39,28 +33,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotPassword => 'Forgot it?';
 
   @override
-  String get notHaveAccount => 'You don\'t have an account? ';
-
-  @override
-  String get signUp => 'Sign Up';
-
-  @override
-  String get createAccount => 'Create Account';
-
-  @override
   String get accountCreated => 'Account created! Please sign in';
-
-  @override
-  String get registerTitle => 'Sign up to get started';
 
   @override
   String get nameLabel => 'Name';
 
   @override
   String get namePlaceholder => 'John';
-
-  @override
-  String get surnameLabel => 'Last Name (optional)';
 
   @override
   String get surnamePlaceholder => 'Doe';
@@ -114,32 +93,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lastWeek => 'Last Week';
 
   @override
-  String get pendingSingular => 'Pending';
-
-  @override
-  String get pendingPlural => 'Pending';
-
-  @override
-  String get pendingFilesInfoSingle => 'You have 1 file pending to manage';
-
-  @override
-  String pendingFilesInfo(Object files) {
-    return 'You have $files files pending to manage';
-  }
-
-  @override
   String get noFiles => 'There is no files to show';
-
-  @override
-  String get syncToHaveFiles => 'Synchronize your devices to see your files';
-
-  @override
-  String get selectedFilesSingle => '1 selected';
-
-  @override
-  String selectedFiles(Object files) {
-    return '$files selected';
-  }
 
   @override
   String selectedFilesWithLimit(int count) {
@@ -151,9 +105,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noFolders => 'You don\'t have any album. Create a new one.';
-
-  @override
-  String get selectFolder => 'Select an album';
 
   @override
   String get quickActionsTitle => 'QUICK ACTIONS';
@@ -219,9 +170,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get keepInDeviceSubtitle => 'The file will continue to occupy local storage space.';
 
   @override
-  String get deleteFromDeviceDescription => 'The file will be removed from the device but will remain on the server';
-
-  @override
   String manageMultipleFiles(Object files) {
     return 'Manage $files files';
   }
@@ -281,42 +229,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidActionError => 'Invalid action';
 
   @override
-  String fileCountLabel(Object currentFile, Object totalFiles) {
-    return '$currentFile of $totalFiles';
-  }
-
-  @override
   String get fileTypeNotSupported => 'File type not supported';
 
   @override
-  String get timePassedInMinutesSingular => '1 minute ago';
-
-  @override
-  String timePassedInMinutesPlural(Object minutes) {
-    return '$minutes minutes ago';
-  }
-
-  @override
-  String get timePassedInHoursSingular => '1 hour ago';
-
-  @override
-  String timePassedInHoursPlural(Object hours) {
-    return '$hours hours ago';
-  }
-
-  @override
-  String get timePassedInDaysSingular => '1 day ago';
-
-  @override
-  String timePassedInDaysPlural(Object days) {
-    return '$days days ago';
-  }
-
-  @override
   String get fileProperties => 'File properties';
-
-  @override
-  String get filePropertyType => 'Type';
 
   @override
   String get filePropertyTypeImage => 'Image';
@@ -328,31 +244,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filePropertyStatus => 'Status';
 
   @override
-  String get filePropertyStatusManaged => 'Managed';
-
-  @override
-  String get filePropertyStatusPending => 'Pending';
-
-  @override
   String get filePropertyCapturedAt => 'Captured at';
 
   @override
   String get filePropertyDuration => 'Duration';
 
   @override
-  String get fileDetailManageFile => 'Manage';
-
-  @override
-  String get fileShare => 'Share file';
-
-  @override
-  String get fileDownload => 'Download file';
-
-  @override
   String get loadingVideoError => 'Error loading the video';
-
-  @override
-  String get foldersTitle => 'Albums';
 
   @override
   String get folder => 'Album';
@@ -435,41 +333,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get syncCurrentState => 'Current state';
-
-  @override
-  String get syncLast => 'Last synchronization';
-
-  @override
-  String get syncEmpty => 'Without synchronizations';
-
-  @override
-  String get syncNow => 'Synchronize now';
-
-  @override
-  String get synchronized => 'Synchronized';
-
-  @override
-  String get syncPending => 'Pending';
-
-  @override
-  String syncFiles(Object syncFiles) {
-    return '$syncFiles synchronized files';
-  }
-
-  @override
-  String get notSyncYet => 'You have not synchronized yet';
-
-  @override
-  String get syncStart => 'Press the synchronization button to start';
-
-  @override
-  String get syncErrorLoad => 'Error loading synchronizations';
-
-  @override
-  String get syncHistoric => 'Recent Activity';
-
-  @override
   String get syncSessionTitle => 'Synchronization';
 
   @override
@@ -502,9 +365,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncSessionCancelDescription => 'The current progress will be lost. The files uploaded will remain in the server.';
 
   @override
-  String get syncSessionCancelShortDescription => 'The synchronization is in progress. You want to cancel?';
-
-  @override
   String get syncSessionCancelConfirm => 'Yes, cancel';
 
   @override
@@ -518,9 +378,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncSessionFinished => 'Synchronization finished';
-
-  @override
-  String get syncSessionError => 'Error in the synchronization';
 
   @override
   String get total => 'Total';
@@ -549,9 +406,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noNotificationsYet => 'You don\'t have notifications yet';
 
   @override
-  String get errorLoadingProfile => 'Error loading the profile';
-
-  @override
   String get close => 'Close';
 
   @override
@@ -573,49 +427,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editProfile => 'Edit profile';
 
   @override
-  String get editProfileSubtitle => 'Change name and surname';
-
-  @override
   String get myDevices => 'My devices';
-
-  @override
-  String myDevicesSubtitle(Object devices) {
-    return '$devices linked devices';
-  }
 
   @override
   String get trash => 'Trash';
 
   @override
-  String get trashSubtitle => 'View deleted files';
-
-  @override
-  String get syncSettings => 'Sync Settings';
-
-  @override
-  String get syncSettingsSubtitle => 'Auto sync every 6 hours';
-
-  @override
   String get notifications => 'Notifications';
-
-  @override
-  String get notificationsSubtitle => 'Manage notifications';
 
   @override
   String get trashIsEmpty => 'Trash is empty';
 
   @override
   String get trashEmptyDescription => 'Deleted files will appear here and be permanently deleted after 30 days';
-
-  @override
-  String daysRemaining(Object days) {
-    return '${days}d';
-  }
-
-  @override
-  String filesSelected(Object count) {
-    return '$count selected';
-  }
 
   @override
   String get emptyTrash => 'Empty';
@@ -643,11 +467,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deletePermanently => 'Delete permanently';
 
   @override
-  String deleteFilesPermanently(Object count) {
-    return 'Delete $count permanently';
-  }
-
-  @override
   String get deletePermanentlyConfirmation => 'Are you sure you want to permanently delete this file? This action cannot be undone.';
 
   @override
@@ -664,12 +483,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String filesDeletedPermanently(Object count) {
     return '$count files permanently deleted';
   }
-
-  @override
-  String get selectAll => 'Select all';
-
-  @override
-  String get deselectAll => 'Deselect all';
 
   @override
   String get cancel => 'Cancel';
@@ -718,9 +531,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String timeYesterday(Object hour) {
     return 'Yesterday at $hour';
   }
-
-  @override
-  String get errorUnknownTitle => 'Unknown Error';
 
   @override
   String get errorUnknown => 'An unexpected error ocurred. Please, try again later.';
@@ -805,30 +615,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorPasswordRequired => 'Please enter a password';
 
   @override
-  String get forgotPasswordTitle => 'Recover password';
-
-  @override
-  String get forgotPasswordSubtitle => 'Enter your email to receive a verification code';
-
-  @override
   String get sendCodeButton => 'Send code';
 
   @override
   String get emailSentSuccess => 'Code sent to your email';
-
-  @override
-  String get validateCodeTitle => 'Verify code';
-
-  @override
-  String validateCodeSubtitle(String email) {
-    return 'Enter the 6-digit code sent to $email';
-  }
-
-  @override
-  String get codeLabel => 'Verification code';
-
-  @override
-  String get codePlaceholder => '123456';
 
   @override
   String get validateCodeButton => 'Verify code';
@@ -838,18 +628,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get codeResent => 'Code resent successfully';
-
-  @override
-  String get errorCodeRequired => 'Code is required';
-
-  @override
-  String get errorCodeInvalid => 'Code must be 6 digits';
-
-  @override
-  String get resetPasswordTitle => 'New password';
-
-  @override
-  String get resetPasswordSubtitle => 'Enter your new password';
 
   @override
   String get newPasswordLabel => 'New password';
@@ -867,9 +645,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorNewPasswordRequired => 'New password is required';
 
   @override
-  String get backToLogin => 'Back to login';
-
-  @override
   String get editProfileTitle => 'Edit profile';
 
   @override
@@ -880,9 +655,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorCurrentPasswordRequired => 'Current password is required';
-
-  @override
-  String get errorCurrentPasswordIncorrect => 'Current password is incorrect';
 
   @override
   String get saveChanges => 'Save changes';
@@ -900,16 +672,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changePhoto => 'Change photo';
 
   @override
-  String get basicInfoSection => 'Basic information';
-
-  @override
   String get passwordSection => 'Change password';
 
   @override
   String get leavePasswordEmptyHint => 'Leave it blank if you don\'t want to change it';
-
-  @override
-  String get savingChanges => 'Saving changes...';
 
   @override
   String get january => 'January';
@@ -951,9 +717,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get renameDevice => 'Rename device';
 
   @override
-  String get renameDeviceDescription => 'Enter a new name for your device';
-
-  @override
   String get deviceName => 'Device name';
 
   @override
@@ -983,151 +746,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noDevicesDescription => 'Devices will appear here when you sign in to the app from other devices.';
 
   @override
-  String get devicesLoadError => 'Could not load devices';
-
-  @override
   String get retry => 'Retry';
-
-  @override
-  String get syncConfigurationTitle => 'Sync Configuration';
-
-  @override
-  String get syncConfigurationDescription => 'Configure how and when your files will be automatically synced';
-
-  @override
-  String get enableAutoSync => 'Enable automatic sync';
 
   @override
   String get autoSyncEnabled => 'Automatic sync is enabled';
 
   @override
-  String get autoSyncDisabled => 'Automatic sync is disabled';
-
-  @override
-  String get syncFrequencyTitle => 'Sync frequency';
-
-  @override
-  String get syncFrequencyDaily => 'Daily';
-
-  @override
-  String get syncFrequencyWeekly => 'Weekly';
-
-  @override
-  String get syncFrequencyAt => 'at';
-
-  @override
-  String get syncTimeTitle => 'Sync time';
-
-  @override
-  String get syncTimeDescription => 'Select the time you want the sync to run';
-
-  @override
-  String get selectTime => 'Select time';
-
-  @override
-  String get syncDayOfWeekTitle => 'Day of the week';
-
-  @override
-  String get syncDayOfWeekDescription => 'Select the day you want the sync to run';
-
-  @override
   String get monday => 'Monday';
-
-  @override
-  String get tuesday => 'Tuesday';
-
-  @override
-  String get wednesday => 'Wednesday';
-
-  @override
-  String get thursday => 'Thursday';
-
-  @override
-  String get friday => 'Friday';
-
-  @override
-  String get saturday => 'Saturday';
-
-  @override
-  String get sunday => 'Sunday';
-
-  @override
-  String get networkPreferenceTitle => 'Network preference';
-
-  @override
-  String get networkPreferenceWifiOnly => 'WiFi only';
-
-  @override
-  String get networkPreferenceWifiOnlyDescription => 'Sync will only run when connected to WiFi';
-
-  @override
-  String get networkPreferenceAnyNetwork => 'Any network';
-
-  @override
-  String get networkPreferenceAnyNetworkDescription => 'Sync will run on WiFi or mobile data';
-
-  @override
-  String get batteryPreferenceTitle => 'Battery preference';
-
-  @override
-  String get batteryPreferenceAny => 'Any battery level';
-
-  @override
-  String get batteryPreferenceAnyDescription => 'Sync will run regardless of battery level';
-
-  @override
-  String get batteryPreferenceCharging => 'Charging or battery >15%';
-
-  @override
-  String get batteryPreferenceChargingDescription => 'Sync will only run when device is charging or has more than 15% battery';
 
   @override
   String get notifyOnSuccess => 'Notify when sync is successful';
 
   @override
-  String get notifyOnSuccessDescription => 'You will receive a notification when sync completes successfully';
-
-  @override
   String get notifyOnFailure => 'Notify when sync fails';
 
   @override
-  String get notifyOnFailureDescription => 'You will receive a notification when sync fails';
-
-  @override
-  String get saveConfiguration => 'Save configuration';
-
-  @override
-  String get savingConfiguration => 'Saving configuration...';
-
-  @override
   String get configurationSaved => 'Settings saved';
-
-  @override
-  String get configurationSavedDescription => 'Your automatic sync configuration has been saved successfully';
-
-  @override
-  String get configurationSaveError => 'Error saving configuration';
 
   @override
   String get loadingConfiguration => 'Loading configuration...';
 
   @override
   String get configurationLoadError => 'Error loading configuration';
-
-  @override
-  String get syncInProgressError => 'Sync in progress';
-
-  @override
-  String get syncInProgressErrorDescription => 'A sync is already in progress. Please wait for it to finish before starting a new one.';
-
-  @override
-  String get syncInProgressDialogTitle => 'Sync in progress';
-
-  @override
-  String get syncInProgressDialogMessage => 'An automatic sync is in progress in the background. Please wait for it to finish before starting a manual sync.';
-
-  @override
-  String get understood => 'Understood';
 
   @override
   String get onboardingWelcomeTitle => 'Welcome to Photo Manager!';
@@ -1139,16 +779,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingWelcomeButton => 'Get Started';
 
   @override
-  String get onboardingGetStarted => 'Start setup';
-
-  @override
   String get permissionNotificationTitle => 'Notifications';
 
   @override
   String get permissionNotificationMessage => 'We\'ll send you notifications to inform you about the progress of your automatic syncs and when they complete successfully or fail.';
-
-  @override
-  String get permissionNotificationContinue => 'Allow Notifications';
 
   @override
   String get permissionNotificationDeniedTitle => 'Notifications Disabled';
@@ -1160,16 +794,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permissionBackgroundTitle => 'Background Sync';
 
   @override
-  String get permissionBackgroundMessage => 'For automatic sync to work properly, the app needs to run in the background. This allows your photos to sync even when the app is closed.';
-
-  @override
   String get permissionBackgroundMessageAndroid => 'For automatic sync to work properly, we need to:\n\n• Allow the app to run in the background\n• Disable battery optimization for this app\n\nThis allows your photos to sync even when the app is closed.';
 
   @override
   String get permissionBackgroundMessageIOS => 'For automatic sync to work properly, we need to:\n\n• Enable background app refresh\n• Allow the app to run in the background\n\nThis allows your photos to sync even when the app is closed.';
-
-  @override
-  String get permissionBackgroundContinue => 'Allow Background Sync';
 
   @override
   String get permissionBackgroundDeniedTitle => 'Background Sync Disabled';
@@ -1197,21 +825,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get permissionLimitationBackground => '• Automatic sync will only work with the app open';
-
-  @override
-  String get onboardingPermissionsAllGrantedTitle => 'All Set!';
-
-  @override
-  String get onboardingPermissionsAllGrantedMessage => 'All permissions have been granted successfully. You can now start using Photo Manager with all its features.';
-
-  @override
-  String get onboardingPermissionsAllGrantedButton => 'Go to Gallery';
-
-  @override
-  String get errorGalleryPermissionTitle => 'Gallery Permission Required';
-
-  @override
-  String get errorGalleryPermission => 'The app needs access to your gallery to work. Please enable the permission in Settings.';
 
   @override
   String get loginGreeting => 'Welcome back';
