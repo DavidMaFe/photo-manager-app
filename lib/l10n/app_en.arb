@@ -566,5 +566,88 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "navBackup": "Backup",
+  "allSafe": "All backed up",
+  "lastBackupMeta": "Last backup {when} · {count, plural, =1{1 item} other{{count} items}}",
+  "@lastBackupMeta": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "copyingNofM": "Backing up {done} of {total}",
+  "@copyingNofM": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "backupIncomplete": "The last backup didn't finish",
+  "backupIncompleteMeta": "{when} · {count, plural, =1{1 failure} other{{count} failures}}",
+  "@backupIncompleteMeta": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noBackupsYet": "You haven't backed up yet",
+  "noBackupsBody": "Save your photos to the cloud and free up space on your phone.",
+  "backupCancelledTitle": "The last backup was cancelled",
+  "condDaily": "Daily · {time}",
+  "@condDaily": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "condWeekly": "{day} · {time}",
+  "@condWeekly": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "condWifi": "Wi-Fi only",
+  "condAnyNetwork": "Wi-Fi and data",
+  "condBattery": "Charging or >15%",
+  "autoBackupOff": "Automatic backup off",
+  "backupSettings": "Backup settings",
+  "activity": "Activity",
+  "itemsSaved": "{count, plural, =1{1 item saved} other{{count} items saved}}",
+  "@itemsSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "incompleteWithFailures": "Incomplete backup · {count, plural, =1{1 failure} other{{count} failures}}",
+  "@incompleteWithFailures": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupCancelled": "Backup cancelled",
+  "backupRunning": "Backup in progress"
 }

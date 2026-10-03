@@ -1425,4 +1425,105 @@ class AppLocalizationsEn extends AppLocalizations {
   String noAlbumsMatch(String query) {
     return 'No album matches “$query”';
   }
+
+  @override
+  String get navBackup => 'Backup';
+
+  @override
+  String get allSafe => 'All backed up';
+
+  @override
+  String lastBackupMeta(String when, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return 'Last backup $when · $_temp0';
+  }
+
+  @override
+  String copyingNofM(int done, int total) {
+    return 'Backing up $done of $total';
+  }
+
+  @override
+  String get backupIncomplete => 'The last backup didn\'t finish';
+
+  @override
+  String backupIncompleteMeta(String when, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count failures',
+      one: '1 failure',
+    );
+    return '$when · $_temp0';
+  }
+
+  @override
+  String get noBackupsYet => 'You haven\'t backed up yet';
+
+  @override
+  String get noBackupsBody => 'Save your photos to the cloud and free up space on your phone.';
+
+  @override
+  String get backupCancelledTitle => 'The last backup was cancelled';
+
+  @override
+  String condDaily(String time) {
+    return 'Daily · $time';
+  }
+
+  @override
+  String condWeekly(String day, String time) {
+    return '$day · $time';
+  }
+
+  @override
+  String get condWifi => 'Wi-Fi only';
+
+  @override
+  String get condAnyNetwork => 'Wi-Fi and data';
+
+  @override
+  String get condBattery => 'Charging or >15%';
+
+  @override
+  String get autoBackupOff => 'Automatic backup off';
+
+  @override
+  String get backupSettings => 'Backup settings';
+
+  @override
+  String get activity => 'Activity';
+
+  @override
+  String itemsSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items saved',
+      one: '1 item saved',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String incompleteWithFailures(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count failures',
+      one: '1 failure',
+    );
+    return 'Incomplete backup · $_temp0';
+  }
+
+  @override
+  String get backupCancelled => 'Backup cancelled';
+
+  @override
+  String get backupRunning => 'Backup in progress';
 }

@@ -2704,6 +2704,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No album matches “{query}”'**
   String noAlbumsMatch(String query);
+
+  /// No description provided for @navBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get navBackup;
+
+  /// No description provided for @allSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'All backed up'**
+  String get allSafe;
+
+  /// No description provided for @lastBackupMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup {when} · {count, plural, =1{1 item} other{{count} items}}'**
+  String lastBackupMeta(String when, int count);
+
+  /// No description provided for @copyingNofM.
+  ///
+  /// In en, this message translates to:
+  /// **'Backing up {done} of {total}'**
+  String copyingNofM(int done, int total);
+
+  /// No description provided for @backupIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'The last backup didn\'t finish'**
+  String get backupIncomplete;
+
+  /// No description provided for @backupIncompleteMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{when} · {count, plural, =1{1 failure} other{{count} failures}}'**
+  String backupIncompleteMeta(String when, int count);
+
+  /// No description provided for @noBackupsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t backed up yet'**
+  String get noBackupsYet;
+
+  /// No description provided for @noBackupsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your photos to the cloud and free up space on your phone.'**
+  String get noBackupsBody;
+
+  /// No description provided for @backupCancelledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The last backup was cancelled'**
+  String get backupCancelledTitle;
+
+  /// No description provided for @condDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily · {time}'**
+  String condDaily(String time);
+
+  /// No description provided for @condWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'{day} · {time}'**
+  String condWeekly(String day, String time);
+
+  /// No description provided for @condWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi only'**
+  String get condWifi;
+
+  /// No description provided for @condAnyNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi and data'**
+  String get condAnyNetwork;
+
+  /// No description provided for @condBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Charging or >15%'**
+  String get condBattery;
+
+  /// No description provided for @autoBackupOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic backup off'**
+  String get autoBackupOff;
+
+  /// No description provided for @backupSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup settings'**
+  String get backupSettings;
+
+  /// No description provided for @activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get activity;
+
+  /// No description provided for @itemsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item saved} other{{count} items saved}}'**
+  String itemsSaved(int count);
+
+  /// No description provided for @incompleteWithFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Incomplete backup · {count, plural, =1{1 failure} other{{count} failures}}'**
+  String incompleteWithFailures(int count);
+
+  /// No description provided for @backupCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup cancelled'**
+  String get backupCancelled;
+
+  /// No description provided for @backupRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup in progress'**
+  String get backupRunning;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

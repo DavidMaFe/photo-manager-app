@@ -147,7 +147,7 @@
   "syncLast": "Última sincronización",
   "syncEmpty": "Sin sincronizaciones",
   "syncNow": "Sincronizar ahora",
-  "synchronized": "Sicronizado",
+  "synchronized": "Sincronizado",
   "syncPending": "Pendiente",
   "syncFiles": "{syncFiles} archivos sincronizados",
   "notSyncYet": "Aún no has sincronizado",
@@ -566,5 +566,88 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "navBackup": "Copia",
+  "allSafe": "Todo a salvo",
+  "lastBackupMeta": "Última copia {when} · {count, plural, =1{1 elemento} other{{count} elementos}}",
+  "@lastBackupMeta": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "copyingNofM": "Copiando {done} de {total}",
+  "@copyingNofM": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "backupIncomplete": "La última copia no terminó",
+  "backupIncompleteMeta": "{when} · {count, plural, =1{1 fallo} other{{count} fallos}}",
+  "@backupIncompleteMeta": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noBackupsYet": "Aún no has hecho ninguna copia",
+  "noBackupsBody": "Guarda tus fotos en la nube y libera espacio del móvil.",
+  "backupCancelledTitle": "La última copia se canceló",
+  "condDaily": "Diaria · {time}",
+  "@condDaily": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "condWeekly": "{day} · {time}",
+  "@condWeekly": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "condWifi": "Solo WiFi",
+  "condAnyNetwork": "WiFi y datos",
+  "condBattery": "Cargando o >15 %",
+  "autoBackupOff": "Copia automática desactivada",
+  "backupSettings": "Ajustes de copia",
+  "activity": "Actividad",
+  "itemsSaved": "{count, plural, =1{1 elemento guardado} other{{count} elementos guardados}}",
+  "@itemsSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "incompleteWithFailures": "Copia incompleta · {count, plural, =1{1 fallo} other{{count} fallos}}",
+  "@incompleteWithFailures": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupCancelled": "Copia cancelada",
+  "backupRunning": "Copia en curso"
 }

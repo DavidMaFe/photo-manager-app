@@ -447,7 +447,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get syncNow => 'Sincronizar ahora';
 
   @override
-  String get synchronized => 'Sicronizado';
+  String get synchronized => 'Sincronizado';
 
   @override
   String get syncPending => 'Pendiente';
@@ -1425,4 +1425,105 @@ class AppLocalizationsEs extends AppLocalizations {
   String noAlbumsMatch(String query) {
     return 'Ningún álbum coincide con «$query»';
   }
+
+  @override
+  String get navBackup => 'Copia';
+
+  @override
+  String get allSafe => 'Todo a salvo';
+
+  @override
+  String lastBackupMeta(String when, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count elementos',
+      one: '1 elemento',
+    );
+    return 'Última copia $when · $_temp0';
+  }
+
+  @override
+  String copyingNofM(int done, int total) {
+    return 'Copiando $done de $total';
+  }
+
+  @override
+  String get backupIncomplete => 'La última copia no terminó';
+
+  @override
+  String backupIncompleteMeta(String when, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fallos',
+      one: '1 fallo',
+    );
+    return '$when · $_temp0';
+  }
+
+  @override
+  String get noBackupsYet => 'Aún no has hecho ninguna copia';
+
+  @override
+  String get noBackupsBody => 'Guarda tus fotos en la nube y libera espacio del móvil.';
+
+  @override
+  String get backupCancelledTitle => 'La última copia se canceló';
+
+  @override
+  String condDaily(String time) {
+    return 'Diaria · $time';
+  }
+
+  @override
+  String condWeekly(String day, String time) {
+    return '$day · $time';
+  }
+
+  @override
+  String get condWifi => 'Solo WiFi';
+
+  @override
+  String get condAnyNetwork => 'WiFi y datos';
+
+  @override
+  String get condBattery => 'Cargando o >15 %';
+
+  @override
+  String get autoBackupOff => 'Copia automática desactivada';
+
+  @override
+  String get backupSettings => 'Ajustes de copia';
+
+  @override
+  String get activity => 'Actividad';
+
+  @override
+  String itemsSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count elementos guardados',
+      one: '1 elemento guardado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String incompleteWithFailures(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fallos',
+      one: '1 fallo',
+    );
+    return 'Copia incompleta · $_temp0';
+  }
+
+  @override
+  String get backupCancelled => 'Copia cancelada';
+
+  @override
+  String get backupRunning => 'Copia en curso';
 }

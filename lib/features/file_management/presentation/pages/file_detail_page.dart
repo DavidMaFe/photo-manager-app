@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/utils/date_formatter.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
 import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
@@ -98,7 +98,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
               right: 0,
               child: _chrome(
                 MediaViewerTopBar(
-                  title: _titleFor(file, l10n),
+                  title: DateFormatter.formatDayAndTime(file.capturedAt, context),
                   subtitle: _subtitleFor(file, l10n),
                   onBack: () => Navigator.pop(context),
                   actions: [
@@ -247,27 +247,6 @@ class _FileDetailPageState extends State<FileDetailPage> {
         ],
       ),
     );
-  }
-
-  /// "Today, 10:42", "Yesterday, 08:15" or "1 Oct, 10:42".
-  String _titleFor(GalleryFile file, AppLocalizations l10n) {
-    final locale = l10n.localeName;
-    final date = file.capturedAt;
-    final now = DateTime.now();
-    final day = DateTime(date.year, date.month, date.day);
-    final today = DateTime(now.year, now.month, now.day);
-
-    final String dayLabel;
-    if (day == today) {
-      dayLabel = l10n.today;
-    } else if (day == today.subtract(const Duration(days: 1))) {
-      dayLabel = l10n.yesterday;
-    } else if (date.year == now.year) {
-      dayLabel = DateFormat.MMMd(locale).format(date);
-    } else {
-      dayLabel = DateFormat.yMMMd(locale).format(date);
-    }
-    return l10n.dayAndTime(dayLabel, DateFormat.Hm(locale).format(date));
   }
 
   /// "Image" or "Video · 1:15".

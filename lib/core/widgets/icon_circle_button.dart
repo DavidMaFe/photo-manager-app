@@ -4,7 +4,10 @@ import '../../config/theme/app_palette.dart';
 
 /// Botón de icono circular 44×44 (volver, compartir, más opciones).
 class IconCircleButton extends StatelessWidget {
-  static const double size = 44;
+  static const double defaultSize = 44;
+
+  /// Diámetro del círculo. Por debajo de 44 conviene envolverlo en un área táctil de 44.
+  final double size;
 
   final IconData icon;
   final VoidCallback? onPressed;
@@ -23,6 +26,7 @@ class IconCircleButton extends StatelessWidget {
     this.backgroundColor,
     this.foregroundColor,
     this.iconSize = 22,
+    this.size = defaultSize,
   });
 
   @override
@@ -34,19 +38,31 @@ class IconCircleButton extends StatelessWidget {
         button: true,
         label: tooltip,
         excludeSemantics: true,
-        child: Material(
-          color: backgroundColor ?? p.surface2,
-          shape: const CircleBorder(),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onPressed,
-            child: SizedBox.square(
-              dimension: size,
-              child: Icon(icon, size: iconSize, color: foregroundColor ?? p.ink),
+        child: _withTouchTarget(
+          Material(
+            color: backgroundColor ?? p.surface2,
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onPressed,
+              child: SizedBox.square(
+                dimension: size,
+                child: Icon(icon, size: iconSize, color: foregroundColor ?? p.ink),
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Small circles keep a 44 px touch target around them.
+  Widget _withTouchTarget(Widget circle) {
+    if (size >= defaultSize) return circle;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onPressed,
+      child: SizedBox.square(dimension: defaultSize, child: Center(child: circle)),
     );
   }
 }

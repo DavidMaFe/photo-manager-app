@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 
@@ -28,5 +29,26 @@ class DateFormatter {
 
     final formatted = MaterialLocalizations.of(context).formatMediumDate(dateTime);
     return formatted;
+  }
+
+  /// "Today, 10:42", "Yesterday, 08:15", "Oct 1, 10:42" or "Oct 1, 2024, 10:42".
+  static String formatDayAndTime(DateTime dateTime, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final locale = l10n.localeName;
+    final now = DateTime.now();
+    final day = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    final today = DateTime(now.year, now.month, now.day);
+
+    final String dayLabel;
+    if (day == today) {
+      dayLabel = l10n.today;
+    } else if (day == today.subtract(const Duration(days: 1))) {
+      dayLabel = l10n.yesterday;
+    } else if (dateTime.year == now.year) {
+      dayLabel = DateFormat.MMMd(locale).format(dateTime);
+    } else {
+      dayLabel = DateFormat.yMMMd(locale).format(dateTime);
+    }
+    return l10n.dayAndTime(dayLabel, DateFormat.Hm(locale).format(dateTime));
   }
 }

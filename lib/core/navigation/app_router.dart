@@ -1,3 +1,5 @@
+import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
+import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -233,9 +235,17 @@ class AppRouter {
                     GoRoute(
                       path: RoutePaths.sync,
                       name: RouteNames.sync,
-                      builder: (context, state) => BlocProvider(
-                        create: (context) => sl<SynchronizationBloc>()
-                          ..add(const LoadSynchronizations()),
+                      builder: (context, state) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider(
+                            create: (context) => sl<SynchronizationBloc>()
+                              ..add(const LoadSynchronizations()),
+                          ),
+                          // Feeds the backup condition pills of the status card.
+                          BlocProvider(
+                            create: (context) => sl<SyncConfigBloc>()..add(LoadSyncConfig()),
+                          ),
+                        ],
                         child: const SynchronizationPage(),
                       )
                     ),
