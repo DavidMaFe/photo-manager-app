@@ -77,6 +77,14 @@ class AppTypography {
         color: active ? p.accentInk : p.ink2,
       );
 
+  /// Texto de botón/enlace (w700). Incluye la familia porque `ButtonStyle.textStyle`
+  /// sustituye al estilo heredado en lugar de combinarse con él.
+  static TextStyle button(double fontSize) => TextStyle(
+        fontFamily: fontFamily,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w700,
+      );
+
   /// Etiqueta de sección en mayúsculas («COPIA Y ESPACIO»): 12/w800/0.7/ink2.
   static TextStyle sectionLabel(AppPalette p) => TextStyle(
         fontFamily: fontFamily,

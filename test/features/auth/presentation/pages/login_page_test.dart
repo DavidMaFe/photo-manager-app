@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
@@ -7,8 +6,10 @@ import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:photo_manager_app/features/auth/presentation/pages/login_page.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:photo_manager_app/l10n/app_localizations.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
+
+import '../../../../helpers/widget_test_helper.dart';
 
 class MockAuthBloc extends Mock implements AuthBloc {}
 
@@ -28,37 +29,18 @@ void main() {
     when(() => mockAuthBloc.close()).thenAnswer((_) async => {});
   });
 
-  void setUpScreenSize(WidgetTester tester) {
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(() => tester.view.reset());
-  }
-
-  Widget makeTestableWidget(Widget child) {
-    return MaterialApp(
-      locale: const Locale('en'),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: BlocProvider<AuthBloc>(
-        create: (_) => mockAuthBloc,
-        child: child,
-      ),
-    );
+  Widget makeLoginPage() {
+    return makeTestableWidgetWithBloc<AuthBloc>(bloc: mockAuthBloc, child: const LoginPage());
   }
 
   group('LoginPage', () {
     testWidgets('should validate empty email', (tester) async {
       setUpScreenSize(tester);
       // Arrange
-      await tester.pumpWidget(makeTestableWidget(const LoginPage()));
+      await tester.pumpWidget(makeLoginPage());
 
       // Act
-      final loginButton = find.byType(ElevatedButton);
+      final loginButton = find.byType(AppButton);
       await tester.tap(loginButton);
       await tester.pumpAndSettle();
 
@@ -69,11 +51,11 @@ void main() {
     testWidgets('should validate invalid email format', (tester) async {
       setUpScreenSize(tester);
       // Arrange
-      await tester.pumpWidget(makeTestableWidget(const LoginPage()));
+      await tester.pumpWidget(makeLoginPage());
 
       // Act
       await tester.enterText(find.byType(TextFormField).first, 'invalid-email');
-      await tester.tap(find.byType(ElevatedButton));
+      await tester.tap(find.byType(AppButton));
       await tester.pumpAndSettle();
 
       // Assert
@@ -83,11 +65,11 @@ void main() {
     testWidgets('should validate empty password', (tester) async {
       setUpScreenSize(tester);
       // Arrange
-      await tester.pumpWidget(makeTestableWidget(const LoginPage()));
+      await tester.pumpWidget(makeLoginPage());
 
       // Act
       await tester.enterText(find.byType(TextFormField).first, 'test@example.com');
-      await tester.tap(find.byType(ElevatedButton));
+      await tester.tap(find.byType(AppButton));
       await tester.pumpAndSettle();
 
       // Assert
@@ -97,12 +79,12 @@ void main() {
     testWidgets('should dispatch LoginRequested event when form is valid', (tester) async {
       setUpScreenSize(tester);
       // Arrange
-      await tester.pumpWidget(makeTestableWidget(const LoginPage()));
+      await tester.pumpWidget(makeLoginPage());
 
       // Act
       await tester.enterText(find.byType(TextFormField).first, 'test@example.com');
       await tester.enterText(find.byType(TextFormField).last, 'password123');
-      await tester.tap(find.byType(ElevatedButton));
+      await tester.tap(find.byType(AppButton));
       await tester.pump();
 
       // Assert
@@ -116,7 +98,7 @@ void main() {
       when(() => mockAuthBloc.stream).thenAnswer((_) => Stream.value(AuthLoading()));
 
       // Act
-      await tester.pumpWidget(makeTestableWidget(const LoginPage()));
+      await tester.pumpWidget(makeLoginPage());
 
       // Assert
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -129,7 +111,7 @@ void main() {
       when(() => mockAuthBloc.stream).thenAnswer((_) => Stream.value(AuthLoading()));
 
       // Act
-      await tester.pumpWidget(makeTestableWidget(const LoginPage()));
+      await tester.pumpWidget(makeLoginPage());
 
       // Assert
       final emailField = tester.widget<TextFormField>(find.byType(TextFormField).first);
@@ -146,11 +128,11 @@ void main() {
       when(() => mockAuthBloc.stream).thenAnswer((_) => Stream.value(AuthLoading()));
 
       // Act
-      await tester.pumpWidget(makeTestableWidget(const LoginPage()));
+      await tester.pumpWidget(makeLoginPage());
 
       // Assert
-      final loginButton = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
-      expect(loginButton.onPressed, isNull);
+      final loginButton = tester.widget<AppButton>(find.byType(AppButton));
+      expect(loginButton.loading, isTrue);
     });
 
     testWidgets('should show error snackbar when AuthError state', (tester) async {
@@ -163,7 +145,7 @@ void main() {
       );
 
       // Act
-      await tester.pumpWidget(makeTestableWidget(const LoginPage()));
+      await tester.pumpWidget(makeLoginPage());
       await tester.pump(); // Trigger the stream
       await tester.pump(); // Build the snackbar
 
@@ -174,35 +156,35 @@ void main() {
     testWidgets('should toggle password visibility', (tester) async {
       setUpScreenSize(tester);
       // Arrange
-      await tester.pumpWidget(makeTestableWidget(const LoginPage()));
+      await tester.pumpWidget(makeLoginPage());
 
       // Assert initial state - visibility_off icon should be visible
-      expect(find.byIcon(Icons.visibility_off), findsOneWidget);
+      expect(find.byIcon(Symbols.visibility_off_rounded), findsOneWidget);
 
       // Act - Tap the visibility toggle icon
-      await tester.tap(find.byIcon(Icons.visibility_off));
+      await tester.tap(find.byIcon(Symbols.visibility_off_rounded));
       await tester.pump();
 
       // Assert - visibility icon should now be visible
-      expect(find.byIcon(Icons.visibility), findsOneWidget);
+      expect(find.byIcon(Symbols.visibility_rounded), findsOneWidget);
 
       // Act - Tap again to hide
-      await tester.tap(find.byIcon(Icons.visibility));
+      await tester.tap(find.byIcon(Symbols.visibility_rounded));
       await tester.pump();
 
       // Assert - back to visibility_off icon
-      expect(find.byIcon(Icons.visibility_off), findsOneWidget);
+      expect(find.byIcon(Symbols.visibility_off_rounded), findsOneWidget);
     });
 
     testWidgets('should trim email before dispatching event', (tester) async {
       setUpScreenSize(tester);
       // Arrange
-      await tester.pumpWidget(makeTestableWidget(const LoginPage()));
+      await tester.pumpWidget(makeLoginPage());
 
       // Act
       await tester.enterText(find.byType(TextFormField).first, '  test@example.com  ');
       await tester.enterText(find.byType(TextFormField).last, 'password123');
-      await tester.tap(find.byType(ElevatedButton));
+      await tester.tap(find.byType(AppButton));
       await tester.pumpAndSettle();
 
       // Assert

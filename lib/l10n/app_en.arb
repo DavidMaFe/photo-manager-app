@@ -10,7 +10,7 @@
   "loginButton": "Sign In",
   "logoutButton": "Sign Out",
   "logoutConfirmation": "Are you sure to logout?",
-  "forgotPassword": "Forgot your password?",
+  "forgotPassword": "Forgot it?",
   "notHaveAccount": "You don't have an account? ",
   "signUp": "Sign Up",
 
@@ -21,11 +21,11 @@
   "namePlaceholder": "John",
   "surnameLabel": "Last Name (optional)",
   "surnamePlaceholder": "Doe",
-  "confirmPasswordLabel": "Confirm Password",
+  "confirmPasswordLabel": "Confirm password",
   "errorNameRequired": "Name is required",
   "errorConfirmPasswordRequired": "Please confirm your password",
   "errorPasswordsDoNotMatch": "Passwords do not match",
-  "registerButton": "Create Account",
+  "registerButton": "Create account",
   "alreadyHaveAccount": "Already have an account? ",
   "signIn": "Sign in",
   "registerTermsDisclaimer": "By signing up, you agree to our Terms and Conditions",
@@ -282,7 +282,7 @@
   },
   "codeLabel": "Verification code",
   "codePlaceholder": "123456",
-  "validateCodeButton": "Validate code",
+  "validateCodeButton": "Verify code",
   "resendCodeButton": "Resend code",
   "codeResent": "Code resent successfully",
   "errorCodeRequired": "Code is required",
@@ -292,7 +292,7 @@
   "resetPasswordSubtitle": "Enter your new password",
   "newPasswordLabel": "New password",
   "confirmNewPasswordLabel": "Confirm new password",
-  "resetPasswordButton": "Reset password",
+  "resetPasswordButton": "Save password",
   "passwordResetSuccess": "Password reset successfully",
   "errorNewPasswordRequired": "New password is required",
   "backToLogin": "Back to login",
@@ -428,5 +428,49 @@
   "onboardingPermissionsAllGrantedButton": "Go to Gallery",
 
   "errorGalleryPermissionTitle": "Gallery Permission Required",
-  "errorGalleryPermission": "The app needs access to your gallery to work. Please enable the permission in Settings."
+  "errorGalleryPermission": "The app needs access to your gallery to work. Please enable the permission in Settings.",
+
+  "loginGreeting": "Welcome back",
+  "loginSubtitle": "Sign in to see and organise your photos.",
+  "noAccountYet": "Don't have an account yet?",
+  "createAccountLink": "Create account",
+  "registerHeadline": "Create your account",
+  "registerSubtitle": "Back up your photos and free up space on your phone.",
+  "surnameShortLabel": "Last name",
+  "optionalLabel": "(optional)",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "stepOf": "Step {current} of {total}",
+  "@stepOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "forgotPasswordHeadline": "Forgot your password?",
+  "forgotPasswordBody": "Enter your email and we'll send you a code to create a new one.",
+  "checkYourEmail": "Check your email",
+  "codeSentTo": "We've sent a 6-digit code to {email}",
+  "@codeSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "didNotReceiveCode": "Didn't get it?",
+  "resendIn": "Resend in {time}",
+  "@resendIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "newPasswordHeadline": "Create a new password",
+  "newPasswordBody": "Use one you haven't used before on this account."
 }

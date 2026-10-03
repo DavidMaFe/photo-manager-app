@@ -549,7 +549,7 @@ Eliminar del `.arb` las claves que queden sin uso al final (comprobar con búsqu
 - [x] `photo_manager_colors.dart` eliminado.
 
 **Fase 4 · Pantallas** (un commit por feature)
-- [ ] Acceso: 6.1, 6.2, 6.3
+- [x] Acceso: 6.1, 6.2, 6.3
 - [ ] Fotos: 6.6, 6.9 (sin cambios de funcionamiento todavía)
 - [ ] Álbumes: 6.10, 6.11
 - [ ] Copia: 6.12 (solo visual de tarjeta y lista)

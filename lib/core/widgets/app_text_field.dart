@@ -11,6 +11,9 @@ import '../../config/theme/app_radius.dart';
 class AppTextField extends StatefulWidget {
   final String? label;
 
+  /// Nota corta junto a la etiqueta en ink2 (p. ej. «(opcional)»).
+  final String? labelNote;
+
   /// Widget alineado a la derecha en la línea de la etiqueta (p. ej. «¿La has olvidado?»).
   final Widget? labelTrailing;
   final TextEditingController? controller;
@@ -36,6 +39,7 @@ class AppTextField extends StatefulWidget {
   const AppTextField({
     super.key,
     this.label,
+    this.labelNote,
     this.labelTrailing,
     this.controller,
     this.focusNode,
@@ -147,8 +151,17 @@ class _AppTextFieldState extends State<AppTextField> {
           children: [
             if (widget.label != null)
               Expanded(
-                child: Text(
-                  widget.label!,
+                child: Text.rich(
+                  TextSpan(
+                    text: widget.label!,
+                    children: [
+                      if (widget.labelNote != null)
+                        TextSpan(
+                          text: ' ${widget.labelNote!}',
+                          style: TextStyle(fontWeight: FontWeight.w600, color: p.ink2),
+                        ),
+                    ],
+                  ),
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: p.ink),
                 ),
               )

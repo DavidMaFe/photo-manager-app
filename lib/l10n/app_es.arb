@@ -10,7 +10,7 @@
   "loginButton": "Entrar",
   "logoutButton": "Salir",
   "logoutConfirmation": "¿Estás seguro de que quieres salir?",
-  "forgotPassword": "¿Has olvidado tú contraseña?",
+  "forgotPassword": "¿La has olvidado?",
   "notHaveAccount": "¿No tienes cuenta? ",
   "signUp": "Regístrate",
 
@@ -21,11 +21,11 @@
   "namePlaceholder": "Juan",
   "surnameLabel": "Apellido (opcional)",
   "surnamePlaceholder": "Pérez",
-  "confirmPasswordLabel": "Confirmar Contraseña",
+  "confirmPasswordLabel": "Confirmar contraseña",
   "errorNameRequired": "El nombre es requerido",
   "errorConfirmPasswordRequired": "Confirma tu contraseña",
   "errorPasswordsDoNotMatch": "Las contraseñas no coinciden",
-  "registerButton": "Crear Cuenta",
+  "registerButton": "Crear cuenta",
   "alreadyHaveAccount": "¿Ya tienes cuenta? ",
   "signIn": "Inicia sesión",
   "registerTermsDisclaimer": "Al registrarte, aceptas nuestros Términos y Condiciones",
@@ -282,7 +282,7 @@
   },
   "codeLabel": "Código de verificación",
   "codePlaceholder": "123456",
-  "validateCodeButton": "Validar código",
+  "validateCodeButton": "Verificar código",
   "resendCodeButton": "Reenviar código",
   "codeResent": "Código reenviado exitosamente",
   "errorCodeRequired": "El código es requerido",
@@ -292,7 +292,7 @@
   "resetPasswordSubtitle": "Ingresa tu nueva contraseña",
   "newPasswordLabel": "Nueva contraseña",
   "confirmNewPasswordLabel": "Confirmar nueva contraseña",
-  "resetPasswordButton": "Restablecer contraseña",
+  "resetPasswordButton": "Guardar contraseña",
   "passwordResetSuccess": "Contraseña restablecida exitosamente",
   "errorNewPasswordRequired": "La nueva contraseña es requerida",
   "backToLogin": "Volver al inicio de sesión",
@@ -428,5 +428,49 @@
   "onboardingPermissionsAllGrantedButton": "Ir a la galería",
 
   "errorGalleryPermissionTitle": "Permiso de Galería Requerido",
-  "errorGalleryPermission": "La aplicación necesita acceso a tu galería para funcionar. Por favor, habilita el permiso en Configuración."
+  "errorGalleryPermission": "La aplicación necesita acceso a tu galería para funcionar. Por favor, habilita el permiso en Configuración.",
+
+  "loginGreeting": "Hola de nuevo",
+  "loginSubtitle": "Entra para ver y ordenar tus fotos.",
+  "noAccountYet": "¿Aún no tienes cuenta?",
+  "createAccountLink": "Crear cuenta",
+  "registerHeadline": "Crea tu cuenta",
+  "registerSubtitle": "Guarda tus fotos y libera espacio del móvil.",
+  "surnameShortLabel": "Apellido",
+  "optionalLabel": "(opcional)",
+  "showPassword": "Mostrar contraseña",
+  "hidePassword": "Ocultar contraseña",
+  "stepOf": "Paso {current} de {total}",
+  "@stepOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "forgotPasswordHeadline": "¿Has olvidado tu contraseña?",
+  "forgotPasswordBody": "Escribe tu correo y te enviaremos un código para crear una nueva.",
+  "checkYourEmail": "Revisa tu correo",
+  "codeSentTo": "Te hemos enviado un código de 6 dígitos a {email}",
+  "@codeSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "didNotReceiveCode": "¿No te ha llegado?",
+  "resendIn": "Reenviar en {time}",
+  "@resendIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "newPasswordHeadline": "Crea una contraseña nueva",
+  "newPasswordBody": "Usa una que no hayas usado antes en esta cuenta."
 }

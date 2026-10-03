@@ -1,3 +1,4 @@
+import '../../config/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
 import '../../config/theme/app_palette.dart';
@@ -159,7 +160,7 @@ class MediaGroupHeader extends StatelessWidget {
               style: TextButton.styleFrom(
                 minimumSize: const Size(44, 44),
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                textStyle: AppTypography.button(13),
               ),
               child: Text(group.actionLabel!),
             ),

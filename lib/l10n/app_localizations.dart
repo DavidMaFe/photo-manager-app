@@ -152,7 +152,7 @@ abstract class AppLocalizations {
   /// No description provided for @forgotPassword.
   ///
   /// In en, this message translates to:
-  /// **'Forgot your password?'**
+  /// **'Forgot it?'**
   String get forgotPassword;
 
   /// No description provided for @notHaveAccount.
@@ -212,7 +212,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmPasswordLabel.
   ///
   /// In en, this message translates to:
-  /// **'Confirm Password'**
+  /// **'Confirm password'**
   String get confirmPasswordLabel;
 
   /// No description provided for @errorNameRequired.
@@ -236,7 +236,7 @@ abstract class AppLocalizations {
   /// No description provided for @registerButton.
   ///
   /// In en, this message translates to:
-  /// **'Create Account'**
+  /// **'Create account'**
   String get registerButton;
 
   /// No description provided for @alreadyHaveAccount.
@@ -1610,7 +1610,7 @@ abstract class AppLocalizations {
   /// No description provided for @validateCodeButton.
   ///
   /// In en, this message translates to:
-  /// **'Validate code'**
+  /// **'Verify code'**
   String get validateCodeButton;
 
   /// No description provided for @resendCodeButton.
@@ -1664,7 +1664,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetPasswordButton.
   ///
   /// In en, this message translates to:
-  /// **'Reset password'**
+  /// **'Save password'**
   String get resetPasswordButton;
 
   /// No description provided for @passwordResetSuccess.
@@ -2368,6 +2368,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The app needs access to your gallery to work. Please enable the permission in Settings.'**
   String get errorGalleryPermission;
+
+  /// No description provided for @loginGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get loginGreeting;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see and organise your photos.'**
+  String get loginSubtitle;
+
+  /// No description provided for @noAccountYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account yet?'**
+  String get noAccountYet;
+
+  /// No description provided for @createAccountLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get createAccountLink;
+
+  /// No description provided for @registerHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get registerHeadline;
+
+  /// No description provided for @registerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up your photos and free up space on your phone.'**
+  String get registerSubtitle;
+
+  /// No description provided for @surnameShortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get surnameShortLabel;
+
+  /// No description provided for @optionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'(optional)'**
+  String get optionalLabel;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
+  /// No description provided for @stepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String stepOf(int current, int total);
+
+  /// No description provided for @forgotPasswordHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get forgotPasswordHeadline;
+
+  /// No description provided for @forgotPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and we\'ll send you a code to create a new one.'**
+  String get forgotPasswordBody;
+
+  /// No description provided for @checkYourEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get checkYourEmail;
+
+  /// No description provided for @codeSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve sent a 6-digit code to {email}'**
+  String codeSentTo(String email);
+
+  /// No description provided for @didNotReceiveCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t get it?'**
+  String get didNotReceiveCode;
+
+  /// No description provided for @resendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend in {time}'**
+  String resendIn(String time);
+
+  /// No description provided for @newPasswordHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new password'**
+  String get newPasswordHeadline;
+
+  /// No description provided for @newPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use one you haven\'t used before on this account.'**
+  String get newPasswordBody;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

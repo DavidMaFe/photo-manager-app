@@ -1,4 +1,3 @@
-import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,8 +5,8 @@ import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
-import 'package:photo_manager_app/features/auth/presentation/widgets/password_reset/request_reset_actions.dart';
-import 'package:photo_manager_app/features/auth/presentation/widgets/password_reset/request_reset_header.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/features/auth/presentation/widgets/password_reset/password_reset_layout.dart';
 import 'package:photo_manager_app/features/auth/presentation/widgets/password_reset/request_reset_inputs.dart';
 import '../../../../core/errors/service/error_notification_service.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -49,70 +48,50 @@ class _RequestPasswordResetPageState extends State<RequestPasswordResetPage> {
 
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: context.palette.surface,
-      body: SafeArea(
-        child: BlocConsumer<AuthBloc, AuthState>(
-          listener: (context, state) {
-            if (state is PasswordResetEmailSent) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.emailSentSuccess),
-                  backgroundColor: context.palette.safe
-                )
-              );
-              Future.delayed(const Duration(milliseconds: 500), () {
-                if (context.mounted) {
-                  context.go(RoutePaths.validateResetCode, extra: state.email);
-                }
-              });
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is PasswordResetEmailSent) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.emailSentSuccess))
+          );
+
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (context.mounted) {
+              context.go(RoutePaths.validateResetCode, extra: state.email);
             }
+          });
+        }
 
-            if (state is AuthError) {
-              ErrorNotificationService.showError(
-                context,
-                state.failure,
-                onRetry: _handleSendCode
-              );
-            }
-          },
+        if (state is AuthError) {
+          ErrorNotificationService.showError(
+            context,
+            state.failure,
+            onRetry: _handleSendCode
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
 
-          builder: (context, state) {
-
-            final isLoading = state is AuthLoading;
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-
-                    const SizedBox(height: 40),
-
-                    const RequestResetHeader(),
-
-                    const SizedBox(height: 40),
-
-                    RequestResetInputs(
-                      emailInputController: _emailController,
-                      enabled: !isLoading
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    RequestResetActions(
-                      onSendCode: _handleSendCode,
-                      onBackToLogin: _handleBackToLogin,
-                      isLoading: isLoading
-                    )
-                  ],
-                ),
-              ),
-            );
-          }
-        ),
-      ),
+        return PasswordResetLayout(
+          step: 1,
+          icon: Symbols.lock_reset_rounded,
+          title: l10n.forgotPasswordHeadline,
+          description: l10n.forgotPasswordBody,
+          primaryLabel: l10n.sendCodeButton,
+          onPrimary: _handleSendCode,
+          isLoading: isLoading,
+          onBack: _handleBackToLogin,
+          child: Form(
+            key: _formKey,
+            child: RequestResetInputs(
+              emailInputController: _emailController,
+              onSubmitted: _handleSendCode,
+              enabled: !isLoading
+            ),
+          ),
+        );
+      }
     );
   }
 }

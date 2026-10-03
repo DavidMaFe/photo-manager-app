@@ -18,12 +18,16 @@ class SecondaryTopBar extends StatelessWidget implements PreferredSizeWidget {
   /// Por defecto, `Navigator.maybePop`.
   final VoidCallback? onBack;
 
+  /// Por defecto, `background`. Usar `surface` en pantallas con fondo blanco.
+  final Color? backgroundColor;
+
   const SecondaryTopBar({
     super.key,
     this.title,
     this.actions = const [],
     this.showBack = true,
     this.onBack,
+    this.backgroundColor,
   });
 
   @override
@@ -33,7 +37,7 @@ class SecondaryTopBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     return Material(
-      color: p.background,
+      color: backgroundColor ?? p.background,
       child: SafeArea(
         bottom: false,
         child: SizedBox(

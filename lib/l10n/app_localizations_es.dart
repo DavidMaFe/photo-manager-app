@@ -36,7 +36,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get logoutConfirmation => '¿Estás seguro de que quieres salir?';
 
   @override
-  String get forgotPassword => '¿Has olvidado tú contraseña?';
+  String get forgotPassword => '¿La has olvidado?';
 
   @override
   String get notHaveAccount => '¿No tienes cuenta? ';
@@ -66,7 +66,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get surnamePlaceholder => 'Pérez';
 
   @override
-  String get confirmPasswordLabel => 'Confirmar Contraseña';
+  String get confirmPasswordLabel => 'Confirmar contraseña';
 
   @override
   String get errorNameRequired => 'El nombre es requerido';
@@ -78,7 +78,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get errorPasswordsDoNotMatch => 'Las contraseñas no coinciden';
 
   @override
-  String get registerButton => 'Crear Cuenta';
+  String get registerButton => 'Crear cuenta';
 
   @override
   String get alreadyHaveAccount => '¿Ya tienes cuenta? ';
@@ -831,7 +831,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get codePlaceholder => '123456';
 
   @override
-  String get validateCodeButton => 'Validar código';
+  String get validateCodeButton => 'Verificar código';
 
   @override
   String get resendCodeButton => 'Reenviar código';
@@ -858,7 +858,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get confirmNewPasswordLabel => 'Confirmar nueva contraseña';
 
   @override
-  String get resetPasswordButton => 'Restablecer contraseña';
+  String get resetPasswordButton => 'Guardar contraseña';
 
   @override
   String get passwordResetSuccess => 'Contraseña restablecida exitosamente';
@@ -1212,4 +1212,67 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorGalleryPermission => 'La aplicación necesita acceso a tu galería para funcionar. Por favor, habilita el permiso en Configuración.';
+
+  @override
+  String get loginGreeting => 'Hola de nuevo';
+
+  @override
+  String get loginSubtitle => 'Entra para ver y ordenar tus fotos.';
+
+  @override
+  String get noAccountYet => '¿Aún no tienes cuenta?';
+
+  @override
+  String get createAccountLink => 'Crear cuenta';
+
+  @override
+  String get registerHeadline => 'Crea tu cuenta';
+
+  @override
+  String get registerSubtitle => 'Guarda tus fotos y libera espacio del móvil.';
+
+  @override
+  String get surnameShortLabel => 'Apellido';
+
+  @override
+  String get optionalLabel => '(opcional)';
+
+  @override
+  String get showPassword => 'Mostrar contraseña';
+
+  @override
+  String get hidePassword => 'Ocultar contraseña';
+
+  @override
+  String stepOf(int current, int total) {
+    return 'Paso $current de $total';
+  }
+
+  @override
+  String get forgotPasswordHeadline => '¿Has olvidado tu contraseña?';
+
+  @override
+  String get forgotPasswordBody => 'Escribe tu correo y te enviaremos un código para crear una nueva.';
+
+  @override
+  String get checkYourEmail => 'Revisa tu correo';
+
+  @override
+  String codeSentTo(String email) {
+    return 'Te hemos enviado un código de 6 dígitos a $email';
+  }
+
+  @override
+  String get didNotReceiveCode => '¿No te ha llegado?';
+
+  @override
+  String resendIn(String time) {
+    return 'Reenviar en $time';
+  }
+
+  @override
+  String get newPasswordHeadline => 'Crea una contraseña nueva';
+
+  @override
+  String get newPasswordBody => 'Usa una que no hayas usado antes en esta cuenta.';
 }
