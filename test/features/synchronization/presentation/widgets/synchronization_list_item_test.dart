@@ -24,8 +24,10 @@ void main() {
     );
   }
 
-  Future<void> pump(WidgetTester tester, Synchronization s, {VoidCallback? onTap}) {
-    return tester.pumpWidget(makeTestableWidget(Scaffold(body: SynchronizationListItem(session: s, onTap: onTap))));
+  Future<void> pump(WidgetTester tester, Synchronization s, {VoidCallback? onTap, VoidCallback? onRetry}) {
+    return tester.pumpWidget(makeTestableWidget(
+      Scaffold(body: SynchronizationListItem(session: s, onTap: onTap, onRetry: onRetry)),
+    ));
   }
 
   Color iconBackground(WidgetTester tester) {
@@ -82,6 +84,28 @@ void main() {
 
       // Assert
       expect(taps, 1);
+    });
+
+    // ==================== RETRY TESTS ====================
+
+    testWidgets('should retry a failed backup from its row', (tester) async {
+      // Arrange
+      var retries = 0;
+      await pump(tester, session(SynchronizationStatus.failed, failed: 1), onRetry: () => retries++);
+
+      // Act
+      await tester.tap(find.text('Retry'));
+
+      // Assert
+      expect(retries, 1);
+    });
+
+    testWidgets('should not offer retry on a completed backup', (tester) async {
+      // Arrange & Act
+      await pump(tester, session(SynchronizationStatus.completed), onRetry: () {});
+
+      // Assert
+      expect(find.text('Retry'), findsNothing);
     });
   });
 }

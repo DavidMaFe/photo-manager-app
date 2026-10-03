@@ -14,8 +14,26 @@ import 'package:photo_manager_app/l10n/app_localizations.dart';
 import '../../domain/entities/synchronization.dart';
 
 
+/// Phase of a backup running on this phone.
+enum LiveBackupPhase { preparing, scanning, uploading, finishing, cancelling }
+
+/// Progress of the backup running on this phone (from SyncSessionBloc).
+class LiveBackup {
+  final LiveBackupPhase phase;
+  final int uploaded;
+  final int total;
+
+  /// Estimated time left; `null` until there is enough data.
+  final Duration? remaining;
+
+  const LiveBackup({required this.phase, this.uploaded = 0, this.total = 0, this.remaining});
+
+  double get progress => total == 0 ? 0 : (uploaded / total).clamp(0.0, 1.0);
+}
+
+
 /// Backup status card: progress ring, status, "Back up now" and the backup
-/// conditions.
+/// conditions. While [live] is set it shows the running backup instead.
 class SynchronizationStatusCard extends StatelessWidget {
 
   final Synchronization? latestSync;
@@ -25,12 +43,18 @@ class SynchronizationStatusCard extends StatelessWidget {
   final SyncConfig? config;
   final VoidCallback? onSettingsPressed;
 
+  /// Backup running on this phone.
+  final LiveBackup? live;
+  final VoidCallback? onCancelPressed;
+
   const SynchronizationStatusCard({
     super.key,
     required this.latestSync,
     required this.onSyncNowPressed,
     this.config,
     this.onSettingsPressed,
+    this.live,
+    this.onCancelPressed,
   });
 
   @override
@@ -38,7 +62,7 @@ class SynchronizationStatusCard extends StatelessWidget {
 
     final l10n = AppLocalizations.of(context)!;
     final p = context.palette;
-    final status = _statusFor(context, l10n, p);
+    final status = live != null ? _liveStatusFor(live!, l10n, p) : _statusFor(context, l10n, p);
 
     return AppCard(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -72,11 +96,19 @@ class SynchronizationStatusCard extends StatelessWidget {
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.ink2),
           ),
           const SizedBox(height: 20),
-          AppButton.primary(
-            label: l10n.backupNow,
-            icon: Symbols.sync_rounded,
-            onPressed: onSyncNowPressed,
-          ),
+          if (live == null)
+            AppButton.primary(
+              label: l10n.backupNow,
+              icon: Symbols.sync_rounded,
+              onPressed: onSyncNowPressed,
+            )
+          else
+            // Pausing is not supported yet (section 9): only cancel.
+            AppButton.neutral(
+              label: l10n.cancel,
+              icon: Symbols.close_rounded,
+              onPressed: live!.phase == LiveBackupPhase.cancelling ? null : onCancelPressed,
+            ),
           if (config != null) ...[
             const SizedBox(height: 16),
             BackupConditionsRow(config: config!, onSettingsPressed: onSettingsPressed),
@@ -84,6 +116,56 @@ class SynchronizationStatusCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  _CardStatus _liveStatusFor(LiveBackup live, AppLocalizations l10n, AppPalette p) {
+    final percent = NumberFormat.percentPattern(l10n.localeName).format(live.progress);
+
+    switch (live.phase) {
+      case LiveBackupPhase.uploading:
+        final remaining = live.remaining;
+        return _CardStatus(
+          title: l10n.copyingNofM(live.uploaded, live.total),
+          meta: remaining == null
+              ? l10n.backupRunning
+              : remaining.inMinutes < 1
+                  ? l10n.remainingLessThanMinute
+                  : l10n.remainingMinutes(remaining.inMinutes),
+          icon: Symbols.sync_rounded,
+          color: p.accent,
+          softColor: p.accentSoft,
+          progress: live.progress,
+          percentLabel: percent,
+        );
+      case LiveBackupPhase.preparing:
+      case LiveBackupPhase.scanning:
+        return _CardStatus(
+          title: l10n.preparingBackup,
+          meta: live.phase == LiveBackupPhase.scanning ? l10n.lookingForPhotos : l10n.backupRunning,
+          icon: Symbols.sync_rounded,
+          color: p.accent,
+          softColor: p.accentSoft,
+          progress: 0,
+        );
+      case LiveBackupPhase.finishing:
+        return _CardStatus(
+          title: l10n.finishingBackup,
+          meta: l10n.copyingNofM(live.uploaded, live.total),
+          icon: Symbols.cloud_sync_rounded,
+          color: p.accent,
+          softColor: p.accentSoft,
+          progress: 1,
+        );
+      case LiveBackupPhase.cancelling:
+        return _CardStatus(
+          title: l10n.cancellingBackup,
+          meta: l10n.copyingNofM(live.uploaded, live.total),
+          icon: Symbols.cancel_rounded,
+          color: p.ink2,
+          softColor: p.surface2,
+          progress: live.progress,
+        );
+    }
   }
 
   _CardStatus _statusFor(BuildContext context, AppLocalizations l10n, AppPalette p) {

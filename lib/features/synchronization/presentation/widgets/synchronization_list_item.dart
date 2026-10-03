@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/utils/date_formatter.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/features/synchronization/domain/entities/synchronization.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -13,7 +14,10 @@ class SynchronizationListItem extends StatelessWidget {
   final Synchronization session;
   final VoidCallback? onTap;
 
-  const SynchronizationListItem({super.key, required this.session, this.onTap});
+  /// Shown as a "Retry" button on failed backups.
+  final VoidCallback? onRetry;
+
+  const SynchronizationListItem({super.key, required this.session, this.onTap, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +53,15 @@ class SynchronizationListItem extends StatelessWidget {
                     DateFormatter.formatDayAndTime(session.startedAt, context),
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: p.ink2),
                   ),
+                  if (onRetry != null && session.status == SynchronizationStatus.failed) ...[
+                    const SizedBox(height: 8),
+                    AppButton.secondary(
+                      label: l10n.retry,
+                      icon: Symbols.refresh_rounded,
+                      size: AppButtonSize.small,
+                      onPressed: onRetry,
+                    ),
+                  ],
                 ],
               ),
             ),

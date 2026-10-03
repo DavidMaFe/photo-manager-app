@@ -250,6 +250,8 @@ class AppRouter {
                           BlocProvider(
                             create: (context) => sl<SyncConfigBloc>()..add(LoadSyncConfig()),
                           ),
+                          // Singleton: the running backup outlives the page.
+                          BlocProvider.value(value: sl<SyncSessionBloc>()),
                         ],
                         child: const SynchronizationPage(),
                       )

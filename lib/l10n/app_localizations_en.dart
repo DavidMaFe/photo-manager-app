@@ -1442,4 +1442,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteFilesBody => 'They\'ll be removed from your cloud and this phone. You can restore them from the trash for 30 days.';
+
+  @override
+  String get preparingBackup => 'Preparing the backup…';
+
+  @override
+  String get lookingForPhotos => 'Looking for new photos';
+
+  @override
+  String get finishingBackup => 'Finishing the backup…';
+
+  @override
+  String get cancellingBackup => 'Cancelling…';
+
+  @override
+  String remainingMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'About $count min left',
+      one: 'About 1 min left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remainingLessThanMinute => 'Less than a minute left';
+
+  @override
+  String get backgroundInfo => 'You can leave the app: the backup continues in the background and we\'ll let you know when it\'s done.';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get seeLess => 'See less';
 }

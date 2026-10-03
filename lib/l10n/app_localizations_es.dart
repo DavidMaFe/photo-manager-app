@@ -1442,4 +1442,39 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deleteFilesBody => 'Se borrarán de tu nube y de este móvil. Podrás recuperarlas desde la papelera durante 30 días.';
+
+  @override
+  String get preparingBackup => 'Preparando la copia…';
+
+  @override
+  String get lookingForPhotos => 'Buscando fotos nuevas';
+
+  @override
+  String get finishingBackup => 'Terminando la copia…';
+
+  @override
+  String get cancellingBackup => 'Cancelando…';
+
+  @override
+  String remainingMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Quedan unos $count min',
+      one: 'Queda alrededor de 1 min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remainingLessThanMinute => 'Queda menos de un minuto';
+
+  @override
+  String get backgroundInfo => 'Puedes salir de la app: la copia sigue en segundo plano y te avisaremos al terminar.';
+
+  @override
+  String get seeAll => 'Ver todo';
+
+  @override
+  String get seeLess => 'Ver menos';
 }

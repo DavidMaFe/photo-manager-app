@@ -2506,6 +2506,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'They\'ll be removed from your cloud and this phone. You can restore them from the trash for 30 days.'**
   String get deleteFilesBody;
+
+  /// No description provided for @preparingBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing the backup…'**
+  String get preparingBackup;
+
+  /// No description provided for @lookingForPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for new photos'**
+  String get lookingForPhotos;
+
+  /// No description provided for @finishingBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Finishing the backup…'**
+  String get finishingBackup;
+
+  /// No description provided for @cancellingBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling…'**
+  String get cancellingBackup;
+
+  /// No description provided for @remainingMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{About 1 min left} other{About {count} min left}}'**
+  String remainingMinutes(int count);
+
+  /// No description provided for @remainingLessThanMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than a minute left'**
+  String get remainingLessThanMinute;
+
+  /// No description provided for @backgroundInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'You can leave the app: the backup continues in the background and we\'ll let you know when it\'s done.'**
+  String get backgroundInfo;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAll;
+
+  /// No description provided for @seeLess.
+  ///
+  /// In en, this message translates to:
+  /// **'See less'**
+  String get seeLess;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

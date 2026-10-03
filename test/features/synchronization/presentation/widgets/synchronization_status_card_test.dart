@@ -30,6 +30,8 @@ void main() {
     SyncConfig? config,
     VoidCallback? onSyncNow,
     VoidCallback? onSettings,
+    LiveBackup? live,
+    VoidCallback? onCancel,
   }) {
     setUpCustomScreenSize(tester, 390, 900);
     return tester.pumpWidget(makeTestableWidget(Scaffold(
@@ -39,6 +41,8 @@ void main() {
           onSyncNowPressed: onSyncNow ?? () {},
           config: config,
           onSettingsPressed: onSettings,
+          live: live,
+          onCancelPressed: onCancel,
         ),
       ),
     )));
@@ -168,6 +172,102 @@ void main() {
 
       // Assert
       expect(taps, 1);
+    });
+
+    // ==================== LIVE BACKUP TESTS ====================
+
+    testWidgets('should show the running backup progress and time left', (tester) async {
+      // Arrange & Act
+      await pump(
+        tester,
+        live: const LiveBackup(
+          phase: LiveBackupPhase.uploading,
+          uploaded: 25,
+          total: 100,
+          remaining: Duration(minutes: 4),
+        ),
+      );
+
+      // Assert
+      expect(find.text('Backing up 25 of 100'), findsOneWidget);
+      expect(find.text('About 4 min left'), findsOneWidget);
+      expect(ring(tester).value, 0.25);
+      expect(find.text('25%'), findsOneWidget);
+      expect(find.text('Back up now'), findsNothing);
+    });
+
+    testWidgets('should not invent a time left before there is enough data', (tester) async {
+      // Arrange & Act
+      await pump(tester, live: const LiveBackup(phase: LiveBackupPhase.uploading, uploaded: 1, total: 100));
+
+      // Assert
+      expect(find.text('Backup in progress'), findsOneWidget);
+      expect(find.textContaining('min left'), findsNothing);
+    });
+
+    testWidgets('should say less than a minute is left', (tester) async {
+      // Arrange & Act
+      await pump(
+        tester,
+        live: const LiveBackup(
+          phase: LiveBackupPhase.uploading,
+          uploaded: 98,
+          total: 100,
+          remaining: Duration(seconds: 20),
+        ),
+      );
+
+      // Assert
+      expect(find.text('Less than a minute left'), findsOneWidget);
+    });
+
+    testWidgets('should show the preparing and finishing phases', (tester) async {
+      // Arrange & Act
+      await pump(tester, live: const LiveBackup(phase: LiveBackupPhase.scanning));
+
+      // Assert
+      expect(find.text('Preparing the backup…'), findsOneWidget);
+      expect(find.text('Looking for new photos'), findsOneWidget);
+
+      // Act
+      await pump(tester, live: const LiveBackup(phase: LiveBackupPhase.finishing, uploaded: 1, total: 1));
+
+      // Assert
+      expect(find.text('Finishing the backup…'), findsOneWidget);
+    });
+
+    testWidgets('should cancel the running backup and offer no pause', (tester) async {
+      // Arrange
+      var cancels = 0;
+      await pump(
+        tester,
+        live: const LiveBackup(phase: LiveBackupPhase.uploading, uploaded: 2, total: 10),
+        onCancel: () => cancels++,
+      );
+
+      // Act
+      await tester.tap(find.text('Cancel'));
+
+      // Assert
+      expect(cancels, 1);
+      expect(find.textContaining('Pause'), findsNothing);
+    });
+
+    testWidgets('should disable cancel while the backup is being cancelled', (tester) async {
+      // Arrange
+      var cancels = 0;
+      await pump(
+        tester,
+        live: const LiveBackup(phase: LiveBackupPhase.cancelling, uploaded: 2, total: 10),
+        onCancel: () => cancels++,
+      );
+
+      // Act
+      await tester.tap(find.text('Cancel'), warnIfMissed: false);
+
+      // Assert
+      expect(find.text('Cancelling…'), findsOneWidget);
+      expect(cancels, 0);
     });
   });
 }

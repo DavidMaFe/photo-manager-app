@@ -712,5 +712,22 @@
       }
     }
   },
-  "deleteFilesBody": "They'll be removed from your cloud and this phone. You can restore them from the trash for 30 days."
+  "deleteFilesBody": "They'll be removed from your cloud and this phone. You can restore them from the trash for 30 days.",
+
+  "preparingBackup": "Preparing the backup…",
+  "lookingForPhotos": "Looking for new photos",
+  "finishingBackup": "Finishing the backup…",
+  "cancellingBackup": "Cancelling…",
+  "remainingMinutes": "{count, plural, =1{About 1 min left} other{About {count} min left}}",
+  "@remainingMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "remainingLessThanMinute": "Less than a minute left",
+  "backgroundInfo": "You can leave the app: the backup continues in the background and we'll let you know when it's done.",
+  "seeAll": "See all",
+  "seeLess": "See less"
 }
