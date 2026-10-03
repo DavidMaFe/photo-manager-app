@@ -1,23 +1,33 @@
-import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/widgets/app_sheet.dart';
+import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
+import 'package:photo_manager_app/core/widgets/list_row.dart';
+import 'package:photo_manager_app/core/widgets/user_avatar.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-import '../../../../../core/widgets/authenticated_image.dart';
-
+/// 96 px avatar with a camera button and "Change photo".
 class ProfilePhotoPicker extends StatefulWidget {
   final String? currentPhotoUrl;
-  final String fullName;
+  final String name;
+  final String? surname;
   final Function(String?) onPhotoSelected;
+
+  /// Injectable for tests.
+  final ImagePicker? picker;
 
   const ProfilePhotoPicker({
     super.key,
     this.currentPhotoUrl,
-    required this.fullName,
+    required this.name,
+    this.surname,
     required this.onPhotoSelected,
+    this.picker,
   });
 
   @override
@@ -25,136 +35,103 @@ class ProfilePhotoPicker extends StatefulWidget {
 }
 
 class _ProfilePhotoPickerState extends State<ProfilePhotoPicker> {
-  final ImagePicker _picker = ImagePicker();
+  late final ImagePicker _picker = widget.picker ?? ImagePicker();
   File? _selectedImageFile;
-  String? _selectedImageBase64;
 
   Future<void> _pickImage() async {
     final l10n = AppLocalizations.of(context)!;
 
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Wrap(
+    final source = await showAppSheet<ImageSource>(
+      context,
+      builder: (sheetContext) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l10n.selectProfilePhoto, style: Theme.of(sheetContext).textTheme.titleLarge),
+          const SizedBox(height: 12),
+          ListRowGroup(
             children: [
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: Text(l10n.selectProfilePhoto),
-                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ListRow(
+                icon: Symbols.photo_library_rounded,
+                title: l10n.gallerySource,
+                showChevron: false,
+                onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
               ),
-              ListTile(
-                leading: const Icon(Icons.photo_camera),
-                title: const Text('Cámara'),
-                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ListRow(
+                icon: Symbols.photo_camera_rounded,
+                title: l10n.camera,
+                showChevron: false,
+                onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
               ),
             ],
           ),
-        );
-      },
+        ],
+      ),
     );
 
-    if (source != null) {
-      final XFile? pickedFile = await _picker.pickImage(
-        source: source,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
-      );
+    if (source == null) return;
 
-      if (pickedFile != null) {
-        final bytes = await File(pickedFile.path).readAsBytes();
-        final base64Image = base64Encode(bytes);
+    final XFile? pickedFile = await _picker.pickImage(
+      source: source,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 85,
+    );
+    if (pickedFile == null) return;
 
-        setState(() {
-          _selectedImageFile = File(pickedFile.path);
-          _selectedImageBase64 = base64Image;
-        });
-
-        widget.onPhotoSelected(_selectedImageBase64);
-      }
-    }
+    final bytes = await File(pickedFile.path).readAsBytes();
+    setState(() => _selectedImageFile = File(pickedFile.path));
+    widget.onPhotoSelected(base64Encode(bytes));
   }
 
-  String _getInitials(String fullName) {
-    final parts = fullName.trim().split(' ').where((p) => p.isNotEmpty).toList();
-    if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts[0][0].toUpperCase();
-    return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
+  Widget? _photo() {
+    if (_selectedImageFile != null) {
+      return Image.file(_selectedImageFile!, fit: BoxFit.cover);
+    }
+    final url = widget.currentPhotoUrl;
+    if (url != null && url.isNotEmpty) {
+      return AuthenticatedImage(imageUrl: url, fit: BoxFit.cover);
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final p = context.palette;
 
-    return Center(
-      child: Column(
-        children: [
-          Stack(
-            children: [
-              _selectedImageFile != null || (widget.currentPhotoUrl != null && widget.currentPhotoUrl!.isNotEmpty)
-                  ? SizedBox(
-                width: 120,
-                height: 120,
-                child: ClipOval(
-                  child: _selectedImageFile != null
-                      ? Image.file(
-                    _selectedImageFile!,
-                    fit: BoxFit.cover,
-                  )
-                      : AuthenticatedImage(
-                    imageUrl: widget.currentPhotoUrl!,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              )
-                  : CircleAvatar(
-                radius: 60,
-                backgroundColor: context.palette.accent,
-                child: Text(
-                  _getInitials(widget.fullName),
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: context.palette.onAccent,
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: context.palette.surface,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: context.palette.shadow,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.camera_alt,
-                      size: 20,
-                      color: context.palette.ink2,
+    return Column(
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            UserAvatar(name: widget.name, surname: widget.surname, size: 96, photo: _photo()),
+            Positioned(
+              right: -4,
+              bottom: -4,
+              child: Tooltip(
+                message: l10n.changePhoto,
+                child: Material(
+                  color: p.surface,
+                  shape: const CircleBorder(),
+                  elevation: 2,
+                  shadowColor: p.shadow,
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: _pickImage,
+                    child: SizedBox.square(
+                      dimension: 36,
+                      child: Icon(Symbols.photo_camera_rounded, size: 20, color: p.ink),
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          TextButton(
-            onPressed: _pickImage,
-            child: Text(l10n.changePhoto),
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        TextButton(onPressed: _pickImage, child: Text(l10n.changePhoto)),
+      ],
     );
   }
 }

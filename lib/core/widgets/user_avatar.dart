@@ -7,7 +7,8 @@ class UserAvatar extends StatelessWidget {
   final String name;
   final String? surname;
   final double size;
-  final ImageProvider? image;
+  /// Foto (p. ej. AuthenticatedImage); si no hay, se muestran las iniciales.
+  final Widget? photo;
   final VoidCallback? onTap;
 
   /// Texto accesible (p. ej. «Abrir perfil»).
@@ -18,7 +19,7 @@ class UserAvatar extends StatelessWidget {
     required this.name,
     this.surname,
     this.size = 36,
-    this.image,
+    this.photo,
     this.onTap,
     this.semanticLabel,
   });
@@ -43,13 +44,10 @@ class UserAvatar extends StatelessWidget {
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: p.accent,
-        shape: BoxShape.circle,
-        image: image == null ? null : DecorationImage(image: image!, fit: BoxFit.cover),
-      ),
-      child: image != null
-          ? null
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(color: p.accent, shape: BoxShape.circle),
+      child: photo != null
+          ? SizedBox.square(dimension: size, child: photo)
           : Text(
               initialsOf(name, surname),
               style: TextStyle(

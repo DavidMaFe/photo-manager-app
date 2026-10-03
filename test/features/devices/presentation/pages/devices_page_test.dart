@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
@@ -22,6 +23,7 @@ class FakeRefreshDevices extends Fake implements RefreshDevices {}
 
 void main() {
   late MockDeviceBloc mockBloc;
+  String? currentUuid;
 
   setUpAll(() {
     registerFallbackValue(FakeLoadDevices());
@@ -30,6 +32,7 @@ void main() {
 
   setUp(() {
     mockBloc = MockDeviceBloc();
+    currentUuid = null;
   });
 
   final testDevices = TestDeviceEntities.deviceList;
@@ -41,21 +44,28 @@ void main() {
     return makeTestableWidget(
       BlocProvider<DeviceBloc>.value(
         value: mockBloc,
-        child: const DevicesPage(),
+        child: DevicesPage(loadCurrentDeviceUuid: () async => currentUuid),
       ),
     );
   }
 
   group('DevicesPage', () {
-    testWidgets('should display AppBar with title', (tester) async {
-      when(() => mockBloc.state).thenReturn(DeviceLoading());
-      when(() => mockBloc.stream)
-          .thenAnswer((_) => Stream.value(DeviceLoading()));
-
+    testWidgets('should display the secondary top bar with title', (tester) async {
       await tester.pumpWidget(buildTestWidget(DeviceLoading()));
 
-      expect(find.byType(AppBar), findsOneWidget);
-      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.byType(SecondaryTopBar), findsOneWidget);
+      expect(find.text('My devices'), findsOneWidget);
+    });
+
+    testWidgets('should tag the device running the app', (tester) async {
+      currentUuid = TestDeviceEntities.iosDevice.uuid;
+
+      await tester.pumpWidget(buildTestWidget(DeviceLoaded(TestDeviceEntities.deviceList)));
+      await tester.pump();
+
+      final cards = tester.widgetList<DeviceCard>(find.byType(DeviceCard, skipOffstage: false));
+      final current = cards.where((c) => c.isCurrentDevice).toList();
+      expect(current.single.device.uuid, TestDeviceEntities.iosDevice.uuid);
     });
 
     testWidgets('should display loading indicator when state is DeviceLoading',

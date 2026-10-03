@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
+import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
+import 'package:photo_manager_app/core/widgets/selection_action_bar.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
 import 'package:photo_manager_app/features/trash/presentation/bloc/trash_bloc.dart';
 import 'package:photo_manager_app/features/trash/presentation/bloc/trash_event.dart';
 import 'package:photo_manager_app/features/trash/presentation/bloc/trash_state.dart';
-import 'package:photo_manager_app/features/trash/presentation/widgets/trash_action_buttons.dart';
 import 'package:photo_manager_app/features/trash/presentation/widgets/trash_empty_state.dart';
 import 'package:photo_manager_app/features/trash/presentation/widgets/trash_files_grid.dart';
 import 'package:photo_manager_app/features/trash/presentation/widgets/trash_header.dart';
@@ -26,13 +28,14 @@ class TrashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => sl<TrashBloc>(),
-      child: const _TrashPageContent(),
+      child: const TrashPageView(),
     );
   }
 }
 
-class _TrashPageContent extends StatelessWidget {
-  const _TrashPageContent();
+/// Trash screen content; expects a [TrashBloc] above it.
+class TrashPageView extends StatelessWidget {
+  const TrashPageView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,37 +45,55 @@ class _TrashPageContent extends StatelessWidget {
         final isSelectionMode = state is TrashLoaded && state.isSelectionMode;
         final selectedCount = isSelectionMode ? state.selectedCount : 0;
 
+        final hasFiles = state is TrashLoaded && state.files.isNotEmpty;
+        final areAllFilesSelected = state is TrashLoaded && state.areAllFilesSelected;
+
         return Scaffold(
           appBar: TrashHeader(
             isSelectionMode: isSelectionMode,
             selectedCount: selectedCount,
+            areAllFilesSelected: areAllFilesSelected,
+            canEmpty: hasFiles,
             onCancelSelection: () {
               context.read<TrashBloc>().add(const ExitSelectionMode());
             },
+            onSelectAll: () => context.read<TrashBloc>().add(const SelectAllFiles()),
+            onClearSelection: () => context.read<TrashBloc>().add(const ClearSelection()),
             onEmptyTrash: () => _showEmptyTrashDialog(context),
           ),
           body: _buildContent(context, state),
-          floatingActionButton: _buildFAB(context, state),
+          bottomNavigationBar: _buildSelectionBar(context, state),
         );
       },
     );
   }
 
-  Widget? _buildFAB(BuildContext context, TrashState state) {
-    if (state is! TrashLoaded || !state.isSelectionMode) {
+  /// Restore / delete forever bar for the selected files.
+  Widget? _buildSelectionBar(BuildContext context, TrashState state) {
+    if (state is! TrashLoaded || !state.isSelectionMode || state.selectedCount == 0) {
       return null;
     }
 
-    final selectedCount = state.selectedCount;
+    final l10n = AppLocalizations.of(context)!;
+    final count = state.selectedCount;
+    final busy = state is TrashRestoring || state is TrashDeleting;
 
-    if (selectedCount == 0) {
-      return null;
-    }
-
-    return TrashActionButtons(
-      selectedCount: selectedCount,
-      onRestore: () => _showRestoreDialog(context, selectedCount),
-      onDelete: () => _showDeleteDialog(context, selectedCount),
+    return SelectionActionBar(
+      label: l10n.selectedItems(count),
+      actions: [
+        SelectionAction(
+          icon: Symbols.restore_rounded,
+          label: l10n.restore,
+          style: SelectionActionStyle.primary,
+          onPressed: busy ? null : () => _showRestoreDialog(context, count),
+        ),
+        SelectionAction(
+          icon: Symbols.delete_forever_rounded,
+          label: l10n.deleteForever,
+          style: SelectionActionStyle.danger,
+          onPressed: busy ? null : () => _showDeleteDialog(context, count),
+        ),
+      ],
     );
   }
 
@@ -124,13 +145,11 @@ class _TrashPageContent extends StatelessWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<TrashBloc>().add(const LoadTrash());
       });
-      return const Center(child: CircularProgressIndicator());
+      return const MediaGridSkeleton();
     }
 
     if (state is TrashLoading) {
-      return const Center(
-        child: CircularProgressIndicator(strokeWidth: 2),
-      );
+      return const MediaGridSkeleton();
     }
 
     if (state is TrashLoaded || state is TrashLoadingMore) {
@@ -212,11 +231,14 @@ class _TrashPageContent extends StatelessWidget {
             pathParameters: {'fileId': file.id},
             extra: {
               'files': files,
-              'initialIndex': fileIndex
+              'initialIndex': fileIndex,
+              // Share this page's bloc so actions in the viewer refresh the list.
+              'bloc': context.read<TrashBloc>(),
             }
           );
         }
       },
+      bottomPadding: isSelectionMode ? 8 : 24,
       onFileLongPress: (file) {
         if (!isSelectionMode) {
           context.read<TrashBloc>().add(const EnterSelectionMode());

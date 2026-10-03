@@ -2,108 +2,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_stats.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:photo_manager_app/l10n/app_localizations.dart';
+
+import '../../../../fixtures/test_data.dart';
+import '../../../../helpers/widget_test_helper.dart';
 
 void main() {
-  Widget makeTestableWidget(Widget child) {
-    return MaterialApp(
-      locale: const Locale('en'),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: child),
-    );
+  Future<void> pump(WidgetTester tester, UserProfile profile, {Locale locale = const Locale('en')}) {
+    return tester.pumpWidget(makeTestableWidget(Scaffold(body: ProfileStats(profile: profile)), locale: locale));
   }
 
   group('ProfileStats', () {
-    final testProfile = UserProfile(
-      id: '1',
-      email: 'test@example.com',
-      name: 'John',
-      surname: 'Doe',
-      hasProfileImage: false,
-      storageUsedMb: 500,
-      storageTotalMb: 1024,
-      fileCount: 100,
-      folderCount: 10,
-      deviceCount: 2,
-    );
-
-    testWidgets('should have three stat items', (tester) async {
+    testWidgets('should show items, albums and devices', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(makeTestableWidget(ProfileStats(profile: testProfile)));
+      await pump(tester, TestProfiles.johnDoeProfile);
 
       // Assert
-      final inkWells = find.byType(InkWell);
-      expect(inkWells, findsNWidgets(3)); // Files, Folders, Devices
+      expect(find.text('150'), findsOneWidget);
+      expect(find.text('items'), findsOneWidget);
+      expect(find.text('10'), findsOneWidget);
+      expect(find.text('albums'), findsOneWidget);
+      expect(find.text('2'), findsOneWidget);
+      expect(find.text('devices'), findsOneWidget);
     });
 
-    testWidgets('should have dividers between stats', (tester) async {
+    testWidgets('should use singular labels for one', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(makeTestableWidget(ProfileStats(profile: testProfile)));
+      await pump(tester, TestProfiles.emptyStorageProfile);
 
       // Assert
-      final containers = tester.widgetList<Container>(find.byType(Container));
-      final dividers = containers.where((c) => c.constraints?.maxHeight == 40 && c.constraints?.maxWidth == 1);
-      expect(dividers.length, 2); // Two dividers between three stats
+      expect(find.text('device'), findsOneWidget);
     });
 
-    testWidgets('should format large numbers', (tester) async {
-      // Arrange
-      final profileWithLargeNumbers = UserProfile(
-        id: '1',
-        email: 'test@example.com',
-        name: 'John',
-        surname: 'Doe',
+    testWidgets('should group thousands in the user locale', (tester) async {
+      // Arrange & Act
+      final profile = UserProfile(
+        id: '9',
+        email: 'a@b.com',
+        name: 'Ana',
         hasProfileImage: false,
-        storageUsedMb: 500,
+        storageUsedMb: 0,
         storageTotalMb: 1024,
-        fileCount: 1000,
-        folderCount: 10,
-        deviceCount: 2,
+        fileCount: 1248,
+        folderCount: 12,
+        deviceCount: 3,
       );
-
-      // Act
-      await tester.pumpWidget(makeTestableWidget(ProfileStats(profile: profileWithLargeNumbers)));
+      await pump(tester, profile, locale: const Locale('es'));
 
       // Assert
-      expect(find.text('1000'), findsOneWidget); // Number formatting
+      expect(find.text('1.248'), findsOneWidget);
+      expect(find.text('elementos'), findsOneWidget);
     });
 
-    testWidgets('should have proper spacing between stats', (tester) async {
+    testWidgets('should not draw vertical dividers', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(makeTestableWidget(ProfileStats(profile: testProfile)));
+      await pump(tester, TestProfiles.johnDoeProfile);
 
       // Assert
-      final row = tester.widget<Row>(find.byType(Row));
-      expect(row.mainAxisAlignment, MainAxisAlignment.spaceAround);
-    });
-
-    testWidgets('should display zero values correctly', (tester) async {
-      // Arrange
-      final profileWithZeros = UserProfile(
-        id: '1',
-        email: 'test@example.com',
-        name: 'John',
-        surname: 'Doe',
-        hasProfileImage: false,
-        storageUsedMb: 500,
-        storageTotalMb: 1024,
-        fileCount: 0,
-        folderCount: 0,
-        deviceCount: 0,
-      );
-
-      // Act
-      await tester.pumpWidget(makeTestableWidget(ProfileStats(profile: profileWithZeros)));
-
-      // Assert
-      expect(find.text('0'), findsNWidgets(3)); // All three stats are 0
+      expect(find.byType(VerticalDivider), findsNothing);
     });
   });
 }

@@ -8,6 +8,9 @@ import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 class TrashFileCard extends StatelessWidget {
+  /// Files deleted within this many days get the danger countdown pill.
+  static const int soonThresholdDays = 3;
+
   final TrashFile file;
   final bool isSelectionMode;
   final bool isSelected;
@@ -51,11 +54,11 @@ class TrashFileCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-        color: file.isDeletionImminent ? palette.danger : palette.scrim,
+        color: isDeletedSoon(file) ? palette.danger : palette.scrim,
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(
-        l10n.daysRemaining(file.daysUntilPermanentDeletion),
+        l10n.daysLeft(file.daysUntilPermanentDeletion),
         style: TextStyle(
           color: palette.onMedia,
           fontSize: 11,
@@ -64,4 +67,6 @@ class TrashFileCard extends StatelessWidget {
       ),
     );
   }
+
+  static bool isDeletedSoon(TrashFile file) => file.daysUntilPermanentDeletion <= soonThresholdDays;
 }

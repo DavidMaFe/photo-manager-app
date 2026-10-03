@@ -30,10 +30,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get loginButton => 'Entrar';
 
   @override
-  String get logoutButton => 'Salir';
+  String get logoutButton => 'Cerrar sesión';
 
   @override
-  String get logoutConfirmation => '¿Estás seguro de que quieres salir?';
+  String get logoutConfirmation => '¿Seguro que quieres cerrar sesión?';
 
   @override
   String get forgotPassword => '¿La has olvidado?';
@@ -870,7 +870,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get backToLogin => 'Volver al inicio de sesión';
 
   @override
-  String get editProfileTitle => 'Editar Perfil';
+  String get editProfileTitle => 'Editar perfil';
 
   @override
   String get currentPasswordLabel => 'Contraseña actual';
@@ -888,10 +888,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get saveChanges => 'Guardar cambios';
 
   @override
-  String get profileUpdatedSuccessfully => 'Perfil actualizado exitosamente';
+  String get profileUpdatedSuccessfully => 'Perfil actualizado';
 
   @override
-  String get passwordChangedSuccessfully => 'Contraseña cambiada exitosamente';
+  String get passwordChangedSuccessfully => 'Contraseña cambiada';
 
   @override
   String get selectProfilePhoto => 'Seleccionar foto de perfil';
@@ -906,7 +906,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get passwordSection => 'Cambiar contraseña';
 
   @override
-  String get leavePasswordEmptyHint => 'Deja en blanco si no quieres cambiar la contraseña';
+  String get leavePasswordEmptyHint => 'Déjala en blanco si no quieres cambiarla';
 
   @override
   String get savingChanges => 'Guardando cambios...';
@@ -963,7 +963,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deviceNameTooLong => 'El nombre es demasiado largo (máximo 50 caracteres)';
 
   @override
-  String get autoSync => 'Sincronización automática';
+  String get autoSync => 'Copia automática';
 
   @override
   String get unlinkDevice => 'Desvincular';
@@ -974,7 +974,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get deviceActionSuccess => 'Acción completada con éxito';
+  String get deviceActionSuccess => 'Hecho';
 
   @override
   String get noDevices => 'No tienes dispositivos vinculados';
@@ -1100,7 +1100,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get savingConfiguration => 'Guardando configuración...';
 
   @override
-  String get configurationSaved => 'Configuración guardada';
+  String get configurationSaved => 'Ajustes guardados';
 
   @override
   String get configurationSavedDescription => 'Tu configuración de sincronización automática ha sido guardada correctamente';
@@ -1526,4 +1526,202 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get backupRunning => 'Copia en curso';
+
+  @override
+  String get navProfile => 'Perfil';
+
+  @override
+  String get edit => 'Editar';
+
+  @override
+  String storageOf(String used, String total) {
+    return '$used de $total';
+  }
+
+  @override
+  String elementsLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'elementos',
+      one: 'elemento',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String albumsLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'álbumes',
+      one: 'álbum',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'dispositivos',
+      one: 'dispositivo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sectionBackupSpace => 'Copia y espacio';
+
+  @override
+  String get sectionApp => 'Aplicación';
+
+  @override
+  String dailyAt(String time) {
+    return 'Diaria a las $time';
+  }
+
+  @override
+  String weeklyAt(String day, String time) {
+    return '$day a las $time';
+  }
+
+  @override
+  String linkedDevices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vinculados',
+      one: '1 vinculado',
+      zero: 'Ninguno vinculado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get trashAutoEmpty => 'Se vacía a los 30 días';
+
+  @override
+  String get notifOnlyFailures => 'Solo fallos';
+
+  @override
+  String get notifOnlySuccess => 'Solo al terminar';
+
+  @override
+  String get notifAll => 'Todas';
+
+  @override
+  String get notifOff => 'Desactivadas';
+
+  @override
+  String get sectionData => 'Datos';
+
+  @override
+  String get sectionPassword => 'Contraseña';
+
+  @override
+  String get gallerySource => 'Galería';
+
+  @override
+  String get camera => 'Cámara';
+
+  @override
+  String get thisDevice => 'Este móvil';
+
+  @override
+  String get emptyTrashShort => 'Vaciar';
+
+  @override
+  String get trashInfo => 'Se borran para siempre a los 30 días. Mantén pulsado para restaurar varios.';
+
+  @override
+  String get deletingSoon => 'Se borran pronto';
+
+  @override
+  String get thisMonth => 'Este mes';
+
+  @override
+  String daysLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count días',
+      one: '1 día',
+      zero: 'Hoy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteForever => 'Eliminar para siempre';
+
+  @override
+  String deletesIn(String time) {
+    return 'Se borra en $time';
+  }
+
+  @override
+  String selectedItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count elementos',
+      one: '1 elemento',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get autoBackupBody => 'Tus fotos nuevas se guardan solas';
+
+  @override
+  String get sectionWhen => 'Cuándo';
+
+  @override
+  String get everyDay => 'Cada día';
+
+  @override
+  String get oncePerWeek => 'Una vez por semana';
+
+  @override
+  String get day => 'Día';
+
+  @override
+  String get time => 'Hora';
+
+  @override
+  String nextBackup(String when) {
+    return 'Próxima copia: $when';
+  }
+
+  @override
+  String get sectionConditions => 'Condiciones';
+
+  @override
+  String get network => 'Red';
+
+  @override
+  String get battery => 'Batería';
+
+  @override
+  String get always => 'Siempre';
+
+  @override
+  String get sectionAlerts => 'Avisos';
+
+  @override
+  String get alertSuccess => 'Al terminar bien';
+
+  @override
+  String get alertSuccessBody => 'Un aviso con lo que se guardó';
+
+  @override
+  String get alertFailure => 'Si algo falla';
+
+  @override
+  String get alertFailureBody => 'Para que puedas reintentarlo';
+
+  @override
+  String get sectionDiagnostics => 'Diagnóstico';
 }

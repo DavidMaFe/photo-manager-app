@@ -30,10 +30,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginButton => 'Sign In';
 
   @override
-  String get logoutButton => 'Sign Out';
+  String get logoutButton => 'Sign out';
 
   @override
-  String get logoutConfirmation => 'Are you sure to logout?';
+  String get logoutConfirmation => 'Are you sure you want to sign out?';
 
   @override
   String get forgotPassword => 'Forgot it?';
@@ -870,7 +870,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backToLogin => 'Back to login';
 
   @override
-  String get editProfileTitle => 'Edit Profile';
+  String get editProfileTitle => 'Edit profile';
 
   @override
   String get currentPasswordLabel => 'Current password';
@@ -888,10 +888,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveChanges => 'Save changes';
 
   @override
-  String get profileUpdatedSuccessfully => 'Profile updated successfully';
+  String get profileUpdatedSuccessfully => 'Profile updated';
 
   @override
-  String get passwordChangedSuccessfully => 'Password changed successfully';
+  String get passwordChangedSuccessfully => 'Password changed';
 
   @override
   String get selectProfilePhoto => 'Select profile photo';
@@ -906,7 +906,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordSection => 'Change password';
 
   @override
-  String get leavePasswordEmptyHint => 'Leave blank if you don\'t want to change the password';
+  String get leavePasswordEmptyHint => 'Leave it blank if you don\'t want to change it';
 
   @override
   String get savingChanges => 'Saving changes...';
@@ -963,7 +963,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deviceNameTooLong => 'Name is too long (maximum 50 characters)';
 
   @override
-  String get autoSync => 'Auto-sync';
+  String get autoSync => 'Automatic backup';
 
   @override
   String get unlinkDevice => 'Unlink';
@@ -974,7 +974,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deviceActionSuccess => 'Action completed successfully';
+  String get deviceActionSuccess => 'Done';
 
   @override
   String get noDevices => 'No linked devices';
@@ -1100,7 +1100,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingConfiguration => 'Saving configuration...';
 
   @override
-  String get configurationSaved => 'Configuration saved';
+  String get configurationSaved => 'Settings saved';
 
   @override
   String get configurationSavedDescription => 'Your automatic sync configuration has been saved successfully';
@@ -1526,4 +1526,202 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupRunning => 'Backup in progress';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String storageOf(String used, String total) {
+    return '$used of $total';
+  }
+
+  @override
+  String elementsLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'items',
+      one: 'item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String albumsLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'albums',
+      one: 'album',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'devices',
+      one: 'device',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sectionBackupSpace => 'Backup and space';
+
+  @override
+  String get sectionApp => 'App';
+
+  @override
+  String dailyAt(String time) {
+    return 'Daily at $time';
+  }
+
+  @override
+  String weeklyAt(String day, String time) {
+    return '$day at $time';
+  }
+
+  @override
+  String linkedDevices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count linked',
+      one: '1 linked',
+      zero: 'None linked',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get trashAutoEmpty => 'Emptied after 30 days';
+
+  @override
+  String get notifOnlyFailures => 'Failures only';
+
+  @override
+  String get notifOnlySuccess => 'Finished only';
+
+  @override
+  String get notifAll => 'All';
+
+  @override
+  String get notifOff => 'Off';
+
+  @override
+  String get sectionData => 'Details';
+
+  @override
+  String get sectionPassword => 'Password';
+
+  @override
+  String get gallerySource => 'Gallery';
+
+  @override
+  String get camera => 'Camera';
+
+  @override
+  String get thisDevice => 'This phone';
+
+  @override
+  String get emptyTrashShort => 'Empty';
+
+  @override
+  String get trashInfo => 'Items are deleted forever after 30 days. Long-press to restore several.';
+
+  @override
+  String get deletingSoon => 'Deleted soon';
+
+  @override
+  String get thisMonth => 'This month';
+
+  @override
+  String daysLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+      zero: 'Today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteForever => 'Delete forever';
+
+  @override
+  String deletesIn(String time) {
+    return 'Deleted in $time';
+  }
+
+  @override
+  String selectedItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get autoBackupBody => 'Your new photos are saved automatically';
+
+  @override
+  String get sectionWhen => 'When';
+
+  @override
+  String get everyDay => 'Every day';
+
+  @override
+  String get oncePerWeek => 'Once a week';
+
+  @override
+  String get day => 'Day';
+
+  @override
+  String get time => 'Time';
+
+  @override
+  String nextBackup(String when) {
+    return 'Next backup: $when';
+  }
+
+  @override
+  String get sectionConditions => 'Conditions';
+
+  @override
+  String get network => 'Network';
+
+  @override
+  String get battery => 'Battery';
+
+  @override
+  String get always => 'Always';
+
+  @override
+  String get sectionAlerts => 'Alerts';
+
+  @override
+  String get alertSuccess => 'When it finishes';
+
+  @override
+  String get alertSuccessBody => 'A notice with what was saved';
+
+  @override
+  String get alertFailure => 'If something fails';
+
+  @override
+  String get alertFailureBody => 'So you can retry it';
+
+  @override
+  String get sectionDiagnostics => 'Diagnostics';
 }

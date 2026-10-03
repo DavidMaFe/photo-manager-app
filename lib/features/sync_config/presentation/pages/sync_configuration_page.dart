@@ -1,12 +1,20 @@
-import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/injection_container.dart';
+import 'package:photo_manager_app/core/widgets/app_card.dart';
+import 'package:photo_manager_app/core/widgets/empty_state.dart';
+import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
+import 'package:photo_manager_app/core/widgets/section_label.dart';
+import 'package:photo_manager_app/features/sync_config/domain/entities/sync_config.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_event.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_state.dart';
+import 'package:photo_manager_app/features/sync_config/presentation/utils/next_backup.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/auto_sync_toggle_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/battery_preference_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/day_of_week_picker_widget.dart';
@@ -25,165 +33,182 @@ class SyncConfigurationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => sl<SyncConfigBloc>()..add(LoadSyncConfig()),
-      child: const _SyncConfigurationPageContent(),
+      child: const SyncConfigurationView(),
     );
   }
 }
 
-class _SyncConfigurationPageContent extends StatelessWidget {
-  const _SyncConfigurationPageContent();
+/// Backup settings content; expects a [SyncConfigBloc] above it.
+class SyncConfigurationView extends StatefulWidget {
+
+  /// Hidden in tests: it reads the device battery and background task status.
+  final bool showDiagnostics;
+
+  const SyncConfigurationView({super.key, this.showDiagnostics = true});
+
+  @override
+  State<SyncConfigurationView> createState() => _SyncConfigurationViewState();
+}
+
+class _SyncConfigurationViewState extends State<SyncConfigurationView> {
+
+  /// Last loaded or saved configuration, to enable "Save" only on changes.
+  SyncConfig? _savedConfig;
+
+  SyncConfig? _configOf(SyncConfigState state) {
+    return switch (state) {
+      SyncConfigLoaded() => state.config,
+      SyncConfigSaving() => state.config,
+      SyncConfigSaved() => state.config,
+      SyncConfigError() => state.currentConfig,
+      _ => null,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.syncConfigurationTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-      ),
+      appBar: SecondaryTopBar(title: l10n.backupSettings, onBack: () => context.pop()),
       body: BlocConsumer<SyncConfigBloc, SyncConfigState>(
         listener: (context, state) {
           if (state is SyncConfigError) {
-            ErrorNotificationService.showError(
-              context,
-              state.failure,
-            );
+            ErrorNotificationService.showError(context, state.failure);
           } else if (state is SyncConfigSaved) {
+            setState(() => _savedConfig = state.config);
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.configurationSaved),
-                backgroundColor: context.palette.safe,
-                duration: const Duration(seconds: 2),
-              ),
+              SnackBar(content: Text(l10n.configurationSaved), duration: const Duration(seconds: 2)),
             );
           }
         },
         builder: (context, state) {
-          // Handle initial state - show loading
           if (state is SyncConfigInitial || state is SyncConfigLoading) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.loadingConfiguration,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ],
-              ),
-            );
+            return const Center(child: CircularProgressIndicator(strokeWidth: 2));
           }
 
-          if (state is SyncConfigError && state.currentConfig == null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: context.palette.danger),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.configurationLoadError,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<SyncConfigBloc>().add(LoadSyncConfig());
-                    },
-                    child: Text(l10n.retry),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          // Extract config from state
-          final config = state is SyncConfigLoaded
-              ? state.config
-              : state is SyncConfigSaving
-                  ? state.config
-                  : state is SyncConfigSaved
-                      ? state.config
-                      : state is SyncConfigError
-                          ? state.currentConfig
-                          : null;
+          final config = _configOf(state);
 
           if (config == null) {
-            return const SizedBox.shrink();
+            return EmptyState(
+              icon: Symbols.error_rounded,
+              title: l10n.configurationLoadError,
+              actionLabel: l10n.retry,
+              onAction: () => context.read<SyncConfigBloc>().add(LoadSyncConfig()),
+            );
           }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Description
-                Text(
-                  l10n.syncConfigurationDescription,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: context.palette.ink2,
-                      ),
-                ),
-                const SizedBox(height: 24),
+          _savedConfig ??= config;
 
-                // Diagnostics card — shows battery status, last sync result,
-                // event log, and Force Sync button.
-                const SyncDiagnosticsWidget(),
-                const SizedBox(height: 24),
-
-                // Auto-sync toggle
-                AutoSyncToggleWidget(isEnabled: config.autoSyncEnabled),
-                const SizedBox(height: 24),
-
-                // Frequency selector
-                FrequencySelectorWidget(frequency: config.syncFrequency),
-                const SizedBox(height: 24),
-
-                // Time picker
-                TimePickerWidget(time: config.syncTime),
-                const SizedBox(height: 24),
-
-                // Day of week picker (only for weekly)
-                if (config.isWeeklySync)
-                  DayOfWeekPickerWidget(
-                    selectedDay: config.syncDayOfWeek,
-                  ),
-                if (config.isWeeklySync) const SizedBox(height: 24),
-
-                // Network preference
-                NetworkPreferenceWidget(
-                  preference: config.networkPreference,
-                ),
-                const SizedBox(height: 24),
-
-                // Battery preference
-                BatteryPreferenceWidget(
-                  preference: config.batteryPreference,
-                ),
-                const SizedBox(height: 24),
-
-                // Notification preferences
-                NotificationPreferencesWidget(
-                  notifyOnSuccess: config.notifyOnSuccess,
-                  notifyOnFailure: config.notifyOnFailure,
-                ),
-                const SizedBox(height: 32),
-
-                // Save button
-                SaveButtonWidget(
-                  isSaving: state is SyncConfigSaving,
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
+          return Column(
+            children: [
+              Expanded(child: _buildForm(context, config, l10n)),
+              SaveButtonWidget(
+                isSaving: state is SyncConfigSaving,
+                hasChanges: config != _savedConfig,
+              ),
+            ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildForm(BuildContext context, SyncConfig config, AppLocalizations l10n) {
+    final enabled = config.autoSyncEnabled;
+
+    return ListView(
+      padding: const EdgeInsets.only(top: 8, bottom: 24),
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: AutoSyncToggleWidget(isEnabled: enabled),
+        ),
+        // Everything else only applies while automatic backup is on.
+        IgnorePointer(
+          ignoring: !enabled,
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
+            opacity: enabled ? 1 : 0.5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SectionLabel(l10n.sectionWhen),
+                AppCard(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      FrequencySelectorWidget(frequency: config.syncFrequency),
+                      if (config.isWeeklySync) ...[
+                        const SizedBox(height: 12),
+                        DayOfWeekPickerWidget(selectedDay: config.syncDayOfWeek),
+                      ],
+                      const SizedBox(height: 12),
+                      const Divider(),
+                      const SizedBox(height: 4),
+                      TimePickerWidget(time: config.syncTime),
+                      _NextBackupNote(config: config),
+                    ],
+                  ),
+                ),
+                SectionLabel(l10n.sectionConditions),
+                AppCard(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      NetworkPreferenceWidget(preference: config.networkPreference),
+                      const SizedBox(height: 16),
+                      BatteryPreferenceWidget(preference: config.batteryPreference),
+                    ],
+                  ),
+                ),
+                SectionLabel(l10n.sectionAlerts),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: NotificationPreferencesWidget(
+                    notifyOnSuccess: config.notifyOnSuccess,
+                    notifyOnFailure: config.notifyOnFailure,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (widget.showDiagnostics) ...[
+          SectionLabel(l10n.sectionDiagnostics),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SyncDiagnosticsWidget(),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// "Next backup: Saturday 3 Oct at 03:00".
+class _NextBackupNote extends StatelessWidget {
+  final SyncConfig config;
+
+  const _NextBackupNote({required this.config});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final next = nextBackupAt(config, DateTime.now());
+    if (next == null) return const SizedBox.shrink();
+
+    final locale = l10n.localeName;
+    final day = DateFormat('EEEE d MMM', locale).format(next);
+    final time = DateFormat.Hm(locale).format(next);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Text(
+        l10n.nextBackup(l10n.weeklyAt(day, time)),
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.palette.ink2),
       ),
     );
   }

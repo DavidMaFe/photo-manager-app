@@ -553,7 +553,7 @@ Eliminar del `.arb` las claves que queden sin uso al final (comprobar con búsqu
 - [x] Fotos: 6.6, 6.9 (sin cambios de funcionamiento todavía)
 - [x] Álbumes: 6.10, 6.11
 - [x] Copia: 6.12 (solo visual de tarjeta y lista)
-- [ ] Perfil y ajustes: 6.13, 6.14, 6.15, 6.16, 6.17
+- [x] Perfil y ajustes: 6.13, 6.14, 6.15, 6.16, 6.17
 - [ ] Estados globales: 6.18
 - [ ] Textos de la sección 8.
 

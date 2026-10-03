@@ -1,5 +1,6 @@
-import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/core/widgets/empty_state.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 class TrashEmptyState extends StatelessWidget {
@@ -8,40 +9,10 @@ class TrashEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.delete_outline,
-            size: 80,
-            color: context.palette.ink3,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            l10n.trashIsEmpty,
-            style: TextStyle(
-              fontSize: 20,
-              color: context.palette.ink,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 48),
-            child: Text(
-              l10n.trashEmptyDescription,
-              style: TextStyle(
-                fontSize: 14,
-                color: context.palette.ink2,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
+    return EmptyState(
+      icon: Symbols.delete_rounded,
+      title: l10n.trashIsEmpty,
+      message: l10n.trashEmptyDescription,
     );
   }
 }

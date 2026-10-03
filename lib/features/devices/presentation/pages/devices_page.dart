@@ -1,10 +1,12 @@
-import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
+import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
+import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
+import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_state.dart';
@@ -12,21 +14,45 @@ import 'package:photo_manager_app/features/devices/presentation/widgets/device_c
 import 'package:photo_manager_app/features/devices/presentation/widgets/devices_empty_state.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-class DevicesPage extends StatelessWidget {
-  const DevicesPage({super.key});
+class DevicesPage extends StatefulWidget {
+
+  /// UUID of the phone running the app; defaults to the sync device repository.
+  final Future<String?> Function()? loadCurrentDeviceUuid;
+
+  const DevicesPage({super.key, this.loadCurrentDeviceUuid});
+
+  @override
+  State<DevicesPage> createState() => _DevicesPageState();
+}
+
+class _DevicesPageState extends State<DevicesPage> {
+
+  String? _currentDeviceUuid;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentDeviceUuid();
+  }
+
+  Future<void> _loadCurrentDeviceUuid() async {
+    try {
+      final load = widget.loadCurrentDeviceUuid ?? () => sl<SyncDeviceRepository>().getDeviceUuid();
+      final uuid = await load();
+      if (mounted) setState(() => _currentDeviceUuid = uuid);
+    } catch (_) {
+      // Without the local UUID no card is tagged as "This phone".
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: context.palette.surface2,
-      appBar: AppBar(
-        title: Text(l10n.myDevices),
-        backgroundColor: context.palette.surface,
-        elevation: 0,
-      ),
+      appBar: SecondaryTopBar(title: l10n.myDevices),
       body: SafeArea(
+        top: false,
         child: BlocConsumer<DeviceBloc, DeviceState>(
           listener: (context, state) {
             if (state is DeviceError) {
@@ -46,7 +72,6 @@ class DevicesPage extends StatelessWidget {
                 SnackBar(
                   content: Text(l10n.deviceActionSuccess),
                   duration: const Duration(seconds: 2),
-                  backgroundColor: context.palette.safe,
                 ),
               );
             }
@@ -58,9 +83,7 @@ class DevicesPage extends StatelessWidget {
           },
           builder: (context, state) {
             if (state is DeviceLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator(strokeWidth: 2));
             }
 
             if (state is DeviceError) {
@@ -102,6 +125,7 @@ class DevicesPage extends StatelessWidget {
                       child: DeviceCard(
                         device: device,
                         isPerformingAction: isPerformingAction,
+                        isCurrentDevice: _currentDeviceUuid != null && device.uuid == _currentDeviceUuid,
                       ),
                     );
                   },

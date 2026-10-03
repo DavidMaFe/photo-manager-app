@@ -279,7 +279,9 @@ class AppRouter {
                             name: RouteNames.editProfile,
                             builder: (context, state) => BlocProvider.value(
                               value: sl<ProfileBloc>(),
-                              child: const EditProfilePage(),
+                              child: EditProfilePage(
+                                scrollToPassword: state.extra == ProfilePage.passwordSection,
+                              ),
                             ),
                           ),
                           GoRoute(
@@ -309,7 +311,7 @@ class AppRouter {
                                   final initialIndex = extra?['initialIndex'] ?? 0;
 
                                   return BlocProvider.value(
-                                    value: sl<TrashBloc>(),
+                                    value: extra?['bloc'] as TrashBloc? ?? sl<TrashBloc>(),
                                     child: TrashFileDetailPage(
                                       files: files,
                                       initialIndex: initialIndex

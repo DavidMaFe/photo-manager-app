@@ -8,8 +8,8 @@
   "emailPlaceholder": "your@email.com",
   "passwordLabel": "Password",
   "loginButton": "Sign In",
-  "logoutButton": "Sign Out",
-  "logoutConfirmation": "Are you sure to logout?",
+  "logoutButton": "Sign out",
+  "logoutConfirmation": "Are you sure you want to sign out?",
   "forgotPassword": "Forgot it?",
   "notHaveAccount": "You don't have an account? ",
   "signUp": "Sign Up",
@@ -296,19 +296,19 @@
   "errorNewPasswordRequired": "New password is required",
   "backToLogin": "Back to login",
 
-  "editProfileTitle": "Edit Profile",
+  "editProfileTitle": "Edit profile",
   "currentPasswordLabel": "Current password",
   "currentPasswordPlaceholder": "Your current password",
   "errorCurrentPasswordRequired": "Current password is required",
   "errorCurrentPasswordIncorrect": "Current password is incorrect",
   "saveChanges": "Save changes",
-  "profileUpdatedSuccessfully": "Profile updated successfully",
-  "passwordChangedSuccessfully": "Password changed successfully",
+  "profileUpdatedSuccessfully": "Profile updated",
+  "passwordChangedSuccessfully": "Password changed",
   "selectProfilePhoto": "Select profile photo",
   "changePhoto": "Change photo",
   "basicInfoSection": "Basic information",
   "passwordSection": "Change password",
-  "leavePasswordEmptyHint": "Leave blank if you don't want to change the password",
+  "leavePasswordEmptyHint": "Leave it blank if you don't want to change it",
   "savingChanges": "Saving changes...",
 
   "january": "January",
@@ -329,10 +329,10 @@
   "deviceName": "Device name",
   "deviceNameRequired": "Device name is required",
   "deviceNameTooLong": "Name is too long (maximum 50 characters)",
-  "autoSync": "Auto-sync",
+  "autoSync": "Automatic backup",
   "unlinkDevice": "Unlink",
   "unlinkDeviceConfirmation": "Are you sure you want to unlink '{deviceName}'? This device will stop syncing with your account.",
-  "deviceActionSuccess": "Action completed successfully",
+  "deviceActionSuccess": "Done",
   "noDevices": "No linked devices",
   "noDevicesDescription": "Devices will appear here when you sign in to the app from other devices.",
   "devicesLoadError": "Could not load devices",
@@ -382,7 +382,7 @@
 
   "saveConfiguration": "Save configuration",
   "savingConfiguration": "Saving configuration...",
-  "configurationSaved": "Configuration saved",
+  "configurationSaved": "Settings saved",
   "configurationSavedDescription": "Your automatic sync configuration has been saved successfully",
   "configurationSaveError": "Error saving configuration",
   "loadingConfiguration": "Loading configuration...",
@@ -649,5 +649,139 @@
     }
   },
   "backupCancelled": "Backup cancelled",
-  "backupRunning": "Backup in progress"
+  "backupRunning": "Backup in progress",
+
+  "navProfile": "Profile",
+  "edit": "Edit",
+  "storageOf": "{used} of {total}",
+  "@storageOf": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "elementsLabel": "{count, plural, =1{item} other{items}}",
+  "@elementsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "albumsLabel": "{count, plural, =1{album} other{albums}}",
+  "@albumsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesLabel": "{count, plural, =1{device} other{devices}}",
+  "@devicesLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sectionBackupSpace": "Backup and space",
+  "sectionApp": "App",
+  "dailyAt": "Daily at {time}",
+  "@dailyAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyAt": "{day} at {time}",
+  "@weeklyAt": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "linkedDevices": "{count, plural, =0{None linked} =1{1 linked} other{{count} linked}}",
+  "@linkedDevices": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trashAutoEmpty": "Emptied after 30 days",
+  "notifOnlyFailures": "Failures only",
+  "notifOnlySuccess": "Finished only",
+  "notifAll": "All",
+  "notifOff": "Off",
+
+  "sectionData": "Details",
+  "sectionPassword": "Password",
+  "gallerySource": "Gallery",
+  "camera": "Camera",
+
+  "thisDevice": "This phone",
+
+  "emptyTrashShort": "Empty",
+  "trashInfo": "Items are deleted forever after 30 days. Long-press to restore several.",
+  "deletingSoon": "Deleted soon",
+  "thisMonth": "This month",
+  "daysLeft": "{count, plural, =0{Today} =1{1 day} other{{count} days}}",
+  "@daysLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteForever": "Delete forever",
+  "deletesIn": "Deleted in {time}",
+  "@deletesIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "selectedItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@selectedItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "autoBackupBody": "Your new photos are saved automatically",
+  "sectionWhen": "When",
+  "everyDay": "Every day",
+  "oncePerWeek": "Once a week",
+  "day": "Day",
+  "time": "Time",
+  "nextBackup": "Next backup: {when}",
+  "@nextBackup": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "sectionConditions": "Conditions",
+  "network": "Network",
+  "battery": "Battery",
+  "always": "Always",
+  "sectionAlerts": "Alerts",
+  "alertSuccess": "When it finishes",
+  "alertSuccessBody": "A notice with what was saved",
+  "alertFailure": "If something fails",
+  "alertFailureBody": "So you can retry it",
+  "sectionDiagnostics": "Diagnostics"
 }

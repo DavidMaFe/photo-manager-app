@@ -1,9 +1,13 @@
-import 'package:photo_manager_app/config/theme/app_palette.dart';
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
+import 'package:photo_manager_app/core/widgets/app_sheet.dart';
+import 'package:photo_manager_app/core/widgets/app_text_field.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
+/// "Rename device" sheet.
 class RenameDeviceDialog extends StatefulWidget {
+  static const int maxLength = 50;
+
   final String currentName;
   final Function(String) onConfirm;
 
@@ -17,37 +21,10 @@ class RenameDeviceDialog extends StatefulWidget {
     required BuildContext context,
     required String currentName,
     required Function(String) onConfirm,
-  }) async {
-    await showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: context.palette.media.withValues(alpha: 0.5),
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return Material(
-          type: MaterialType.transparency,
-          child: RenameDeviceDialog(
-            currentName: currentName,
-            onConfirm: onConfirm,
-          ),
-        );
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return ScaleTransition(
-          scale: CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutBack,
-          ),
-          child: FadeTransition(
-            opacity: CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeIn,
-            ),
-            child: child,
-          ),
-        );
-      },
+  }) {
+    return showAppSheet<void>(
+      context,
+      builder: (_) => RenameDeviceDialog(currentName: currentName, onConfirm: onConfirm),
     );
   }
 
@@ -56,19 +33,8 @@ class RenameDeviceDialog extends StatefulWidget {
 }
 
 class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
-  late TextEditingController _controller;
-  bool _isValid = true;
-  String? _errorText;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.currentName);
-    _controller.selection = TextSelection(
-      baseOffset: 0,
-      extentOffset: _controller.text.length,
-    );
-  }
+  late final TextEditingController _controller = TextEditingController(text: widget.currentName);
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -76,233 +42,41 @@ class _RenameDeviceDialogState extends State<RenameDeviceDialog> {
     super.dispose();
   }
 
-  void _validate() {
-    final text = _controller.text.trim();
-    final l10n = AppLocalizations.of(context)!;
-
-    setState(() {
-      if (text.isEmpty) {
-        _isValid = false;
-        _errorText = l10n.deviceNameRequired;
-      } else if (text.length > 50) {
-        _isValid = false;
-        _errorText = l10n.deviceNameTooLong;
-      } else {
-        _isValid = true;
-        _errorText = null;
-      }
-    });
-  }
-
   void _handleConfirm() {
-    _validate();
-    if (_isValid) {
-      Navigator.of(context).pop();
-      widget.onConfirm(_controller.text.trim());
-    }
+    if (!_formKey.currentState!.validate()) return;
+    Navigator.of(context).pop();
+    widget.onConfirm(_controller.text.trim());
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return AnimatedPadding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.viewInsetsOf(context).bottom,
-      ),
-      duration: const Duration(milliseconds: 150),
-      curve: Curves.easeOut,
-      child: Center(
-        child: SingleChildScrollView(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            margin: const EdgeInsets.symmetric(horizontal: 24),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: context.palette.surface.withValues(alpha: 0.95),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: context.palette.surface.withValues(alpha: 0.3),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: context.palette.shadow,
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildHeader(l10n),
-                      _buildContent(l10n),
-                      _buildActions(l10n),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(AppLocalizations l10n) {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            context.palette.accent,
-            context.palette.accent.withValues(alpha: 0.8),
-          ],
-        ),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 20),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: context.palette.surface.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              Icons.edit,
-              color: context.palette.onAccent,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: DefaultTextStyle(
-              style: TextStyle(
-                color: context.palette.onAccent,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.none,
-              ),
-              child: Text(l10n.renameDevice),
-            ),
-          ),
-          const SizedBox(width: 20),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContent(AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
+    return Form(
+      key: _formKey,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DefaultTextStyle(
-            style: TextStyle(
-              color: context.palette.ink,
-              fontSize: 15,
-              height: 1.5,
-              decoration: TextDecoration.none,
-            ),
-            child: Text(l10n.renameDeviceDescription),
-          ),
-          const SizedBox(height: 16),
-          TextField(
+          Text(l10n.renameDevice, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 20),
+          AppTextField(
+            label: l10n.deviceName,
             controller: _controller,
             autofocus: true,
-            decoration: InputDecoration(
-              labelText: l10n.deviceName,
-              errorText: _errorText,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: context.palette.accent,
-                  width: 2,
-                ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: context.palette.danger,
-                  width: 1.5,
-                ),
-              ),
-            ),
-            onChanged: (_) => _validate(),
-            onSubmitted: (_) => _handleConfirm(),
-            maxLength: 50,
+            maxLength: RenameDeviceDialog.maxLength,
+            textCapitalization: TextCapitalization.sentences,
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: (_) => _handleConfirm(),
+            validator: (value) {
+              final text = value?.trim() ?? '';
+              if (text.isEmpty) return l10n.deviceNameRequired;
+              if (text.length > RenameDeviceDialog.maxLength) return l10n.deviceNameTooLong;
+              return null;
+            },
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActions(AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Flexible(
-            child: OutlinedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                side: BorderSide(
-                  color: context.palette.line,
-                  width: 1.5,
-                ),
-              ),
-              child: Text(
-                l10n.cancel,
-                style: TextStyle(
-                  color: context.palette.ink2,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Flexible(
-            child: FilledButton(
-              onPressed: _isValid ? _handleConfirm : null,
-              style: FilledButton.styleFrom(
-                backgroundColor: context.palette.accent,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: Text(
-                l10n.rename,
-                style: TextStyle(
-                  color: context.palette.onAccent,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-          ),
+          const SizedBox(height: 20),
+          AppButton.primary(label: l10n.rename, onPressed: _handleConfirm),
         ],
       ),
     );

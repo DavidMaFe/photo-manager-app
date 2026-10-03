@@ -1,311 +1,185 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
+import 'package:photo_manager_app/core/widgets/app_dialog.dart';
+import 'package:photo_manager_app/core/widgets/app_switch.dart';
+import 'package:photo_manager_app/features/devices/domain/entities/device.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_state.dart';
 import 'package:photo_manager_app/features/devices/presentation/widgets/device_card.dart';
+import 'package:photo_manager_app/features/devices/presentation/widgets/dialogs/rename_device_dialog.dart';
+
 import '../../../../fixtures/test_data.dart';
 import '../../../../helpers/widget_test_helper.dart';
 
-class MockDeviceBloc extends MockBloc<DeviceEvent, DeviceState>
-    implements DeviceBloc {}
+class MockDeviceBloc extends MockBloc<DeviceEvent, DeviceState> implements DeviceBloc {}
 
 class FakeDeviceEvent extends Fake implements DeviceEvent {}
 
-class FakeToggleAutoSync extends Fake implements ToggleAutoSync {}
-
 void main() {
-  late MockDeviceBloc mockBloc;
+  late MockDeviceBloc bloc;
 
-  setUpAll(() {
-    registerFallbackValue(FakeDeviceEvent());
-    registerFallbackValue(FakeToggleAutoSync());
-  });
+  setUpAll(() => registerFallbackValue(FakeDeviceEvent()));
 
   setUp(() {
-    mockBloc = MockDeviceBloc();
+    bloc = MockDeviceBloc();
+    when(() => bloc.state).thenReturn(DeviceLoaded(TestDeviceEntities.deviceList));
   });
 
-  final testAndroidDevice = TestDeviceEntities.androidDevice;
-  final testIOSDevice = TestDeviceEntities.iosDevice;
-  final testUnknownDevice = TestDeviceEntities.unknownOsDevice;
-
-  Widget buildTestWidget(DeviceCard child) {
-    return makeTestableWidgetWithBloc<DeviceBloc>(
-      bloc: mockBloc,
-      child: Scaffold(body: child),
-    );
+  Future<void> pump(WidgetTester tester, Device device, {bool busy = false, bool current = false}) {
+    return tester.pumpWidget(makeTestableWidget(BlocProvider<DeviceBloc>.value(
+      value: bloc,
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: DeviceCard(device: device, isPerformingAction: busy, isCurrentDevice: current),
+        ),
+      ),
+    )));
   }
 
+  Container iconBox(WidgetTester tester) => tester.widget<Container>(
+        find.ancestor(of: find.byType(Icon).first, matching: find.byType(Container)).first,
+      );
+
   group('DeviceCard', () {
-    group('Device Icon', () {
-      testWidgets('should display Android icon for Android device',
-          (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
+    // ==================== CONTENT TESTS ====================
 
-        expect(find.byIcon(Icons.android), findsOneWidget);
-      });
+    testWidgets('should show the name and OS version', (tester) async {
+      // Arrange & Act
+      await pump(tester, TestDeviceEntities.androidDevice);
 
-      testWidgets('should display iOS icon for iOS device', (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testIOSDevice,
-            isPerformingAction: false,
-          ),
-        ));
-
-        expect(find.byIcon(Icons.phone_iphone), findsOneWidget);
-      });
-
-      testWidgets('should display generic device icon for unknown OS',
-          (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testUnknownDevice,
-            isPerformingAction: false,
-          ),
-        ));
-
-        expect(find.byIcon(Icons.devices), findsOneWidget);
-      });
+      // Assert
+      expect(find.text('Samsung Galaxy S21'), findsOneWidget);
+      expect(find.textContaining('Android '), findsOneWidget);
     });
 
-    group('Device Information', () {
-      testWidgets('should display device name', (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
+    testWidgets('should use the phone icon per platform', (tester) async {
+      await pump(tester, TestDeviceEntities.iosDevice);
+      expect(find.byIcon(Symbols.phone_iphone_rounded), findsOneWidget);
 
-        expect(find.text(testAndroidDevice.name), findsOneWidget);
-      });
+      await pump(tester, TestDeviceEntities.deviceWithLowercaseOs);
+      expect(find.byIcon(Symbols.smartphone_rounded), findsOneWidget);
 
-      testWidgets('should display OS type and version', (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
-
-        expect(
-          find.text('${testAndroidDevice.osType} ${testAndroidDevice.osVersion}'),
-          findsOneWidget,
-        );
-      });
+      await pump(tester, TestDeviceEntities.unknownOsDevice);
+      expect(find.byIcon(Symbols.devices_rounded), findsOneWidget);
     });
 
-    group('Auto Sync Toggle', () {
-      testWidgets('should display auto sync status when enabled',
-          (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
+    testWidgets('should tag and highlight the current device', (tester) async {
+      // Arrange & Act
+      await pump(tester, TestDeviceEntities.androidDevice, current: true);
 
-        expect(find.byType(Switch), findsOneWidget);
-        final switchWidget = tester.widget<Switch>(find.byType(Switch));
-        expect(switchWidget.value, testAndroidDevice.autoSync);
-      });
-
-      testWidgets('should display auto sync status when disabled',
-          (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testIOSDevice,
-            isPerformingAction: false,
-          ),
-        ));
-
-        expect(find.byType(Switch), findsOneWidget);
-        final switchWidget = tester.widget<Switch>(find.byType(Switch));
-        expect(switchWidget.value, testIOSDevice.autoSync);
-      });
-
-      testWidgets('should trigger ToggleAutoSync event when switch is toggled',
-          (tester) async {
-        when(() => mockBloc.add(any())).thenReturn(null);
-
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
-
-        await tester.tap(find.byType(Switch));
-        await tester.pump();
-
-        verify(() => mockBloc.add(any<ToggleAutoSync>())).called(1);
-      });
-
-      testWidgets('should disable switch when performing action',
-          (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: true,
-          ),
-        ));
-
-        final switchWidget = tester.widget<Switch>(find.byType(Switch));
-        expect(switchWidget.onChanged, isNull);
-      });
+      // Assert
+      expect(find.text('This phone'), findsOneWidget);
+      expect((iconBox(tester).decoration as BoxDecoration).color, AppPalette.light.accentSoft);
     });
 
-    group('Action Buttons', () {
-      testWidgets('should display rename and delete buttons when not performing action',
-          (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
+    testWidgets('should not tag other devices', (tester) async {
+      // Arrange & Act
+      await pump(tester, TestDeviceEntities.androidDevice);
 
-        expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
-        expect(find.byIcon(Icons.delete_outline), findsOneWidget);
-      });
-
-      testWidgets('should display loading indicator when performing action',
-          (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: true,
-          ),
-        ));
-
-        expect(find.byType(CircularProgressIndicator), findsOneWidget);
-        expect(find.byIcon(Icons.edit_outlined), findsNothing);
-        expect(find.byIcon(Icons.delete_outline), findsNothing);
-      });
-
-      testWidgets('should have rename button that is tappable',
-          (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
-        await tester.pumpAndSettle();
-
-        // Verify the rename button exists and is tappable
-        final renameButton = find.byIcon(Icons.edit_outlined);
-        expect(renameButton, findsOneWidget);
-
-        // Verify button is enabled (can be tapped without error)
-        final button = tester.widget<IconButton>(
-          find.ancestor(
-            of: renameButton,
-            matching: find.byType(IconButton),
-          ),
-        );
-        expect(button.onPressed, isNotNull);
-      });
-
-      testWidgets('should have delete button that is tappable',
-          (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
-        await tester.pumpAndSettle();
-
-        // Verify the delete button exists and is tappable
-        final deleteButton = find.byIcon(Icons.delete_outline);
-        expect(deleteButton, findsOneWidget);
-
-        // Verify button is enabled (can be tapped without error)
-        final button = tester.widget<IconButton>(
-          find.ancestor(
-            of: deleteButton,
-            matching: find.byType(IconButton),
-          ),
-        );
-        expect(button.onPressed, isNotNull);
-      });
+      // Assert
+      expect(find.text('This phone'), findsNothing);
+      expect((iconBox(tester).decoration as BoxDecoration).color, AppPalette.light.surface2);
     });
 
-    group('Visual Design', () {
-      testWidgets('should display gradient accent strip', (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
+    testWidgets('should not draw the old gradient side strip', (tester) async {
+      // Arrange & Act
+      await pump(tester, TestDeviceEntities.androidDevice);
 
-        // Check for gradient decoration
-        expect(find.byType(Container), findsWidgets);
-      });
-
-      testWidgets('should apply different colors for different OS types',
-          (tester) async {
-        // We can't easily test colors directly, but we can verify the icons are present
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
-        expect(find.byIcon(Icons.android), findsOneWidget);
-
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testIOSDevice,
-            isPerformingAction: false,
-          ),
-        ));
-        expect(find.byIcon(Icons.phone_iphone), findsOneWidget);
-      });
+      // Assert
+      final gradients = tester
+          .widgetList<Container>(find.byType(Container))
+          .where((c) => c.decoration is BoxDecoration && (c.decoration as BoxDecoration).gradient != null);
+      expect(gradients, isEmpty);
     });
 
-    group('Accessibility', () {
-      testWidgets('should have tooltips for action buttons', (tester) async {
-        await tester.pumpWidget(buildTestWidget(
-          DeviceCard(
-            device: testAndroidDevice,
-            isPerformingAction: false,
-          ),
-        ));
+    // ==================== AUTO BACKUP TESTS ====================
 
-        final renameButton = find.byIcon(Icons.edit_outlined);
-        final deleteButton = find.byIcon(Icons.delete_outline);
+    testWidgets('should reflect and toggle automatic backup', (tester) async {
+      // Arrange
+      await pump(tester, TestDeviceEntities.iosDevice);
+      expect(tester.widget<AppSwitch>(find.byType(AppSwitch)).value, isFalse);
 
-        expect(renameButton, findsOneWidget);
-        expect(deleteButton, findsOneWidget);
+      // Act
+      await tester.tap(find.byType(Switch));
 
-        final renameIconButton = tester.widget<IconButton>(
-          find.ancestor(
-            of: renameButton,
-            matching: find.byType(IconButton),
-          ),
-        );
-        expect(renameIconButton.tooltip, isNotNull);
+      // Assert
+      final event = verify(() => bloc.add(captureAny())).captured.single;
+      expect(
+        event,
+        isA<ToggleAutoSync>()
+            .having((e) => e.deviceId, 'deviceId', TestDeviceEntities.iosDevice.id)
+            .having((e) => e.enabled, 'enabled', true),
+      );
+    });
 
-        final deleteIconButton = tester.widget<IconButton>(
-          find.ancestor(
-            of: deleteButton,
-            matching: find.byType(IconButton),
-          ),
-        );
-        expect(deleteIconButton.tooltip, isNotNull);
-      });
+    testWidgets('should show progress instead of the switch while busy', (tester) async {
+      // Arrange & Act
+      await pump(tester, TestDeviceEntities.androidDevice, busy: true);
+
+      // Assert
+      expect(find.byType(AppSwitch), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(tester.widget<IconButton>(find.byType(IconButton)).onPressed, isNull);
+    });
+
+    // ==================== MENU TESTS ====================
+
+    testWidgets('should open rename from the menu and dispatch the new name', (tester) async {
+      // Arrange
+      await pump(tester, TestDeviceEntities.androidDevice);
+      await tester.tap(find.byTooltip('More options'));
+      await tester.pumpAndSettle();
+
+      // Act
+      await tester.tap(find.text('Rename'));
+      await tester.pumpAndSettle();
+      expect(find.byType(RenameDeviceDialog), findsOneWidget);
+      await tester.enterText(find.byType(TextFormField), 'Work phone');
+      await tester.tap(find.descendant(of: find.byType(RenameDeviceDialog), matching: find.text('Rename')));
+      await tester.pumpAndSettle();
+
+      // Assert
+      final event = verify(() => bloc.add(captureAny())).captured.single;
+      expect(event, isA<RenameDevice>().having((e) => e.newName, 'newName', 'Work phone'));
+    });
+
+    testWidgets('should confirm before unlinking', (tester) async {
+      // Arrange
+      await pump(tester, TestDeviceEntities.androidDevice);
+      await tester.tap(find.byTooltip('More options'));
+      await tester.pumpAndSettle();
+
+      // Act
+      await tester.tap(find.text('Unlink'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AppDialog), findsOneWidget);
+      await tester.tap(find.descendant(of: find.byType(AppDialog), matching: find.widgetWithText(AppButton, 'Unlink')));
+      await tester.pumpAndSettle();
+
+      // Assert
+      final event = verify(() => bloc.add(captureAny())).captured.single;
+      expect(event, isA<UnlinkDevice>().having((e) => e.deviceId, 'deviceId', TestDeviceEntities.androidDevice.id));
+    });
+
+    testWidgets('should validate the device name', (tester) async {
+      // Arrange
+      await tester.pumpWidget(makeTestableWidget(Scaffold(
+        body: RenameDeviceDialog(currentName: 'Phone', onConfirm: (_) {}),
+      )));
+      final field = tester.widget<TextFormField>(find.byType(TextFormField));
+
+      // Assert
+      expect(field.validator!(' '), 'Device name is required');
+      expect(field.validator!('a' * 51), isNotNull);
+      expect(field.validator!('Phone'), isNull);
     });
   });
 }

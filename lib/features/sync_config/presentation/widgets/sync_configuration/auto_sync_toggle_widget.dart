@@ -1,61 +1,53 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:photo_manager_app/core/widgets/permission/background_task_permission_helper.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/widgets/app_card.dart';
+import 'package:photo_manager_app/core/widgets/app_switch.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_event.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
+/// Master switch for automatic backups.
 class AutoSyncToggleWidget extends StatelessWidget {
   final bool isEnabled;
 
-  const AutoSyncToggleWidget({
-    super.key,
-    required this.isEnabled,
-  });
-
-  /// When the user enables auto-sync on Android, request battery optimization
-  /// exemption so that WorkManager tasks are not killed by the OS.
-  /// The sync is enabled regardless of whether the exemption is granted —
-  /// we still schedule the task, but without the exemption it may not run
-  /// reliably on some devices.
-  Future<void> _onToggleChanged(BuildContext context, bool value) async {
-    if (value && Platform.isAndroid) {
-      final isExempt =
-          await BackgroundTaskPermissionHelper.isBackgroundTaskEnabled();
-
-      if (!isExempt && context.mounted) {
-        // Request battery optimization exemption via the system dialog.
-        // This is required for WorkManager tasks to run reliably on physical
-        // Android devices. Without it, the OS kills background tasks.
-        await BackgroundTaskPermissionHelper.requestBatteryOptimizationExemption();
-      }
-    }
-
-    if (context.mounted) {
-      context.read<SyncConfigBloc>().add(ToggleAutoSync(value));
-    }
-  }
+  const AutoSyncToggleWidget({super.key, required this.isEnabled});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final p = context.palette;
 
-    return Card(
-      elevation: 2,
-      child: SwitchListTile(
-        title: Text(
-          l10n.enableAutoSync,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        subtitle: Text(
-          isEnabled ? l10n.autoSyncEnabled : l10n.autoSyncDisabled,
-        ),
-        value: isEnabled,
-        onChanged: (value) => _onToggleChanged(context, value),
+    return AppCard(
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(color: p.accentSoft, borderRadius: BorderRadius.circular(14)),
+            child: Icon(Symbols.cloud_sync_rounded, size: 24, color: p.accentInk),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(l10n.autoSync, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: p.ink)),
+                Text(
+                  l10n.autoBackupBody,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: p.ink2),
+                ),
+              ],
+            ),
+          ),
+          AppSwitch(
+            value: isEnabled,
+            semanticLabel: l10n.autoSync,
+            onChanged: (value) => context.read<SyncConfigBloc>().add(ToggleAutoSync(value)),
+          ),
+        ],
       ),
     );
   }

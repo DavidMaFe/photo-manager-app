@@ -8,8 +8,8 @@
   "emailPlaceholder": "tu@email.com",
   "passwordLabel": "Contraseña",
   "loginButton": "Entrar",
-  "logoutButton": "Salir",
-  "logoutConfirmation": "¿Estás seguro de que quieres salir?",
+  "logoutButton": "Cerrar sesión",
+  "logoutConfirmation": "¿Seguro que quieres cerrar sesión?",
   "forgotPassword": "¿La has olvidado?",
   "notHaveAccount": "¿No tienes cuenta? ",
   "signUp": "Regístrate",
@@ -296,19 +296,19 @@
   "errorNewPasswordRequired": "La nueva contraseña es requerida",
   "backToLogin": "Volver al inicio de sesión",
 
-  "editProfileTitle": "Editar Perfil",
+  "editProfileTitle": "Editar perfil",
   "currentPasswordLabel": "Contraseña actual",
   "currentPasswordPlaceholder": "Tu contraseña actual",
   "errorCurrentPasswordRequired": "La contraseña actual es requerida",
   "errorCurrentPasswordIncorrect": "La contraseña actual es incorrecta",
   "saveChanges": "Guardar cambios",
-  "profileUpdatedSuccessfully": "Perfil actualizado exitosamente",
-  "passwordChangedSuccessfully": "Contraseña cambiada exitosamente",
+  "profileUpdatedSuccessfully": "Perfil actualizado",
+  "passwordChangedSuccessfully": "Contraseña cambiada",
   "selectProfilePhoto": "Seleccionar foto de perfil",
   "changePhoto": "Cambiar foto",
   "basicInfoSection": "Información básica",
   "passwordSection": "Cambiar contraseña",
-  "leavePasswordEmptyHint": "Deja en blanco si no quieres cambiar la contraseña",
+  "leavePasswordEmptyHint": "Déjala en blanco si no quieres cambiarla",
   "savingChanges": "Guardando cambios...",
 
   "january": "Enero",
@@ -329,10 +329,10 @@
   "deviceName": "Nombre del dispositivo",
   "deviceNameRequired": "El nombre del dispositivo es obligatorio",
   "deviceNameTooLong": "El nombre es demasiado largo (máximo 50 caracteres)",
-  "autoSync": "Sincronización automática",
+  "autoSync": "Copia automática",
   "unlinkDevice": "Desvincular",
   "unlinkDeviceConfirmation": "¿Estás seguro de que quieres desvincular '{deviceName}'? Este dispositivo dejará de sincronizarse con tu cuenta.",
-  "deviceActionSuccess": "Acción completada con éxito",
+  "deviceActionSuccess": "Hecho",
   "noDevices": "No tienes dispositivos vinculados",
   "noDevicesDescription": "Los dispositivos aparecerán aquí cuando inicies sesión en la aplicación desde otros dispositivos.",
   "devicesLoadError": "No se pudieron cargar los dispositivos",
@@ -382,7 +382,7 @@
 
   "saveConfiguration": "Guardar configuración",
   "savingConfiguration": "Guardando configuración...",
-  "configurationSaved": "Configuración guardada",
+  "configurationSaved": "Ajustes guardados",
   "configurationSavedDescription": "Tu configuración de sincronización automática ha sido guardada correctamente",
   "configurationSaveError": "Error al guardar la configuración",
   "loadingConfiguration": "Cargando configuración...",
@@ -649,5 +649,139 @@
     }
   },
   "backupCancelled": "Copia cancelada",
-  "backupRunning": "Copia en curso"
+  "backupRunning": "Copia en curso",
+
+  "navProfile": "Perfil",
+  "edit": "Editar",
+  "storageOf": "{used} de {total}",
+  "@storageOf": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "elementsLabel": "{count, plural, =1{elemento} other{elementos}}",
+  "@elementsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "albumsLabel": "{count, plural, =1{álbum} other{álbumes}}",
+  "@albumsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesLabel": "{count, plural, =1{dispositivo} other{dispositivos}}",
+  "@devicesLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sectionBackupSpace": "Copia y espacio",
+  "sectionApp": "Aplicación",
+  "dailyAt": "Diaria a las {time}",
+  "@dailyAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyAt": "{day} a las {time}",
+  "@weeklyAt": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "linkedDevices": "{count, plural, =0{Ninguno vinculado} =1{1 vinculado} other{{count} vinculados}}",
+  "@linkedDevices": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trashAutoEmpty": "Se vacía a los 30 días",
+  "notifOnlyFailures": "Solo fallos",
+  "notifOnlySuccess": "Solo al terminar",
+  "notifAll": "Todas",
+  "notifOff": "Desactivadas",
+
+  "sectionData": "Datos",
+  "sectionPassword": "Contraseña",
+  "gallerySource": "Galería",
+  "camera": "Cámara",
+
+  "thisDevice": "Este móvil",
+
+  "emptyTrashShort": "Vaciar",
+  "trashInfo": "Se borran para siempre a los 30 días. Mantén pulsado para restaurar varios.",
+  "deletingSoon": "Se borran pronto",
+  "thisMonth": "Este mes",
+  "daysLeft": "{count, plural, =0{Hoy} =1{1 día} other{{count} días}}",
+  "@daysLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteForever": "Eliminar para siempre",
+  "deletesIn": "Se borra en {time}",
+  "@deletesIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "selectedItems": "{count, plural, =1{1 elemento} other{{count} elementos}}",
+  "@selectedItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "autoBackupBody": "Tus fotos nuevas se guardan solas",
+  "sectionWhen": "Cuándo",
+  "everyDay": "Cada día",
+  "oncePerWeek": "Una vez por semana",
+  "day": "Día",
+  "time": "Hora",
+  "nextBackup": "Próxima copia: {when}",
+  "@nextBackup": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "sectionConditions": "Condiciones",
+  "network": "Red",
+  "battery": "Batería",
+  "always": "Siempre",
+  "sectionAlerts": "Avisos",
+  "alertSuccess": "Al terminar bien",
+  "alertSuccessBody": "Un aviso con lo que se guardó",
+  "alertFailure": "Si algo falla",
+  "alertFailureBody": "Para que puedas reintentarlo",
+  "sectionDiagnostics": "Diagnóstico"
 }

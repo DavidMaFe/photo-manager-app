@@ -2,6 +2,7 @@ import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:photo_manager_app/core/widgets/app_card.dart';
 import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/services/sync_log_service.dart';
 import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
@@ -151,8 +152,8 @@ class _SyncDiagnosticsWidgetState extends State<SyncDiagnosticsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
+    return AppCard(
+      padding: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

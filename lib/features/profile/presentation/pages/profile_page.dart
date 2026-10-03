@@ -1,28 +1,43 @@
-
-import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
+import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
+import 'package:photo_manager_app/core/widgets/app_card.dart';
+import 'package:photo_manager_app/core/widgets/list_row.dart';
+import 'package:photo_manager_app/core/widgets/screen_header.dart';
+import 'package:photo_manager_app/core/widgets/section_label.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/dialogs/logout_confirmation_dialog.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_header.dart';
-import 'package:photo_manager_app/features/profile/presentation/widgets/profile_menu_item.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/profile_stats.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/storage_bar.dart';
-import 'package:photo_manager_app/features/profile/presentation/widgets/sync_settings_menu_item.dart';
+import 'package:photo_manager_app/features/profile/presentation/widgets/sync_config_summary.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_state.dart';
 
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
+
+  /// Extra passed to the edit profile route to open it on the password section.
+  static const String passwordSection = 'password';
 
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+
+  final _syncConfigKey = GlobalKey<SyncConfigLoaderState>();
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +45,8 @@ class ProfilePage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: context.palette.surface2,
       body: SafeArea(
+        bottom: false,
         child: BlocConsumer<ProfileBloc, ProfileState>(
           listener: (context, state) {
             if (state is ProfileError) {
@@ -46,141 +61,131 @@ class ProfilePage extends StatelessWidget {
             }
           },
           builder: (context, state) {
-            if (state is ProfileLoading) {
-              return const Center(
-                child: CircularProgressIndicator()
-              );
-            }
-
             if (state is ProfileLoaded) {
-              final profile = state.userProfile;
-        
-              return RefreshIndicator(
-                onRefresh: () async {
-                  context.read<ProfileBloc>().add(RefreshProfileRequested());
-                  await Future.delayed(const Duration(seconds: 1));
-                },
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      ProfileHeader(profile: profile),
-                      const SizedBox(height: 24),
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: context.palette.surface,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: context.palette.shadow,
-                              blurRadius: 10,
-                              offset: const Offset(0, 2)
-                            )
-                          ]
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            StorageBar(profile: profile),
-                            const SizedBox(height: 24),
-                            ProfileStats(profile: profile)
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: context.palette.surface,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                                color: context.palette.shadow,
-                                blurRadius: 10,
-                                offset: const Offset(0, 2)
-                            )
-                          ]
-                        ),
-                        child: Column(
-                          children: [
-                            ProfileMenuItem(
-                              icon: Icons.person_outline,
-                              title: l10n.editProfile,
-                              subtitle: l10n.editProfileSubtitle,
-                              onTap: () {
-                                context.goNamed(RouteNames.editProfile);
-                              },
-                            ),
-                            const Divider(height: 1, indent: 60),
-        
-                            ProfileMenuItem(
-                              icon: Icons.devices_outlined,
-                              title: l10n.myDevices,
-                              subtitle: l10n.myDevicesSubtitle(profile.deviceCount),
-                              onTap: () {
-                                context.goNamed(RouteNames.devices);
-                              },
-                            ),
-                            const Divider(height: 1, indent: 60),
-
-                            ProfileMenuItem(
-                              icon: Icons.delete_outline,
-                              title: l10n.trash,
-                              subtitle: l10n.trashSubtitle,
-                              onTap: () {
-                                context.goNamed(RouteNames.trash);
-                              },
-                            ),
-                            const Divider(height: 1, indent: 60),
-
-                            const SyncSettingsMenuItem(),
-                            const Divider(height: 1, indent: 60),
-        
-                            ProfileMenuItem(
-                              icon: Icons.notifications_outlined,
-                              title: l10n.notifications,
-                              subtitle: l10n.notificationsSubtitle,
-                              onTap: () {},
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            _showLogoutDialog(context, l10n);
-                          },
-                          icon: Icon(Icons.logout, color: context.palette.danger),
-                          label: Text(
-                            l10n.logoutButton,
-                            style: TextStyle(color: context.palette.dangerInk),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: BorderSide(color: context.palette.danger),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(12)
-                            )
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 40)
-                    ],
-                  ),
-                ),
-              );
+              return _buildContent(context, state, l10n);
             }
-            return const SizedBox.shrink();
+
+            return Column(
+              children: [
+                ScreenHeader(title: l10n.navProfile),
+                Expanded(
+                  child: state is ProfileError
+                      ? ErrorDisplay(
+                          failure: state.failure,
+                          onRetry: () => context.read<ProfileBloc>().add(LoadProfileRequested()),
+                        )
+                      : const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+              ],
+            );
           }
         ),
       ),
     );
   }
-  
-  void _showLogoutDialog(BuildContext context, AppLocalizations l10n) {
+
+  Widget _buildContent(BuildContext context, ProfileLoaded state, AppLocalizations l10n) {
+
+    final profile = state.userProfile;
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<ProfileBloc>().add(RefreshProfileRequested());
+        _syncConfigKey.currentState?.reload();
+        await Future.delayed(const Duration(seconds: 1));
+      },
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 32),
+        children: [
+          ScreenHeader(title: l10n.navProfile),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: ProfileHeader(
+              profile: profile,
+              onEdit: () => context.goNamed(RouteNames.editProfile),
+            ),
+          ),
+          AppCard(
+            margin: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StorageBar(profile: profile),
+                const SizedBox(height: 18),
+                ProfileStats(profile: profile),
+              ],
+            ),
+          ),
+          SyncConfigLoader(
+            key: _syncConfigKey,
+            builder: (context, config, loading) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SectionLabel(l10n.sectionBackupSpace),
+                ListRowGroup(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    ListRow(
+                      icon: Symbols.cloud_sync_rounded,
+                      title: l10n.backupSettings,
+                      subtitle: loading ? l10n.loadingConfiguration : SyncConfigSummary.schedule(config, l10n),
+                      onTap: () => _openSyncSettings(context),
+                    ),
+                    ListRow(
+                      icon: Symbols.devices_rounded,
+                      title: l10n.myDevices,
+                      subtitle: l10n.linkedDevices(profile.deviceCount),
+                      onTap: () => context.goNamed(RouteNames.devices),
+                    ),
+                    ListRow(
+                      icon: Symbols.delete_rounded,
+                      title: l10n.trash,
+                      subtitle: l10n.trashAutoEmpty,
+                      onTap: () => context.goNamed(RouteNames.trash),
+                    ),
+                  ],
+                ),
+                SectionLabel(l10n.sectionApp),
+                ListRowGroup(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    ListRow(
+                      icon: Symbols.notifications_rounded,
+                      title: l10n.notifications,
+                      value: loading ? null : SyncConfigSummary.notifications(config, l10n),
+                      onTap: () => _openSyncSettings(context),
+                    ),
+                    ListRow(
+                      icon: Symbols.password_rounded,
+                      title: l10n.passwordLabel,
+                      onTap: () => context.goNamed(RouteNames.editProfile, extra: ProfilePage.passwordSection),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+            child: AppButton.danger(
+              label: l10n.logoutButton,
+              icon: Symbols.logout_rounded,
+              onPressed: () => _showLogoutDialog(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openSyncSettings(BuildContext context) async {
+    await context.pushNamed(RouteNames.syncConfiguration);
+    _syncConfigKey.currentState?.reload();
+  }
+
+  void _showLogoutDialog(BuildContext context) {
     LogoutConfirmationDialog.show(
       context: context,
       onConfirm: () {

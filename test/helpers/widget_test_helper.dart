@@ -104,8 +104,9 @@ Widget makeTestableWidgetWithBloc<B extends StateStreamableSource<Object?>>({
   Locale locale = const Locale('en'),
 }) {
   return makeTestableWidget(
-    BlocProvider<B>(
-      create: (_) => bloc,
+    // .value: the test owns the bloc (mocks need no close() stub).
+    BlocProvider<B>.value(
+      value: bloc,
       child: child,
     ),
     navigatorKey: navigatorKey,

@@ -140,13 +140,13 @@ abstract class AppLocalizations {
   /// No description provided for @logoutButton.
   ///
   /// In en, this message translates to:
-  /// **'Sign Out'**
+  /// **'Sign out'**
   String get logoutButton;
 
   /// No description provided for @logoutConfirmation.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure to logout?'**
+  /// **'Are you sure you want to sign out?'**
   String get logoutConfirmation;
 
   /// No description provided for @forgotPassword.
@@ -1688,7 +1688,7 @@ abstract class AppLocalizations {
   /// No description provided for @editProfileTitle.
   ///
   /// In en, this message translates to:
-  /// **'Edit Profile'**
+  /// **'Edit profile'**
   String get editProfileTitle;
 
   /// No description provided for @currentPasswordLabel.
@@ -1724,13 +1724,13 @@ abstract class AppLocalizations {
   /// No description provided for @profileUpdatedSuccessfully.
   ///
   /// In en, this message translates to:
-  /// **'Profile updated successfully'**
+  /// **'Profile updated'**
   String get profileUpdatedSuccessfully;
 
   /// No description provided for @passwordChangedSuccessfully.
   ///
   /// In en, this message translates to:
-  /// **'Password changed successfully'**
+  /// **'Password changed'**
   String get passwordChangedSuccessfully;
 
   /// No description provided for @selectProfilePhoto.
@@ -1760,7 +1760,7 @@ abstract class AppLocalizations {
   /// No description provided for @leavePasswordEmptyHint.
   ///
   /// In en, this message translates to:
-  /// **'Leave blank if you don\'t want to change the password'**
+  /// **'Leave it blank if you don\'t want to change it'**
   String get leavePasswordEmptyHint;
 
   /// No description provided for @savingChanges.
@@ -1874,7 +1874,7 @@ abstract class AppLocalizations {
   /// No description provided for @autoSync.
   ///
   /// In en, this message translates to:
-  /// **'Auto-sync'**
+  /// **'Automatic backup'**
   String get autoSync;
 
   /// No description provided for @unlinkDevice.
@@ -1892,7 +1892,7 @@ abstract class AppLocalizations {
   /// No description provided for @deviceActionSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Action completed successfully'**
+  /// **'Done'**
   String get deviceActionSuccess;
 
   /// No description provided for @noDevices.
@@ -2144,7 +2144,7 @@ abstract class AppLocalizations {
   /// No description provided for @configurationSaved.
   ///
   /// In en, this message translates to:
-  /// **'Configuration saved'**
+  /// **'Settings saved'**
   String get configurationSaved;
 
   /// No description provided for @configurationSavedDescription.
@@ -2830,6 +2830,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Backup in progress'**
   String get backupRunning;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @storageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {total}'**
+  String storageOf(String used, String total);
+
+  /// No description provided for @elementsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{item} other{items}}'**
+  String elementsLabel(int count);
+
+  /// No description provided for @albumsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{album} other{albums}}'**
+  String albumsLabel(int count);
+
+  /// No description provided for @devicesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{device} other{devices}}'**
+  String devicesLabel(int count);
+
+  /// No description provided for @sectionBackupSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup and space'**
+  String get sectionBackupSpace;
+
+  /// No description provided for @sectionApp.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get sectionApp;
+
+  /// No description provided for @dailyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily at {time}'**
+  String dailyAt(String time);
+
+  /// No description provided for @weeklyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{day} at {time}'**
+  String weeklyAt(String day, String time);
+
+  /// No description provided for @linkedDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None linked} =1{1 linked} other{{count} linked}}'**
+  String linkedDevices(int count);
+
+  /// No description provided for @trashAutoEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Emptied after 30 days'**
+  String get trashAutoEmpty;
+
+  /// No description provided for @notifOnlyFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Failures only'**
+  String get notifOnlyFailures;
+
+  /// No description provided for @notifOnlySuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished only'**
+  String get notifOnlySuccess;
+
+  /// No description provided for @notifAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notifAll;
+
+  /// No description provided for @notifOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get notifOff;
+
+  /// No description provided for @sectionData.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get sectionData;
+
+  /// No description provided for @sectionPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get sectionPassword;
+
+  /// No description provided for @gallerySource.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallerySource;
+
+  /// No description provided for @camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get camera;
+
+  /// No description provided for @thisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone'**
+  String get thisDevice;
+
+  /// No description provided for @emptyTrashShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty'**
+  String get emptyTrashShort;
+
+  /// No description provided for @trashInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Items are deleted forever after 30 days. Long-press to restore several.'**
+  String get trashInfo;
+
+  /// No description provided for @deletingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted soon'**
+  String get deletingSoon;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get thisMonth;
+
+  /// No description provided for @daysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Today} =1{1 day} other{{count} days}}'**
+  String daysLeft(int count);
+
+  /// No description provided for @deleteForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete forever'**
+  String get deleteForever;
+
+  /// No description provided for @deletesIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted in {time}'**
+  String deletesIn(String time);
+
+  /// No description provided for @selectedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String selectedItems(int count);
+
+  /// No description provided for @autoBackupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your new photos are saved automatically'**
+  String get autoBackupBody;
+
+  /// No description provided for @sectionWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get sectionWhen;
+
+  /// No description provided for @everyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get everyDay;
+
+  /// No description provided for @oncePerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Once a week'**
+  String get oncePerWeek;
+
+  /// No description provided for @day.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get day;
+
+  /// No description provided for @time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
+  /// No description provided for @nextBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Next backup: {when}'**
+  String nextBackup(String when);
+
+  /// No description provided for @sectionConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions'**
+  String get sectionConditions;
+
+  /// No description provided for @network.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get network;
+
+  /// No description provided for @battery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery'**
+  String get battery;
+
+  /// No description provided for @always.
+  ///
+  /// In en, this message translates to:
+  /// **'Always'**
+  String get always;
+
+  /// No description provided for @sectionAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get sectionAlerts;
+
+  /// No description provided for @alertSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'When it finishes'**
+  String get alertSuccess;
+
+  /// No description provided for @alertSuccessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A notice with what was saved'**
+  String get alertSuccessBody;
+
+  /// No description provided for @alertFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'If something fails'**
+  String get alertFailure;
+
+  /// No description provided for @alertFailureBody.
+  ///
+  /// In en, this message translates to:
+  /// **'So you can retry it'**
+  String get alertFailureBody;
+
+  /// No description provided for @sectionDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics'**
+  String get sectionDiagnostics;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

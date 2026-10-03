@@ -1,17 +1,28 @@
-import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/utils/date_formatter.dart';
 import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
+import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
+import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_action_bar.dart';
+import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_thumbnail_strip.dart';
+import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_top_bar.dart';
+import 'package:photo_manager_app/core/widgets/status_chip.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/file_properties_sheet.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/video_player_widget.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
 import 'package:photo_manager_app/features/trash/presentation/bloc/trash_bloc.dart';
 import 'package:photo_manager_app/features/trash/presentation/bloc/trash_event.dart';
 import 'package:photo_manager_app/features/trash/presentation/widgets/dialogs/permanent_delete_confirmation_dialog.dart';
 import 'package:photo_manager_app/features/trash/presentation/widgets/dialogs/restore_confirmation_dialog.dart';
+import 'package:photo_manager_app/features/trash/presentation/widgets/trash_file_card.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 
+/// Trash viewer: same layout as the gallery viewer with restore and
+/// delete-forever actions and the deletion countdown.
 class TrashFileDetailPage extends StatefulWidget {
 
   final List<TrashFile> files;
@@ -30,9 +41,13 @@ class TrashFileDetailPage extends StatefulWidget {
 
 class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
 
+  /// Space reserved under a video so its own controls stay above the chrome.
+  static const double _bottomChromeHeight =
+      MediaViewerActionBar.height + MediaViewerThumbnailStrip.height + 12 + 16;
+
   late PageController _pageController;
   late int _currentIndex;
-  bool _videoControlsVisible = true;
+  bool _chromeVisible = true;
 
   @override
   void initState() {
@@ -53,71 +68,129 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
   Widget build(BuildContext context) {
 
     final l10n = AppLocalizations.of(context)!;
+    final palette = context.palette;
+    final file = _currentFile;
+    final countdown = l10n.deletesIn(l10n.daysLeft(file.daysUntilPermanentDeletion));
 
     return Scaffold(
-      backgroundColor: context.palette.media,
-      appBar: _buildAppBar(context, l10n),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.files.length,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        itemBuilder: (context, index) {
-          final file = widget.files[index];
-          return _buildMediaViewerWithOverlay(file, l10n);
-        },
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(BuildContext context, AppLocalizations l10n) {
-    return AppBar(
-      backgroundColor: context.palette.media.withValues(alpha: 0.5),
-      elevation: 0,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: context.palette.onMedia),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Text(
-        l10n.fileCountLabel(_currentIndex + 1, widget.files.length),
-        style: TextStyle(
-          color: context.palette.onMedia,
-          fontSize: 15
-        ),
-      ),
-      actions: [
-        _buildDaysRemainingBadge(l10n),
-        IconButton(
-          icon: Icon(Icons.more_vert, color: context.palette.onMedia),
-          onPressed: () => _showOptionsMenu(context, l10n),
-        )
-      ],
-    );
-  }
-
-  Widget _buildDaysRemainingBadge(AppLocalizations l10n) {
-    final daysRemaining = _currentFile.daysUntilPermanentDeletion;
-    final isImminent = _currentFile.isDeletionImminent;
-
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: isImminent ? context.palette.danger : context.palette.review,
-          borderRadius: BorderRadius.circular(12)
-        ),
-        child: Text(
-          l10n.daysRemaining(daysRemaining),
-          style: TextStyle(
-            color: context.palette.onMedia,
-            fontSize: 14,
-            fontWeight: FontWeight.bold
+      backgroundColor: palette.media,
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: widget.files.length,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+                _chromeVisible = true;
+              });
+            },
+            itemBuilder: (context, index) => _buildMediaViewer(widget.files[index], l10n),
           ),
-        ),
+
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _chrome(
+              MediaViewerTopBar(
+                title: DateFormatter.formatDayAndTime(file.capturedAt, context),
+                subtitle: _subtitleFor(file, l10n),
+                onBack: () => Navigator.pop(context),
+                actions: [
+                  _CountdownPill(label: countdown, soon: TrashFileCard.isDeletedSoon(file)),
+                  MediaViewerIconButton(
+                    icon: Symbols.info_rounded,
+                    tooltip: l10n.viewerInfo,
+                    onPressed: () => FilePropertiesSheet.show(
+                      context,
+                      file,
+                      status: StatusChip(
+                        compact: true,
+                        icon: Symbols.auto_delete_rounded,
+                        label: countdown,
+                        variant: TrashFileCard.isDeletedSoon(file)
+                            ? StatusChipVariant.danger
+                            : StatusChipVariant.neutral,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _chrome(
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.files.length > 1) ...[
+                        MediaViewerThumbnailStrip(
+                          itemCount: widget.files.length,
+                          currentIndex: _currentIndex,
+                          thumbnailBuilder: (context, index) => AuthenticatedImage(
+                            imageUrl: '${DataConstants.backendBaseUrl}/api/file/${widget.files[index].id}/thumbnail/',
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => const SizedBox.shrink(),
+                          ),
+                          onSelected: (index) => _pageController.animateToPage(
+                            index,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.easeOut,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: MediaViewerActionBar(
+                          children: [
+                            Expanded(
+                              child: MediaViewerAction(
+                                icon: Symbols.restore_rounded,
+                                label: l10n.restore,
+                                highlighted: true,
+                                onPressed: () => _confirmRestore(context),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: MediaViewerAction(
+                                icon: Symbols.delete_forever_rounded,
+                                label: l10n.deleteForever,
+                                color: palette.mediaDanger,
+                                onPressed: () => _confirmDeleteForever(context),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _chrome(Widget child) {
+    return IgnorePointer(
+      ignoring: !_chromeVisible,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: _chromeVisible ? 1 : 0,
+        child: child,
       ),
     );
   }
@@ -128,436 +201,100 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
     final fullUrl = '$baseUrl/api/file/${file.id}/';
 
     if (file.isImage) {
-      return InteractiveViewer(
-        minScale: 0.5,
-        maxScale: 4.0,
-        child: Container(
-          color: context.palette.media,
-          child: Center(
-            child: AuthenticatedImage(
-              imageUrl: fullUrl,
-              fit: BoxFit.cover,
-            ),
-          )
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => setState(() => _chromeVisible = !_chromeVisible),
+        child: InteractiveViewer(
+          minScale: 1,
+          maxScale: 4.0,
+          child: Center(child: AuthenticatedImage(imageUrl: fullUrl, fit: BoxFit.contain)),
         ),
       );
-    } else if (file.isVideo) {
-      return Container(
-        color: context.palette.media,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+    }
+
+    if (file.isVideo) {
+      final insets = MediaQuery.paddingOf(context);
+      return Padding(
+        padding: EdgeInsets.only(top: insets.top + 64, bottom: insets.bottom + _bottomChromeHeight),
         child: VideoPlayerWidget(
           videoUrl: fullUrl,
           key: ValueKey(file.id),
           onControlsVisibilityChanged: (visible) {
-            setState(() {
-              _videoControlsVisible = visible;
-            });
-          }
+            if (mounted) setState(() => _chromeVisible = visible);
+          },
         ),
       );
-    } else {
-     return _buildUnsupportedFileType(l10n);
-    }
-  }
-
-  Widget _buildMediaViewerWithOverlay(TrashFile file, AppLocalizations l10n) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        _buildMediaViewer(file, l10n),
-        _buildFloatingActionsPositioned(file, context, l10n)
-      ],
-    );
-  }
-
-  Widget _buildFloatingActionsPositioned(TrashFile file, BuildContext context, AppLocalizations l10n) {
-    if (file.isVideo && !_videoControlsVisible) {
-      return const SizedBox.shrink();
     }
 
-    final bottomOffset = file.isVideo ? 80.0 : 40.0;
-
-    return Positioned(
-      bottom: bottomOffset,
-      left: 20,
-      right: 20,
-      child: _buildFloatingActions(context, l10n),
-    );
-  }
-
-  Widget _buildFloatingActions(BuildContext context, AppLocalizations l10n) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildRestoreButton(context, l10n),
-        _buildDeletePermanentlyButton(context, l10n)
-      ],
-    );
-  }
-
-  Widget _buildRestoreButton(BuildContext context, AppLocalizations l10n) {
-    return _buildFloatingActionButton(
-      Icons.restore,
-      () => _showRestoreConfirmation(context, l10n)
-    );
-  }
-
-  Widget _buildDeletePermanentlyButton(BuildContext context, AppLocalizations l10n) {
-    return _buildFloatingActionButton(
-      Icons.delete_forever,
-      () => _showDeletePermanentlyConfirmation(context, l10n)
-    );
-  }
-
-  Widget _buildFloatingActionButton(IconData icon, VoidCallback onPressed) {
-    return Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(30),
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: context.palette.media.withValues(alpha: 0.4),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: context.palette.shadow,
-                blurRadius: 8,
-                offset: const Offset(0, 2)
-              )
-            ],
-          ),
-          child: Icon(
-            icon,
-            color: context.palette.onMedia,
-            size: 28,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUnsupportedFileType(AppLocalizations l10n) {
+    final muted = context.palette.onMedia.withValues(alpha: 0.7);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 80,
-            color: context.palette.onMedia.withValues(alpha: 0.7)
-          ),
+          Icon(Symbols.error_rounded, size: 64, color: muted),
           const SizedBox(height: 16),
           Text(
             l10n.fileTypeNotSupported,
-            style: TextStyle(
-              color: context.palette.onMedia.withValues(alpha: 0.7),
-              fontSize: 16
-            ),
+            style: TextStyle(color: muted, fontSize: 16, fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
-          )
+          ),
         ],
       ),
     );
   }
 
-  void _showRestoreConfirmation(BuildContext context, AppLocalizations l10n) {
-    showDialog(
+  String _subtitleFor(TrashFile file, AppLocalizations l10n) {
+    if (!file.isVideo) return l10n.filePropertyTypeImage;
+    final seconds = file.durationSeconds;
+    if (seconds == null) return l10n.filePropertyTypeVideo;
+    return '${l10n.filePropertyTypeVideo} · ${MediaThumbnail.formatDuration(Duration(seconds: seconds))}';
+  }
+
+  void _confirmRestore(BuildContext context) {
+    final file = _currentFile;
+    RestoreConfirmationDialog.show(
       context: context,
-      builder: (dialogContext) => RestoreConfirmationDialog(
-        fileCount: 1,
-        onConfirm: () {
-          Navigator.of(dialogContext).pop();
-          context.read<TrashBloc>().add(RestoreFiles([_currentFile.id]));
-          Navigator.pop(context); // Close detail page and go back to trash
-        },
-      ),
+      fileCount: 1,
+      onConfirm: () {
+        context.read<TrashBloc>().add(RestoreFiles([file.id]));
+        Navigator.pop(context); // Back to the trash list
+      },
     );
   }
 
-  void _showDeletePermanentlyConfirmation(BuildContext context, AppLocalizations l10n) {
-    showDialog(
+  void _confirmDeleteForever(BuildContext context) {
+    final file = _currentFile;
+    PermanentDeleteConfirmationDialog.show(
       context: context,
-      builder: (dialogContext) => PermanentDeleteConfirmationDialog(
-        fileCount: 1,
-        onConfirm: () {
-          Navigator.of(dialogContext).pop();
-          context.read<TrashBloc>().add(PermanentlyDeleteFiles([_currentFile.id]));
-          Navigator.pop(context); // Close detail page and go back to trash
-        },
-      ),
+      fileCount: 1,
+      onConfirm: () {
+        context.read<TrashBloc>().add(PermanentlyDeleteFiles([file.id]));
+        Navigator.pop(context); // Back to the trash list
+      },
     );
   }
+}
 
-  void _showOptionsMenu(BuildContext context, AppLocalizations l10n) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: Text(l10n.fileProperties),
-              onTap: () {
-                Navigator.pop(context);
-                _showDetailsDialog(context, l10n);
-              },
-            ),
-          ],
-        ),
-      )
-    );
-  }
+/// "Deleted in 12 days" pill over the dark viewer chrome.
+class _CountdownPill extends StatelessWidget {
+  final String label;
+  final bool soon;
 
-  void _showDetailsDialog(BuildContext context, AppLocalizations l10n) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                context.palette.onMedia,
-                context.palette.ink3
-              ]
-            )
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: context.palette.accent.withValues(alpha: 0.1),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20)
-                  )
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: context.palette.accent,
-                        borderRadius: BorderRadius.circular(12)
-                      ),
-                      child: Icon(
-                        _currentFile.isImage ? Icons.image : Icons.videocam,
-                        color: context.palette.onMedia,
-                        size: 28,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.fileProperties,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: context.palette.ink
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _currentFile.isImage ? l10n.filePropertyTypeImage : l10n.filePropertyTypeVideo,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: context.palette.ink2
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    _buildModernDetailRow(
-                      icon: Icons.calendar_today,
-                      label: l10n.filePropertyCapturedAt,
-                      value: _formatDate(_currentFile.capturedAt, l10n)
-                    ),
+  const _CountdownPill({required this.label, required this.soon});
 
-                    if(_currentFile.isVideo && _currentFile.durationSeconds != null) ...[
-                      const SizedBox(height: 16),
-                      _buildModernDetailRow(
-                          icon: Icons.access_time,
-                          label: l10n.filePropertyDuration,
-                          value: _formatDuration(_currentFile.durationSeconds!)
-                      ),
-                    ],
-
-                    const SizedBox(height: 16),
-                    _buildModernDetailRow(
-                        icon: Icons.fingerprint,
-                        label: 'ID',
-                        value: _currentFile.id,
-                        isMonospace: true
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: context.palette.accent.withValues(alpha: 0.1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
-                    ),
-                    child: Text(
-                      l10n.close,
-                      style: TextStyle(
-                        color: context.palette.accentInk,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildModernDetailRow({
-    required IconData icon,
-    required String label,
-    required String value,
-    Color? valueColor,
-    bool showBadge = false,
-    bool isMonospace = false
-  }) {
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: context.palette.surface2,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: context.palette.line,
-          width: 1
-        ),
+        color: (soon ? p.danger : p.onMedia).withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(999),
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: context.palette.onMedia,
-              borderRadius: BorderRadius.circular(8)
-            ),
-            child: Icon(
-              icon,
-              size: 20,
-              color: context.palette.accent
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: context.palette.ink2,
-                    fontWeight: FontWeight.w500
-                  ),
-                ),
-                const SizedBox(height: 4),
-                showBadge
-                    ? Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: (valueColor ?? context.palette.ink2).withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(6)
-                        ),
-                        child: Text(
-                          value,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: valueColor ?? context.palette.ink
-                          ),
-                        ),
-                      )
-                    : Text(
-                        value,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: valueColor ?? context.palette.ink,
-                          fontFamily: isMonospace ? 'monospace' : null
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      )
-              ],
-            ),
-          )
-        ],
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: soon ? p.mediaDanger : p.onMedia),
       ),
     );
-  }
-
-  String _formatDate(DateTime date, AppLocalizations l10n) {
-
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      if (difference.inHours == 0) {
-
-        if(difference.inMinutes == 1) {
-          return l10n.timePassedInMinutesSingular;
-        } else {
-          return l10n.timePassedInMinutesPlural(difference.inMinutes);
-        }
-      }
-
-      if(difference.inHours == 1) {
-        return l10n.timePassedInHoursSingular;
-      } else {
-        return l10n.timePassedInHoursPlural(difference.inHours);
-      }
-    } else if (difference.inDays < 7) {
-
-      if(difference.inDays == 1) {
-        return l10n.timePassedInDaysSingular;
-      } else {
-        return l10n.timePassedInDaysPlural(difference.inDays);
-      }
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
-  }
-
-  String _formatDuration(int seconds) {
-    final duration = Duration(seconds: seconds);
-    final minutes = duration.inMinutes;
-    final remainingSeconds = duration.inSeconds % 60;
-    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 }
