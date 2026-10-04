@@ -1,70 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:photo_manager_app/core/widgets/permission/permission_education_dialog.dart';
-import 'package:photo_manager_app/core/widgets/permission/permission_denied_dialog.dart';
 
-/// Helper class to request notification permissions with education dialogs
+/// Checks and requests the notification permission.
 class NotificationPermissionHelper {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
-
-  /// Request notification permission with education dialog
-  ///
-  /// Returns true if permission is granted, false otherwise
-  ///
-  /// Shows an education dialog before requesting permission, and a denial dialog
-  /// if the user denies the permission.
-  static Future<bool> requestNotificationPermission({
-    required BuildContext context,
-    required String educationTitle,
-    required String educationMessage,
-    required String deniedTitle,
-    required String deniedMessage,
-    required String continueText,
-    required String settingsText,
-    required String cancelText,
-  }) async {
-    // Step 1: Check if permission is already granted
-    final currentStatus = await _checkNotificationPermission();
-
-    if (currentStatus == true) {
-      return true;
-    }
-
-    // Step 2: Show education dialog (check mounted after async gap)
-    if (!context.mounted) return false;
-    final shouldRequestPermission = await PermissionEducationDialog.show(
-      context: context,
-      title: educationTitle,
-      message: educationMessage,
-      continueText: continueText,
-      cancelText: cancelText,
-      icon: Icons.notifications,
-    );
-
-    if (shouldRequestPermission != true) {
-      return false; // User cancelled
-    }
-
-    // Step 3: Request permission from OS
-    final granted = await _requestPermissionFromOS();
-
-    // Step 4: If denied, show denial dialog
-    // Check context is still valid after async gap
-    if (!granted && context.mounted) {
-      await PermissionDeniedDialog.show(
-        context: context,
-        title: deniedTitle,
-        message: deniedMessage,
-        settingsText: settingsText,
-        cancelText: cancelText,
-      );
-    }
-
-    return granted;
-  }
 
   /// Check current notification permission status
   ///
@@ -135,6 +76,9 @@ class NotificationPermissionHelper {
 
     return false;
   }
+
+  /// Shows the system prompt without education dialogs.
+  static Future<bool> requestFromOS() => _requestPermissionFromOS();
 
   /// Check if notifications are enabled (public method for external use)
   static Future<bool> areNotificationsEnabled() async {

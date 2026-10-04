@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:photo_manager_app/core/widgets/app_password_field.dart';
+import 'package:photo_manager_app/core/widgets/app_text_field.dart';
+import 'package:photo_manager_app/features/auth/presentation/utils/auth_validators.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-import '../../../../../config/theme/photo_manager_colors.dart';
 
-
-class RegisterInputs extends StatefulWidget {
+class RegisterInputs extends StatelessWidget {
 
   final TextEditingController nameInputController;
   final TextEditingController surnameInputController;
@@ -24,204 +25,93 @@ class RegisterInputs extends StatefulWidget {
   });
 
   @override
-  State<RegisterInputs> createState() => _RegisterInputsState();
-}
-
-
-class _RegisterInputsState extends State<RegisterInputs> {
-
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-
-  @override
   Widget build(BuildContext context) {
 
     final l10n = AppLocalizations.of(context)!;
 
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return AutofillGroup(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            l10n.nameLabel,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: AppTextField(
+                  label: l10n.nameLabel,
+                  controller: nameInputController,
+                  hintText: l10n.namePlaceholder,
+                  keyboardType: TextInputType.name,
+                  textCapitalization: TextCapitalization.words,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.givenName],
+                  enabled: enabled,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return l10n.errorNameRequired;
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: AppTextField(
+                  label: l10n.surnameShortLabel,
+                  labelNote: l10n.optionalLabel,
+                  controller: surnameInputController,
+                  hintText: l10n.surnamePlaceholder,
+                  keyboardType: TextInputType.name,
+                  textCapitalization: TextCapitalization.words,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.familyName],
+                  enabled: enabled,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: widget.nameInputController,
-            keyboardType: TextInputType.name,
-            textCapitalization: TextCapitalization.words,
-            enabled: widget.enabled,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return l10n.errorNameRequired;
-              }
-              return null;
-            },
-            decoration: _buildInputDecoration(
-              hintText: l10n.namePlaceholder
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            l10n.surnameLabel,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: widget.surnameInputController,
-            keyboardType: TextInputType.name,
-            textCapitalization: TextCapitalization.words,
-            enabled: widget.enabled,
-            decoration: _buildInputDecoration(
-              hintText: l10n.surnamePlaceholder
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            l10n.emailLabel,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: widget.emailInputController,
+
+          const SizedBox(height: 16),
+
+          AppTextField(
+            label: l10n.emailLabel,
+            controller: emailInputController,
+            hintText: l10n.emailPlaceholder,
             keyboardType: TextInputType.emailAddress,
-            enabled: widget.enabled,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return l10n.errorEmailRequired;
-              }
-              if (!value.contains('@') || !value.contains('.')) {
-                return l10n.errorInvalidEmail;
-              }
-              return null;
-            },
-            decoration: _buildInputDecoration(
-              hintText: l10n.emailPlaceholder,
-            ),
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.email],
+            enabled: enabled,
+            validator: (value) => AuthValidators.email(l10n, value),
           ),
-          const SizedBox(height: 20),
-          Text(
-            l10n.passwordLabel,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
-            ),
-            textAlign: TextAlign.start,
+
+          const SizedBox(height: 16),
+
+          AppPasswordField(
+            label: l10n.passwordLabel,
+            controller: passwordInputController,
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.newPassword],
+            enabled: enabled,
+            showTooltip: l10n.showPassword,
+            hideTooltip: l10n.hidePassword,
+            validator: (value) => AuthValidators.password(l10n, value),
           ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: widget.passwordInputController,
-            obscureText: _obscurePassword,
-            enabled: widget.enabled,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return l10n.errorPasswordRequired;
-              }
-              return null;
-            },
-            decoration: _buildInputDecoration(
-              hintText: "*********",
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                  color: Colors.grey[600],
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscurePassword = !_obscurePassword;
-                  });
-                },
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            l10n.confirmPasswordLabel,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: widget.confirmPasswordInputController,
-            obscureText: _obscureConfirmPassword,
-            enabled: widget.enabled,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return l10n.errorConfirmPasswordRequired;
-              }
-              if (value != widget.passwordInputController.text) {
-                return l10n.errorPasswordsDoNotMatch;
-              }
-              return null;
-            },
-            decoration: _buildInputDecoration(
-              hintText: "*********",
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscureConfirmPassword
-                      ? Icons.visibility_off
-                      : Icons.visibility,
-                  color: Colors.grey[600],
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscureConfirmPassword = !_obscureConfirmPassword;
-                  });
-                },
-              ),
-            ),
+
+          const SizedBox(height: 16),
+
+          AppPasswordField(
+            label: l10n.confirmPasswordLabel,
+            controller: confirmPasswordInputController,
+            textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.newPassword],
+            enabled: enabled,
+            showTooltip: l10n.showPassword,
+            hideTooltip: l10n.hidePassword,
+            validator: (value) =>
+                AuthValidators.confirmation(l10n, value, passwordInputController.text),
           ),
         ],
-    );
-  }
-
-  InputDecoration _buildInputDecoration({
-    required String hintText,
-    Widget? suffixIcon,
-  }) {
-    return InputDecoration(
-      hintText: hintText,
-      hintStyle: TextStyle(color: Colors.grey[400]),
-      filled: true,
-      fillColor: Colors.grey[50],
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red, width: 2),
       ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red, width: 2),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey[300]!),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey[300]!),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      suffixIcon: suffixIcon,
     );
   }
 }

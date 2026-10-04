@@ -35,6 +35,7 @@ void main() {
     mockEventBus = MockAppEventBus();
 
     when(() => mockEventBus.on<FolderUpdatedEvent>()).thenAnswer((_) => const Stream.empty());
+    when(() => mockEventBus.on<CoversChangedEvent>()).thenAnswer((_) => const Stream.empty());
 
     bloc = FolderBloc(
       getFoldersUseCase: mockGetFoldersUseCase,
@@ -400,6 +401,27 @@ void main() {
           isA<FolderError>(),
         ],
       );
+    });
+
+    test('should reload the albums when their covers change', () async {
+      // Arrange
+      final eventBus = AppEventBus();
+      when(() => mockGetFoldersUseCase.call(parentFolderId: null)).thenAnswer((_) async => []);
+      final listening = FolderBloc(
+        getFoldersUseCase: mockGetFoldersUseCase,
+        createFolderUseCase: mockCreateFolderUseCase,
+        renameFolderUseCase: mockRenameFolderUseCase,
+        deleteFolderUseCase: mockDeleteFolderUseCase,
+        eventBus: eventBus,
+      );
+      addTearDown(listening.close);
+
+      // Act
+      eventBus.fire(const CoversChangedEvent(folderIds: ['a1']));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      // Assert
+      verify(() => mockGetFoldersUseCase.call(parentFolderId: null)).called(1);
     });
   });
 }

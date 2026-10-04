@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -54,51 +57,53 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-            child: BlocConsumer<AuthBloc, AuthState>(
-              listener: (context, state) {
-                if (state is AuthError) {
-                  ErrorNotificationService.showError(
-                    context,
-                    state.failure,
-                    config: ErrorDisplayConfig.snackBar,
-                    onRetry: () => _handleLogin(),
-                  );
-                }
-              },
-              builder: (context, state) {
-                final isLoading = state is AuthLoading;
+    final insets = MediaQuery.paddingOf(context);
 
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        const Center(child: LoginHeader()),
-                        const SizedBox(height: 40),
-                        LoginInputs(
-                          emailInputController: _emailInputController,
-                          passwordInputController: _passwordInputController,
-                          enabled: !isLoading,
-                        ),
-                        const SizedBox(height: 48),
-                        LoginActions(
-                            onLogin: _handleLogin,
-                            onForgotPassword: _handleForgotPassword,
-                            onRegister: _handleRegister,
-                            isLoading: isLoading,
-                        )
-                      ],
-                    ),
+    return Scaffold(
+      backgroundColor: context.palette.surface,
+      body: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthError) {
+            ErrorNotificationService.showError(
+              context,
+              state.failure,
+              config: ErrorDisplayConfig.snackBar,
+              onRetry: () => _handleLogin(),
+            );
+          }
+        },
+        builder: (context, state) {
+          final isLoading = state is AuthLoading;
+
+          return SingleChildScrollView(
+            // 88 from the top edge, safe area included.
+            padding: EdgeInsets.fromLTRB(24, math.max(88, insets.top + 24), 24, insets.bottom + 24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const LoginHeader(),
+                  const SizedBox(height: 24),
+                  LoginInputs(
+                    emailInputController: _emailInputController,
+                    passwordInputController: _passwordInputController,
+                    onForgotPassword: _handleForgotPassword,
+                    onSubmitted: _handleLogin,
+                    enabled: !isLoading,
+                  ),
+                  const SizedBox(height: 24),
+                  LoginActions(
+                    onLogin: _handleLogin,
+                    onRegister: _handleRegister,
+                    isLoading: isLoading,
                   )
-                );
-              }
+                ],
+              ),
             )
-        )
+          );
+        }
+      )
     );
   }
 }

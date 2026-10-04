@@ -8,6 +8,7 @@ class DateGroupingUtil {
   /// - This Week (Monday - Sunday)
   /// - Last Week
   /// - Month name (e.g., "March 2024")
+  /// - No date (files without `capturedAt`), always last
   static List<FileDateGroup> groupFilesByDate(
     List<GalleryFile> files, {
     String? todayLabel,
@@ -15,18 +16,20 @@ class DateGroupingUtil {
     String? thisWeekLabel,
     String? lastWeekLabel,
     List<String>? monthNames,
+    String? noDateLabel,
   }) {
     if (files.isEmpty) return [];
 
-    // Sort files by capturedAt in descending order (newest first)
+    // Sort files by capturedAt in descending order (newest first, undated last)
     final sortedFiles = List<GalleryFile>.from(files)
-      ..sort((a, b) => b.capturedAt.compareTo(a.capturedAt));
+      ..sort((a, b) => _compareNewestFirst(a.capturedAt, b.capturedAt));
 
-    // Group files by smart normalized date
-    final Map<DateTime, List<GalleryFile>> groupedMap = {};
+    // Group files by smart normalized date (null key = no capture date)
+    final Map<DateTime?, List<GalleryFile>> groupedMap = {};
 
     for (final file in sortedFiles) {
-      final normalizedDate = getSmartNormalizedDate(file.capturedAt);
+      final capturedAt = file.capturedAt;
+      final normalizedDate = capturedAt != null ? getSmartNormalizedDate(capturedAt) : null;
       groupedMap.putIfAbsent(normalizedDate, () => []).add(file);
     }
 
@@ -34,22 +37,51 @@ class DateGroupingUtil {
     final groups = groupedMap.entries.map((entry) {
       return FileDateGroup(
         date: entry.key,
-        label: getSmartDateLabel(
+        label: _groupLabel(
           entry.key,
           todayLabel: todayLabel,
           yesterdayLabel: yesterdayLabel,
           thisWeekLabel: thisWeekLabel,
           lastWeekLabel: lastWeekLabel,
           monthNames: monthNames,
+          noDateLabel: noDateLabel,
         ),
         files: entry.value,
       );
     }).toList();
 
-    // Sort groups by date (newest first)
-    groups.sort((a, b) => b.date.compareTo(a.date));
+    // Sort groups by date (newest first, undated last)
+    groups.sort((a, b) => _compareNewestFirst(a.date, b.date));
 
     return groups;
+  }
+
+  /// Newest first; `null` (no capture date) goes after every dated item.
+  static int _compareNewestFirst(DateTime? a, DateTime? b) {
+    if (a == null && b == null) return 0;
+    if (a == null) return 1;
+    if (b == null) return -1;
+    return b.compareTo(a);
+  }
+
+  static String _groupLabel(
+    DateTime? date, {
+    String? todayLabel,
+    String? yesterdayLabel,
+    String? thisWeekLabel,
+    String? lastWeekLabel,
+    List<String>? monthNames,
+    String? noDateLabel,
+  }) {
+    if (date == null) return noDateLabel ?? 'No date';
+    return getSmartDateLabel(
+      date,
+      todayLabel: todayLabel,
+      yesterdayLabel: yesterdayLabel,
+      thisWeekLabel: thisWeekLabel,
+      lastWeekLabel: lastWeekLabel,
+      monthNames: monthNames,
+    );
   }
 
   /// Normalizes a DateTime to the start of the day (midnight)
@@ -199,15 +231,17 @@ class DateGroupingUtil {
     String? thisWeekLabel,
     String? lastWeekLabel,
     List<String>? monthNames,
+    String? noDateLabel,
   }) {
     return groups.map((group) {
-      final newLabel = getSmartDateLabel(
+      final newLabel = _groupLabel(
         group.date,
         todayLabel: todayLabel,
         yesterdayLabel: yesterdayLabel,
         thisWeekLabel: thisWeekLabel,
         lastWeekLabel: lastWeekLabel,
         monthNames: monthNames,
+        noDateLabel: noDateLabel,
       );
       return group.copyWith(label: newLabel);
     }).toList();
@@ -222,6 +256,7 @@ class DateGroupingUtil {
     String? thisWeekLabel,
     String? lastWeekLabel,
     List<String>? monthNames,
+    String? noDateLabel,
   }) {
     if (newFiles.isEmpty) return existingGroups;
 
@@ -248,6 +283,7 @@ class DateGroupingUtil {
       thisWeekLabel: thisWeekLabel,
       lastWeekLabel: lastWeekLabel,
       monthNames: monthNames,
+      noDateLabel: noDateLabel,
     );
   }
 }

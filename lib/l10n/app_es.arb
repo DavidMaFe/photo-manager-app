@@ -2,30 +2,23 @@
   "@@locale": "es",
 
   "appTitle": "Photo Manager",
-  "welcome": "Bienvenido",
-  "loginTitle": "Iniciar Sesión",
   "emailLabel": "Correo electrónico",
   "emailPlaceholder": "tu@email.com",
   "passwordLabel": "Contraseña",
   "loginButton": "Entrar",
-  "logoutButton": "Salir",
-  "logoutConfirmation": "¿Estás seguro de que quieres salir?",
-  "forgotPassword": "¿Has olvidado tú contraseña?",
-  "notHaveAccount": "¿No tienes cuenta? ",
-  "signUp": "Regístrate",
+  "logoutButton": "Cerrar sesión",
+  "logoutConfirmation": "¿Seguro que quieres cerrar sesión?",
+  "forgotPassword": "¿La has olvidado?",
 
-  "createAccount": "Crear Cuenta",
   "accountCreated": "¡Cuenta creada! Por favor inicia sesión",
-  "registerTitle": "Regístrate para comenzar",
   "nameLabel": "Nombre",
   "namePlaceholder": "Juan",
-  "surnameLabel": "Apellido (opcional)",
   "surnamePlaceholder": "Pérez",
-  "confirmPasswordLabel": "Confirmar Contraseña",
+  "confirmPasswordLabel": "Confirmar contraseña",
   "errorNameRequired": "El nombre es requerido",
   "errorConfirmPasswordRequired": "Confirma tu contraseña",
   "errorPasswordsDoNotMatch": "Las contraseñas no coinciden",
-  "registerButton": "Crear Cuenta",
+  "registerButton": "Crear cuenta",
   "alreadyHaveAccount": "¿Ya tienes cuenta? ",
   "signIn": "Inicia sesión",
   "registerTermsDisclaimer": "Al registrarte, aceptas nuestros Términos y Condiciones",
@@ -38,53 +31,10 @@
   "yesterday": "Ayer",
   "thisWeek": "Esta semana",
   "lastWeek": "Semana pasada",
-  "pendingSingular": "Pendiente",
-  "pendingPlural": "Pendientes",
-  "pendingFilesInfoSingle": "Tienes 1 archivo pendiente de gestionar",
-  "pendingFilesInfo": "Tienes {files} archivos pendientes de gestionar",
+  "noDate": "Sin fecha",
   "noFiles": "No hay archivos que mostrar",
-  "syncToHaveFiles": "Sincroniza tus dispositivos para ver tus archivos",
-  "selectedFilesSingle": "1 seleccionado",
-  "selectedFiles": "{files} seleccionados",
-  "selectedFilesWithLimit": "{count} / 100 seleccionados",
-  "@selectedFilesWithLimit": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "selectionLimitReached": "Solo puedes seleccionar hasta 100 archivos a la vez.",
-  "noFolders": "No tienes ninguna carpeta. Crea una nueva.",
-  "selectFolder": "Selecciona una carpeta",
-  "quickActionsTitle": "ACCIONES RÁPIDAS",
-  "saveAndKeepTitle": "Guardar",
-  "saveAndKeepSubtitle": "Guardar y mantener en dispositivo",
-  "saveAndDeleteTitle": "Guardar y liberar espacio",
-  "saveAndDeleteSubtitle": "Guardar y eliminar del dispositivo",
-  "saveInFolderTitle": "A carpeta",
-  "saveInFolderSubtitle": "Guardar en carpeta",
-  "deleteBothTitle": "Eliminar todo",
-  "deleteBothSubtitle": "Eliminar de todos los lugares",
-  "advancedOptionsTitle": "OPCIONES AVANZADAS",
-  "nameFolder": "Nombre de la carpeta",
-  "saveInRootTitle": "Guardar en raíz",
-  "saveInRootSubtitle": "Sin carpeta específica",
-  "moveToFolderTitle": "Mover a carpeta existente",
-  "moveToFolderSubtitle": "Selecciona una carpeta",
-  "newFolderTitle": "Crear una nueva carpeta",
-  "newFolderSubtitle": "Escribe el nombre de la carpeta",
-  "deleteTitle": "Borrar del servidor",
-  "deleteSubtitle": "Esta acción es permanente",
-  "keepInDeviceTitle": "Mantener el archivo en mi dispositivo",
-  "keepInDeviceSubtitle": "El archivo seguirá ocupando espacio local",
-  "deleteFromDeviceDescription": "El archivo se eliminará de tu dispositivo pero seguirá en el servidor",
-  "manageMultipleFiles": "{files} archivos",
-  "manageSingleFile": "1 archivo",
-  "sameActionWarning": "La misma acción se aplicará a todos los ficheros seleccionados",
-  "applyMultiple": "Aplicar a {files}",
-  "applySingle": "Aplicar",
-  "selectAction": "Por favor, selecciona una acción",
+  "newFolderTitle": "Nuevo álbum",
   "partialManageTitle": "Gestión parcial",
   "filesRemovedFromServerLocalMayRemain": "Algunos archivos pueden permanecer en este dispositivo si fueron subidos desde otro dispositivo.",
   "filesManaged": "Archivos Gestionados",
@@ -93,97 +43,45 @@
   "dontShowAgain": "No mostrar de nuevo",
   "correctManage": "{files} archivos gestionados correctamente.\n",
   "failedManage": "{files} archivos fallidos.",
-  "selectFolderError": "Debes seleccionar una carpeta",
-  "newFolderNameError": "Debes escribir un nombre para la nueva carpeta",
-  "invalidActionError": "Acción inválida",
-  "fileCountLabel": "{currentFile} de {totalFiles}",
   "fileTypeNotSupported": "Tipo de archivo no soportado",
-  "timePassedInMinutesSingular": "Hace 1 minuto",
-  "timePassedInMinutesPlural": "Hace {minutes} minutos",
-  "timePassedInHoursSingular": "Hace 1 hora",
-  "timePassedInHoursPlural": "Hace {hours} horas",
-  "timePassedInDaysSingular": "Hace 1 día",
-  "timePassedInDaysPlural": "Hace {days} días",
   "fileProperties": "Propiedades del archivo",
-  "filePropertyType": "Tipo",
   "filePropertyTypeImage": "Imagen",
   "filePropertyTypeVideo": "Vídeo",
   "filePropertyStatus": "Estado",
-  "filePropertyStatusManaged": "Gestionado",
-  "filePropertyStatusPending": "Pendiente",
   "filePropertyCapturedAt": "Fecha de captura",
   "filePropertyDuration": "Duración",
-  "fileDetailManageFile": "Gestionar",
-  "fileShare": "Compartir archivo",
-  "fileDownload": "Descargar archivo",
   "loadingVideoError": "Error al cargar el vídeo",
 
-  "foldersTitle": "Carpetas",
-  "folder": "Carpeta",
-  "subfolders": "Subcarpetas",
+  "folder": "Álbum",
+  "subfolders": "Subálbumes",
   "rename": "Renombrar",
   "create": "Crear",
   "save": "Guardar",
-  "folderName": "Nombre de la carpeta",
+  "folderName": "Nombre del álbum",
   "hintFolderName": "Ex: Vacaciones 2024",
   "folderNameRequiredError": "El nombre es obligatorio",
   "folderMaxHundredCharactersError": "Máximo 100 caracteres",
-  "renameFolder": "Renombrar carpeta",
+  "renameFolder": "Renombrar álbum",
   "newName": "Nuevo nombre",
-  "creatingFolder": "Creando carpeta...",
-  "renamingFolder": "Renombrando carpeta...",
-  "deletingFolder": "Eliminando carpeta...",
+  "creatingFolder": "Creando álbum...",
+  "renamingFolder": "Renombrando álbum...",
+  "deletingFolder": "Eliminando álbum...",
   "processing": "Procesando...",
-  "emptyFolders": "No tienes carpetas",
-  "emptyFolder": "Esta carpeta está vacía",
-  "emptyFolderDescription": "Mueve archivos aquí para organizarlos",
-  "createFirstFolder": "Toca el botón + para crear tu primera carpeta",
-  "deleteFolder": "Eliminar carpeta",
-  "deleteEmptyFolder": "¿Estás seguro de que quieres eliminar la carpeta {folderName}?",
-  "deleteFolderWithFiles": "La carpeta {folderName} contiene {files} archivos. ¿Estás seguro de que quieres eliminar todo el contenido?",
-  "deleteFolderWithSubfolders": "La carpeta {folderName} contiene {subfolders} carpetas. ¿Estás seguro de que quieres eliminar todo el contenido?",
-  "deleteFolderWithFilesAndSubfoldersWarning": "La carpeta {folderName} contiene {files} archivos y {subfolders} carpetas. ¿Estás seguro de que quieres eliminar todo el contenido?",
-
-  "syncCurrentState": "Estado actual",
-  "syncLast": "Última sincronización",
-  "syncEmpty": "Sin sincronizaciones",
-  "syncNow": "Sincronizar ahora",
-  "synchronized": "Sicronizado",
-  "syncPending": "Pendiente",
-  "syncFiles": "{syncFiles} archivos sincronizados",
-  "notSyncYet": "Aún no has sincronizado",
-  "syncStart": "Presiona el botón de sincronizar para empezar",
-  "syncErrorLoad": "Error al cargar las sincronizaciones",
-  "syncHistoric": "Historial Reciente",
-
-  "syncSessionTitle": "Sincronización",
-  "syncSessionInit": "Iniciando sincronización...",
-  "syncSessionConnecting": "Conectando con el servidor",
-  "syncSessionFetchingFiles": "Obteniendo archivos de la galería...",
-  "syncSessionWaitWarning": "Esto puede tardar unos segundos",
-  "syncSessionUploadingFiles": "Subiendo archivos...",
-  "syncSessionFiles": "{uploadedFiles}/{totalFiles} archivos",
-  "syncSessionCancel": "Cancelar sincronización",
+  "emptyFolders": "No tienes álbumes",
+  "emptyFolder": "Este álbum está vacío",
+  "emptyFolderDescription": "Mueve fotos aquí para ordenarlas",
+  "createFirstFolder": "Crea tu primer álbum para ordenar tus fotos",
+  "deleteFolder": "Eliminar álbum",
+  "deleteEmptyFolder": "¿Seguro que quieres eliminar el álbum {folderName}?",
+  "deleteFolderWithFiles": "El álbum {folderName} contiene {files} archivos. ¿Seguro que quieres eliminar todo su contenido?",
+  "deleteFolderWithSubfolders": "El álbum {folderName} contiene {subfolders} subálbumes. ¿Seguro que quieres eliminar todo su contenido?",
+  "deleteFolderWithFilesAndSubfoldersWarning": "El álbum {folderName} contiene {files} archivos y {subfolders} subálbumes. ¿Seguro que quieres eliminar todo su contenido?",
   "syncSessionCancelWarning": "¿Cancelar sincronización?",
   "syncSessionCancelDescription": "Se perderá el progreso actual. Los archivos subidos se mantendrán en el servidor.",
-  "syncSessionCancelShortDescription": "La sincronización está en progreso. ¿Deseas cancelar?",
   "syncSessionCancelConfirm": "Sí, cancelar",
-  "syncSessionCompleting": "Completando sincronización...",
-  "syncSessionSave": "Guardando información",
-  "syncSessionCompleted": "Sincronización completada",
-  "syncSessionFinished": "Sincronización finalizada",
-  "syncSessionError": "Error en la sincronización",
   "total": "Total",
   "uploaded": "Subidos",
   "failed": "Fallidos",
-  "infoFiles": "{info} archivos",
-  "goBack": "Volver",
-
-  "notificationsTitle": "Notificaciones",
-  "emptyNotifications": "Sin notificaciones",
-  "noNotificationsYet": "Aún no tienes notificaciones",
-
-  "errorLoadingProfile": "Error al cargar el perfil",
   "close": "Cerrar",
   "tryAgain": "Reintentar",
   "storage": "Almacenamiento",
@@ -191,20 +89,12 @@
   "folders": "Álbumes",
   "devices": "Dispositivos",
   "editProfile": "Editar perfil",
-  "editProfileSubtitle": "Cambiar nombre y apellidos",
   "myDevices": "Mis dispositivos",
-  "myDevicesSubtitle": "{devices} dispositivos vinculados",
   "trash": "Papelera",
-  "trashSubtitle": "Ver archivos eliminados",
-  "syncSettings": "Ajustes de sincronización",
-  "syncSettingsSubtitle": "Sincronización automática cada 6 horas",
   "notifications": "Notificaciones",
-  "notificationsSubtitle": "Gestionar notificaciones",
 
   "trashIsEmpty": "La papelera está vacía",
   "trashEmptyDescription": "Los archivos eliminados aparecerán aquí y se borrarán permanentemente después de 30 días",
-  "daysRemaining": "{days}d",
-  "filesSelected": "{count} seleccionados",
   "emptyTrash": "Vaciar",
   "emptyTrashConfirmation": "¿Estás seguro de que quieres eliminar permanentemente todos los archivos de la papelera? Esta acción no se puede deshacer.",
   "restore": "Restaurar",
@@ -212,13 +102,10 @@
   "restoreFileConfirmation": "¿Quieres restaurar este archivo a su ubicación original?",
   "restoreFilesConfirmation": "¿Quieres restaurar {count} archivos a sus ubicaciones originales?",
   "deletePermanently": "Eliminar permanentemente",
-  "deleteFilesPermanently": "Eliminar {count} permanentemente",
   "deletePermanentlyConfirmation": "¿Estás seguro de que quieres eliminar permanentemente este archivo? Esta acción no se puede deshacer.",
   "deleteFilesPermanentlyConfirmation": "¿Estás seguro de que quieres eliminar permanentemente {count} archivos? Esta acción no se puede deshacer.",
   "filesRestoredSuccessfully": "{count} archivos restaurados correctamente",
   "filesDeletedPermanently": "{count} archivos eliminados permanentemente",
-  "selectAll": "Seleccionar todo",
-  "deselectAll": "Deseleccionar todo",
   "cancel": "Cancelar",
   "delete": "Eliminar",
 
@@ -236,19 +123,20 @@
   "timeMoreThanOneHour": "Hace {hours} horas",
   "timeYesterday": "Ayer a las {hour}",
 
-  "errorUnknownTitle": "Error Desconocido",
   "errorUnknown": "Ocurrió un error inesperado. Por favor inténtalo más tarde.",
   "errorNetworkTitle": "Error de Conexión",
   "errorNetwork": "Sin conexión a internet. Verifica tu conexión e inténtalo de nuevo.",
   "errorServerTitle": "Error del Servidor",
   "errorServer": "Error del servidor. Por favor, inténtalo más tarde",
+  "syncInProgressErrorTitle": "Copia en curso",
+  "syncInProgressError": "Ya se está haciendo una copia. Espera a que termine e inténtalo de nuevo.",
   "errorTimeout": "La operación tardó demasiado. Por favor, inténtalo de nuevo.",
   "errorUnauthorizedTitle": "No autorizado",
   "errorUnauthorized": "No tienes autorización. Por favor, inicia sesión.",
   "errorInvalidCredentials": "Email o contraseña incorrectos.",
   "errorTokenExpired": "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
   "errorValidationTitle": "Datos Inválidos",
-  "errorValidation": "Los datos proporcionados són inválidos.",
+  "errorValidation": "Los datos proporcionados son inválidos.",
   "errorInvalidEmail": "El formato del email es inválido.",
   "errorPasswordMismatch": "Las contraseñas no coinciden.",
   "errorRequiredField": "El campo {fieldName} es obligatorio.",
@@ -266,51 +154,30 @@
   "errorEmailRequired": "Por favor ingresa un correo electrónico",
   "errorPasswordRequired": "Por favor ingresa una contraseña",
 
-  "forgotPasswordTitle": "Recuperar contraseña",
-  "forgotPasswordSubtitle": "Ingresa tu correo electrónico para recibir un código de verificación",
   "sendCodeButton": "Enviar código",
   "emailSentSuccess": "Código enviado a tu correo electrónico",
 
-  "validateCodeTitle": "Verificar código",
-  "validateCodeSubtitle": "Ingresa el código de 6 dígitos enviado a {email}",
-  "@validateCodeSubtitle": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
-  "codeLabel": "Código de verificación",
-  "codePlaceholder": "123456",
-  "validateCodeButton": "Validar código",
+  "validateCodeButton": "Verificar código",
   "resendCodeButton": "Reenviar código",
   "codeResent": "Código reenviado exitosamente",
-  "errorCodeRequired": "El código es requerido",
-  "errorCodeInvalid": "El código debe tener 6 dígitos",
 
-  "resetPasswordTitle": "Nueva contraseña",
-  "resetPasswordSubtitle": "Ingresa tu nueva contraseña",
   "newPasswordLabel": "Nueva contraseña",
   "confirmNewPasswordLabel": "Confirmar nueva contraseña",
-  "resetPasswordButton": "Restablecer contraseña",
+  "resetPasswordButton": "Guardar contraseña",
   "passwordResetSuccess": "Contraseña restablecida exitosamente",
   "errorNewPasswordRequired": "La nueva contraseña es requerida",
-  "backToLogin": "Volver al inicio de sesión",
 
-  "editProfileTitle": "Editar Perfil",
+  "editProfileTitle": "Editar perfil",
   "currentPasswordLabel": "Contraseña actual",
   "currentPasswordPlaceholder": "Tu contraseña actual",
   "errorCurrentPasswordRequired": "La contraseña actual es requerida",
-  "errorCurrentPasswordIncorrect": "La contraseña actual es incorrecta",
   "saveChanges": "Guardar cambios",
-  "profileUpdatedSuccessfully": "Perfil actualizado exitosamente",
-  "passwordChangedSuccessfully": "Contraseña cambiada exitosamente",
+  "profileUpdatedSuccessfully": "Perfil actualizado",
+  "passwordChangedSuccessfully": "Contraseña cambiada",
   "selectProfilePhoto": "Seleccionar foto de perfil",
   "changePhoto": "Cambiar foto",
-  "basicInfoSection": "Información básica",
   "passwordSection": "Cambiar contraseña",
-  "leavePasswordEmptyHint": "Deja en blanco si no quieres cambiar la contraseña",
-  "savingChanges": "Guardando cambios...",
+  "leavePasswordEmptyHint": "Déjala en blanco si no quieres cambiarla",
 
   "january": "Enero",
   "february": "Febrero",
@@ -326,107 +193,568 @@
   "december": "Diciembre",
 
   "renameDevice": "Renombrar dispositivo",
-  "renameDeviceDescription": "Introduce un nuevo nombre para tu dispositivo",
   "deviceName": "Nombre del dispositivo",
   "deviceNameRequired": "El nombre del dispositivo es obligatorio",
   "deviceNameTooLong": "El nombre es demasiado largo (máximo 50 caracteres)",
-  "autoSync": "Sincronización automática",
+  "autoSync": "Copia automática",
   "unlinkDevice": "Desvincular",
   "unlinkDeviceConfirmation": "¿Estás seguro de que quieres desvincular '{deviceName}'? Este dispositivo dejará de sincronizarse con tu cuenta.",
-  "deviceActionSuccess": "Acción completada con éxito",
+  "deviceActionSuccess": "Hecho",
   "noDevices": "No tienes dispositivos vinculados",
   "noDevicesDescription": "Los dispositivos aparecerán aquí cuando inicies sesión en la aplicación desde otros dispositivos.",
-  "devicesLoadError": "No se pudieron cargar los dispositivos",
   "retry": "Reintentar",
 
-  "syncConfigurationTitle": "Configuración de Sincronización",
-  "syncConfigurationDescription": "Configura cómo y cuándo se sincronizarán automáticamente tus archivos",
-  "enableAutoSync": "Habilitar sincronización automática",
   "autoSyncEnabled": "La sincronización automática está activada",
-  "autoSyncDisabled": "La sincronización automática está desactivada",
 
-  "syncFrequencyTitle": "Frecuencia de sincronización",
-  "syncFrequencyDaily": "Diariamente",
-  "syncFrequencyWeekly": "Semanalmente",
-  "syncFrequencyAt": "a las",
-
-  "syncTimeTitle": "Hora de sincronización",
-  "syncTimeDescription": "Selecciona la hora a la que deseas que se ejecute la sincronización",
-  "selectTime": "Seleccionar hora",
-
-  "syncDayOfWeekTitle": "Día de la semana",
-  "syncDayOfWeekDescription": "Selecciona el día en el que deseas que se ejecute la sincronización",
   "monday": "Lunes",
-  "tuesday": "Martes",
-  "wednesday": "Miércoles",
-  "thursday": "Jueves",
-  "friday": "Viernes",
-  "saturday": "Sábado",
-  "sunday": "Domingo",
-
-  "networkPreferenceTitle": "Preferencia de red",
-  "networkPreferenceWifiOnly": "Solo WiFi",
-  "networkPreferenceWifiOnlyDescription": "La sincronización solo se ejecutará cuando estés conectado a WiFi",
-  "networkPreferenceAnyNetwork": "Cualquier red",
-  "networkPreferenceAnyNetworkDescription": "La sincronización se ejecutará en WiFi o datos móviles",
-
-  "batteryPreferenceTitle": "Preferencia de batería",
-  "batteryPreferenceAny": "Cualquier nivel de batería",
-  "batteryPreferenceAnyDescription": "La sincronización se ejecutará sin importar el nivel de batería",
-  "batteryPreferenceCharging": "Cargando o batería >15%",
-  "batteryPreferenceChargingDescription": "La sincronización solo se ejecutará cuando el dispositivo esté cargando o tenga más del 15% de batería",
 
   "notifyOnSuccess": "Notificar cuando la sincronización sea exitosa",
-  "notifyOnSuccessDescription": "Recibirás una notificación cuando la sincronización se complete correctamente",
   "notifyOnFailure": "Notificar cuando la sincronización falle",
-  "notifyOnFailureDescription": "Recibirás una notificación cuando la sincronización falle",
 
-  "saveConfiguration": "Guardar configuración",
-  "savingConfiguration": "Guardando configuración...",
-  "configurationSaved": "Configuración guardada",
-  "configurationSavedDescription": "Tu configuración de sincronización automática ha sido guardada correctamente",
-  "configurationSaveError": "Error al guardar la configuración",
+  "configurationSaved": "Ajustes guardados",
   "loadingConfiguration": "Cargando configuración...",
   "configurationLoadError": "Error al cargar la configuración",
-
-  "syncInProgressError": "Sincronización en progreso",
-  "syncInProgressErrorDescription": "Ya hay una sincronización en progreso. Por favor, espera a que termine antes de iniciar una nueva.",
-  "syncInProgressDialogTitle": "Sincronización en progreso",
-  "syncInProgressDialogMessage": "Una sincronización automática está en progreso en segundo plano. Por favor, espera a que termine antes de iniciar una sincronización manual.",
-  "understood": "Entendido",
-
-  "onboardingWelcomeTitle": "¡Bienvenido a Photo Manager!",
-  "onboardingWelcomeMessage": "Para brindarte la mejor experiencia, necesitamos tu permiso para acceder a tus fotos, enviarte notificaciones y ejecutar sincronizaciones automáticas en segundo plano.\n\nEstos permisos nos permiten:\n\n• Sincronizar automáticamente tus fotos y vídeos\n• Mantener tus archivos respaldados de forma segura\n• Notificarte sobre el progreso de la sincronización\n• Ejecutar sincronizaciones mientras la app está cerrada",
-  "onboardingWelcomeButton": "Comenzar",
-  "onboardingGetStarted": "Empezar configuración",
-
-  "permissionNotificationTitle": "Notificaciones",
-  "permissionNotificationMessage": "Te enviaremos notificaciones para informarte sobre el progreso de tus sincronizaciones automáticas y cuando se completen exitosamente o fallen.",
-  "permissionNotificationContinue": "Permitir notificaciones",
-  "permissionNotificationDeniedTitle": "Notificaciones Deshabilitadas",
-  "permissionNotificationDeniedMessage": "Sin permiso de notificaciones, no podrás recibir actualizaciones sobre el estado de tus sincronizaciones. Puedes habilitar las notificaciones más tarde en Configuración.",
-
-  "permissionBackgroundTitle": "Sincronización en Segundo Plano",
-  "permissionBackgroundMessage": "Para que la sincronización automática funcione correctamente, la aplicación necesita ejecutarse en segundo plano. Esto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.",
-  "permissionBackgroundMessageAndroid": "Para que la sincronización automática funcione correctamente, necesitamos que:\n\n• La aplicación pueda ejecutarse en segundo plano\n• Se desactive la optimización de batería para esta app\n\nEsto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.",
-  "permissionBackgroundMessageIOS": "Para que la sincronización automática funcione correctamente, necesitamos que:\n\n• Habilites la actualización en segundo plano\n• Permitas que la app se ejecute en segundo plano\n\nEsto permite que tus fotos se sincronicen incluso cuando la app esté cerrada.",
-  "permissionBackgroundContinue": "Permitir sincronización en segundo plano",
-  "permissionBackgroundDeniedTitle": "Sincronización en Segundo Plano Deshabilitada",
-  "permissionBackgroundDeniedMessage": "Sin permiso para ejecutar en segundo plano, la sincronización automática solo funcionará cuando tengas la aplicación abierta. Puedes habilitar esto más tarde en Configuración.",
-
   "onboardingPermissionsRejectedTitle": "Algunos Permisos No Fueron Otorgados",
   "onboardingPermissionsRejectedMessage": "Has denegado algunos permisos necesarios. La aplicación funcionará con funcionalidad limitada. Puedes habilitar estos permisos más tarde desde la configuración de la aplicación:",
-  "onboardingPermissionsRejectedButton": "Entendido",
-  "onboardingPermissionsRetryButton": "Intentar de nuevo",
-
   "permissionLimitationPhoto": "• No podrás sincronizar fotos ni vídeos",
   "permissionLimitationNotification": "• No recibirás notificaciones sobre las sincronizaciones",
   "permissionLimitationBackground": "• La sincronización automática solo funcionará con la app abierta",
 
-  "onboardingPermissionsAllGrantedTitle": "¡Todo Listo!",
-  "onboardingPermissionsAllGrantedMessage": "Todos los permisos han sido otorgados correctamente. Ya puedes empezar a usar Photo Manager con todas sus funciones.",
-  "onboardingPermissionsAllGrantedButton": "Ir a la galería",
+  "loginGreeting": "Hola de nuevo",
+  "loginSubtitle": "Entra para ver y ordenar tus fotos.",
+  "noAccountYet": "¿Aún no tienes cuenta?",
+  "createAccountLink": "Crear cuenta",
+  "registerHeadline": "Crea tu cuenta",
+  "registerSubtitle": "Guarda tus fotos y libera espacio del móvil.",
+  "surnameShortLabel": "Apellido",
+  "optionalLabel": "(opcional)",
+  "showPassword": "Mostrar contraseña",
+  "hidePassword": "Ocultar contraseña",
+  "stepOf": "Paso {current} de {total}",
+  "@stepOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "forgotPasswordHeadline": "¿Has olvidado tu contraseña?",
+  "forgotPasswordBody": "Escribe tu correo y te enviaremos un código para crear una nueva.",
+  "checkYourEmail": "Revisa tu correo",
+  "codeSentTo": "Te hemos enviado un código de 6 dígitos a {email}",
+  "@codeSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "didNotReceiveCode": "¿No te ha llegado?",
+  "resendIn": "Reenviar en {time}",
+  "@resendIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "newPasswordHeadline": "Crea una contraseña nueva",
+  "newPasswordBody": "Usa una que no hayas usado antes en esta cuenta.",
 
-  "errorGalleryPermissionTitle": "Permiso de Galería Requerido",
-  "errorGalleryPermission": "La aplicación necesita acceso a tu galería para funcionar. Por favor, habilita el permiso en Configuración."
+  "navPhotos": "Fotos",
+  "backupUpToDate": "Al día",
+  "backupInProgress": "Copiando {percent} %",
+  "@backupInProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "backupFailed": "Copia con fallos",
+  "filterAll": "Todo",
+  "filterToReview": "Por revisar",
+  "toReviewTitle": "{count, plural, =1{1 elemento por revisar} other{{count} elementos por revisar}}",
+  "@toReviewTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "toReviewBody": "Decide si guardarlos o liberar espacio del móvil",
+  "review": "Revisar",
+  "select": "Seleccionar",
+  "selectedCount": "{count, plural, =1{1 seleccionada} other{{count} seleccionadas}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectAllShort": "Todas",
+  "selectNone": "Ninguna",
+  "noPhotosYet": "Aún no hay fotos",
+  "noPhotosBody": "Sincroniza tu móvil para verlas aquí",
+  "backupNow": "Hacer copia ahora",
+  "openProfile": "Abrir perfil",
+  "closeSelection": "Salir de la selección",
+
+  "dayAndTime": "{day}, {time}",
+  "@dayAndTime": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerInfo": "Información",
+  "actionSave": "Guardar",
+  "actionDelete": "Eliminar",
+  "deleteFileTitle": "¿Eliminar este archivo?",
+  "deleteFileBody": "Se borrará de tu nube y de este móvil. Podrás recuperarlo desde la papelera durante 30 días.",
+  "copyId": "Copiar ID",
+  "copiedToClipboard": "Copiado",
+  "statusSafe": "A salvo",
+
+  "navAlbums": "Álbumes",
+  "searchAlbums": "Buscar álbumes",
+  "newAlbum": "Nuevo",
+  "createAlbum": "Crear álbum",
+  "albumMeta": "{count} · {subcount, plural, =1{1 subálbum} other{{subcount} subálbumes}}",
+  "@albumMeta": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "subcount": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsCount": "{count, plural, =0{Vacío} =1{1 elemento} other{{count} elementos}}",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subalbum": "Subálbum",
+  "newSubalbum": "Nuevo subálbum",
+  "moreOptions": "Más opciones",
+  "noAlbumsMatch": "Ningún álbum coincide con «{query}»",
+  "@noAlbumsMatch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+
+  "navBackup": "Copia",
+  "allSafe": "Todo a salvo",
+  "lastBackupMeta": "Última copia {when} · {count, plural, =1{1 elemento} other{{count} elementos}}",
+  "@lastBackupMeta": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "copyingNofM": "Copiando {done} de {total}",
+  "@copyingNofM": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "backupIncomplete": "La última copia no terminó",
+  "backupIncompleteMeta": "{when} · {count, plural, =1{1 fallo} other{{count} fallos}}",
+  "@backupIncompleteMeta": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noBackupsYet": "Aún no has hecho ninguna copia",
+  "noBackupsBody": "Guarda tus fotos en la nube y libera espacio del móvil.",
+  "backupCancelledTitle": "La última copia se canceló",
+  "condDaily": "Diaria · {time}",
+  "@condDaily": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "condWeekly": "{day} · {time}",
+  "@condWeekly": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "condWifi": "Solo WiFi",
+  "condAnyNetwork": "WiFi y datos",
+  "condBattery": "Cargando o >15 %",
+  "autoBackupOff": "Copia automática desactivada",
+  "backupSettings": "Ajustes de copia",
+  "activity": "Actividad",
+  "itemsSaved": "{count, plural, =1{1 elemento guardado} other{{count} elementos guardados}}",
+  "@itemsSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "incompleteWithFailures": "Copia incompleta · {count, plural, =1{1 fallo} other{{count} fallos}}",
+  "@incompleteWithFailures": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupCancelled": "Copia cancelada",
+  "backupRunning": "Copia en curso",
+
+  "navProfile": "Perfil",
+  "edit": "Editar",
+  "storageOf": "{used} de {total}",
+  "@storageOf": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "elementsLabel": "{count, plural, =1{elemento} other{elementos}}",
+  "@elementsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "albumsLabel": "{count, plural, =1{álbum} other{álbumes}}",
+  "@albumsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesLabel": "{count, plural, =1{dispositivo} other{dispositivos}}",
+  "@devicesLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sectionBackupSpace": "Copia y espacio",
+  "sectionApp": "Aplicación",
+  "dailyAt": "Diaria a las {time}",
+  "@dailyAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyAt": "{day} a las {time}",
+  "@weeklyAt": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "linkedDevices": "{count, plural, =0{Ninguno vinculado} =1{1 vinculado} other{{count} vinculados}}",
+  "@linkedDevices": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trashAutoEmpty": "Se vacía a los 30 días",
+  "notifOnlyFailures": "Solo fallos",
+  "notifOnlySuccess": "Solo al terminar",
+  "notifAll": "Todas",
+  "notifOff": "Desactivadas",
+
+  "sectionData": "Datos",
+  "sectionPassword": "Contraseña",
+  "gallerySource": "Galería",
+  "camera": "Cámara",
+
+  "thisDevice": "Este móvil",
+
+  "emptyTrashShort": "Vaciar",
+  "trashInfo": "Se borran para siempre a los 30 días. Mantén pulsado para restaurar varios.",
+  "deletingSoon": "Se borran pronto",
+  "thisMonth": "Este mes",
+  "daysLeft": "{count, plural, =0{Hoy} =1{1 día} other{{count} días}}",
+  "@daysLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteForever": "Eliminar para siempre",
+  "deletesIn": "Se borra en {time}",
+  "@deletesIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "selectedItems": "{count, plural, =1{1 elemento} other{{count} elementos}}",
+  "@selectedItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "autoBackupBody": "Tus fotos nuevas se guardan solas",
+  "sectionWhen": "Cuándo",
+  "everyDay": "Cada día",
+  "oncePerWeek": "Una vez por semana",
+  "day": "Día",
+  "time": "Hora",
+  "nextBackup": "Próxima copia: {when}",
+  "@nextBackup": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "sectionConditions": "Condiciones",
+  "network": "Red",
+  "battery": "Batería",
+  "always": "Siempre",
+  "sectionAlerts": "Avisos",
+  "alertSuccess": "Al terminar bien",
+  "alertSuccessBody": "Un aviso con lo que se guardó",
+  "alertFailure": "Si algo falla",
+  "alertFailureBody": "Para que puedas reintentarlo",
+  "sectionDiagnostics": "Diagnóstico",
+
+  "manageQuestion": "{count, plural, =1{¿Qué hacemos con esta foto?} other{¿Qué hacemos con estas {count} fotos?}}",
+  "@manageQuestion": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photosSelected": "{count, plural, =1{1 foto seleccionada} other{{count} fotos seleccionadas}}",
+  "@photosSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photosCount": "{count, plural, =1{1 foto} other{{count} fotos}}",
+  "@photosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "optSaveFree": "Guardar y liberar espacio",
+  "optSaveFreeBody": "Se guardan en tu nube y se borran del móvil.",
+  "recommended": "Recomendado",
+  "optSaveKeep": "Guardar y mantener en el móvil",
+  "optSaveKeepBody": "Tendrás una copia en la nube y otra aquí.",
+  "optAlbum": "Guardar en un álbum",
+  "optAlbumBody": "Elige uno existente o crea uno nuevo.",
+  "newAlbumChip": "Nuevo",
+  "deleteAfterSaving": "Borrar del móvil después",
+  "deleteEverywhere": "Eliminar de todas partes",
+  "saveToAlbum": "Guardar en {album}",
+  "@saveToAlbum": {
+    "placeholders": {
+      "album": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseAlbum": "Elige un álbum",
+  "actionToAlbum": "A un álbum",
+  "actionFreeUp": "Liberar",
+  "freeUpTitle": "¿Liberar espacio del móvil?",
+  "freeUpBody": "{count, plural, =1{La foto se guardará en tu nube y se borrará de este móvil.} other{Las {count} fotos se guardarán en tu nube y se borrarán de este móvil.}}",
+  "@freeUpBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteFilesTitle": "{count, plural, =1{¿Eliminar esta foto?} other{¿Eliminar {count} fotos?}}",
+  "@deleteFilesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteFilesBody": "Se borrarán de tu nube y de este móvil. Podrás recuperarlas desde la papelera durante 30 días.",
+
+  "preparingBackup": "Preparando la copia…",
+  "lookingForPhotos": "Buscando fotos nuevas",
+  "finishingBackup": "Terminando la copia…",
+  "cancellingBackup": "Cancelando…",
+  "remainingMinutes": "{count, plural, =1{Queda alrededor de 1 min} other{Quedan unos {count} min}}",
+  "@remainingMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "remainingLessThanMinute": "Queda menos de un minuto",
+  "backgroundInfo": "Puedes salir de la app: la copia sigue en segundo plano y te avisaremos al terminar.",
+  "seeAll": "Ver todo",
+  "seeLess": "Ver menos",
+
+  "welcomeUser": "Bienvenido, {name}",
+  "@welcomeUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomeGeneric": "Te damos la bienvenida",
+  "permissionsHeadline": "Tres permisos y empezamos",
+  "permissionsBody": "Así podremos guardar tus fotos de forma automática y avisarte cuando termine cada copia.",
+  "permPhotosTitle": "Fotos y vídeos",
+  "permPhotosBody": "Para copiarlas y liberar espacio",
+  "permNotifTitle": "Notificaciones",
+  "permNotifBody": "Te avisamos al terminar o si falla",
+  "permBgTitle": "Segundo plano",
+  "permBgBody": "Copias con la app cerrada",
+  "allow": "Permitir",
+  "done": "Listo",
+  "permSettings": "Ajustes",
+  "privacyNote": "Tus fotos son privadas. Puedes cambiar estos permisos cuando quieras desde Perfil.",
+  "continueLabel": "Continuar",
+  "later": "Hacerlo más tarde",
+  "continueAnyway": "Continuar igualmente",
+  "reviewPermissions": "Revisar permisos",
+
+  "appearance": "Apariencia",
+  "themeSystem": "Automática",
+  "themeSystemHint": "Sigue el modo de tu teléfono",
+  "themeLight": "Clara",
+  "themeDark": "Oscura",
+  "deviceLastBackup": "{os} · Última copia {when}",
+  "@deviceLastBackup": {
+    "placeholders": {
+      "os": {"type": "String"},
+      "when": {"type": "String"}
+    }
+  },
+  "photosSelectedSize": "{count, plural, =1{1 foto · ocupa {size}} other{{count} fotos · ocupan {size}}}",
+  "freeUpSize": "Liberar {size}",
+  "filePropertyName": "Nombre",
+  "filePropertyUploadedAt": "Fecha de subida",
+  "filePropertySize": "Tamaño",
+  "filePropertyDimensions": "Dimensiones",
+  "filePropertyAlbum": "Álbum",
+  "filePropertyDevice": "Dispositivo",
+  "fileInfoLoading": "Cargando detalles…",
+  "filterFavorites": "Favoritas",
+  "favorite": "Favorita",
+  "addToFavorites": "Añadir a favoritas",
+  "removeFromFavorites": "Quitar de favoritas",
+  "favoritesEmptyTitle": "Aún no tienes favoritas",
+  "favoritesEmptyBody": "Toca el corazón al ver una foto para guardarla aquí",
+  "favoritesAdded": "{count, plural, =1{Añadida a favoritas} other{{count} añadidas a favoritas}}",
+  "favoritesRemoved": "{count, plural, =1{Quitada de favoritas} other{{count} quitadas de favoritas}}",
+  "favoriteError": "No se pudo actualizar. Inténtalo de nuevo.",
+  "move": "Mover",
+  "cover": "Portada",
+  "coverOf": "Portada de {album}",
+  "coverOfMany": "{count, plural, =1{Portada de 1 álbum} other{Portada de {count} álbumes}}",
+  "useAsCover": "Usar como portada",
+  "useAsCoverBody": "Marca los álbumes donde quieres que aparezca. Máx. 3 por álbum.",
+  "photoIsHere": "La foto está aquí",
+  "photosAreHere": "Las fotos están aquí",
+  "coverAlreadyHint": "Ya es portada · desmarca para quitarla",
+  "coverWillAdd": "Se añade · {count} de 3",
+  "coverFullChoose": "Lleno · elige cuál sustituir",
+  "coverFullChooseMany": "Lleno · elige {count} para sustituir",
+  "coverWillRemove": "Se quita de la portada",
+  "coverCount": "{count} de 3 portadas",
+  "replace": "Sustituir",
+  "replaceCoverOf": "Sustituir portada {position} de {album}",
+  "coverTreeNote": "Solo aparecen el álbum de la foto y los que lo contienen.",
+  "saveChangesCount": "{count, plural, =1{Guardar · 1 cambio} other{Guardar · {count} cambios}}",
+  "coverUpdated": "{count, plural, =1{Portada actualizada} other{Portada actualizada en {count} álbumes}}",
+  "upToThreeCovers": "{count, plural, =1{1 foto} other{{count} fotos}} · hasta 3 pueden ser portada",
+  "chooseUpToThree": "Elige hasta 3 fotos para usar como portada",
+  "videosCannotBeCovers": "Los vídeos no pueden ser portada",
+  "noSharedAlbum": "Estas fotos no comparten álbum",
+  "inAlbum": "en {album}",
+  "albumCoverTitle": "Portada de {album}",
+  "albumCoverSubtitle": "{count} de 3 fotos · arrastra para cambiar el orden",
+  "albumCoverCard": "{count} de 3 fotos",
+  "albumCoverAuto": "Automática · fotos recientes",
+  "previewInAlbums": "Así se ve en Álbumes",
+  "previewInAlbumsBody": "La primera foto es la grande. Con 1 o 2 fotos el mosaico se adapta.",
+  "coverAutomatic": "Automática",
+  "coverMain": "Principal",
+  "coverSecond": "Segunda",
+  "coverThird": "Tercera",
+  "fromThisAlbum": "De este álbum",
+  "fromAlbum": "De {path}",
+  "removeCover": "Quitar de portada",
+  "coverRemoved": "Quitada de la portada",
+  "addCoverHint": "Para añadir otra, abre una foto de este álbum o de sus subálbumes y pulsa «Portada». Sin portadas, se usan las fotos más recientes.",
+  "undo": "Deshacer",
+  "moveUp": "Subir",
+  "moveDown": "Bajar",
+  "coverBadge": "Portada",
+  "bytesToUpload": "{size} por subir"
 }

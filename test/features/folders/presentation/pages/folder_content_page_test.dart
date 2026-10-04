@@ -5,271 +5,545 @@ import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
 import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
+import 'package:photo_manager_app/core/widgets/empty_state.dart';
+import 'package:photo_manager_app/core/widgets/filter_pill.dart';
+import 'package:photo_manager_app/core/widgets/media_grid.dart';
+import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
+import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
+import 'package:photo_manager_app/core/widgets/selection_header.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_state.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_bloc.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_bloc.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_event.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/pages/folder_content_page.dart';
-import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/create_folder_modal.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/subfolders_section.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
-import 'package:photo_manager_app/l10n/app_localizations.dart';
+import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
+
+import '../../../../fixtures/test_data.dart';
+import '../../../../helpers/widget_test_helper.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:photo_manager_app/config/app_config.dart';
+import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/widgets/selection_action_bar.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_event.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_state.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_mosaic.dart';
+import 'package:photo_manager_app/core/injection_container.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/album_covers/album_covers_cubit.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/album_covers/album_covers_state.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/cover_picker/cover_picker_cubit.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/cover_picker/cover_picker_state.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_cover_card.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_covers_sheet.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/cover_picker_sheet.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/file_thumbnail_card.dart';
 
 class MockFolderContentBloc extends Mock implements FolderContentBloc {}
 
+class MockFolderBloc extends Mock implements FolderBloc {}
+
+class MockFileManagementBloc extends Mock implements FileManagementBloc {}
+
+class FakeFolderContentEvent extends Fake implements FolderContentEvent {}
+
+class MockFavoritesBloc extends MockBloc<FavoritesEvent, FavoritesState> implements FavoritesBloc {}
+
+class MockCoverPickerCubit extends MockCubit<CoverPickerState> implements CoverPickerCubit {}
+
+class MockAlbumCoversCubit extends MockCubit<AlbumCoversState> implements AlbumCoversCubit {}
+
 void main() {
-  late MockFolderContentBloc mockFolderContentBloc;
+  late MockFolderContentBloc contentBloc;
+  late MockFolderBloc folderBloc;
+  late MockFileManagementBloc fileManagementBloc;
+  late MockFavoritesBloc favoritesBloc;
+
+  setUpAll(() => registerFallbackValue(FakeFolderContentEvent()));
 
   setUp(() {
-    mockFolderContentBloc = MockFolderContentBloc();
-    when(() => mockFolderContentBloc.stream)
-        .thenAnswer((_) => Stream.value(const FolderContentStarting()));
-    when(() => mockFolderContentBloc.state)
-        .thenReturn(const FolderContentStarting());
+    contentBloc = MockFolderContentBloc();
+    when(() => contentBloc.stream).thenAnswer((_) => const Stream.empty());
+    when(() => contentBloc.state).thenReturn(const FolderContentStarting());
+
+    fileManagementBloc = MockFileManagementBloc();
+    when(() => fileManagementBloc.stream).thenAnswer((_) => const Stream.empty());
+    when(() => fileManagementBloc.state).thenReturn(const FileManagementStarting());
+
+    favoritesBloc = MockFavoritesBloc();
+    when(() => favoritesBloc.state).thenReturn(const FavoritesState());
+
+    folderBloc = MockFolderBloc();
+    when(() => folderBloc.stream).thenAnswer((_) => const Stream.empty());
+    when(() => folderBloc.state).thenReturn(const FolderStarting());
   });
 
-  group('FolderContentPage', () {
-    final testDate = DateTime(2024, 1, 15);
+  final album = TestFolders.album(
+    id: 'folder-1',
+    name: 'Japan',
+    parentFolderId: 'parent-1',
+    path: '/Trips/Japan',
+    fileCount: 2,
+    subfolderCount: 1,
+  );
+  final subalbum = TestFolders.album(id: 'sub-1', name: 'Kyoto', parentFolderId: 'folder-1', fileCount: 5);
+  final now = DateTime.now();
+  final files = [
+    GalleryFile(id: 'file-1', type: FileType.image, status: FileStatus.managed, capturedAt: now),
+    GalleryFile(id: 'file-2', type: FileType.video, status: FileStatus.managed, durationSeconds: 30, capturedAt: now),
+  ];
 
-    final testFolder = Folder(
-      id: 'folder-1',
-      name: 'Vacation',
-      parentFolderId: null,
-      path: '/root/folder-1',
-      createdAt: testDate,
-      fileCount: 2,
-      subfolderCount: 1,
+  FolderContentLoaded loaded({
+    List<GalleryFile>? fileList,
+    List<Folder>? subfolders,
+    FileFilter filter = FileFilter.all,
+    bool isSelectionMode = false,
+    Set<String> selected = const {},
+  }) {
+    final list = fileList ?? files;
+    return FolderContentLoaded(
+      currentFolder: album,
+      subfolders: subfolders ?? [subalbum],
+      files: list,
+      groupedFiles: DateGroupingUtil.groupFilesByDate(list),
+      hasMoreFiles: false,
+      totalFilesCount: list.length,
+      currentFilter: filter,
+      isSelectionMode: isSelectionMode,
+      selectedFileIds: selected,
     );
+  }
 
-    // Helper to create grouped files for tests
-    List<FileDateGroup> groupTestFiles(List<GalleryFile> files) {
-      return DateGroupingUtil.groupFilesByDate(files);
+  /// Thumbnails keep loading in tests, so pumpAndSettle never settles.
+  Future<void> settle(WidgetTester tester) async {
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
     }
+  }
 
-    Widget createWidgetUnderTest({required String folderId}) {
-      return MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: BlocProvider<FolderContentBloc>.value(
-          value: mockFolderContentBloc,
-          child: FolderContentPage(folderId: folderId),
-        ),
-      );
-    }
+  Future<void> pumpPage(WidgetTester tester, FolderContentState state) async {
+    setUpCustomScreenSize(tester, 390, 1400);
+    when(() => contentBloc.state).thenReturn(state);
+    await tester.pumpWidget(makeTestableWidgetWithBlocs(
+      providers: [
+        BlocProvider<FolderContentBloc>.value(value: contentBloc),
+        BlocProvider<FolderBloc>.value(value: folderBloc),
+        BlocProvider<FileManagementBloc>.value(value: fileManagementBloc),
+        BlocProvider<FavoritesBloc>.value(value: favoritesBloc),
+      ],
+      child: const FolderContentPage(folderId: 'folder-1'),
+    ));
+  }
 
-    testWidgets('should display app bar', (tester) async {
+  group('FolderContentPage', () {
+    // ==================== HAPPY PATH TESTS ====================
+
+    testWidgets('should show the back bar, breadcrumbs, title and item count', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest(folderId: 'folder-1'));
+      await pumpPage(tester, loaded());
 
       // Assert
-      expect(find.byType(AppBar), findsOneWidget);
+      expect(find.byType(SecondaryTopBar), findsOneWidget);
+      expect(find.text('Albums › Trips'), findsOneWidget);
+      expect(find.text('Japan'), findsOneWidget);
+      expect(find.text('2 items'), findsOneWidget);
+      expect(find.byType(FloatingActionButton), findsNothing);
     });
 
-    testWidgets('should render page without error', (tester) async {
+    testWidgets('should show the item count with the months of the album', (tester) async {
+      // Arrange
+      final dated = FolderContentLoaded(
+        currentFolder: TestFolders.album(
+          id: 'folder-1',
+          name: 'Japan',
+          parentFolderId: 'parent-1',
+          path: '/Trips/Japan',
+          fileCount: 2,
+          subfolderCount: 1,
+          oldestCapturedAt: DateTime(2024, 8, 2),
+          newestCapturedAt: DateTime(2024, 8, 14),
+        ),
+        subfolders: [
+          TestFolders.album(
+            id: 'sub-1',
+            name: 'Kyoto',
+            parentFolderId: 'folder-1',
+            fileCount: 5,
+            oldestCapturedAt: DateTime(2023, 12, 30),
+            newestCapturedAt: DateTime(2024, 1, 2),
+          ),
+        ],
+        files: files,
+        groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+        hasMoreFiles: false,
+        totalFilesCount: files.length,
+        isSelectionMode: false,
+        selectedFileIds: const {},
+      );
+
+      // Act
+      await pumpPage(tester, dated);
+
+      // Assert
+      expect(find.text('2 items · Aug 2024'), findsOneWidget);
+      expect(find.text('Dec 2023 – Jan 2024'), findsOneWidget);
+    });
+
+    // ==================== FAVORITES TESTS ====================
+
+    group('with favorites on', () {
+      setUp(() => AppConfig.favoritesAndCoversEnabled = true);
+      tearDown(() => AppConfig.favoritesAndCoversEnabled = false);
+
+      final favorite = GalleryFile(id: 'file-1', type: FileType.image, status: FileStatus.managed, capturedAt: now, isFavorite: true);
+      final plain = GalleryFile(id: 'file-2', type: FileType.image, status: FileStatus.managed, capturedAt: now);
+
+      testWidgets('should show Favorites, Move and Delete in the album selection', (tester) async {
+        // Arrange & Act
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+
+        // Assert
+        final bar = find.byType(SelectionActionBar);
+        for (final label in ['Favorites', 'Move', 'Delete']) {
+          expect(find.descendant(of: bar, matching: find.text(label)), findsOneWidget);
+        }
+        expect(find.descendant(of: bar, matching: find.text('Save')), findsNothing);
+      });
+
+      testWidgets('should mark the whole selection and leave selection mode', (tester) async {
+        // Arrange
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+
+        // Act
+        await tester.tap(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Favorites')));
+
+        // Assert
+        verify(() => favoritesBloc.add(SetFavorites(files: [favorite, plain], favorite: true))).called(1);
+        verify(() => contentBloc.add(const ExitSelectionMode())).called(1);
+      });
+
+      testWidgets('should offer to remove when every selected file is a favorite', (tester) async {
+        // Arrange
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1'}));
+
+        // Act
+        await tester.tap(find.text('Remove from favorites'));
+
+        // Assert
+        verify(() => favoritesBloc.add(SetFavorites(files: [favorite], favorite: false))).called(1);
+      });
+
+      testWidgets('should confirm how many were added', (tester) async {
+        // Arrange
+        whenListen(
+          favoritesBloc,
+          Stream.value(const FavoritesState(outcome: FavoritesSaved(count: 3, favorite: true))),
+          initialState: const FavoritesState(),
+        );
+
+        // Act
+        await pumpPage(tester, loaded());
+        await tester.pump();
+
+        // Assert
+        expect(find.text('3 added to favorites'), findsOneWidget);
+      });
+
+      // ==================== COVERS TESTS ====================
+
+      testWidgets('should show the cover card under the album title', (tester) async {
+        await pumpPage(tester, loaded());
+        expect(find.byType(AlbumCoverCard), findsOneWidget);
+        expect(find.text('Automatic · recent photos'), findsOneWidget);
+      });
+
+      testWidgets('should open the album covers sheet from the cover card', (tester) async {
+        // Arrange
+        final cubit = MockAlbumCoversCubit();
+        when(() => cubit.state).thenReturn(const AlbumCoversState(folderId: 'folder-1'));
+        when(() => cubit.load(any())).thenAnswer((_) async {});
+        sl.registerFactory<AlbumCoversCubit>(() => cubit);
+        addTearDown(() => sl.unregister<AlbumCoversCubit>());
+        await pumpPage(tester, loaded());
+
+        // Act
+        await tester.tap(find.byType(AlbumCoverCard));
+        await settle(tester);
+
+        // Assert
+        expect(find.byType(AlbumCoversSheet), findsOneWidget);
+        verify(() => cubit.load('folder-1')).called(1);
+      });
+
+      testWidgets('should mark the covers of this album in the grid', (tester) async {
+        // Arrange & Act
+        await pumpPage(tester, loaded(fileList: [
+          GalleryFile(id: 'c', type: FileType.image, status: FileStatus.managed, capturedAt: now, coverOf: const ['folder-1']),
+          GalleryFile(id: 'o', type: FileType.image, status: FileStatus.managed, capturedAt: now, coverOf: const ['parent-1']),
+        ]));
+
+        // Assert
+        final cards = tester.widgetList<FileThumbnailCard>(find.byType(FileThumbnailCard));
+        expect(cards.map((c) => c.isCover), [true, false]);
+      });
+
+      testWidgets('should say which album the selection is in and how many can be covers', (tester) async {
+        // Arrange & Act
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+
+        // Assert
+        expect(find.text('in Japan'), findsOneWidget);
+        expect(find.text('2 photos · up to 3 can be a cover'), findsOneWidget);
+        final actions = tester.widget<SelectionActionBar>(find.byType(SelectionActionBar)).actions;
+        expect(actions.map((a) => a.label), ['Cover', 'Favorites', 'Move', 'Delete']);
+        expect(actions.first.style, SelectionActionStyle.primary);
+        expect(actions.first.dimmed, isFalse);
+      });
+
+      testWidgets('should explain that videos cannot be covers', (tester) async {
+        // Arrange
+        final video = GalleryFile(id: 'v', type: FileType.video, status: FileStatus.managed, capturedAt: now);
+        await pumpPage(tester, loaded(fileList: [plain, video], isSelectionMode: true, selected: {'file-2', 'v'}));
+
+        // Act
+        await tester.tap(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Cover')));
+        await tester.pump();
+
+        // Assert
+        expect(tester.widget<SelectionActionBar>(find.byType(SelectionActionBar)).actions.first.dimmed, isTrue);
+        expect(find.text("Videos can't be album covers"), findsOneWidget);
+      });
+
+      testWidgets('should allow at most 3 photos as cover', (tester) async {
+        // Arrange
+        final photos = [
+          for (final id in ['1', '2', '3', '4'])
+            GalleryFile(id: id, type: FileType.image, status: FileStatus.managed, capturedAt: now),
+        ];
+        await pumpPage(tester, loaded(fileList: photos, isSelectionMode: true, selected: {'1', '2', '3', '4'}));
+
+        // Act
+        await tester.tap(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Cover')));
+        await tester.pump();
+
+        // Assert
+        expect(find.text('Choose up to 3 photos to use as cover'), findsOneWidget);
+      });
+
+      testWidgets('should open the cover sheet for the selected photos', (tester) async {
+        // Arrange
+        final cubit = MockCoverPickerCubit();
+        when(() => cubit.state).thenReturn(const CoverPickerState(fileIds: ['file-1', 'file-2']));
+        when(() => cubit.load(any())).thenAnswer((_) async {});
+        sl.registerFactory<CoverPickerCubit>(() => cubit);
+        addTearDown(() => sl.unregister<CoverPickerCubit>());
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+
+        // Act
+        await tester.tap(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Cover')));
+        await settle(tester);
+
+        // Assert
+        expect(find.byType(CoverPickerSheet), findsOneWidget);
+        verify(() => cubit.load(['file-1', 'file-2'])).called(1);
+      });
+
+      testWidgets('should tell when the selected photos share no album', (tester) async {
+        // Arrange
+        final cubit = MockCoverPickerCubit();
+        whenListen(
+          cubit,
+          Stream.value(const CoverPickerState(status: CoverPickerStatus.noSharedAlbum)),
+          initialState: const CoverPickerState(),
+        );
+        when(() => cubit.load(any())).thenAnswer((_) async {});
+        sl.registerFactory<CoverPickerCubit>(() => cubit);
+        addTearDown(() => sl.unregister<CoverPickerCubit>());
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+
+        // Act
+        await tester.tap(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Cover')));
+        await settle(tester);
+
+        // Assert
+        expect(find.byType(CoverPickerSheet), findsNothing);
+        expect(find.text("These photos don't share an album"), findsOneWidget);
+      });
+
+      testWidgets('should tell when favorites could not be updated', (tester) async {
+        // Arrange
+        whenListen(
+          favoritesBloc,
+          Stream.value(const FavoritesState(outcome: FavoritesFailed(NetworkFailure()))),
+          initialState: const FavoritesState(),
+        );
+
+        // Act
+        await pumpPage(tester, loaded());
+        await tester.pump();
+
+        // Assert
+        expect(find.text("Couldn't update. Please try again."), findsOneWidget);
+      });
+    });
+
+    testWidgets('should show the sub-album mosaic with its radius when covers are on', (tester) async {
+      // Arrange
+      AppConfig.favoritesAndCoversEnabled = true;
+      addTearDown(() => AppConfig.favoritesAndCoversEnabled = false);
+
+      // Act
+      await pumpPage(tester, loaded(subfolders: [
+        TestFolders.album(id: 'sub-1', name: 'Kyoto', parentFolderId: 'folder-1', fallbackCoverFileIds: ['5', '6']),
+      ]));
+
+      // Assert
+      final mosaic = tester.widget<AlbumMosaic>(
+        find.descendant(of: find.byType(SubfoldersSection), matching: find.byType(AlbumMosaic)),
+      );
+      expect(mosaic.fileIds, ['5', '6']);
+      expect(mosaic.radius, 16);
+      expect(mosaic.iconSize, 28);
+    });
+
+    testWidgets('should keep the gallery selection actions while favorites are off', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest(folderId: 'folder-1'));
+      await pumpPage(tester, loaded(isSelectionMode: true, selected: {'file-1'}));
 
       // Assert
-      expect(find.byType(FolderContentPage), findsOneWidget);
+      expect(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Save')), findsOneWidget);
+      expect(find.text('Move'), findsNothing);
     });
 
-    testWidgets('should display folder content when loaded', (tester) async {
-      // Arrange
-      final files = [
-        GalleryFile(
-          id: 'file-1',
-          type: FileType.image,
-          status: FileStatus.managed,
-          capturedAt: testDate,
-        ),
-      ];
-
-      when(() => mockFolderContentBloc.state).thenReturn(
-        FolderContentLoaded(
-          currentFolder: testFolder,
-          subfolders: const [],
-          files: files,
-          groupedFiles: groupTestFiles(files),
-          hasMoreFiles: false,
-          selectedFileIds: const {},
-          isSelectionMode: false,
-        ),
-      );
-      when(() => mockFolderContentBloc.stream).thenAnswer(
-        (_) => Stream.value(
-          FolderContentLoaded(
-            currentFolder: testFolder,
-            subfolders: const [],
-            files: files,
-            groupedFiles: groupTestFiles(files),
-            hasMoreFiles: false,
-            selectedFileIds: const {},
-            isSelectionMode: false,
-          ),
-        ),
-      );
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest(folderId: 'folder-1'));
-      await tester.pump();
-
-      // Assert
-      expect(find.byType(FolderContentPage), findsOneWidget);
-    });
-
-    testWidgets('should use BlocBuilder to listen to FolderContentBloc',
-        (tester) async {
+    testWidgets('should list sub-albums with a create card', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest(folderId: 'folder-1'));
+      await pumpPage(tester, loaded());
 
       // Assert
-      expect(
-          find.byType(BlocBuilder<FolderContentBloc, FolderContentState>),
-          findsWidgets);
+      expect(find.byType(SubfoldersSection), findsOneWidget);
+      expect(find.text('Kyoto'), findsOneWidget);
+      expect(find.text('Sub-album'), findsOneWidget);
     });
 
-    testWidgets('should display scaffold', (tester) async {
+    testWidgets('should open the new sub-album sheet from the dashed card', (tester) async {
+      // Arrange
+      await pumpPage(tester, loaded());
+
+      // Act
+      await tester.tap(find.text('Sub-album'));
+      await settle(tester);
+
+      // Assert
+      final sheet = tester.widget<CreateFolderModal>(find.byType(CreateFolderModal));
+      expect(sheet.parentFolderId, 'folder-1');
+    });
+
+    testWidgets('should open the new sub-album sheet from the more menu', (tester) async {
+      // Arrange
+      await pumpPage(tester, loaded());
+
+      // Act
+      await tester.tap(find.byTooltip('More options'));
+      await settle(tester);
+      await tester.tap(find.text('New sub-album'));
+      await settle(tester);
+
+      // Assert
+      expect(find.byType(CreateFolderModal), findsOneWidget);
+    });
+
+    testWidgets('should offer only all/photos/videos filters', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest(folderId: 'folder-1'));
+      await pumpPage(tester, loaded(filter: FileFilter.videos));
 
       // Assert
-      expect(find.byType(Scaffold), findsOneWidget);
+      final pills = tester.widgetList<FilterPill>(find.byType(FilterPill)).toList();
+      expect(pills.map((p) => p.label), ['All', 'Photos', 'Videos']);
+      expect(pills.last.selected, isTrue);
     });
 
-    testWidgets('should handle empty folder', (tester) async {
+    testWidgets('should filter the album content', (tester) async {
       // Arrange
-      when(() => mockFolderContentBloc.state).thenReturn(
-        FolderContentLoaded(
-          currentFolder: testFolder,
-          subfolders: const [],
-          files: const [],
-          groupedFiles: const [],
-          hasMoreFiles: false,
-          selectedFileIds: const {},
-          isSelectionMode: false,
-        ),
-      );
-      when(() => mockFolderContentBloc.stream).thenAnswer(
-        (_) => Stream.value(
-          FolderContentLoaded(
-            currentFolder: testFolder,
-            subfolders: const [],
-            files: const [],
-            groupedFiles: const [],
-            hasMoreFiles: false,
-            selectedFileIds: const {},
-            isSelectionMode: false,
-          ),
-        ),
+      await pumpPage(tester, loaded());
+
+      // Act
+      await tester.tap(find.text('Photos'));
+
+      // Assert
+      verify(() => contentBloc.add(const FilterFilesInFolder(filter: FileFilter.images))).called(1);
+    });
+
+    testWidgets('should render the files in the media grid', (tester) async {
+      // Arrange & Act
+      await pumpPage(tester, loaded());
+
+      // Assert
+      expect(find.byType(MediaGrid), findsOneWidget);
+      expect(find.text('Today'), findsOneWidget);
+    });
+
+    // ==================== SELECTION MODE TESTS ====================
+
+    testWidgets('should show the selection header in selection mode', (tester) async {
+      // Arrange & Act
+      await pumpPage(tester, loaded(isSelectionMode: true, selected: const {'file-1'}));
+
+      // Assert
+      expect(find.byType(SelectionHeader), findsOneWidget);
+      expect(find.text('1 selected'), findsOneWidget);
+      expect(find.byType(SecondaryTopBar), findsNothing);
+      expect(find.byType(ManageSelectionBar), findsOneWidget);
+    });
+
+    testWidgets('should select every file from the header', (tester) async {
+      // Arrange
+      await pumpPage(tester, loaded(isSelectionMode: true, selected: const {'file-1'}));
+
+      // Act (the "All" filter pill is also visible)
+      await tester.tap(find.descendant(of: find.byType(SelectionHeader), matching: find.text('All')));
+
+      // Assert
+      verify(() => contentBloc.add(const SelectAllFiles())).called(1);
+    });
+
+    // ==================== LOADING & EMPTY STATE TESTS ====================
+
+    testWidgets('should show the skeleton while loading', (tester) async {
+      // Arrange & Act
+      await pumpPage(tester, const FolderContentLoading());
+
+      // Assert
+      expect(find.byType(MediaGridSkeleton), findsOneWidget);
+    });
+
+    testWidgets('should show the empty album state', (tester) async {
+      // Arrange & Act
+      await pumpPage(tester, loaded(fileList: const [], subfolders: const []));
+
+      // Assert
+      expect(find.byType(EmptyState), findsOneWidget);
+      expect(find.text('This album is empty'), findsOneWidget);
+    });
+
+    testWidgets('should handle many files', (tester) async {
+      // Arrange
+      final many = List.generate(
+        60,
+        (i) => GalleryFile(id: 'f$i', type: FileType.image, status: FileStatus.managed, capturedAt: now),
       );
 
       // Act
-      await tester.pumpWidget(createWidgetUnderTest(folderId: 'folder-1'));
-      await tester.pump();
+      await pumpPage(tester, loaded(fileList: many));
 
       // Assert
-      expect(find.byType(FolderContentPage), findsOneWidget);
-    });
-
-    testWidgets('should pass folderId to page', (tester) async {
-      // Arrange
-      const folderId = 'test-folder-123';
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest(folderId: folderId));
-
-      // Assert
-      expect(find.byType(FolderContentPage), findsOneWidget);
-    });
-
-    testWidgets('should handle folder with subfolders', (tester) async {
-      // Arrange
-      final subfolders = [
-        Folder(
-          id: 'subfolder-1',
-          name: 'Summer',
-          parentFolderId: 'folder-1',
-          path: '/root/folder-1/subfolder-1',
-          createdAt: testDate,
-          fileCount: 5,
-          subfolderCount: 0,
-        ),
-      ];
-
-      when(() => mockFolderContentBloc.state).thenReturn(
-        FolderContentLoaded(
-          currentFolder: testFolder,
-          subfolders: subfolders,
-          files: const [],
-          groupedFiles: const [],
-          hasMoreFiles: false,
-          selectedFileIds: const {},
-          isSelectionMode: false,
-        ),
-      );
-      when(() => mockFolderContentBloc.stream).thenAnswer(
-        (_) => Stream.value(
-          FolderContentLoaded(
-            currentFolder: testFolder,
-            subfolders: subfolders,
-            files: const [],
-            groupedFiles: const [],
-            hasMoreFiles: false,
-            selectedFileIds: const {},
-            isSelectionMode: false,
-          ),
-        ),
-      );
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest(folderId: 'folder-1'));
-      await tester.pump();
-
-      // Assert
-      expect(find.byType(FolderContentPage), findsOneWidget);
-    });
-
-    testWidgets('should render with many files', (tester) async {
-      // Arrange
-      final manyFiles = List.generate(
-        20,
-        (i) => GalleryFile(
-          id: 'file-$i',
-          type: FileType.image,
-          status: FileStatus.managed,
-          capturedAt: testDate,
-        ),
-      );
-
-      when(() => mockFolderContentBloc.state).thenReturn(
-        FolderContentLoaded(
-          currentFolder: testFolder,
-          subfolders: const [],
-          files: manyFiles,
-          groupedFiles: groupTestFiles(manyFiles),
-          hasMoreFiles: true,
-          selectedFileIds: const {},
-          isSelectionMode: false,
-        ),
-      );
-      when(() => mockFolderContentBloc.stream).thenAnswer(
-        (_) => Stream.value(
-          FolderContentLoaded(
-            currentFolder: testFolder,
-            subfolders: const [],
-            files: manyFiles,
-            groupedFiles: groupTestFiles(manyFiles),
-            hasMoreFiles: true,
-            selectedFileIds: const {},
-            isSelectionMode: false,
-          ),
-        ),
-      );
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest(folderId: 'folder-1'));
-      await tester.pump();
-
-      // Assert
-      expect(find.byType(FolderContentPage), findsOneWidget);
+      expect(find.byType(MediaGrid), findsOneWidget);
     });
   });
 }

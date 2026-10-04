@@ -1,161 +1,100 @@
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
-import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_mosaic.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/create_album_card.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/folder_card.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
+import '../../domain/entities/folder.dart';
 
+
+/// Horizontal row of sub-album cards ending with a dashed "Sub-album" card.
 class SubfoldersSection extends StatelessWidget {
 
-  final List<Folder> subfolders;
-  final ValueChanged<Folder> onFolderTap;
+  static const double cardWidth = 112;
+  static const double coverHeight = 84;
 
-  const SubfoldersSection({super.key, required this.subfolders, required this.onFolderTap});
+  final List<Folder> subfolders;
+  final ValueChanged<Folder>? onFolderTap;
+  final VoidCallback? onCreate;
+
+  const SubfoldersSection({
+    super.key,
+    required this.subfolders,
+    this.onFolderTap,
+    this.onCreate,
+  });
 
   @override
   Widget build(BuildContext context) {
 
     final l10n = AppLocalizations.of(context)!;
+    final p = context.palette;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-          child: Row(
-            children: [
-              Icon(
-                Icons.folder,
-                size: 20,
-                color: Colors.grey.shade700,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                l10n.subfolders,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade800
+    return SizedBox(
+      height: coverHeight + 48 + MediaQuery.textScalerOf(context).scale(11) * 1.4,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: subfolders.length + (onCreate != null ? 1 : 0),
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          if (index == subfolders.length) {
+            return SizedBox(
+              width: cardWidth,
+              height: coverHeight,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  height: coverHeight,
+                  child: CreateAlbumCard(label: l10n.subalbum, onTap: onCreate!, radius: 16, iconSize: 24),
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: PhotoManagerColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12)
+            );
+          }
+
+          final folder = subfolders[index];
+          final dateRange = FolderCard.dateRangeFor(folder, l10n);
+          return SizedBox(
+            width: cardWidth,
+            child: Semantics(
+              button: true,
+              label: [folder.name, l10n.itemsCount(folder.fileCount), if (dateRange != null) dateRange].join(', '),
+              excludeSemantics: true,
+              child: GestureDetector(
+                onTap: () => onFolderTap?.call(folder),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: coverHeight,
+                      child: AlbumMosaic(fileIds: FolderCard.coverFileIdsFor(folder), radius: 16, iconSize: 28),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      folder.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: p.ink),
+                    ),
+                    Text(
+                      l10n.itemsCount(folder.fileCount),
+                      maxLines: 1,
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: p.ink2),
+                    ),
+                    if (dateRange != null)
+                      Text(
+                        dateRange,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: p.ink3),
+                      ),
+                  ],
                 ),
-                child: Text(
-                  '${subfolders.length}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: PhotoManagerColors.primary
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: subfolders.length,
-            itemBuilder: (context, index) {
-              final folder = subfolders[index];
-              return _SubfolderCard(folder: folder, onTap: () => onFolderTap(folder));
-            },
-          ),
-        ),
-        const SizedBox(height: 8),
-        Divider(
-          height: 1,
-          thickness: 1,
-          color: Colors.grey.shade200,
-        ),
-        const SizedBox(height: 8)
-      ],
-    );
-  }
-}
-
-class _SubfolderCard extends StatelessWidget {
-
-  final Folder folder;
-  final VoidCallback onTap;
-
-  const _SubfolderCard({required this.folder, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 140,
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              PhotoManagerColors.primary.withValues(alpha: 0.1),
-              PhotoManagerColors.primary.withValues(alpha: 0.05)
-            ]
-          ),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: PhotoManagerColors.primary.withValues(alpha: 0.2),
-            width: 1
-          )
-        ),
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: PhotoManagerColors.primary.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8)
-              ),
-              child: const Icon(
-                Icons.folder,
-                color: PhotoManagerColors.primary,
-                size: 24,
               ),
             ),
-            const Spacer(),
-            Text(
-              folder.name,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Icon(
-                  Icons.photo_library,
-                  size: 12,
-                  color: Colors.grey.shade600
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${folder.fileCount}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade600
-                  ),
-                )
-              ],
-            )
-          ],
-        ),
+          );
+        },
       ),
     );
   }

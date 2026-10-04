@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
+import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
+import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
+import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 
 class FileThumbnailCard extends StatelessWidget {
@@ -10,6 +12,18 @@ class FileThumbnailCard extends StatelessWidget {
   final GalleryFile file;
   final bool isSelectionMode;
   final bool isSelected;
+
+  /// Shows the favorite heart (off in the trash or while the feature is hidden).
+  final bool showFavorite;
+
+  /// First tile of a date group (2×2).
+  final bool large;
+
+  /// Fades and shrinks the thumbnail out (it is about to leave the grid).
+  final bool leaving;
+
+  /// Shows the «Cover» badge (the file is a cover of the album being viewed).
+  final bool isCover;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
@@ -18,6 +32,10 @@ class FileThumbnailCard extends StatelessWidget {
     required this.file,
     required this.isSelectionMode,
     required this.isSelected,
+    this.showFavorite = false,
+    this.large = false,
+    this.leaving = false,
+    this.isCover = false,
     this.onTap,
     this.onLongPress
   });
@@ -27,125 +45,44 @@ class FileThumbnailCard extends StatelessWidget {
 
     const baseUrl = DataConstants.backendBaseUrl;
     final thumbnailUrl = '$baseUrl/api/file/${file.id}/thumbnail/';
+    final l10n = AppLocalizations.of(context)!;
+    final isFavorite = showFavorite && file.isFavorite;
 
-    return GestureDetector(
+    final thumbnail = MediaThumbnail(
+      image: AuthenticatedImage(
+        imageUrl: thumbnailUrl,
+        fit: BoxFit.cover,
+        // MediaThumbnail paints the surface2 placeholder behind the image.
+        placeholder: (_, __) => const SizedBox.shrink(),
+      ),
+      isPending: file.isPending,
+      isVideo: file.isVideo,
+      videoDuration: file.durationSeconds == null
+          ? null
+          : Duration(seconds: file.durationSeconds!),
+      selectable: isSelectionMode,
+      selected: isSelected,
+      isFavorite: isFavorite,
+      large: large,
+      coverLabel: isCover ? l10n.coverBadge : null,
+      semanticLabel: [
+        file.isVideo ? l10n.filePropertyTypeVideo : l10n.filePropertyTypeImage,
+        if (isFavorite) l10n.favorite,
+        if (isCover) l10n.cover,
+      ].join(', '),
       onTap: onTap,
       onLongPress: onLongPress,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          AnimatedScale(
-            scale: isSelected ? 0.88 : 1.0,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutCubic,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: AuthenticatedImage(
-                imageUrl: thumbnailUrl,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-
-          if (isSelectionMode) _buildSelectionOverlay(),
-          if (isSelectionMode) _buildCheckbox(),
-          if (file.isPending && !isSelectionMode) _buildPendingBadge(context),
-          if (file.isVideo) _buildPlayIcon()
-        ],
-      ),
     );
-  }
 
-  Widget _buildSelectionOverlay() {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        border: isSelected
-            ? Border.all(color: PhotoManagerColors.primary, width: 3)
-            : null,
-        color: isSelected
-            ? PhotoManagerColors.primary.withValues(alpha: 0.15)
-            : Colors.transparent
-      ),
-    );
-  }
-
-  Widget _buildCheckbox() {
-    return Positioned(
-      top: 4,
-      left: 4,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 4
-            )
-          ]
-        ),
-        child: Icon(
-          isSelected ? Icons.check_circle : Icons.circle_outlined,
-          color: isSelected ? PhotoManagerColors.primary : Colors.grey.shade400,
-          size: 24
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPendingBadge(BuildContext context) {
-    return Positioned(
-      top: 4,
-      right: 4,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        decoration: BoxDecoration(
-          color: Colors.orange,
-          borderRadius: BorderRadius.circular(4),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 4,
-              offset: const Offset(0, 2)
-            )
-          ]
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.schedule,
-              size: 12,
-              color: Colors.white,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlayIcon() {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.6),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2)
-            )
-          ]
-        ),
-        child: const Icon(
-          Icons.play_arrow,
-          color: Colors.white,
-          size: 32,
-        ),
+    return AnimatedOpacity(
+      duration: GalleryBloc.unfavoritedExitDuration,
+      curve: Curves.easeOut,
+      opacity: leaving ? 0 : 1,
+      child: AnimatedScale(
+        duration: GalleryBloc.unfavoritedExitDuration,
+        curve: Curves.easeOut,
+        scale: leaving ? 0.85 : 1,
+        child: IgnorePointer(ignoring: leaving, child: thumbnail),
       ),
     );
   }

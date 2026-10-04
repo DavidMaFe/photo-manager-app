@@ -316,5 +316,72 @@ void main() {
       expect(json.containsKey('uploadedFiles'), true);
       expect(json.containsKey('failedFiles'), true);
     });
+
+    group('new backend fields', () {
+      test('should parse completedAt, cancelledAt and totalSizeBytes', () {
+        // Arrange
+        final json = {
+          'syncSessionId': 7,
+          'startedAt': '2026-10-03T03:00:00',
+          'status': 'COMPLETED',
+          'syncFiles': 10,
+          'uploadedFiles': 10,
+          'failedFiles': 0,
+          'completedAt': '2026-10-03T03:04:30',
+          'cancelledAt': null,
+          'totalSizeBytes': 432013312,
+        };
+
+        // Act
+        final model = SynchronizationModel.fromJson(json);
+
+        // Assert
+        expect(model.completedAt, DateTime(2026, 10, 3, 3, 4, 30));
+        expect(model.cancelledAt, isNull);
+        expect(model.totalSizeBytes, 432013312);
+      });
+
+      test('should default the new fields when the backend does not send them', () {
+        // Arrange
+        final json = {
+          'syncSessionId': 7,
+          'startedAt': '2026-10-03T03:00:00',
+          'status': 'CANCELLED',
+          'syncFiles': 10,
+          'uploadedFiles': 2,
+          'failedFiles': 0,
+        };
+
+        // Act
+        final model = SynchronizationModel.fromJson(json);
+
+        // Assert
+        expect(model.completedAt, isNull);
+        expect(model.cancelledAt, isNull);
+        expect(model.totalSizeBytes, 0);
+      });
+
+      test('should serialize the new fields in toJson', () {
+        // Arrange
+        final model = SynchronizationModel(
+          id: '7',
+          startedAt: DateTime(2026, 10, 3, 3),
+          status: SynchronizationStatus.cancelled,
+          totalFiles: 10,
+          uploadedFiles: 2,
+          failedFiles: 0,
+          cancelledAt: DateTime(2026, 10, 3, 3, 1),
+          totalSizeBytes: 2048,
+        );
+
+        // Act
+        final json = model.toJson();
+
+        // Assert
+        expect(json['completedAt'], isNull);
+        expect(json['cancelledAt'], '2026-10-03T03:01:00.000');
+        expect(json['totalSizeBytes'], 2048);
+      });
+    });
   });
 }

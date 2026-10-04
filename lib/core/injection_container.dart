@@ -1,4 +1,6 @@
 
+import 'package:photo_manager_app/core/permissions/device_permission_service.dart';
+import 'package:photo_manager_app/core/permissions/permission_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
@@ -6,10 +8,26 @@ import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/network/authenticated_http_client.dart';
 import 'package:photo_manager_app/core/services/background_sync_service.dart';
+import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/services/sync_log_service.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
+import 'package:photo_manager_app/core/services/timezone_service.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
+import 'package:photo_manager_app/features/favorites/data/data_sources/favorites_remote_data_source.dart';
+import 'package:photo_manager_app/features/favorites/data/repositories/favorites_data_repository.dart';
+import 'package:photo_manager_app/features/favorites/domain/repositories/favorites_repository.dart';
+import 'package:photo_manager_app/features/favorites/domain/use_cases/set_favorite_use_case.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:photo_manager_app/features/folders/data/data_sources/covers_remote_data_source.dart';
+import 'package:photo_manager_app/features/folders/data/repositories/covers_data_repository.dart';
+import 'package:photo_manager_app/features/folders/domain/repositories/covers_repository.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/apply_cover_changes_use_case.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/get_album_covers_use_case.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/get_cover_targets_use_case.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/set_album_covers_use_case.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/album_covers/album_covers_cubit.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/cover_picker/cover_picker_cubit.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repository.dart';
@@ -25,8 +43,10 @@ import 'package:photo_manager_app/features/file_management/data/repositories/fil
 import 'package:photo_manager_app/features/file_management/domain/repositories/file_management_repository.dart';
 import 'package:photo_manager_app/features/file_management/domain/use_cases/get_folders_use_case.dart';
 import 'package:photo_manager_app/features/file_management/domain/use_cases/manage_files_use_case.dart';
+import 'package:photo_manager_app/features/file_management/domain/use_cases/get_file_info_use_case.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_info/file_info_bloc.dart';
 import 'package:photo_manager_app/features/folders/data/data_sources/folder_remote_data_source.dart';
 import 'package:photo_manager_app/features/folders/data/repositories/folder_repository_impl.dart';
 import 'package:photo_manager_app/features/folders/domain/repositories/folder_repository.dart';
@@ -39,6 +59,7 @@ import 'package:photo_manager_app/features/gallery/data/data_sources/gallery_rem
 import 'package:photo_manager_app/features/gallery/data/repositories/gallery_repository_impl.dart';
 import 'package:photo_manager_app/features/gallery/domain/repositories/gallery_repository.dart';
 import 'package:photo_manager_app/features/gallery/domain/use_cases/get_files_use_case.dart';
+import 'package:photo_manager_app/features/gallery/domain/use_cases/get_pending_file_ids_use_case.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_local_data_source.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_remote_data_source.dart';
@@ -110,6 +131,10 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
 
+  // Device time zone for the X-Timezone header: read once, before any request.
+  // init() also runs in the WorkManager background isolate, so uploads get it too.
+  await TimezoneService.init();
+
   // GENERAL INJECTIONS
   // Plain HTTP client (used for auth endpoints to avoid circular dependency)
   sl.registerLazySingleton(() => http.Client());
@@ -124,6 +149,7 @@ Future<void> init() async {
   // Persistent sync log — registered immediately after SharedPreferences so it
   // is available in both the main isolate and the WorkManager background isolate.
   sl.registerLazySingleton(() => SyncLogService(sl<SharedPreferences>()));
+  sl.registerLazySingleton(() => SyncLock(sharedPreferences: sl<SharedPreferences>()));
 
   // Core Services
   sl.registerLazySingleton(() => UiPreferencesService(sl()));
@@ -155,6 +181,7 @@ Future<void> init() async {
       sharedPreferences: sl<SharedPreferences>(),
       notificationService: sl<SyncNotificationService>(),
       syncLogService: sl<SyncLogService>(),
+      syncLock: sl<SyncLock>(),
     ),
   );
 
@@ -241,6 +268,16 @@ Future<void> init() async {
         final client = sl<AuthenticatedHttpClient>();
         return FileManagementRemoteDataSourceImpl(client: client);
       }
+  );
+
+  // favorites
+  sl.registerLazySingleton<FavoritesRemoteDataSource>(
+      () => FavoritesRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>())
+  );
+
+  // album covers
+  sl.registerLazySingleton<CoversRemoteDataSource>(
+      () => CoversRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>())
   );
 
   sl.registerLazySingleton<FileDeletionLocalDataSource>(
@@ -371,6 +408,14 @@ Future<void> init() async {
           remoteDataSource: remoteDataSource
         );
       }
+  );
+
+  sl.registerLazySingleton<CoversRepository>(
+      () => CoversDataRepository(sl<CoversRemoteDataSource>())
+  );
+
+  sl.registerLazySingleton<FavoritesRepository>(
+      () => FavoritesDataRepository(sl<FavoritesRemoteDataSource>())
   );
 
   // synchronization
@@ -561,8 +606,20 @@ Future<void> init() async {
         return GetFilesUseCase(repository);
       }
   );
+  sl.registerFactory(
+      () {
+        final repository = sl<GalleryRepository>();
+        return GetPendingFileIdsUseCase(repository);
+      }
+  );
 
   // file management
+  sl.registerFactory(
+      () {
+        final repository = sl<FileManagementRepository>();
+        return GetFileInfoUseCase(repository);
+      }
+  );
   sl.registerFactory(
       () {
         final repository = sl<FileManagementRepository>();
@@ -591,6 +648,15 @@ Future<void> init() async {
         return GetFolderContentUseCase(repository);
       }
   );
+
+  // album covers
+  sl.registerFactory(() => GetCoverTargetsUseCase(sl<CoversRepository>()));
+  sl.registerFactory(() => ApplyCoverChangesUseCase(sl<CoversRepository>()));
+  sl.registerFactory(() => GetAlbumCoversUseCase(sl<CoversRepository>()));
+  sl.registerFactory(() => SetAlbumCoversUseCase(sl<CoversRepository>()));
+
+  // favorites
+  sl.registerFactory(() => SetFavoriteUseCase(sl<FavoritesRepository>()));
 
   sl.registerFactory(
           () {
@@ -746,7 +812,7 @@ Future<void> init() async {
         final syncDeviceRepository = sl<SyncDeviceRepository>();
         final mediaLocalDataSource = sl<MediaLocalDataSource>();
         final eventBus = sl<AppEventBus>();
-        final sharedPreferences = sl<SharedPreferences>();
+        final syncLock = sl<SyncLock>();
 
         return SyncSessionBloc(
           startSyncSessionUseCase: startSyncSessionUseCase,
@@ -757,7 +823,7 @@ Future<void> init() async {
           syncDeviceRepository: syncDeviceRepository,
           mediaLocalDataSource: mediaLocalDataSource,
           eventBus: eventBus,
-          sharedPreferences: sharedPreferences,
+          syncLock: syncLock,
         );
       }
   );
@@ -766,8 +832,13 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final getFileUseCase = sl<GetFilesUseCase>();
+        final getPendingFileIdsUseCase = sl<GetPendingFileIdsUseCase>();
         final eventBus = sl<AppEventBus>();
-        return GalleryBloc(getFilesUseCase: getFileUseCase, eventBus: eventBus);
+        return GalleryBloc(
+          getFilesUseCase: getFileUseCase,
+          getPendingFileIdsUseCase: getPendingFileIdsUseCase,
+          eventBus: eventBus,
+        );
       }
   );
 
@@ -786,6 +857,26 @@ Future<void> init() async {
         final eventBus = sl<AppEventBus>();
         return ManageFolderBloc(getFoldersUseCase: getFoldersUseCase, eventBus: eventBus);
       }
+  );
+  sl.registerFactory(
+      () => FileInfoBloc(getFileInfoUseCase: sl<GetFileInfoUseCase>())
+  );
+  sl.registerFactory(
+      () => FavoritesBloc(setFavoriteUseCase: sl<SetFavoriteUseCase>(), eventBus: sl<AppEventBus>())
+  );
+  sl.registerFactory(
+      () => CoverPickerCubit(
+        getCoverTargetsUseCase: sl<GetCoverTargetsUseCase>(),
+        applyCoverChangesUseCase: sl<ApplyCoverChangesUseCase>(),
+        eventBus: sl<AppEventBus>(),
+      )
+  );
+  sl.registerFactory(
+      () => AlbumCoversCubit(
+        getAlbumCoversUseCase: sl<GetAlbumCoversUseCase>(),
+        setAlbumCoversUseCase: sl<SetAlbumCoversUseCase>(),
+        eventBus: sl<AppEventBus>(),
+      )
   );
 
   // folders
@@ -885,10 +976,13 @@ Future<void> init() async {
     () => CompleteOnboardingUseCase(sl<OnboardingRepository>()),
   );
 
+  sl.registerLazySingleton<PermissionService>(() => DevicePermissionService());
+
   // BLoC
   sl.registerFactory(
     () => OnboardingBloc(
       completeOnboardingUseCase: sl<CompleteOnboardingUseCase>(),
+      permissionService: sl<PermissionService>(),
     ),
   );
 

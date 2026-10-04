@@ -1,5 +1,7 @@
+import 'package:photo_manager_app/config/theme/app_typography.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 
@@ -20,67 +22,46 @@ class RegisterActions extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final l10n = AppLocalizations.of(context)!;
+    final palette = context.palette;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
-            onPressed: isLoading ? null : onRegister,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: PhotoManagerColors.primary,
-              disabledBackgroundColor: Colors.grey[300],
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)
-              ),
-              elevation: 0
-            ),
-            child: isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            )) : Text(l10n.registerButton, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600))
-          ),
+        Text(
+          l10n.registerTermsDisclaimer,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.ink2),
         ),
-        const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+
+        const SizedBox(height: 12),
+
+        AppButton.primary(
+          label: l10n.registerButton,
+          onPressed: onRegister,
+          loading: isLoading,
+        ),
+
+        const SizedBox(height: 8),
+
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(
               l10n.alreadyHaveAccount,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 15
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: palette.ink2),
             ),
             TextButton(
               onPressed: isLoading ? null : onGoToLogin,
               style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: const Size(0, 0),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap
+                minimumSize: const Size(44, 44),
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                textStyle: AppTypography.button(14),
               ),
-              child: Text(
-                l10n.signIn,
-                style: TextStyle(
-                  color: isLoading ? Colors.grey : PhotoManagerColors.primary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600
-                ),
-              ),
-            )
+              child: Text(l10n.signIn),
+            ),
           ],
         ),
-        const SizedBox(height: 16),
-        Text(
-          l10n.registerTermsDisclaimer,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey[500]
-          ),
-        )
       ],
     );
   }

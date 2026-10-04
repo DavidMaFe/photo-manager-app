@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/services/timezone_service.dart';
+import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 
 
@@ -11,6 +13,7 @@ import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_dat
 ///
 /// This client transparently:
 /// - Injects `Authorization: Bearer <token>` into every request.
+/// - Adds the `X-Timezone` header when the caller did not set it.
 /// - Intercepts HTTP 401 responses and attempts a token refresh.
 /// - Retries the original request with the new token — completely invisible to callers.
 /// - Prevents concurrent refresh calls with a mutex (Completer-based).
@@ -74,6 +77,7 @@ class AuthenticatedHttpClient extends http.BaseClient {
       if (token != null && token.isNotEmpty) {
         request.headers['Authorization'] = 'Bearer $token';
       }
+      _addTimezone(request.headers);
 
       final response = await _inner.send(request);
 
@@ -168,6 +172,7 @@ class AuthenticatedHttpClient extends http.BaseClient {
 
     // Copy all original headers (Content-Type, Accept, etc.).
     request.headers.addAll(original.headers);
+    _addTimezone(request.headers);
 
     // Inject / override the Authorization header.
     if (token != null && token.isNotEmpty) {
@@ -180,6 +185,11 @@ class AuthenticatedHttpClient extends http.BaseClient {
     }
 
     return request;
+  }
+
+  /// Adds the device time zone unless the caller already set one.
+  void _addTimezone(Map<String, String> headers) {
+    headers.putIfAbsent(HttpHeadersUtil.timezoneHeader, () => TimezoneService.current);
   }
 
   /// Starts a token refresh in the background (fire-and-forget style).

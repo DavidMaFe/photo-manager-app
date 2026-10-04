@@ -26,12 +26,6 @@ class CheckDuplicatedFilesUseCase {
       }
     }
 
-    final uniqueHashes = fileHashes.toSet().toList();
-    if (uniqueHashes.length < fileHashes.length) {
-      final duplicatesInList = fileHashes.length - uniqueHashes.length;
-      print("Detected $duplicatesInList duplicated hashes in the local list");
-    }
-
     return await _syncSessionRepository.checkDuplicates(
         sessionId: sessionId, fileHashes: fileHashes
     );

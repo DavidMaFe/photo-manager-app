@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
@@ -110,26 +111,18 @@ class ErrorNotificationService {
     Duration duration = const Duration(seconds: 3),
     IconData icon = Icons.check_circle,
   }) {
+    // Dark floating snackbar from the theme; the icon uses the inverse palette.
+    final inverse = context.inversePalette;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            Icon(icon, color: Colors.white),
+            Icon(icon, color: inverse.safe),
             const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(color: Colors.white),
-              ),
-            ),
+            Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: Colors.green,
         duration: duration,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
       ),
     );
   }

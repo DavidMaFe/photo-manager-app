@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:photo_manager_app/core/widgets/app_logo.dart';
+import 'package:photo_manager_app/features/auth/presentation/widgets/auth_title.dart';
+
 import '../../../../../l10n/app_localizations.dart';
 
 
@@ -12,32 +15,11 @@ class LoginHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image.asset(
-          'assets/images/photo_manager_logo_cut.png',
-          width: 180,
-          height: 180,
-        ),
-
-        const SizedBox(height: 16),
-
-        Text(
-          l10n.welcome,
-          style: const TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87
-          ),
-        ),
-        Text(
-          l10n.loginTitle,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w400
-          ),
-        )
+        const AppLogo(markHeight: 72, direction: Axis.vertical, wordmarkSize: 22),
+        const SizedBox(height: 44),
+        AuthTitle(title: l10n.loginGreeting, subtitle: l10n.loginSubtitle),
       ],
     );
   }

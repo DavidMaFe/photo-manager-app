@@ -47,7 +47,7 @@ void main() {
         'id': 456,
         'type': 'VIDEO',
         'status': 'MANAGED',
-        'durationSecionds': 180, // Note: typo in actual implementation
+        'durationSeconds': 180,
         'capturedAt': '2024-01-15T10:30:00.000Z',
       };
 
@@ -94,13 +94,13 @@ void main() {
       expect(model.id, '12345');
     });
 
-    test('should handle typo in durationSeconds field (durationSecionds)', () {
+    test('should ignore the old misspelled key durationSecionds', () {
       // Arrange
       final json = {
         'id': 'file-1',
         'type': 'VIDEO',
         'status': 'MANAGED',
-        'durationSecionds': 120, // Note: typo in API field name
+        'durationSecionds': 120,
         'capturedAt': '2024-01-15T10:30:00.000Z',
       };
 
@@ -108,7 +108,102 @@ void main() {
       final model = GalleryFileModel.fromJson(json);
 
       // Assert
-      expect(model.durationSeconds, 120);
+      expect(model.durationSeconds, null);
+    });
+
+    test('should parse sizeBytes when present', () {
+      // Arrange
+      final json = {
+        'id': 'file-1',
+        'type': 'IMAGE',
+        'status': 'MANAGED',
+        'sizeBytes': 2457600,
+        'capturedAt': '2024-01-15T10:30:00.000Z',
+      };
+
+      // Act
+      final model = GalleryFileModel.fromJson(json);
+
+      // Assert
+      expect(model.sizeBytes, 2457600);
+    });
+
+    test('should default sizeBytes to 0 when missing', () {
+      // Arrange
+      final json = {
+        'id': 'file-1',
+        'type': 'IMAGE',
+        'status': 'MANAGED',
+        'capturedAt': '2024-01-15T10:30:00.000Z',
+      };
+
+      // Act
+      final model = GalleryFileModel.fromJson(json);
+
+      // Assert
+      expect(model.sizeBytes, 0);
+    });
+
+    test('should parse null capturedAt as null', () {
+      // Arrange
+      final json = {
+        'id': 'file-1',
+        'type': 'IMAGE',
+        'status': 'MANAGED',
+        'capturedAt': null,
+      };
+
+      // Act
+      final model = GalleryFileModel.fromJson(json);
+
+      // Assert
+      expect(model.capturedAt, isNull);
+    });
+
+    test('should parse missing capturedAt as null', () {
+      // Arrange
+      final json = {'id': 'file-1', 'type': 'IMAGE', 'status': 'MANAGED'};
+
+      // Act
+      final model = GalleryFileModel.fromJson(json);
+
+      // Assert
+      expect(model.capturedAt, isNull);
+    });
+
+    test('should parse local date without time zone without converting it', () {
+      // Arrange: the server sends local time with no offset
+      final json = {
+        'id': 'file-1',
+        'type': 'IMAGE',
+        'status': 'MANAGED',
+        'capturedAt': '2026-10-03T03:00:00',
+      };
+
+      // Act
+      final model = GalleryFileModel.fromJson(json);
+
+      // Assert
+      expect(model.capturedAt, DateTime(2026, 10, 3, 3));
+      expect(model.capturedAt!.isUtc, isFalse);
+    });
+
+    test('should serialize null capturedAt and sizeBytes in toJson', () {
+      // Arrange
+      const model = GalleryFileModel(
+        id: 'file-1',
+        type: FileType.image,
+        status: FileStatus.managed,
+        capturedAt: null,
+        sizeBytes: 1024,
+      );
+
+      // Act
+      final json = model.toJson();
+
+      // Assert
+      expect(json['capturedAt'], isNull);
+      expect(json['sizeBytes'], 1024);
     });
 
     test('should convert to JSON correctly', () {
@@ -195,13 +290,13 @@ void main() {
       expect(model.capturedAt, testDate);
     });
 
-    test('should handle typo in JSON key durationSecionds', () {
+    test('should read durationSeconds key', () {
       // Arrange
       final json = {
         'id': '123',
-        'type': 'IMAGE',
+        'type': 'VIDEO',
         'status': 'MANAGED',
-        'durationSecionds': 150, // Note the typo in API: 'Secionds' instead of 'Seconds'
+        'durationSeconds': 150,
         'capturedAt': testDate.toIso8601String(),
       };
 
@@ -209,7 +304,7 @@ void main() {
       final model = GalleryFileModel.fromJson(json);
 
       // Assert
-      expect(model.durationSeconds, 150); // Note: The typo is in the actual implementation
+      expect(model.durationSeconds, 150);
     });
 
     test('should handle missing durationSeconds field in JSON', () {
@@ -342,6 +437,55 @@ void main() {
 
       // Assert
       expect(model.durationSeconds, null);
+    });
+
+    group('favorites and covers', () {
+      test('should parse isFavorite and numeric coverOf IDs', () {
+        // Act
+        final model = GalleryFileModel.fromJson(const {
+          'id': 1,
+          'type': 'IMAGE',
+          'status': 'MANAGED',
+          'capturedAt': '2026-10-03T03:00:00',
+          'isFavorite': true,
+          'coverOf': [10, 12],
+        });
+
+        // Assert
+        expect(model.isFavorite, isTrue);
+        expect(model.coverOf, ['10', '12']);
+      });
+
+      test('should default to not favorite and no covers when the fields are missing', () {
+        // Act
+        final model = GalleryFileModel.fromJson(const {
+          'id': 1,
+          'type': 'IMAGE',
+          'status': 'MANAGED',
+          'capturedAt': '2026-10-03T03:00:00',
+        });
+
+        // Assert
+        expect(model.isFavorite, isFalse);
+        expect(model.coverOf, isEmpty);
+      });
+
+      test('should keep isFavorite and coverOf in toJson and fromEntity', () {
+        // Arrange
+        const file = GalleryFileModel(
+          id: '1',
+          type: FileType.image,
+          status: FileStatus.managed,
+          capturedAt: null,
+          isFavorite: true,
+          coverOf: ['10'],
+        );
+
+        // Act & Assert
+        expect(file.toJson()['isFavorite'], isTrue);
+        expect(file.toJson()['coverOf'], ['10']);
+        expect(GalleryFileModel.fromEntity(file).props, file.props);
+      });
     });
   });
 }

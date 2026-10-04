@@ -5,6 +5,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/services/sync_log_service.dart';
+import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/sync_config/domain/entities/sync_config.dart';
@@ -66,23 +67,10 @@ class BackgroundSyncService {
   final SharedPreferences sharedPreferences;
   final SyncNotificationService notificationService;
   final SyncLogService syncLogService;
+  final SyncLock syncLock;
 
-  static const String _syncLockKey = 'SYNC_IN_PROGRESS';
-  static const String _syncLockAcquiredAtKey = 'SYNC_LOCK_ACQUIRED_AT';
   static const String _lastSyncAttemptKey = 'LAST_SYNC_ATTEMPT';
   static const String _lastSyncAuthFailureKey = 'SYNC_LAST_FAILURE_IS_AUTH';
-
-  /// Maximum time a sync lock may be held before it is considered stale.
-  ///
-  /// If the OS kills the WorkManager process mid-sync (e.g. during Doze mode
-  /// at 2 AM), the [_releaseSyncLock] call in the `finally` block never runs
-  /// and the lock remains `true` in SharedPreferences indefinitely. Any
-  /// subsequent scheduled run would see the lock and silently skip itself.
-  ///
-  /// To prevent this, [_isSyncInProgress] checks how long the lock has been
-  /// held. If it exceeds this threshold the lock is auto-released and the
-  /// current run proceeds normally.
-  static const Duration _syncLockMaxDuration = Duration(minutes: 30);
 
   BackgroundSyncService({
     required this.syncDeviceRepository,
@@ -97,6 +85,7 @@ class BackgroundSyncService {
     required this.sharedPreferences,
     required this.notificationService,
     required this.syncLogService,
+    required this.syncLock,
   });
 
   /// Execute background sync.
@@ -107,7 +96,7 @@ class BackgroundSyncService {
 
     try {
       // 1. Check if sync is already in progress (also auto-releases stale locks)
-      if (_isSyncInProgress()) {
+      if (await _isSyncInProgress()) {
         syncLogService.write('■ Ejecución omitida (lock activo)');
         return false;
       }
@@ -143,7 +132,7 @@ class BackgroundSyncService {
       }
 
       // 6. Acquire sync lock
-      _acquireSyncLock();
+      await syncLock.acquire();
 
       try {
         // 7. Start foreground service (Android 12+)
@@ -188,7 +177,7 @@ class BackgroundSyncService {
 
         return result.success;
       } finally {
-        _releaseSyncLock();
+        await syncLock.release();
         await notificationService.hideForegroundNotification();
       }
     } catch (e, stackTrace) {
@@ -198,7 +187,7 @@ class BackgroundSyncService {
         error: e,
         stackTrace: stackTrace,
       );
-      _releaseSyncLock();
+      await syncLock.release();
       final isAuth = _isAuthRelatedError(e);
       _recordFailedSync(isAuthFailure: isAuth);
       syncLogService.writeResult(success: false, detail: e.toString());
@@ -208,59 +197,27 @@ class BackgroundSyncService {
 
   /// Returns true if a sync is currently in progress.
   ///
-  /// Also detects and auto-releases **stale locks** left behind when the OS
-  /// killed the WorkManager process before [_releaseSyncLock] could run
-  /// (e.g. Doze mode interruption at 2 AM). A lock older than
-  /// [_syncLockMaxDuration] is considered stale and is cleared so the next
-  /// scheduled run is not blocked forever.
-  bool _isSyncInProgress() {
-    final isLocked = sharedPreferences.getBool(_syncLockKey) ?? false;
-    if (!isLocked) return false;
+  /// [SyncLock.check] also auto-releases **stale locks** left behind when the
+  /// OS killed the WorkManager process before the lock could be released
+  /// (e.g. Doze mode interruption at 2 AM), so the next scheduled run is not
+  /// blocked forever.
+  Future<bool> _isSyncInProgress() async {
+    final lockCheck = await syncLock.check();
+    final ageMinutes = lockCheck.age?.inMinutes;
 
-    // Check whether the lock is stale.
-    final acquiredAtStr =
-        sharedPreferences.getString(_syncLockAcquiredAtKey);
-
-    if (acquiredAtStr == null) {
-      // Lock exists but has no timestamp (legacy or corrupted) — treat as stale.
-      syncLogService.write(
-          '⚠ Lock sin timestamp detectado — liberando lock obsoleto');
-      _releaseSyncLock();
-      return false;
+    switch (lockCheck.status) {
+      case SyncLockStatus.free:
+        return false;
+      case SyncLockStatus.releasedStale:
+        syncLogService.write(ageMinutes == null
+            ? '⚠ Lock sin timestamp válido detectado — liberando lock obsoleto'
+            : '⚠ Lock obsoleto ($ageMinutes min > ${SyncLock.maxDuration.inMinutes} min) — '
+                'liberando y continuando con la ejecución');
+        return false;
+      case SyncLockStatus.held:
+        syncLogService.write('⚠ Sync ya en progreso (lock adquirido hace $ageMinutes min)');
+        return true;
     }
-
-    final acquiredAt = DateTime.tryParse(acquiredAtStr);
-    if (acquiredAt == null) {
-      syncLogService.write(
-          '⚠ Timestamp de lock inválido ("$acquiredAtStr") — liberando');
-      _releaseSyncLock();
-      return false;
-    }
-
-    final lockAge = DateTime.now().difference(acquiredAt);
-    if (lockAge > _syncLockMaxDuration) {
-      syncLogService.write(
-          '⚠ Lock obsoleto (${lockAge.inMinutes} min > '
-          '${_syncLockMaxDuration.inMinutes} min) — '
-          'liberando y continuando con la ejecución');
-      _releaseSyncLock();
-      return false;
-    }
-
-    syncLogService.write(
-        '⚠ Sync ya en progreso (lock adquirido hace ${lockAge.inMinutes} min)');
-    return true;
-  }
-
-  void _acquireSyncLock() {
-    sharedPreferences.setBool(_syncLockKey, true);
-    sharedPreferences.setString(
-        _syncLockAcquiredAtKey, DateTime.now().toIso8601String());
-  }
-
-  void _releaseSyncLock() {
-    sharedPreferences.setBool(_syncLockKey, false);
-    sharedPreferences.remove(_syncLockAcquiredAtKey);
   }
 
   Future<bool> _isAuthenticated() async {

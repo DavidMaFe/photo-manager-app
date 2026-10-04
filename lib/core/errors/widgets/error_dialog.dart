@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/errors/helper/failure_message_helper.dart';
@@ -145,7 +146,7 @@ class _ErrorDialogContentState extends State<_ErrorDialogContent>
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: context.palette.ink,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -157,7 +158,7 @@ class _ErrorDialogContentState extends State<_ErrorDialogContent>
                   message,
                   style: TextStyle(
                     fontSize: 15,
-                    color: isDark ? Colors.white70 : Colors.black54,
+                    color: context.palette.ink2,
                     height: 1.5,
                   ),
                   textAlign: TextAlign.center,
@@ -193,8 +194,8 @@ class _ErrorDialogContentState extends State<_ErrorDialogContent>
                           ),
                           side: BorderSide(
                             color: isDark
-                                ? Colors.white.withValues(alpha: 0.3)
-                                : Colors.black.withValues(alpha: 0.3),
+                                ? context.palette.surface.withValues(alpha: 0.3)
+                                : context.palette.media.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Text(
@@ -218,7 +219,7 @@ class _ErrorDialogContentState extends State<_ErrorDialogContent>
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: iconColor,
-                            foregroundColor: Colors.white,
+                            foregroundColor: context.palette.onAccent,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -280,7 +281,7 @@ class _ErrorDialogContentState extends State<_ErrorDialogContent>
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: context.palette.ink,
                     ),
                   ),
                 ),
@@ -289,7 +290,7 @@ class _ErrorDialogContentState extends State<_ErrorDialogContent>
                       ? Icons.expand_less
                       : Icons.expand_more,
                   size: 20,
-                  color: isDark ? Colors.white70 : Colors.black54,
+                  color: context.palette.ink2,
                 ),
               ],
             ),
@@ -335,7 +336,7 @@ class _ErrorDialogContentState extends State<_ErrorDialogContent>
                           text: TextSpan(
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark ? Colors.white70 : Colors.black54,
+                              color: context.palette.ink2,
                               height: 1.4,
                             ),
                             children: [
@@ -376,20 +377,20 @@ class _ErrorDialogContentState extends State<_ErrorDialogContent>
   Color _getColorForFailure(Failure failure, bool isDark) {
     // Network/connectivity issues - blue
     if (failure is NetworkFailure || failure is TimeoutFailure) {
-      return isDark ? Colors.blue.shade300 : Colors.blue.shade700;
+      return context.palette.accent;
     }
 
     // Validation/warning issues - orange
     if (failure is ValidationFailure || failure is StorageSpaceExceededFailure) {
-      return isDark ? Colors.orange.shade300 : Colors.orange.shade700;
+      return context.palette.reviewIcon;
     }
 
     // Auth/permission issues - amber
     if (failure is UnauthorizedFailure || failure is PermissionDeniedFailure) {
-      return isDark ? Colors.amber.shade300 : Colors.amber.shade800;
+      return context.palette.reviewIcon;
     }
 
     // Critical errors - red
-    return isDark ? Colors.red.shade300 : Colors.red.shade700;
+    return context.palette.dangerInk;
   }
 }

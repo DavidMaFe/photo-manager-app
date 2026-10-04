@@ -278,8 +278,94 @@ void main() {
       // Assert
       expect(
         galleryFile.props,
-        equals(['file-1', FileType.video, FileStatus.pending, 120, testDate]),
+        equals(['file-1', FileType.video, FileStatus.pending, 120, testDate, 0, false, const <String>[]]),
       );
+    });
+
+    test('should default sizeBytes to 0', () {
+      // Arrange & Act
+      final galleryFile = GalleryFile(
+        id: 'file-1',
+        type: FileType.image,
+        status: FileStatus.managed,
+        capturedAt: testDate,
+      );
+
+      // Assert
+      expect(galleryFile.sizeBytes, 0);
+    });
+
+    test('should copy sizeBytes with copyWith', () {
+      // Arrange
+      final galleryFile = GalleryFile(
+        id: 'file-1',
+        type: FileType.image,
+        status: FileStatus.managed,
+        capturedAt: testDate,
+        sizeBytes: 100,
+      );
+
+      // Act
+      final copy = galleryFile.copyWith(sizeBytes: 2048);
+
+      // Assert
+      expect(copy.sizeBytes, 2048);
+      expect(galleryFile.copyWith().sizeBytes, 100);
+    });
+
+    test('should allow a null capturedAt', () {
+      // Arrange & Act
+      const galleryFile = GalleryFile(
+        id: 'file-1',
+        type: FileType.image,
+        status: FileStatus.managed,
+        capturedAt: null,
+      );
+
+      // Assert
+      expect(galleryFile.capturedAt, isNull);
+      expect(galleryFile.copyWith(status: FileStatus.pending).capturedAt, isNull);
+    });
+
+    group('favorites and covers', () {
+      test('should not be favorite nor cover by default', () {
+        // Arrange & Act
+        final galleryFile = GalleryFile(id: 'f', type: FileType.image, status: FileStatus.managed, capturedAt: testDate);
+
+        // Assert
+        expect(galleryFile.isFavorite, isFalse);
+        expect(galleryFile.coverOf, isEmpty);
+        expect(galleryFile.isCoverOf('a1'), isFalse);
+      });
+
+      test('should tell the albums it is a cover of', () {
+        // Arrange
+        final galleryFile = GalleryFile(
+          id: 'f',
+          type: FileType.image,
+          status: FileStatus.managed,
+          capturedAt: testDate,
+          coverOf: const ['root', 'beach'],
+        );
+
+        // Assert
+        expect(galleryFile.isCoverOf('beach'), isTrue);
+        expect(galleryFile.isCoverOf('sunsets'), isFalse);
+      });
+
+      test('should copy isFavorite and coverOf', () {
+        // Arrange
+        final galleryFile = GalleryFile(id: 'f', type: FileType.image, status: FileStatus.managed, capturedAt: testDate);
+
+        // Act
+        final copy = galleryFile.copyWith(isFavorite: true, coverOf: const ['a1']);
+
+        // Assert
+        expect(copy.isFavorite, isTrue);
+        expect(copy.coverOf, ['a1']);
+        expect(copy.copyWith(sizeBytes: 1).isFavorite, isTrue);
+        expect(copy == galleryFile, isFalse);
+      });
     });
   });
 }

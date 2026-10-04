@@ -58,3 +58,28 @@ class SelectAllFiles extends GalleryEvent {
 class ClearSelection extends GalleryEvent {
   const ClearSelection();
 }
+
+
+/// Loads the files to review (pending), selects them (up to the selection
+/// limit) and asks the page to open the manage sheet.
+class ReviewPendingFiles extends GalleryEvent {
+  const ReviewPendingFiles();
+}
+
+/// The favorite mark of files changed elsewhere (viewer, album selection).
+class FavoritesChanged extends GalleryEvent {
+  final List<String> fileIds;
+  final bool favorite;
+
+  const FavoritesChanged({required this.fileIds, required this.favorite});
+
+  @override
+  List<Object?> get props => [fileIds, favorite];
+}
+
+
+/// Takes out of the "Favorites" filter the files unmarked a moment ago,
+/// once their thumbnails have faded out.
+class RemoveUnfavoritedFiles extends GalleryEvent {
+  const RemoveUnfavoritedFiles();
+}

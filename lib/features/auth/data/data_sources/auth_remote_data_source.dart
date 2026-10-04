@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:photo_manager_app/core/errors/utils/error_logger.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
@@ -78,11 +79,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode != 200) {
         // Log error but don't throw - local cache will be cleared anyway
         final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
-        print('Logout error: ${errorResponse.code} - ${errorResponse.message}');
+        ErrorLogger.logWarning(
+          'Logout error: ${errorResponse.code} - ${errorResponse.message}',
+          context: 'AuthRemoteDataSource.logout',
+        );
       }
     } catch (e) {
       // Log error but don't throw - local cache will be cleared anyway
-      print('Logout failed: $e');
+      ErrorLogger.logWarning('Logout failed: $e', context: 'AuthRemoteDataSource.logout');
     }
   }
 

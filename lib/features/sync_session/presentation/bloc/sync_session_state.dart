@@ -42,10 +42,14 @@ class SyncSessionUploading extends SyncSessionState {
   final int totalCount;
   final String? currentFileName;
 
+  /// Bytes of the files not sent yet; 0 when unknown.
+  final int remainingBytes;
+
   const SyncSessionUploading({
     required this.uploadCount,
     required this.totalCount,
-    this.currentFileName
+    this.currentFileName,
+    this.remainingBytes = 0
   });
 
   double get progress {
@@ -57,7 +61,7 @@ class SyncSessionUploading extends SyncSessionState {
   bool get isComplete => uploadCount >= totalCount;
 
   @override
-  List<Object?> get props => [uploadCount, totalCount, currentFileName];
+  List<Object?> get props => [uploadCount, totalCount, currentFileName, remainingBytes];
 
   @override
   String toString() => 'SyncSessionUploading (uploaded: $uploadCount/$totalCount, $progressPercentage%)';

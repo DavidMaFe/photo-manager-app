@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
+import 'package:photo_manager_app/core/widgets/empty_state.dart';
+import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/pages/folders_page.dart';
-import 'package:photo_manager_app/l10n/app_localizations.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/create_album_card.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/create_folder_modal.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/folder_card.dart';
+
+import '../../../../fixtures/test_data.dart';
+import '../../../../helpers/widget_test_helper.dart';
 
 class MockFolderBloc extends Mock implements FolderBloc {}
 
@@ -15,135 +21,111 @@ void main() {
 
   setUp(() {
     mockFolderBloc = MockFolderBloc();
-    when(() => mockFolderBloc.stream)
-        .thenAnswer((_) => Stream.value(const FolderStarting()));
+    when(() => mockFolderBloc.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockFolderBloc.state).thenReturn(const FolderStarting());
   });
 
+  Future<void> pumpPage(WidgetTester tester, FolderState state) async {
+    setUpCustomScreenSize(tester, 390, 1400);
+    when(() => mockFolderBloc.state).thenReturn(state);
+    await tester.pumpWidget(makeTestableWidget(
+      BlocProvider<FolderBloc>.value(value: mockFolderBloc, child: const FoldersPage()),
+    ));
+  }
+
+  final albums = [
+    TestFolders.album(id: '1', name: 'Japan'),
+    TestFolders.album(id: '2', name: 'Family'),
+    TestFolders.album(id: '3', name: 'Japan 2019'),
+  ];
+
   group('FoldersPage', () {
-    final testDate = DateTime(2024, 1, 15);
+    // ==================== HAPPY PATH TESTS ====================
 
-    Widget createWidgetUnderTest() {
-      return MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: BlocProvider<FolderBloc>.value(
-          value: mockFolderBloc,
-          child: const FoldersPage(),
-        ),
-      );
-    }
-
-    testWidgets('should display app bar', (tester) async {
+    testWidgets('should show the Albums header with a New button', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester, FolderLoaded(folders: albums));
 
       // Assert
-      expect(find.byType(AppBar), findsOneWidget);
+      expect(find.text('Albums'), findsOneWidget);
+      expect(find.text('New'), findsOneWidget);
+      expect(find.text('Search albums'), findsOneWidget);
+      expect(find.byType(FloatingActionButton), findsNothing);
     });
 
-    testWidgets('should render page without error', (tester) async {
+    testWidgets('should list every album followed by the create card', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester, FolderLoaded(folders: albums));
 
       // Assert
-      expect(find.byType(FoldersPage), findsOneWidget);
+      expect(find.byType(FolderCard), findsNWidgets(3));
+      expect(find.byType(CreateAlbumCard), findsOneWidget);
     });
 
-    testWidgets('should display folder list when loaded', (tester) async {
+    testWidgets('should filter albums by name while searching', (tester) async {
       // Arrange
-      final folders = [
-        Folder(
-          id: 'folder-1',
-          name: 'Vacation',
-          parentFolderId: null,
-          path: '/root/folder-1',
-          createdAt: testDate,
-          fileCount: 42,
-          subfolderCount: 3,
-        ),
-        Folder(
-          id: 'folder-2',
-          name: 'Work',
-          parentFolderId: null,
-          path: '/root/folder-2',
-          createdAt: testDate,
-          fileCount: 15,
-          subfolderCount: 0,
-        ),
-      ];
-
-      when(() => mockFolderBloc.state)
-          .thenReturn(FolderLoaded(folders: folders, currentParentId: null));
-      when(() => mockFolderBloc.stream)
-          .thenAnswer((_) => Stream.value(
-              FolderLoaded(folders: folders, currentParentId: null)));
+      await pumpPage(tester, FolderLoaded(folders: albums));
 
       // Act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.enterText(find.byType(TextField), 'jap');
+      await tester.pump();
+
+      // Assert
+      expect(find.byType(FolderCard), findsNWidgets(2));
+      expect(find.text('Family'), findsNothing);
+      expect(find.byType(CreateAlbumCard), findsNothing);
+    });
+
+    testWidgets('should explain when no album matches', (tester) async {
+      // Arrange
+      await pumpPage(tester, FolderLoaded(folders: albums));
+
+      // Act
+      await tester.enterText(find.byType(TextField), 'zzz');
+      await tester.pump();
+
+      // Assert
+      expect(find.text('No album matches “zzz”'), findsOneWidget);
+    });
+
+    testWidgets('should open the new album sheet from the header', (tester) async {
+      // Arrange
+      await pumpPage(tester, FolderLoaded(folders: albums));
+
+      // Act
+      await tester.tap(find.text('New'));
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.byType(FoldersPage), findsOneWidget);
+      expect(find.byType(CreateFolderModal), findsOneWidget);
     });
 
-    testWidgets('should use BlocBuilder to listen to FolderBloc', (tester) async {
+    // ==================== LOADING & EMPTY STATE TESTS ====================
+
+    testWidgets('should show the skeleton while loading', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester, const FolderLoading());
 
       // Assert
-      expect(find.byType(BlocBuilder<FolderBloc, FolderState>), findsWidgets);
+      expect(find.byType(MediaGridSkeleton), findsOneWidget);
     });
 
-    testWidgets('should display scaffold', (tester) async {
+    testWidgets('should show the empty state with a create action', (tester) async {
       // Arrange & Act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester, const FolderLoaded(folders: []));
 
       // Assert
-      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.byType(EmptyState), findsOneWidget);
+      expect(find.text("You don't have albums"), findsOneWidget);
+      expect(find.text('Create album'), findsOneWidget);
     });
 
-    testWidgets('should handle empty state', (tester) async {
-      // Arrange
-      when(() => mockFolderBloc.state)
-          .thenReturn(const FolderLoaded(folders: [], currentParentId: null));
-      when(() => mockFolderBloc.stream).thenAnswer((_) =>
-          Stream.value(const FolderLoaded(folders: [], currentParentId: null)));
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+    testWidgets('should show the operation message while creating', (tester) async {
+      // Arrange & Act
+      await pumpPage(tester, const FolderOperationLoading(operation: 'create'));
 
       // Assert
-      expect(find.byType(FoldersPage), findsOneWidget);
-    });
-
-    testWidgets('should render with multiple folders', (tester) async {
-      // Arrange
-      final manyFolders = List.generate(
-        10,
-        (i) => Folder(
-          id: 'folder-$i',
-          name: 'Folder $i',
-          parentFolderId: null,
-          path: '/root/folder-$i',
-          createdAt: testDate,
-          fileCount: i * 10,
-          subfolderCount: i,
-        ),
-      );
-
-      when(() => mockFolderBloc.state)
-          .thenReturn(FolderLoaded(folders: manyFolders, currentParentId: null));
-      when(() => mockFolderBloc.stream).thenAnswer((_) =>
-          Stream.value(FolderLoaded(folders: manyFolders, currentParentId: null)));
-
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
-
-      // Assert
-      expect(find.byType(FoldersPage), findsOneWidget);
+      expect(find.text('Creating album...'), findsOneWidget);
     });
   });
 }

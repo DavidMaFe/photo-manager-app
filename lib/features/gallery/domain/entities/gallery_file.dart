@@ -9,14 +9,24 @@ class GalleryFile extends Equatable {
   final FileType type;
   final FileStatus status;
   final int? durationSeconds;
-  final DateTime capturedAt;
+
+  /// Local time of the phone when the photo was taken. The server may not know it.
+  final DateTime? capturedAt;
+  final int sizeBytes;
+  final bool isFavorite;
+
+  /// Albums of which this file is a cover, from the root down. Only sent inside an album.
+  final List<String> coverOf;
 
   const GalleryFile({
     required this.id,
     required this.type,
     required this.status,
     this.durationSeconds,
-    required this.capturedAt
+    required this.capturedAt,
+    this.sizeBytes = 0,
+    this.isFavorite = false,
+    this.coverOf = const []
   });
 
   bool get isImage => type == FileType.image;
@@ -24,22 +34,31 @@ class GalleryFile extends Equatable {
   bool get isPending => status.isPending;
   bool get isManaged => status.isManaged;
 
+  /// Whether this file is a cover of the album [folderId].
+  bool isCoverOf(String folderId) => coverOf.contains(folderId);
+
   GalleryFile copyWith({
     String? id,
     FileType? type,
     FileStatus? status,
     int? durationSeconds,
-    DateTime? capturedAt
+    DateTime? capturedAt,
+    int? sizeBytes,
+    bool? isFavorite,
+    List<String>? coverOf
   }) {
     return GalleryFile(
       id: id ?? this.id,
       type: type ?? this.type,
       status: status ?? this.status,
       durationSeconds: durationSeconds ?? this.durationSeconds,
-      capturedAt: capturedAt ?? this.capturedAt
+      capturedAt: capturedAt ?? this.capturedAt,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      isFavorite: isFavorite ?? this.isFavorite,
+      coverOf: coverOf ?? this.coverOf
     );
   }
 
   @override
-  List<Object?> get props => [id, type, status, durationSeconds, capturedAt];
+  List<Object?> get props => [id, type, status, durationSeconds, capturedAt, sizeBytes, isFavorite, coverOf];
 }

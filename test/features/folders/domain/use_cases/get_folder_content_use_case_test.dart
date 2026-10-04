@@ -65,6 +65,7 @@ void main() {
       subfolders: testSubfolders,
       files: testFiles,
       hasMoreFiles: false,
+      totalFilesCount: 0,
     );
 
     test('should get folder content from repository', () async {
@@ -173,6 +174,7 @@ void main() {
         subfolders: testSubfolders,
         files: imageFiles,
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       when(() => mockRepository.getFolderContent(
@@ -206,6 +208,7 @@ void main() {
         subfolders: testSubfolders,
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       when(() => mockRepository.getFolderContent(
@@ -249,6 +252,7 @@ void main() {
         subfolders: const [],
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       when(() => mockRepository.getFolderContent(
@@ -275,6 +279,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       when(() => mockRepository.getFolderContent(
@@ -309,6 +314,7 @@ void main() {
         subfolders: const [],
         files: secondPageFiles,
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       when(() => mockRepository.getFolderContent(
@@ -420,6 +426,7 @@ void main() {
         subfolders: const [],
         files: testFiles,
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       when(() => mockRepository.getFolderContent(

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_file_result.dart';
+import 'package:photo_manager_app/features/file_management/domain/entities/manage_folder.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/repositories/file_management_repository.dart';
 import 'package:photo_manager_app/features/file_management/domain/use_cases/manage_files_use_case.dart';
@@ -46,23 +47,6 @@ void main() {
               (e) => e.toString(),
               'message',
               contains('at least one file selected'),
-            ),
-          ),
-        );
-      });
-
-      test('should throw exception when fileIds list has more than 100 items', () async {
-        // Arrange
-        final tooManyFiles = List.generate(101, (index) => 'file-$index');
-
-        // Act & Assert
-        expect(
-          () => useCase.call(tooManyFiles, action),
-          throwsA(
-            isA<Exception>().having(
-              (e) => e.toString(),
-              'message',
-              contains('Too many files'),
             ),
           ),
         );
@@ -365,6 +349,109 @@ void main() {
 
         // Assert
         verify(() => mockRepository.manageFiles(fileIds, newFolderAction)).called(1);
+      });
+    });
+
+    group('batches', () {
+      List<String> ids(int count) => List.generate(count, (i) => 'file-$i');
+
+      test('should send more than 100 files in batches of 100', () async {
+        // Arrange
+        final files = ids(230);
+        when(() => mockRepository.manageFiles(any(), any())).thenAnswer((invocation) async {
+          final batch = invocation.positionalArguments[0] as List<String>;
+          return ManageFileResult(successfulIds: batch, failedIds: const []);
+        });
+
+        // Act
+        await useCase.call(files, action);
+
+        // Assert
+        verify(() => mockRepository.manageFiles(files.sublist(0, 100), action)).called(1);
+        verify(() => mockRepository.manageFiles(files.sublist(100, 200), action)).called(1);
+        verify(() => mockRepository.manageFiles(files.sublist(200, 230), action)).called(1);
+      });
+
+      test('should return the failed IDs of every batch', () async {
+        // Arrange
+        final files = ids(150);
+        when(() => mockRepository.manageFiles(any(), any())).thenAnswer((invocation) async {
+          final batch = invocation.positionalArguments[0] as List<String>;
+          return ManageFileResult(successfulIds: batch.skip(1).toList(), failedIds: [batch.first]);
+        });
+
+        // Act
+        final failed = await useCase.call(files, action);
+
+        // Assert
+        expect(failed, ['file-0', 'file-100']);
+      });
+
+      test('should delete local files of every batch once, after all server batches', () async {
+        // Arrange
+        final files = ids(120);
+        const freeUp = ManageAction(serverAction: ServerAction.save, keepOnDevice: false);
+        when(() => mockRepository.manageFiles(any(), any())).thenAnswer((invocation) async {
+          final batch = invocation.positionalArguments[0] as List<String>;
+          return ManageFileResult(successfulIds: batch, failedIds: const []);
+        });
+        when(() => mockRepository.deleteLocalFiles(any())).thenAnswer((_) async => []);
+
+        // Act
+        await useCase.call(files, freeUp);
+
+        // Assert
+        verify(() => mockRepository.deleteLocalFiles(files)).called(1);
+      });
+
+      test('should stop and propagate the error of a failing batch', () async {
+        // Arrange
+        final files = ids(250);
+        var calls = 0;
+        when(() => mockRepository.manageFiles(any(), any())).thenAnswer((invocation) async {
+          calls++;
+          if (calls == 2) throw Exception('Network error');
+          return const ManageFileResult(successfulIds: [], failedIds: []);
+        });
+
+        // Act & Assert
+        await expectLater(useCase.call(files, action), throwsException);
+        expect(calls, 2);
+      });
+
+      test('should create a new album once and send every batch to it', () async {
+        // Arrange
+        final files = ids(150);
+        const newAlbum = ManageAction(serverAction: ServerAction.newFolder, folderName: ' Viaje ', keepOnDevice: true);
+        const toAlbum = ManageAction(serverAction: ServerAction.folder, folderId: '42', keepOnDevice: true);
+        when(() => mockRepository.createFolder(any())).thenAnswer(
+          (_) async => ManageFolder(id: '42', name: 'Viaje', fileCount: 0, createdAt: DateTime(2026, 10, 4)),
+        );
+        when(() => mockRepository.manageFiles(any(), any()))
+            .thenAnswer((_) async => const ManageFileResult(successfulIds: [], failedIds: []));
+
+        // Act
+        await useCase.call(files, newAlbum);
+
+        // Assert
+        verify(() => mockRepository.createFolder('Viaje')).called(1);
+        verify(() => mockRepository.manageFiles(files.sublist(0, 100), toAlbum)).called(1);
+        verify(() => mockRepository.manageFiles(files.sublist(100, 150), toAlbum)).called(1);
+      });
+
+      test('should let the server create the album when everything fits in one batch', () async {
+        // Arrange
+        final files = ids(100);
+        const newAlbum = ManageAction(serverAction: ServerAction.newFolder, folderName: 'Viaje', keepOnDevice: true);
+        when(() => mockRepository.manageFiles(any(), any()))
+            .thenAnswer((_) async => const ManageFileResult(successfulIds: [], failedIds: []));
+
+        // Act
+        await useCase.call(files, newAlbum);
+
+        // Assert
+        verify(() => mockRepository.manageFiles(files, newAlbum)).called(1);
+        verifyNever(() => mockRepository.createFolder(any()));
       });
     });
   });

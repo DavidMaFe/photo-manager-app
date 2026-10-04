@@ -10,7 +10,11 @@ class FolderModel extends Folder {
     required super.path,
     required super.createdAt,
     required super.fileCount,
-    required super.subfolderCount
+    required super.subfolderCount,
+    super.oldestCapturedAt,
+    super.newestCapturedAt,
+    super.coverFileIds,
+    super.fallbackCoverFileIds
   });
 
   factory FolderModel.fromJson(Map<String, dynamic> json) {
@@ -21,9 +25,18 @@ class FolderModel extends Folder {
       path: json['path'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       fileCount: json['filesQuantity'] as int? ?? 0,
-      subfolderCount: json['subfolderCount'] as int? ?? 0
+      subfolderCount: json['subfolderCount'] as int? ?? 0,
+      oldestCapturedAt: _parseDate(json['oldestCapturedAt']),
+      newestCapturedAt: _parseDate(json['newestCapturedAt']),
+      coverFileIds: _parseIds(json['coverFileIds']),
+      fallbackCoverFileIds: _parseIds(json['fallbackCoverFileIds'])
     );
   }
+
+  static DateTime? _parseDate(Object? value) => value is String ? DateTime.parse(value) : null;
+
+  static List<String> _parseIds(Object? value) =>
+      value is List ? value.map((id) => id.toString()).toList() : const [];
 
   Map<String, dynamic> toJson() {
     return {
@@ -33,7 +46,11 @@ class FolderModel extends Folder {
       'path': path,
       'createdAt': createdAt,
       'filesQuantity': fileCount,
-      'subfolderCount': subfolderCount
+      'subfolderCount': subfolderCount,
+      'oldestCapturedAt': oldestCapturedAt?.toIso8601String(),
+      'newestCapturedAt': newestCapturedAt?.toIso8601String(),
+      'coverFileIds': coverFileIds,
+      'fallbackCoverFileIds': fallbackCoverFileIds
     };
   }
 
@@ -49,7 +66,11 @@ class FolderModel extends Folder {
       path: folder.path,
       createdAt: folder.createdAt,
       fileCount: folder.fileCount,
-      subfolderCount: folder.subfolderCount
+      subfolderCount: folder.subfolderCount,
+      oldestCapturedAt: folder.oldestCapturedAt,
+      newestCapturedAt: folder.newestCapturedAt,
+      coverFileIds: folder.coverFileIds,
+      fallbackCoverFileIds: folder.fallbackCoverFileIds
     );
   }
 }

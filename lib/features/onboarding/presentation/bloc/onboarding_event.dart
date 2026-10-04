@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 
 /// Base class for onboarding events
 abstract class OnboardingEvent extends Equatable {
@@ -9,24 +8,34 @@ abstract class OnboardingEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Event to start the onboarding flow
+/// Event to start the onboarding flow: checks what is already granted.
 class OnboardingStarted extends OnboardingEvent {
-  final BuildContext context;
-
-  const OnboardingStarted(this.context);
-
-  @override
-  List<Object?> get props => [context];
+  const OnboardingStarted();
 }
 
-/// Event to request all permissions
-class PermissionsRequested extends OnboardingEvent {
-  final BuildContext context;
+/// Asks for access to photos and videos.
+class PhotoPermissionRequested extends OnboardingEvent {
+  const PhotoPermissionRequested();
+}
 
-  const PermissionsRequested(this.context);
+/// Asks to send notifications.
+class NotificationPermissionRequested extends OnboardingEvent {
+  const NotificationPermissionRequested();
+}
 
-  @override
-  List<Object?> get props => [context];
+/// Asks to keep backing up with the app closed.
+class BackgroundPermissionRequested extends OnboardingEvent {
+  const BackgroundPermissionRequested();
+}
+
+/// Opens the system settings for a permission that can no longer be asked.
+class PermissionSettingsRequested extends OnboardingEvent {
+  const PermissionSettingsRequested();
+}
+
+/// Checks the permissions again (e.g. back from the system settings).
+class PermissionsRechecked extends OnboardingEvent {
+  const PermissionsRechecked();
 }
 
 /// Event when permissions are granted
@@ -43,16 +52,6 @@ class PermissionsGranted extends OnboardingEvent {
 
   @override
   List<Object?> get props => [photoGranted, notificationGranted, backgroundGranted];
-}
-
-/// Event when user wants to retry permission requests
-class RetryPermissionsRequested extends OnboardingEvent {
-  final BuildContext context;
-
-  const RetryPermissionsRequested(this.context);
-
-  @override
-  List<Object?> get props => [context];
 }
 
 /// Event to complete onboarding

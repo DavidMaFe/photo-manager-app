@@ -36,6 +36,10 @@ void main() {
 
     when(() => mockEventBus.on<FolderUpdatedEvent>())
         .thenAnswer((_) => const Stream<FolderUpdatedEvent>.empty());
+    when(() => mockEventBus.on<FavoritesChangedEvent>())
+        .thenAnswer((_) => const Stream<FavoritesChangedEvent>.empty());
+    when(() => mockEventBus.on<CoversChangedEvent>())
+        .thenAnswer((_) => const Stream<CoversChangedEvent>.empty());
   });
 
 
@@ -84,6 +88,7 @@ void main() {
       subfolders: testSubfolders,
       files: testFiles,
       hasMoreFiles: false,
+      totalFilesCount: 0,
     );
 
     // Helper to create grouped files for tests
@@ -147,6 +152,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const LoadFolderContent(folderId: 'folder-2')),
         wait: const Duration(milliseconds: 500),
@@ -187,6 +193,7 @@ void main() {
             subfolders: const [],
             files: const [],
             hasMoreFiles: false,
+            totalFilesCount: 0,
           );
 
           when(() => mockGetFolderContentUseCase.call(
@@ -230,6 +237,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const RefreshFolderContent()),
         wait: const Duration(milliseconds: 500),
@@ -256,6 +264,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const RefreshFolderContent()),
         wait: const Duration(milliseconds: 500),
@@ -281,6 +290,7 @@ void main() {
             subfolders: const [],
             files: moreFiles,
             hasMoreFiles: false,
+            totalFilesCount: 0,
           );
 
           when(() => mockGetFolderContentUseCase.call(
@@ -301,6 +311,7 @@ void main() {
           hasMoreFiles: true,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const LoadMoreFiles()),
         wait: const Duration(milliseconds: 500),
@@ -326,6 +337,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const LoadMoreFiles()),
         expect: () => [],
@@ -348,6 +360,7 @@ void main() {
             subfolders: testSubfolders,
             files: [testFiles[0]],
             hasMoreFiles: false,
+            totalFilesCount: 0,
           );
 
           when(() => mockGetFolderContentUseCase.call(
@@ -367,6 +380,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const FilterFilesInFolder(filter: FileFilter.images)),
         wait: const Duration(milliseconds: 500),
@@ -393,6 +407,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const FilterFilesInFolder(filter: FileFilter.videos)),
         wait: const Duration(milliseconds: 500),
@@ -415,6 +430,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: false,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const EnterSelectionMode()),
         expect: () => [
@@ -437,6 +453,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {'file-1', 'file-2'},
           isSelectionMode: true,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const ExitSelectionMode()),
         expect: () => [
@@ -460,6 +477,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {},
           isSelectionMode: true,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const ToggleFileSelection('file-1')),
         expect: () => [
@@ -482,6 +500,7 @@ void main() {
           hasMoreFiles: false,
           selectedFileIds: const {'file-1'},
           isSelectionMode: true,
+          totalFilesCount: 0,
         ),
         act: (bloc) => bloc.add(const ToggleFileSelection('file-1')),
         expect: () => [
@@ -489,6 +508,80 @@ void main() {
               .having((s) => s.selectedFileIds.contains('file-1'), 'file deselected', false),
         ],
       );
+    });
+
+    group('selectedSizeBytes', () {
+      test('should add up the sizes of the selected files', () {
+        // Arrange
+        final state = FolderContentLoaded(
+          currentFolder: testFolder,
+          subfolders: const [],
+          files: [
+            GalleryFile(id: 'a', type: FileType.image, status: FileStatus.pending, capturedAt: DateTime(2024), sizeBytes: 100),
+            GalleryFile(id: 'b', type: FileType.video, status: FileStatus.pending, capturedAt: DateTime(2024), sizeBytes: 900),
+            GalleryFile(id: 'c', type: FileType.image, status: FileStatus.managed, capturedAt: DateTime(2024), sizeBytes: 50),
+          ],
+          groupedFiles: const [],
+          hasMoreFiles: false,
+          selectedFileIds: const {'a', 'b'},
+          isSelectionMode: true,
+          totalFilesCount: 3,
+        );
+
+        // Act & Assert
+        expect(state.selectedSizeBytes, 1000);
+        expect(state.copyWith(selectedFileIds: const {}).selectedSizeBytes, 0);
+      });
+    });
+
+    group('FavoritesChanged', () {
+      FolderContentLoaded loaded(List<GalleryFile> files) => FolderContentLoaded(
+            currentFolder: testFolder,
+            subfolders: const [],
+            files: files,
+            groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+            hasMoreFiles: false,
+            selectedFileIds: const {},
+            isSelectionMode: false,
+            totalFilesCount: files.length,
+          );
+      final photo = GalleryFile(id: 'a', type: FileType.image, status: FileStatus.managed, capturedAt: DateTime(2024));
+
+      blocTest<FolderContentBloc, FolderContentState>(
+        'should update the hearts of the album files in place',
+        build: () => FolderContentBloc(getFolderContentUseCase: mockGetFolderContentUseCase, eventBus: mockEventBus),
+        seed: () => loaded([photo]),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: true)),
+        expect: () => [
+          isA<FolderContentLoaded>().having((s) => s.files.single.isFavorite, 'favorite', isTrue),
+        ],
+      );
+
+      blocTest<FolderContentBloc, FolderContentState>(
+        'should ignore files of other albums',
+        build: () => FolderContentBloc(getFolderContentUseCase: mockGetFolderContentUseCase, eventBus: mockEventBus),
+        seed: () => loaded([photo]),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['zzz'], favorite: true)),
+        expect: () => const <FolderContentState>[],
+      );
+    });
+
+    test('should reload the album when covers change', () async {
+      // Arrange
+      final eventBus = AppEventBus();
+      when(() => mockGetFolderContentUseCase.call(folderId: 'folder-1', filter: FileFilter.all))
+          .thenAnswer((_) async => folderContent);
+      final listening = FolderContentBloc(getFolderContentUseCase: mockGetFolderContentUseCase, eventBus: eventBus)
+        ..add(const LoadFolderContent(folderId: 'folder-1'));
+      addTearDown(listening.close);
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+
+      // Act
+      eventBus.fire(const CoversChangedEvent(folderIds: ['folder-1']));
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+
+      // Assert
+      verify(() => mockGetFolderContentUseCase.call(folderId: 'folder-1', filter: FileFilter.all)).called(2);
     });
   });
 }

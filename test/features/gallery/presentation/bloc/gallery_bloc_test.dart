@@ -13,12 +13,15 @@ import 'package:photo_manager_app/features/gallery/domain/entities/file_date_gro
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_page.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/pending_files.dart';
 import 'package:photo_manager_app/features/gallery/domain/use_cases/get_files_use_case.dart';
+import 'package:photo_manager_app/features/gallery/domain/use_cases/get_pending_file_ids_use_case.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_state.dart';
 
 class MockGetFilesUseCase extends Mock implements GetFilesUseCase {}
+class MockGetPendingFileIdsUseCase extends Mock implements GetPendingFileIdsUseCase {}
 class MockAppEventBus extends Mock implements AppEventBus {}
 class FakeStreamSubscription<T> extends Fake implements StreamSubscription<T> {}
 
@@ -31,10 +34,12 @@ void main() {
   });
   late GalleryBloc bloc;
   late MockGetFilesUseCase mockGetFilesUseCase;
+  late MockGetPendingFileIdsUseCase mockGetPendingFileIdsUseCase;
   late MockAppEventBus mockEventBus;
 
   setUp(() {
     mockGetFilesUseCase = MockGetFilesUseCase();
+    mockGetPendingFileIdsUseCase = MockGetPendingFileIdsUseCase();
     mockEventBus = MockAppEventBus();
 
     // Mock event bus streams
@@ -42,11 +47,14 @@ void main() {
         .thenAnswer((_) => const Stream.empty());
     when(() => mockEventBus.on<FolderUpdatedEvent>())
         .thenAnswer((_) => const Stream.empty());
+    when(() => mockEventBus.on<FavoritesChangedEvent>())
+        .thenAnswer((_) => const Stream.empty());
     when(() => mockEventBus.on<SyncCompletedEvent>())
         .thenAnswer((_) => const Stream.empty());
 
     bloc = GalleryBloc(
       getFilesUseCase: mockGetFilesUseCase,
+      getPendingFileIdsUseCase: mockGetPendingFileIdsUseCase,
       eventBus: mockEventBus,
     );
   });
@@ -291,8 +299,12 @@ void main() {
       act: (bloc) => bloc.add(const RefreshGallery()),
       wait: const Duration(milliseconds: 500),
       expect: () => [
-        const GalleryLoading(filter: FileFilter.images),
+        // Refresh keeps the grid visible (no GalleryLoading) to preserve scroll
         isA<GalleryLoaded>()
+            .having((s) => s.isRefreshing, 'is refreshing', true)
+            .having((s) => s.filter, 'filter', FileFilter.images),
+        isA<GalleryLoaded>()
+            .having((s) => s.isRefreshing, 'is refreshing', false)
             .having((s) => s.filter, 'filter', FileFilter.images)
             .having((s) => s.currentPage, 'current page', 0),
       ],
@@ -457,8 +469,11 @@ void main() {
       act: (bloc) => bloc.add(const RefreshGallery()),
       wait: const Duration(milliseconds: 500),
       expect: () => [
-        const GalleryLoading(filter: FileFilter.all),
         isA<GalleryLoaded>()
+            .having((s) => s.isRefreshing, 'is refreshing', true)
+            .having((s) => s.isSelectionMode, 'selection mode', true),
+        isA<GalleryLoaded>()
+            .having((s) => s.isRefreshing, 'is refreshing', false)
             .having((s) => s.isSelectionMode, 'selection mode', true)
             .having((s) => s.selectedFileIds, 'selected files', {'file-1'}),
       ],
@@ -492,5 +507,333 @@ void main() {
             .having((s) => s.isEmpty, 'isEmpty', true),
       ],
     );
-  });
+      // ==================== REVIEW PENDING TESTS ====================
+
+    GalleryFile pendingFile(int i) => GalleryFile(
+          id: 'pending-$i',
+          type: FileType.image,
+          status: FileStatus.pending,
+          capturedAt: DateTime(2024, 1, 15),
+        );
+
+    GalleryPage pendingPage(int page, int count, {required bool hasNext, int total = 0}) => GalleryPage(
+          files: List.generate(count, (i) => pendingFile(page * 50 + i)),
+          currentPage: page,
+          pageSize: 50,
+          hasNext: hasNext,
+          totalFilesCount: total,
+          totalPendingCount: total,
+        );
+
+    PendingFiles pendingIds(int count, {int size = 0}) => PendingFiles(
+          fileIds: List.generate(count, (i) => 'pending-$i'),
+          totalSizeBytes: size,
+        );
+
+    blocTest<GalleryBloc, GalleryState>(
+      'selects every pending file and requests the review',
+      setUp: () {
+        when(() => mockGetPendingFileIdsUseCase.call()).thenAnswer((_) async => pendingIds(3, size: 3000));
+        when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
+            .thenAnswer((_) async => pendingPage(0, 3, hasNext: false, total: 3));
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const ReviewPendingFiles()),
+      expect: () => [
+        const GalleryLoading(filter: FileFilter.pending),
+        isA<GalleryLoaded>()
+            .having((s) => s.filter, 'filter', FileFilter.pending)
+            .having((s) => s.isSelectionMode, 'selection mode', true)
+            .having((s) => s.selectedFileIds, 'selected', {'pending-0', 'pending-1', 'pending-2'})
+            .having((s) => s.reviewRequested, 'review requested', true)
+            .having((s) => s.selectedSizeBytes, 'selected size', 3000)
+            .having((s) => s.selectionLimitReached, 'limit', false),
+      ],
+    );
+
+    blocTest<GalleryBloc, GalleryState>(
+      'selects more than 100 pending files with one call and loads only the first page',
+      setUp: () {
+        when(() => mockGetPendingFileIdsUseCase.call())
+            .thenAnswer((_) async => pendingIds(120, size: 48 * 1024 * 1024));
+        when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
+            .thenAnswer((_) async => pendingPage(0, 50, hasNext: true, total: 120));
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const ReviewPendingFiles()),
+      expect: () => [
+        const GalleryLoading(filter: FileFilter.pending),
+        isA<GalleryLoaded>()
+            .having((s) => s.files.length, 'files', 50)
+            .having((s) => s.selectedFileIds.length, 'selected', 120)
+            .having((s) => s.currentPage, 'current page', 0)
+            .having((s) => s.hasNext, 'has next', true)
+            .having((s) => s.selectedSizeBytes, 'selected size', 48 * 1024 * 1024)
+            .having((s) => s.selectionLimitReached, 'limit', false),
+      ],
+      verify: (_) {
+        verify(() => mockGetPendingFileIdsUseCase.call()).called(1);
+        verify(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending)).called(1);
+        verifyNoMoreInteractions(mockGetFilesUseCase);
+      },
+    );
+
+    blocTest<GalleryBloc, GalleryState>(
+      'does not request a review without pending files',
+      setUp: () {
+        when(() => mockGetPendingFileIdsUseCase.call()).thenAnswer((_) async => pendingIds(0));
+        when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
+            .thenAnswer((_) async => pendingPage(0, 0, hasNext: false));
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const ReviewPendingFiles()),
+      expect: () => [
+        const GalleryLoading(filter: FileFilter.pending),
+        isA<GalleryLoaded>()
+            .having((s) => s.reviewRequested, 'review requested', false)
+            .having((s) => s.isSelectionMode, 'selection mode', false),
+      ],
+    );
+
+    blocTest<GalleryBloc, GalleryState>(
+      'emits an error when loading the pending IDs fails',
+      setUp: () {
+        when(() => mockGetPendingFileIdsUseCase.call()).thenThrow(Exception('Network error'));
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const ReviewPendingFiles()),
+      expect: () => [
+        const GalleryLoading(filter: FileFilter.pending),
+        isA<GalleryError>(),
+      ],
+    );
+
+    blocTest<GalleryBloc, GalleryState>(
+      'emits an error when loading the pending files fails',
+      setUp: () {
+        when(() => mockGetPendingFileIdsUseCase.call()).thenAnswer((_) async => pendingIds(3));
+        when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
+            .thenThrow(Exception('Network error'));
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const ReviewPendingFiles()),
+      expect: () => [
+        const GalleryLoading(filter: FileFilter.pending),
+        isA<GalleryError>(),
+      ],
+    );
+
+    // ==================== SELECTED SIZE TESTS ====================
+
+    group('selectedSizeBytes', () {
+      GalleryLoaded loaded({Set<String> selected = const {}, int? reviewSize}) => GalleryLoaded(
+            files: [
+              GalleryFile(id: 'a', type: FileType.image, status: FileStatus.pending, capturedAt: testDate, sizeBytes: 100),
+              GalleryFile(id: 'b', type: FileType.image, status: FileStatus.pending, capturedAt: testDate, sizeBytes: 250),
+              GalleryFile(id: 'c', type: FileType.image, status: FileStatus.pending, capturedAt: testDate, sizeBytes: 50),
+            ],
+            groupedFiles: const [],
+            isSelectionMode: true,
+            selectedFileIds: selected,
+            hasNext: false,
+            currentPage: 0,
+            totalFilesCount: 3,
+            totalPendingCount: 3,
+            filter: FileFilter.all,
+            reviewSizeBytes: reviewSize,
+          );
+
+      test('should add up the sizes of the selected files', () {
+        expect(loaded(selected: {'a', 'b'}).selectedSizeBytes, 350);
+      });
+
+      test('should be 0 without selection', () {
+        expect(loaded().selectedSizeBytes, 0);
+      });
+
+      test('should use the review total while the selection is unchanged', () {
+        final state = loaded(selected: {'a'}, reviewSize: 9999);
+        expect(state.selectedSizeBytes, 9999);
+        expect(state.copyWith(isSelectionMode: true).selectedSizeBytes, 9999);
+      });
+
+      test('should drop the review total when the selection changes', () {
+        final state = loaded(selected: {'a'}, reviewSize: 9999);
+        expect(state.copyWith(selectedFileIds: {'a', 'c'}).selectedSizeBytes, 150);
+      });
+    });
+
+    blocTest<GalleryBloc, GalleryState>(
+      'should update the selected size when toggling files',
+      build: () => bloc,
+      seed: () => GalleryLoaded(
+        files: [
+          GalleryFile(id: 'a', type: FileType.image, status: FileStatus.pending, capturedAt: testDate, sizeBytes: 100),
+          GalleryFile(id: 'b', type: FileType.image, status: FileStatus.pending, capturedAt: testDate, sizeBytes: 250),
+        ],
+        groupedFiles: const [],
+        isSelectionMode: true,
+        selectedFileIds: const {'a'},
+        hasNext: false,
+        currentPage: 0,
+        totalFilesCount: 2,
+        totalPendingCount: 2,
+        filter: FileFilter.all,
+      ),
+      act: (bloc) => bloc.add(const ToggleFileSelection('b')),
+      expect: () => [
+        isA<GalleryLoaded>().having((s) => s.selectedSizeBytes, 'selected size', 350),
+      ],
+    );
+
+    test('reviewRequested is a one-shot flag cleared by copyWith', () {
+      const state = GalleryLoaded(
+        files: [],
+        groupedFiles: [],
+        isSelectionMode: true,
+        selectedFileIds: {'a'},
+        hasNext: false,
+        currentPage: 0,
+        totalFilesCount: 0,
+        totalPendingCount: 1,
+        filter: FileFilter.pending,
+        reviewRequested: true,
+      );
+      expect(state.copyWith().reviewRequested, isFalse);
+    });
+
+
+    // ==================== FAVORITES TESTS ====================
+
+    group('FavoritesChanged', () {
+      GalleryFile fav(String id, {bool favorite = false}) => GalleryFile(
+            id: id,
+            type: FileType.image,
+            status: FileStatus.managed,
+            capturedAt: testDate,
+            isFavorite: favorite,
+          );
+
+      GalleryLoaded loaded(List<GalleryFile> files, {FileFilter filter = FileFilter.all, Set<String> selected = const {}}) =>
+          GalleryLoaded(
+            files: files,
+            groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+            isSelectionMode: selected.isNotEmpty,
+            selectedFileIds: selected,
+            hasNext: false,
+            currentPage: 0,
+            totalFilesCount: files.length,
+            totalPendingCount: 0,
+            filter: filter,
+          );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should update the hearts of the loaded files in place',
+        build: () => bloc,
+        seed: () => loaded([fav('a'), fav('b')]),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: true)),
+        expect: () => [
+          isA<GalleryLoaded>()
+              .having((s) => s.files.map((f) => f.isFavorite), 'favorites', [true, false])
+              .having((s) => s.groupedFiles.single.files.first.isFavorite, 'grouped', isTrue),
+        ],
+        verify: (_) => verifyNever(() => mockGetFilesUseCase(
+              page: any(named: 'page'),
+              pageSize: any(named: 'pageSize'),
+              filter: any(named: 'filter'),
+            )),
+      );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should ignore files that are not loaded',
+        build: () => bloc,
+        seed: () => loaded([fav('a')]),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['zzz'], favorite: true)),
+        expect: () => const <GalleryState>[],
+      );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should let unmarked files fade out of the favorites filter and then remove them',
+        build: () => bloc,
+        seed: () => loaded([fav('a', favorite: true), fav('b', favorite: true)], filter: FileFilter.favorites, selected: {'a'}),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: false)),
+        wait: GalleryBloc.unfavoritedExitDuration + const Duration(milliseconds: 50),
+        expect: () => [
+          // Still in the grid, unmarked: its thumbnail fades out.
+          isA<GalleryLoaded>()
+              .having((s) => s.files.map((f) => f.isFavorite), 'favorites', [false, true])
+              .having((s) => s.totalFilesCount, 'total', 2),
+          isA<GalleryLoaded>()
+              .having((s) => s.files.map((f) => f.id), 'files', ['b'])
+              .having((s) => s.totalFilesCount, 'total', 1)
+              .having((s) => s.selectedFileIds, 'selected', isEmpty),
+        ],
+      );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should keep a file marked again before it leaves',
+        build: () => bloc,
+        seed: () => loaded([fav('a', favorite: true)], filter: FileFilter.favorites),
+        act: (bloc) async {
+          bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: false));
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: true));
+        },
+        wait: GalleryBloc.unfavoritedExitDuration + const Duration(milliseconds: 50),
+        expect: () => [
+          isA<GalleryLoaded>().having((s) => s.files.single.isFavorite, 'favorite', isFalse),
+          isA<GalleryLoaded>().having((s) => s.files.single.isFavorite, 'favorite', isTrue),
+        ],
+      );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should not remove files outside the favorites filter',
+        build: () => bloc,
+        seed: () => loaded([fav('a')]),
+        act: (bloc) => bloc.add(const RemoveUnfavoritedFiles()),
+        expect: () => const <GalleryState>[],
+      );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should reload the favorites filter when a file is marked again',
+        setUp: () {
+          when(() => mockGetFilesUseCase(page: 0, pageSize: 50, filter: FileFilter.favorites)).thenAnswer(
+            (_) async => GalleryPage(
+              files: [fav('a', favorite: true)],
+              currentPage: 0,
+              pageSize: 50,
+              hasNext: false,
+              totalFilesCount: 1,
+              totalPendingCount: 0,
+            ),
+          );
+        },
+        build: () => bloc,
+        seed: () => loaded(const [], filter: FileFilter.favorites),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: true)),
+        expect: () => [
+          isA<GalleryLoaded>().having((s) => s.isRefreshing, 'refreshing', isTrue),
+          isA<GalleryLoaded>().having((s) => s.files.map((f) => f.id), 'files', ['a']),
+        ],
+      );
+
+      test('should listen to the favorites event of the app', () async {
+        // Arrange
+        final eventBus = AppEventBus();
+        final listening = GalleryBloc(
+          getFilesUseCase: mockGetFilesUseCase,
+          getPendingFileIdsUseCase: mockGetPendingFileIdsUseCase,
+          eventBus: eventBus,
+        )..emit(loaded([fav('a')]));
+        addTearDown(listening.close);
+
+        // Act
+        eventBus.fire(const FavoritesChangedEvent(fileIds: ['a'], favorite: true));
+        await Future<void>.delayed(Duration.zero);
+
+        // Assert
+        expect((listening.state as GalleryLoaded).files.single.isFavorite, isTrue);
+      });
+    });
+});
 }

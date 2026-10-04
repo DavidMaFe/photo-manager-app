@@ -1,189 +1,196 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/navigation/onboarding_notifier.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
-import 'package:photo_manager_app/core/widgets/permission/permission_helper.dart';
+import 'package:photo_manager_app/core/permissions/app_permission.dart';
+import 'package:photo_manager_app/core/permissions/permission_access.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
+import 'package:photo_manager_app/core/widgets/app_dialog.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:photo_manager_app/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:photo_manager_app/features/onboarding/presentation/bloc/onboarding_event.dart';
 import 'package:photo_manager_app/features/onboarding/presentation/bloc/onboarding_state.dart';
-import 'package:photo_manager_app/features/onboarding/presentation/widgets/permission_rejection_warning_dialog.dart';
-import 'package:photo_manager_app/features/onboarding/presentation/widgets/welcome_permission_dialog.dart';
+import 'package:photo_manager_app/features/onboarding/presentation/widgets/permission_card.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-/// Onboarding page for first-time users
-///
-/// This page guides users through granting necessary permissions
-/// for the app to function properly.
+/// First launch: one screen to grant photos, notifications and background
+/// permissions, each with its own button.
 class OnboardingPage extends StatefulWidget {
-  const OnboardingPage({super.key});
+
+  /// Called once the onboarding is done (injectable for tests).
+  final void Function(BuildContext context)? onFinished;
+
+  const OnboardingPage({super.key, this.onFinished});
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
+
+  late final AppLifecycleListener _lifecycleListener;
+
   @override
   void initState() {
     super.initState();
-    // Start the onboarding flow when the page loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<OnboardingBloc>().add(OnboardingStarted(context));
-    });
+    context.read<OnboardingBloc>().add(const OnboardingStarted());
+    // Back from the system settings: show what changed there.
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () => context.read<OnboardingBloc>().add(const PermissionsRechecked()),
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycleListener.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final p = context.palette;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: p.background,
       body: BlocConsumer<OnboardingBloc, OnboardingState>(
-        listener: (context, state) async {
-          // Handle state changes
-          if (state is OnboardingWelcome) {
-            // Show welcome dialog
-            await _showWelcomeDialog(context, l10n);
-          } else if (state is OnboardingRequestingPermissions) {
-            // Request permissions
-            await _requestPermissions(context, l10n);
-          } else if (state is OnboardingPermissionsPartiallyDenied) {
-            // Show warning dialog
-            await _showRejectionWarningDialog(context, l10n, state);
-          } else if (state is OnboardingComplete) {
-            // Notify the router notifier that onboarding is done
-            sl<OnboardingNotifier>().markOnboardingComplete();
-            // Navigate to home
-            if (mounted) {
-              context.go(RoutePaths.home);
-            }
-          }
+        listener: (context, state) {
+          if (state is OnboardingComplete) _finish(context);
         },
         builder: (context, state) {
-          // Show loading indicator while processing
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (state is OnboardingRequestingPermissions) ...[
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 24),
-                  Text(
-                    l10n.processing,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ] else ...[
-                  // Show app logo or branding
-                  const Icon(
-                    Icons.photo_library,
-                    size: 100,
-                    color: Color(0xFF5D5BE9),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    l10n.appTitle,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ],
-              ],
-            ),
-          );
+          if (state is! OnboardingPermissions) {
+            return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+          }
+          return SafeArea(child: _PermissionsContent(state: state, onContinue: () => _continue(context, state)));
         },
       ),
     );
   }
 
-  /// Show welcome dialog
-  Future<void> _showWelcomeDialog(BuildContext context, AppLocalizations l10n) async {
-    final shouldProceed = await WelcomePermissionDialog.show(
-      context: context,
-      title: l10n.onboardingWelcomeTitle,
-      message: l10n.onboardingWelcomeMessage,
-      buttonText: l10n.onboardingWelcomeButton,
-    );
-
-    if (shouldProceed && mounted) {
-      // User wants to proceed, request permissions
-      context.read<OnboardingBloc>().add(PermissionsRequested(context));
+  void _finish(BuildContext context) {
+    if (widget.onFinished != null) {
+      widget.onFinished!(context);
+      return;
     }
+    sl<OnboardingNotifier>().markOnboardingComplete();
+    context.go(RoutePaths.home);
   }
 
-  /// Request all permissions
-  Future<void> _requestPermissions(BuildContext context, AppLocalizations l10n) async {
-    final result = await PermissionHelper.requestAllOnboardingPermissions(
+  /// Without photos the app cannot back up anything: say so before going on.
+  Future<void> _continue(BuildContext context, OnboardingPermissions state) async {
+    final bloc = context.read<OnboardingBloc>();
+    if (state.photos == PermissionAccess.granted) {
+      bloc.add(const OnboardingCompleted());
+      return;
+    }
+
+    final l10n = AppLocalizations.of(context)!;
+    final limitations = [
+      if (state.photos != PermissionAccess.granted) l10n.permissionLimitationPhoto,
+      if (state.notifications != PermissionAccess.granted) l10n.permissionLimitationNotification,
+      if (state.background != PermissionAccess.granted) l10n.permissionLimitationBackground,
+    ];
+
+    final confirmed = await AppDialog.show(
       context: context,
-      // Photo permission strings
-      photoEducationTitle: l10n.permissionPhotoAccessTitle,
-      photoEducationMessage: l10n.permissionPhotoAccessMessage,
-      photoDeniedTitle: l10n.permissionPhotoAccessDeniedTitle,
-      photoDeniedMessage: l10n.permissionPhotoAccessDeniedMessage,
-      // Notification permission strings
-      notificationEducationTitle: l10n.permissionNotificationTitle,
-      notificationEducationMessage: l10n.permissionNotificationMessage,
-      notificationDeniedTitle: l10n.permissionNotificationDeniedTitle,
-      notificationDeniedMessage: l10n.permissionNotificationDeniedMessage,
-      // Background permission strings
-      backgroundEducationTitle: l10n.permissionBackgroundTitle,
-      backgroundEducationMessageAndroid: l10n.permissionBackgroundMessageAndroid,
-      backgroundEducationMessageIOS: l10n.permissionBackgroundMessageIOS,
-      backgroundDeniedTitle: l10n.permissionBackgroundDeniedTitle,
-      backgroundDeniedMessage: l10n.permissionBackgroundDeniedMessage,
-      // Button texts
-      continueText: l10n.permissionPhotoAccessContinue,
-      settingsText: l10n.permissionOpenSettings,
-      cancelText: l10n.cancel,
-    );
-
-    if (mounted) {
-      // Dispatch the result to the BLoC
-      context.read<OnboardingBloc>().add(PermissionsGranted(
-            photoGranted: result.photoGranted,
-            notificationGranted: result.notificationGranted,
-            backgroundGranted: result.backgroundGranted,
-          ));
-    }
-  }
-
-  /// Show rejection warning dialog
-  Future<void> _showRejectionWarningDialog(
-    BuildContext context,
-    AppLocalizations l10n,
-    OnboardingPermissionsPartiallyDenied state,
-  ) async {
-    // Build limitations list
-    final limitations = <String>[];
-    if (!state.photoGranted) {
-      limitations.add(l10n.permissionLimitationPhoto);
-    }
-    if (!state.notificationGranted) {
-      limitations.add(l10n.permissionLimitationNotification);
-    }
-    if (!state.backgroundGranted) {
-      limitations.add(l10n.permissionLimitationBackground);
-    }
-
-    // Build the full message with the limitations list
-    final limitationsMessage =
-        '${l10n.onboardingPermissionsRejectedMessage}\n\n${limitations.join('\n')}';
-
-    // Show warning dialog
-    final shouldRetry = await PermissionRejectionWarningDialog.show(
-      context: context,
+      icon: Symbols.photo_library_rounded,
+      tone: AppDialogTone.review,
       title: l10n.onboardingPermissionsRejectedTitle,
-      message: limitationsMessage,
-      retryButtonText: l10n.onboardingPermissionsRetryButton,
-      continueButtonText: l10n.onboardingPermissionsRejectedButton,
+      message: '${l10n.onboardingPermissionsRejectedMessage}\n\n${limitations.join('\n')}',
+      primaryLabel: l10n.continueAnyway,
+      secondaryLabel: l10n.reviewPermissions,
     );
+    if (confirmed == true) bloc.add(const OnboardingCompleted());
+  }
+}
 
-    if (mounted) {
-      if (shouldRetry) {
-        // User wants to retry
-        context.read<OnboardingBloc>().add(RetryPermissionsRequested(context));
-      } else {
-        // User understands and wants to continue
-        context.read<OnboardingBloc>().add(const OnboardingCompleted());
-      }
+class _PermissionsContent extends StatelessWidget {
+  final OnboardingPermissions state;
+  final VoidCallback onContinue;
+
+  const _PermissionsContent({required this.state, required this.onContinue});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final p = context.palette;
+    final bloc = context.read<OnboardingBloc>();
+
+    final authState = context.watch<AuthBloc>().state;
+    final name = authState is AuthSuccessful ? authState.user.name.trim() : '';
+
+    PermissionCard card(AppPermission permission, IconData icon, String title, String body, OnboardingEvent request) {
+      return PermissionCard(
+        icon: icon,
+        title: title,
+        description: body,
+        access: state.accessOf(permission),
+        recommended: state.nextRecommended == permission,
+        loading: state.requesting == permission,
+        onAllow: () => bloc.add(request),
+        onOpenSettings: () => bloc.add(const PermissionSettingsRequested()),
+      );
     }
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 32, 20, 16),
+            children: [
+              Text(
+                name.isEmpty ? l10n.welcomeGeneric : l10n.welcomeUser(name),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: p.accent),
+              ),
+              const SizedBox(height: 8),
+              Semantics(
+                header: true,
+                child: Text(l10n.permissionsHeadline, style: Theme.of(context).textTheme.headlineMedium),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                l10n.permissionsBody,
+                style: TextStyle(fontSize: 15, height: 1.45, fontWeight: FontWeight.w500, color: p.ink2),
+              ),
+              const SizedBox(height: 24),
+              card(AppPermission.photos, Symbols.photo_library_rounded, l10n.permPhotosTitle, l10n.permPhotosBody,
+                  const PhotoPermissionRequested()),
+              const SizedBox(height: 12),
+              card(AppPermission.notifications, Symbols.notifications_rounded, l10n.permNotifTitle, l10n.permNotifBody,
+                  const NotificationPermissionRequested()),
+              const SizedBox(height: 12),
+              card(AppPermission.background, Symbols.cloud_sync_rounded, l10n.permBgTitle, l10n.permBgBody,
+                  const BackgroundPermissionRequested()),
+              const SizedBox(height: 20),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Symbols.lock_rounded, size: 18, color: p.ink3),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(l10n.privacyNote, style: TextStyle(fontSize: 13, height: 1.4, color: p.ink2)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AppButton.primary(label: l10n.continueLabel, onPressed: onContinue),
+              const SizedBox(height: 4),
+              AppButton.text(label: l10n.later, onPressed: () => bloc.add(const OnboardingCompleted())),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

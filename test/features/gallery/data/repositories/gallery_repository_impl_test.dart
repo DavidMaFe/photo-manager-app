@@ -8,6 +8,7 @@ import 'package:photo_manager_app/features/gallery/data/models/gallery_page_mode
 import 'package:photo_manager_app/features/gallery/data/repositories/gallery_repository_impl.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_page.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
+import 'package:photo_manager_app/features/gallery/data/models/pending_files_model.dart';
 
 class MockGalleryRemoteDataSource extends Mock
     implements GalleryRemoteDataSource {}
@@ -44,6 +45,8 @@ void main() {
     currentPage: 0,
     pageSize: 50,
     hasNext: true,
+    totalFilesCount: 0,
+    totalPendingCount: 0,
   );
 
   group('GalleryRepositoryImpl - getFiles', () {
@@ -273,6 +276,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       when(() => mockRemoteDataSource.getFiles(
@@ -326,6 +331,8 @@ void main() {
         currentPage: 0,
         pageSize: 50,
         hasNext: false,
+        totalFilesCount: 0,
+        totalPendingCount: 0,
       );
 
       when(() => mockRemoteDataSource.getFiles(
@@ -394,6 +401,60 @@ void main() {
             type: null,
             status: null,
           )).called(1);
+    });
+  });
+
+  group('getPendingFileIds', () {
+    test('should map the type to its API value and pass the folder', () async {
+      // Arrange
+      const model = PendingFilesModel(fileIds: ['1', '2'], totalSizeBytes: 10);
+      when(() => mockRemoteDataSource.getPendingFileIds(type: any(named: 'type'), folderId: any(named: 'folderId')))
+          .thenAnswer((_) async => model);
+
+      // Act
+      final result = await repository.getPendingFileIds(type: FileType.video, folderId: '7');
+
+      // Assert
+      expect(result, model);
+      verify(() => mockRemoteDataSource.getPendingFileIds(type: 'VIDEO', folderId: '7')).called(1);
+    });
+
+    test('should send no filters by default', () async {
+      // Arrange
+      when(() => mockRemoteDataSource.getPendingFileIds(type: any(named: 'type'), folderId: any(named: 'folderId')))
+          .thenAnswer((_) async => const PendingFilesModel(fileIds: [], totalSizeBytes: 0));
+
+      // Act
+      await repository.getPendingFileIds();
+
+      // Assert
+      verify(() => mockRemoteDataSource.getPendingFileIds(type: null, folderId: null)).called(1);
+    });
+  });
+
+  group('favorites filter', () {
+    test('should ask the data source for favorites only, of any type and status', () async {
+      // Arrange
+      when(() => mockRemoteDataSource.getFiles(
+            page: any(named: 'page'),
+            pageSize: any(named: 'pageSize'),
+            type: any(named: 'type'),
+            status: any(named: 'status'),
+            favorite: any(named: 'favorite'),
+          )).thenAnswer((_) async => const GalleryPageModel(
+            files: [],
+            currentPage: 0,
+            pageSize: 50,
+            hasNext: false,
+            totalFilesCount: 0,
+            totalPendingCount: 0,
+          ));
+
+      // Act
+      await repository.getFiles(page: 0, pageSize: 50, filter: FileFilter.favorites);
+
+      // Assert
+      verify(() => mockRemoteDataSource.getFiles(page: 0, pageSize: 50, type: null, status: null, favorite: true)).called(1);
     });
   });
 }

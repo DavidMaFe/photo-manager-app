@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/core/errors/helper/failure_message_helper.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -127,7 +128,7 @@ class _ErrorDisplayState extends State<ErrorDisplay>
                   title,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: context.palette.ink,
                       ),
                   textAlign: TextAlign.center,
                 ),
@@ -140,7 +141,7 @@ class _ErrorDisplayState extends State<ErrorDisplay>
                   child: Text(
                     message,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: isDark ? Colors.white70 : Colors.black54,
+                          color: context.palette.ink2,
                           height: 1.6,
                         ),
                     textAlign: TextAlign.center,
@@ -169,7 +170,7 @@ class _ErrorDisplayState extends State<ErrorDisplay>
                           label: Text(l10n.tryAgain),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: iconColor,
-                            foregroundColor: Colors.white,
+                            foregroundColor: context.palette.onAccent,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 32,
                               vertical: 16,
@@ -222,7 +223,7 @@ class _ErrorDisplayState extends State<ErrorDisplay>
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: context.palette.ink,
                 ),
               ),
             ],
@@ -249,7 +250,7 @@ class _ErrorDisplayState extends State<ErrorDisplay>
                       text: TextSpan(
                         style: TextStyle(
                           fontSize: 14,
-                          color: isDark ? Colors.white70 : Colors.black54,
+                          color: context.palette.ink2,
                           height: 1.5,
                         ),
                         children: [
@@ -300,21 +301,21 @@ class _ErrorDisplayState extends State<ErrorDisplay>
   Color _getColorForFailure(Failure failure, bool isDark) {
     // Network/connectivity issues - blue
     if (failure is NetworkFailure || failure is TimeoutFailure) {
-      return isDark ? Colors.blue.shade300 : Colors.blue.shade700;
+      return context.palette.accent;
     }
 
     // Validation/warning issues - orange
     if (failure is ValidationFailure || failure is StorageSpaceExceededFailure) {
-      return isDark ? Colors.orange.shade300 : Colors.orange.shade700;
+      return context.palette.reviewIcon;
     }
 
     // Auth/permission issues - amber
     if (failure is UnauthorizedFailure || failure is PermissionDeniedFailure) {
-      return isDark ? Colors.amber.shade300 : Colors.amber.shade800;
+      return context.palette.reviewIcon;
     }
 
     // Critical errors - red
-    return isDark ? Colors.red.shade300 : Colors.red.shade700;
+    return context.palette.dangerInk;
   }
 
   String _getCustomMessage(AppLocalizations l10n, String key) {

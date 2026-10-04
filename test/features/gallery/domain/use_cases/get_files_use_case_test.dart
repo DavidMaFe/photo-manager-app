@@ -46,6 +46,8 @@ void main() {
     currentPage: 0,
     pageSize: 50,
     hasNext: true,
+    totalFilesCount: 0,
+    totalPendingCount: 0,
   );
 
   group('GetFilesUseCase', () {

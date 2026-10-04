@@ -379,5 +379,110 @@ void main() {
       // Assert
       expect(model.subfolderCount, 0);
     });
+
+    group('captured date range', () {
+      test('should parse oldestCapturedAt and newestCapturedAt', () {
+        // Act
+        final model = FolderModel.fromJson(const {
+          'id': 1,
+          'name': 'Japan',
+          'path': '/Japan',
+          'createdAt': '2024-09-01T10:00:00',
+          'oldestCapturedAt': '2024-01-03T08:00:00',
+          'newestCapturedAt': '2024-08-20T19:30:00',
+        });
+
+        // Assert
+        expect(model.oldestCapturedAt, DateTime(2024, 1, 3, 8));
+        expect(model.newestCapturedAt, DateTime(2024, 8, 20, 19, 30));
+      });
+
+      test('should be null when the backend sends null or nothing', () {
+        // Act
+        final explicitNull = FolderModel.fromJson(const {
+          'id': 1,
+          'name': 'Empty',
+          'path': '/Empty',
+          'createdAt': '2024-09-01T10:00:00',
+          'oldestCapturedAt': null,
+          'newestCapturedAt': null,
+        });
+        final missing = FolderModel.fromJson(const {
+          'id': 1,
+          'name': 'Empty',
+          'path': '/Empty',
+          'createdAt': '2024-09-01T10:00:00',
+        });
+
+        // Assert
+        expect(explicitNull.oldestCapturedAt, isNull);
+        expect(explicitNull.newestCapturedAt, isNull);
+        expect(missing.oldestCapturedAt, isNull);
+        expect(missing.newestCapturedAt, isNull);
+      });
+
+      test('should keep the dates in toJson and fromEntity', () {
+        // Arrange
+        final folder = Folder(
+          id: '1',
+          name: 'Japan',
+          path: '/Japan',
+          createdAt: DateTime(2024, 9, 1),
+          fileCount: 1,
+          subfolderCount: 0,
+          oldestCapturedAt: DateTime(2024, 1, 3),
+          newestCapturedAt: DateTime(2024, 8, 20),
+        );
+
+        // Act
+        final model = FolderModel.fromEntity(folder);
+
+        // Assert
+        expect(model.props, folder.props);
+        expect(model.toJson()['oldestCapturedAt'], '2024-01-03T00:00:00.000');
+        expect(model.toJson()['newestCapturedAt'], '2024-08-20T00:00:00.000');
+      });
+    });
+
+    group('covers', () {
+      const base = {'id': 1, 'name': 'Japan', 'path': '/Japan', 'createdAt': '2024-09-01T10:00:00'};
+
+      test('should parse numeric cover IDs in order', () {
+        // Act
+        final model = FolderModel.fromJson(const {
+          ...base,
+          'coverFileIds': [30, 10, 20],
+          'fallbackCoverFileIds': [],
+        });
+
+        // Assert
+        expect(model.coverFileIds, ['30', '10', '20']);
+        expect(model.hasCustomCovers, isTrue);
+        expect(model.mosaicFileIds, ['30', '10', '20']);
+      });
+
+      test('should use the fallback covers in the mosaic without chosen covers', () {
+        // Act
+        final model = FolderModel.fromJson(const {
+          ...base,
+          'coverFileIds': [],
+          'fallbackCoverFileIds': [5, 4],
+        });
+
+        // Assert
+        expect(model.hasCustomCovers, isFalse);
+        expect(model.mosaicFileIds, ['5', '4']);
+      });
+
+      test('should default to no covers when the fields are missing', () {
+        // Act
+        final model = FolderModel.fromJson(base);
+
+        // Assert
+        expect(model.coverFileIds, isEmpty);
+        expect(model.fallbackCoverFileIds, isEmpty);
+        expect(model.mosaicFileIds, isEmpty);
+      });
+    });
   });
 }

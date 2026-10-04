@@ -1,257 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
+import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
+/// Warns that files removed from the cloud may still be on the phone, with a
+/// "Don't show again" option.
 class LocalDeletionWarningDialog {
   static Future<void> show({
     required BuildContext context,
     required String message,
     required UiPreferencesService preferencesService,
   }) async {
-    final l10n = AppLocalizations.of(context)!;
-
-    // Check if user wants to hide this dialog
     if (preferencesService.shouldHideLocalDeletionWarning) {
       return;
     }
 
-    bool dontShowAgain = false;
+    final l10n = AppLocalizations.of(context)!;
+    final dontShowAgain = ValueNotifier(false);
 
-    await showGeneralDialog(
+    await AppDialog.show(
       context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return ScaleTransition(
-              scale: CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutBack,
-              ),
-              child: FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeIn,
-                ),
-                child: _LocalDeletionWarningDialogContent(
-                  message: message,
-                  l10n: l10n,
-                  dontShowAgain: dontShowAgain,
-                  onDontShowAgainChanged: (value) {
-                    setState(() {
-                      dontShowAgain = value;
-                    });
-                  },
-                  onConfirm: () async {
-                    if (dontShowAgain) {
-                      await preferencesService.setHideLocalDeletionWarning(true);
-                    }
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-class _LocalDeletionWarningDialogContent extends StatelessWidget {
-  final String message;
-  final AppLocalizations l10n;
-  final bool dontShowAgain;
-  final ValueChanged<bool> onDontShowAgainChanged;
-  final VoidCallback onConfirm;
-
-  const _LocalDeletionWarningDialogContent({
-    required this.message,
-    required this.l10n,
-    required this.dontShowAgain,
-    required this.onDontShowAgainChanged,
-    required this.onConfirm,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.95),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildHeader(),
-                  _buildContent(),
-                  _buildCheckbox(),
-                  _buildActions(),
-                ],
-              ),
-            ),
+      icon: Symbols.info_rounded,
+      tone: AppDialogTone.review,
+      title: l10n.filesManaged,
+      message: message,
+      primaryLabel: l10n.ok,
+      content: ValueListenableBuilder<bool>(
+        valueListenable: dontShowAgain,
+        builder: (context, value, _) => CheckboxListTile(
+          value: value,
+          onChanged: (checked) => dontShowAgain.value = checked ?? false,
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          activeColor: context.palette.accent,
+          title: Text(
+            l10n.dontShowAgain,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.palette.ink),
           ),
         ),
       ),
     );
-  }
 
-  Widget _buildHeader() {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.orange,
-            Colors.orange.withValues(alpha: 0.8),
-          ],
-        ),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 20),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.info_outline,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              l10n.filesManaged,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.none,
-              ),
-            ),
-          ),
-          const SizedBox(width: 20),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Text(
-        message,
-        style: TextStyle(
-          color: Colors.grey.shade800,
-          fontSize: 15,
-          height: 1.5,
-          decoration: TextDecoration.none,
-          fontFamily: 'Roboto',
-          fontWeight: FontWeight.normal,
-        ),
-        textAlign: TextAlign.left,
-      ),
-    );
-  }
-
-  Widget _buildCheckbox() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-      child: InkWell(
-        onTap: () => onDontShowAgainChanged(!dontShowAgain),
-        borderRadius: BorderRadius.circular(8),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: Checkbox(
-                value: dontShowAgain,
-                onChanged: (value) => onDontShowAgainChanged(value ?? false),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                l10n.dontShowAgain,
-                style: TextStyle(
-                  color: Colors.grey.shade700,
-                  fontSize: 14,
-                  decoration: TextDecoration.none,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActions() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Flexible(
-            child: FilledButton(
-              onPressed: onConfirm,
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.orange,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: Text(
-                l10n.ok,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    if (dontShowAgain.value) {
+      await preferencesService.setHideLocalDeletionWarning(true);
+    }
+    dontShowAgain.dispose();
   }
 }

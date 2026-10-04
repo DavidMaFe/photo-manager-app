@@ -8,6 +8,7 @@ import 'package:photo_manager_app/core/navigation/onboarding_notifier.dart';
 import 'package:photo_manager_app/core/services/background_task_handler.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
+import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/onboarding/domain/use_cases/check_onboarding_status_use_case.dart';
@@ -15,6 +16,7 @@ import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 import 'package:workmanager/workmanager.dart';
 import 'config/app_config.dart';
+import 'config/theme/app_theme.dart';
 import 'core/injection_container.dart' as di;
 
 
@@ -64,15 +66,25 @@ void main() async {
 
   final router = AppRouter.createRouter(authBloc, onboardingNotifier);
 
-  runApp(MyApp(authBloc: authBloc, router: router));
+  runApp(MyApp(
+    authBloc: authBloc,
+    router: router,
+    uiPreferencesService: di.sl<UiPreferencesService>(),
+  ));
 }
 
 class MyApp extends StatefulWidget {
 
   final AuthBloc authBloc;
   final GoRouter router;
+  final UiPreferencesService uiPreferencesService;
 
-  const MyApp({super.key, required this.authBloc, required this.router});
+  const MyApp({
+    super.key,
+    required this.authBloc,
+    required this.router,
+    required this.uiPreferencesService,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -107,35 +119,42 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       providers: [
         BlocProvider.value(value: widget.authBloc),
       ],
-      child: MaterialApp.router(
-        title: 'Photo Manager',
-        routerConfig: widget.router,
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: widget.uiPreferencesService.themeMode,
+        builder: (context, themeMode, _) => MaterialApp.router(
+          title: 'Photo Manager',
+          routerConfig: widget.router,
 
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate
-        ],
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: themeMode,
 
-        supportedLocales: const [
-          Locale('es', ''),
-          Locale('en', ''),
-        ],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate
+          ],
 
-        locale: const Locale('es'),
+          supportedLocales: const [
+            Locale('es', ''),
+            Locale('en', ''),
+          ],
 
-        localeResolutionCallback: (locale, supportedLocales) {
-          if (locale != null) {
-            for (var supportedLocale in supportedLocales) {
-              if (supportedLocale.languageCode == locale.languageCode) {
-                return supportedLocale;
+          locale: const Locale('es'),
+
+          localeResolutionCallback: (locale, supportedLocales) {
+            if (locale != null) {
+              for (var supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == locale.languageCode) {
+                  return supportedLocale;
+                }
               }
             }
-          }
 
-          return const Locale('es');
-        },
+            return const Locale('es');
+          },
+        ),
       )
     );
   }

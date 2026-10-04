@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_manager_app/features/profile/data/models/user_profile_model.dart';
+import 'package:photo_manager_app/features/profile/domain/entities/storage_usage.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 
 void main() {
@@ -375,6 +376,59 @@ void main() {
         expect(model.storageTotalGb, 1.0);
         expect(model.storageUsedPercentage, 0.5);
         expect(model, isA<UserProfile>());
+      });
+    });
+
+    group('storage breakdown', () {
+      test('should parse the storage by type', () {
+        // Act
+        final model = UserProfileModel.fromJson(const {
+          'id': 1,
+          'email': 'ana@example.com',
+          'name': 'Ana',
+          'hasProfileImage': false,
+          'storageUsedMb': 12.5,
+          'storageTotalMb': 51200,
+          'stats': {'fileCount': 3, 'folderCount': 1, 'deviceCount': 1},
+          'storage': {
+            'photosBytes': 600,
+            'videosBytes': 300,
+            'trashBytes': 100,
+            'usedBytes': 1000,
+            'quotaBytes': 4000,
+          },
+        });
+
+        // Assert
+        expect(
+          model.storage,
+          const StorageUsage(photosBytes: 600, videosBytes: 300, trashBytes: 100, usedBytes: 1000, quotaBytes: 4000),
+        );
+        expect(model.toJson()['storage'], {
+          'photosBytes': 600,
+          'videosBytes': 300,
+          'trashBytes': 100,
+          'usedBytes': 1000,
+          'quotaBytes': 4000,
+        });
+        expect(UserProfileModel.fromEntity(model).storage, model.storage);
+      });
+
+      test('should leave the breakdown empty when the server does not send it', () {
+        // Act
+        final model = UserProfileModel.fromJson(const {
+          'id': 1,
+          'email': 'ana@example.com',
+          'name': 'Ana',
+          'hasProfileImage': false,
+          'storageUsedMb': 12.5,
+          'storageTotalMb': 51200,
+          'stats': {'fileCount': 3, 'folderCount': 1, 'deviceCount': 1},
+        });
+
+        // Assert
+        expect(model.storage, isNull);
+        expect(model.toJson().containsKey('storage'), isFalse);
       });
     });
   });

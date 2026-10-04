@@ -49,14 +49,12 @@
 		<false/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
-
 		<!-- Background Modes for Background Sync -->
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>fetch</string>
 			<string>processing</string>
 		</array>
-
 		<!-- Photo Library Usage Description -->
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>This app needs access to your photo library to sync your photos and videos.</string>

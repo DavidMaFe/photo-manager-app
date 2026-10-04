@@ -1,292 +1,384 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/errors/widget/error_display.dart';
+import 'package:photo_manager_app/core/widgets/screen_header.dart';
+import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
+import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_state.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/sync_result.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
+import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
 import 'package:photo_manager_app/features/synchronization/domain/entities/synchronization.dart';
 import 'package:photo_manager_app/features/synchronization/domain/enums/synchronization_status.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_bloc.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_event.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/bloc/synchronization_state.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/pages/synchronization_page.dart';
-import 'package:photo_manager_app/features/synchronization/presentation/widgets/empty_synchronization_state.dart';
-import 'package:photo_manager_app/features/synchronization/presentation/widgets/error_synchronization_state.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/widgets/synchronization_list_item.dart';
 import 'package:photo_manager_app/features/synchronization/presentation/widgets/synchronization_status_card.dart';
-import 'package:photo_manager_app/l10n/app_localizations.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
-class MockSynchronizationBloc
-    extends MockBloc<SynchronizationEvent, SynchronizationState>
-    implements SynchronizationBloc {}
+import '../../../../fixtures/test_data.dart';
+import '../../../../helpers/widget_test_helper.dart';
+
+class MockSynchronizationBloc extends Mock implements SynchronizationBloc {}
+
+class MockSyncConfigBloc extends Mock implements SyncConfigBloc {}
+
+class MockSyncSessionBloc extends Mock implements SyncSessionBloc {}
+
+class FakeSyncSessionEvent extends Fake implements SyncSessionEvent {}
 
 void main() {
-  late MockSynchronizationBloc mockBloc;
+  late MockSynchronizationBloc syncBloc;
+  late MockSyncConfigBloc configBloc;
+  late MockSyncSessionBloc sessionBloc;
+  late StreamController<SyncSessionState> sessionStates;
+  late DateTime now;
 
-  setUp(() {
-    mockBloc = MockSynchronizationBloc();
+  setUpAll(() {
+    registerFallbackValue(FakeSyncSessionEvent());
   });
 
-  final testDate = DateTime(2024, 1, 15);
+  setUp(() {
+    now = DateTime(2026, 10, 3, 12);
+    sessionStates = StreamController<SyncSessionState>.broadcast();
+    sessionBloc = MockSyncSessionBloc();
+    when(() => sessionBloc.stream).thenAnswer((_) => sessionStates.stream);
+    when(() => sessionBloc.state).thenReturn(const SyncSessionInitial());
+    syncBloc = MockSynchronizationBloc();
+    when(() => syncBloc.stream).thenAnswer((_) => const Stream.empty());
+    configBloc = MockSyncConfigBloc();
+    when(() => configBloc.stream).thenAnswer((_) => const Stream.empty());
+    when(() => configBloc.state).thenReturn(SyncConfigLoaded(TestSyncConfigs.dailySync));
+  });
 
-  final testSynchronizations = [
-    Synchronization(
-      id: 'sync-1',
-      startedAt: testDate,
-      status: SynchronizationStatus.completed,
-      totalFiles: 100,
-      uploadedFiles: 100,
-      failedFiles: 0,
-    ),
-    Synchronization(
-      id: 'sync-2',
-      startedAt: testDate.subtract(const Duration(days: 1)),
-      status: SynchronizationStatus.failed,
-      totalFiles: 50,
-      uploadedFiles: 30,
-      failedFiles: 20,
-    ),
-  ];
+  Synchronization session(String id, SynchronizationStatus status) => Synchronization(
+        id: id,
+        startedAt: DateTime.now().subtract(const Duration(hours: 2)),
+        status: status,
+        totalFiles: 10,
+        uploadedFiles: 10,
+        failedFiles: 0,
+      );
 
-  Widget buildTestWidget(SynchronizationState state) {
-    when(() => mockBloc.state).thenReturn(state);
-    when(() => mockBloc.stream).thenAnswer((_) => Stream.value(state));
+  tearDown(() => sessionStates.close());
 
-    return MaterialApp(
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+  Future<void> pump(WidgetTester tester, SynchronizationState state, {bool background = true}) async {
+    setUpCustomScreenSize(tester, 390, 1400);
+    when(() => syncBloc.state).thenReturn(state);
+    await tester.pumpWidget(makeTestableWidgetWithBlocs(
+      providers: [
+        BlocProvider<SynchronizationBloc>.value(value: syncBloc),
+        BlocProvider<SyncConfigBloc>.value(value: configBloc),
+        BlocProvider<SyncSessionBloc>.value(value: sessionBloc),
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('es'),
-      ],
-      home: BlocProvider<SynchronizationBloc>.value(
-        value: mockBloc,
-        child: const SynchronizationPage(),
-      ),
-    );
+      child: SynchronizationPage(backgroundCheck: () async => background, clock: () => now),
+    ));
+    await tester.pump();
   }
 
+  /// Emits a backup state as the real bloc would.
+  Future<void> emitSession(WidgetTester tester, SyncSessionState state) async {
+    when(() => sessionBloc.state).thenReturn(state);
+    sessionStates.add(state);
+    await tester.pump();
+  }
+
+  SynchronizationsLoaded loaded(int count, {bool hasMore = false}) => SynchronizationsLoaded(
+        sessions: [for (var i = 0; i < count; i++) session('$i', SynchronizationStatus.completed)],
+        hasMore: hasMore,
+        currentPage: 0,
+      );
+
   group('SynchronizationPage', () {
-    testWidgets('should display AppBar with title', (tester) async {
-      when(() => mockBloc.state).thenReturn(const SynchronizationsLoading());
-      when(() => mockBloc.stream)
-          .thenAnswer((_) => Stream.value(const SynchronizationsLoading()));
+    // ==================== HAPPY PATH TESTS ====================
 
-      await tester.pumpWidget(buildTestWidget(const SynchronizationsLoading()));
-
-      expect(find.byType(AppBar), findsOneWidget);
-    });
-
-    testWidgets('should display loading indicator when state is SynchronizationsLoading',
-        (tester) async {
-      await tester.pumpWidget(buildTestWidget(const SynchronizationsLoading()));
-
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    });
-
-    testWidgets('should display error state when state is SynchronizationError',
-        (tester) async {
-      const errorState = SynchronizationError(NetworkFailure());
-
-      await tester.pumpWidget(buildTestWidget(errorState));
-
-      expect(find.byType(ErrorSynchronizationState), findsOneWidget);
-    });
-
-    testWidgets('should trigger LoadSynchronizations on error retry', (tester) async {
-      const errorState = SynchronizationError(NetworkFailure());
-
-      await tester.pumpWidget(buildTestWidget(errorState));
-      await tester.pump();
-
-      final retryButton = find.text('Try again');
-      expect(retryButton, findsOneWidget);
-
-      await tester.tap(retryButton);
-      await tester.pump();
-
-      verify(() => mockBloc.add(const LoadSynchronizations())).called(1);
-    });
-
-    testWidgets('should display empty state when loaded with no sessions',
-        (tester) async {
-      const emptyState = SynchronizationsLoaded(
-        sessions: [],
+    testWidgets('should show the Backup header, status card and activity', (tester) async {
+      // Arrange & Act
+      await pump(tester, SynchronizationsLoaded(
+        sessions: [session('1', SynchronizationStatus.completed), session('2', SynchronizationStatus.failed)],
         hasMore: false,
         currentPage: 0,
-      );
+      ));
 
-      await tester.pumpWidget(buildTestWidget(emptyState));
-
-      expect(find.byType(EmptySynchronizationState), findsOneWidget);
-    });
-
-    testWidgets('should display SynchronizationStatusCard when loaded with sessions',
-        (tester) async {
-      final loadedState = SynchronizationsLoaded(
-        sessions: testSynchronizations,
-        hasMore: false,
-        currentPage: 0,
-      );
-
-      await tester.pumpWidget(buildTestWidget(loadedState));
-      await tester.pump();
-
+      // Assert
+      expect(find.byType(ScreenHeader), findsOneWidget);
+      expect(find.text('Backup'), findsOneWidget);
       expect(find.byType(SynchronizationStatusCard), findsOneWidget);
-    });
-
-    testWidgets('should display list of synchronization items', (tester) async {
-      final loadedState = SynchronizationsLoaded(
-        sessions: testSynchronizations,
-        hasMore: false,
-        currentPage: 0,
-      );
-
-      await tester.pumpWidget(buildTestWidget(loadedState));
-      await tester.pump();
-
+      expect(find.text('Activity'), findsOneWidget);
       expect(find.byType(SynchronizationListItem), findsNWidgets(2));
+      expect(find.byType(AppBar), findsNothing);
     });
 
-    testWidgets('should display RefreshIndicator when loaded', (tester) async {
-      final loadedState = SynchronizationsLoaded(
-        sessions: testSynchronizations,
+    testWidgets('should base the status card on the latest session', (tester) async {
+      // Arrange & Act
+      await pump(tester, SynchronizationsLoaded(
+        sessions: [session('1', SynchronizationStatus.completed), session('2', SynchronizationStatus.failed)],
         hasMore: false,
         currentPage: 0,
-      );
+      ));
 
-      await tester.pumpWidget(buildTestWidget(loadedState));
-      await tester.pump();
-
-      expect(find.byType(RefreshIndicator), findsOneWidget);
+      // Assert
+      final card = tester.widget<SynchronizationStatusCard>(find.byType(SynchronizationStatusCard));
+      expect(card.latestSync!.id, '1');
+      expect(card.config, TestSyncConfigs.dailySync);
     });
 
-    testWidgets('should trigger RefreshSynchronizations on pull to refresh',
-        (tester) async {
-      final loadedState = SynchronizationsLoaded(
-        sessions: testSynchronizations,
-        hasMore: false,
-        currentPage: 0,
-      );
+    testWidgets('should hide the activity section without sessions', (tester) async {
+      // Arrange & Act
+      await pump(tester, const SynchronizationsLoaded(sessions: [], hasMore: false, currentPage: 0));
 
-      await tester.pumpWidget(buildTestWidget(loadedState));
-      await tester.pump();
-
-      await tester.drag(
-        find.byType(RefreshIndicator),
-        const Offset(0, 300),
-      );
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-      await tester.pump(const Duration(seconds: 1));
-
-      verify(() => mockBloc.add(const RefreshSynchronizations())).called(1);
+      // Assert
+      expect(find.text('Activity'), findsNothing);
+      expect(find.text("You haven't backed up yet"), findsOneWidget);
     });
 
-    testWidgets('should display loading indicator when hasMore is true and isLoadingMore',
-        (tester) async {
-      final loadedState = SynchronizationsLoaded(
-        sessions: testSynchronizations,
+    testWidgets('should hide the condition pills until the config loads', (tester) async {
+      // Arrange
+      when(() => configBloc.state).thenReturn(SyncConfigLoading());
+
+      // Act
+      await pump(tester, const SynchronizationsLoaded(sessions: [], hasMore: false, currentPage: 0));
+
+      // Assert
+      expect(find.byType(BackupConditionsRow), findsNothing);
+    });
+
+    // ==================== LOADING & ERROR TESTS ====================
+
+    testWidgets('should show a spinner while loading', (tester) async {
+      // Arrange & Act
+      await pump(tester, const SynchronizationsLoading());
+
+      // Assert
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('Backup'), findsOneWidget);
+    });
+
+    testWidgets('should show a localized error with retry', (tester) async {
+      // Arrange
+      await pump(tester, const SynchronizationError(NetworkFailure()));
+
+      // Act
+      await tester.tap(find.byIcon(Icons.refresh_rounded));
+      // ErrorDisplay shows its own spinner briefly before retrying.
+      await tester.pump(const Duration(seconds: 2));
+
+      // Assert
+      expect(find.byType(ErrorDisplay), findsOneWidget);
+      verify(() => syncBloc.add(const LoadSynchronizations())).called(1);
+    });
+
+    testWidgets('should show the loader while loading more sessions of the full list', (tester) async {
+      // Arrange
+      await pump(tester, SynchronizationsLoaded(
+        sessions: [session('1', SynchronizationStatus.completed)],
         hasMore: true,
         currentPage: 0,
         isLoadingMore: true,
-      );
-
-      await tester.pumpWidget(buildTestWidget(loadedState));
-      await tester.pump();
-
-      // Loading indicator is at the bottom, need to scroll or find it with skipOffstage
-      expect(find.byType(CircularProgressIndicator, skipOffstage: false), findsAtLeastNWidgets(1));
-    });
-
-    testWidgets('should not display loading indicator when hasMore is false',
-        (tester) async {
-      final loadedState = SynchronizationsLoaded(
-        sessions: testSynchronizations,
-        hasMore: false,
-        currentPage: 0,
-        isLoadingMore: false,
-      );
-
-      await tester.pumpWidget(buildTestWidget(loadedState));
-      await tester.pump();
-
-      // Should find no CircularProgressIndicator (since none are visible)
+      ));
       expect(find.byType(CircularProgressIndicator), findsNothing);
-    });
 
-    testWidgets('should trigger LoadMoreSynchronizations on scroll to bottom',
-        (tester) async {
-      final loadedState = SynchronizationsLoaded(
-        sessions: testSynchronizations,
-        hasMore: true,
-        currentPage: 0,
-      );
-
-      await tester.pumpWidget(buildTestWidget(loadedState));
+      // Act
+      await tester.tap(find.text('See all'));
       await tester.pump();
 
-      // Scroll to bottom
-      await tester.drag(
-        find.byType(CustomScrollView),
-        const Offset(0, -1000),
-      );
-      await tester.pump();
-
-      verify(() => mockBloc.add(const LoadMoreSynchronizations())).called(greaterThan(0));
-    });
-
-    testWidgets('should display CustomScrollView when loaded with sessions',
-        (tester) async {
-      final loadedState = SynchronizationsLoaded(
-        sessions: testSynchronizations,
-        hasMore: false,
-        currentPage: 0,
-      );
-
-      await tester.pumpWidget(buildTestWidget(loadedState));
-      await tester.pump();
-
-      expect(find.byType(CustomScrollView), findsOneWidget);
-    });
-
-    testWidgets('should display default loading when state is SynchronizationStarting',
-        (tester) async {
-      await tester.pumpWidget(buildTestWidget(const SynchronizationStarting()));
-
+      // Assert
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('should handle single synchronization session', (tester) async {
-      final loadedState = SynchronizationsLoaded(
-        sessions: [testSynchronizations.first],
-        hasMore: false,
-        currentPage: 0,
-      );
+    // ==================== BACKUP PROCESS TESTS ====================
 
-      await tester.pumpWidget(buildTestWidget(loadedState));
-      await tester.pump();
+    testWidgets('should start the backup in place without leaving the tab', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
 
-      expect(find.byType(SynchronizationListItem), findsOneWidget);
+      // Act
+      await tester.tap(find.text('Back up now'));
+      await tester.pump(const Duration(milliseconds: 60));
+
+      // Assert
+      verify(() => sessionBloc.add(const SyncSessionReset())).called(1);
+      verify(() => sessionBloc.add(any(that: isA<SyncSessionStarted>()))).called(1);
+      expect(find.byType(SynchronizationPage), findsOneWidget);
     });
 
-    testWidgets('should display historic section title when loaded with sessions',
-        (tester) async {
-      final loadedState = SynchronizationsLoaded(
-        sessions: testSynchronizations,
-        hasMore: false,
-        currentPage: 0,
-      );
+    testWidgets('should follow the running backup in the status card', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
 
-      await tester.pumpWidget(buildTestWidget(loadedState));
+      // Act
+      await emitSession(tester, const SyncSessionUploading(uploadCount: 3, totalCount: 12));
+
+      // Assert
+      expect(find.text('Backing up 3 of 12'), findsOneWidget);
+      expect(find.text('Back up now'), findsNothing);
+      expect(find.text('Cancel'), findsOneWidget);
+    });
+
+    testWidgets('should estimate the time left once enough files are uploaded', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionUploading(uploadCount: 0, totalCount: 13));
+
+      // Act: 3 files in 3 minutes → 1 min per file, 10 left
+      now = now.add(const Duration(minutes: 3));
+      await emitSession(tester, const SyncSessionUploading(uploadCount: 3, totalCount: 13));
+
+      // Assert
+      expect(find.text('About 10 min left'), findsOneWidget);
+    });
+
+    testWidgets('should show the time left and how much is left to upload', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionUploading(uploadCount: 0, totalCount: 13));
+
+      // Act: 3 files in 3 minutes → 1 min per file, 10 left
+      now = now.add(const Duration(minutes: 3));
+      await emitSession(tester, const SyncSessionUploading(uploadCount: 3, totalCount: 13, remainingBytes: 210 * 1024 * 1024));
+
+      // Assert
+      expect(find.text('About 10 min left · 210 MB left to upload'), findsOneWidget);
+    });
+
+    testWidgets('should say the backup keeps running in the background', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+
+      // Act
+      await emitSession(tester, const SyncSessionFetchingFiles());
+
+      // Assert
+      expect(find.textContaining('You can leave the app'), findsOneWidget);
+    });
+
+    testWidgets('should not promise background work when the OS may stop it', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1), background: false);
+
+      // Act
+      await emitSession(tester, const SyncSessionFetchingFiles());
+
+      // Assert
+      expect(find.textContaining('You can leave the app'), findsNothing);
+    });
+
+    testWidgets('should cancel the backup after confirming', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionUploading(uploadCount: 3, totalCount: 12));
+
+      // Act
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Yes, cancel'));
+      await tester.pumpAndSettle();
+
+      // Assert
+      verify(() => sessionBloc.add(const SyncSessionCancelled())).called(1);
+      expect(find.text('Cancelling…'), findsOneWidget);
+    });
+
+    testWidgets('should report a cancelled backup and refresh the activity', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionUploading(uploadCount: 3, totalCount: 12));
+
+      // Act
+      await emitSession(tester, const SyncSessionCancelling(3));
+
+      // Assert
+      expect(find.text('Backup cancelled'), findsOneWidget);
+      expect(find.text('Back up now'), findsOneWidget);
+      verify(() => syncBloc.add(const RefreshSynchronizations())).called(1);
+    });
+
+    testWidgets('should report the saved items when the backup finishes', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionCompleting());
+
+      // Act
+      await emitSession(tester, SyncSessionSuccess(SyncResult(totalFiles: 12, uploadedFiles: 12, failedFiles: 0)));
+
+      // Assert
+      expect(find.text('12 items saved'), findsWidgets);
+      expect(find.text('Back up now'), findsOneWidget);
+    });
+
+    testWidgets('should show the error of a failed backup with retry', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionFetchingFiles());
+
+      // Act
+      await emitSession(tester, const SyncSessionError(NetworkFailure()));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // Assert
+      expect(find.byType(SnackBar), findsOneWidget);
+      verify(() => syncBloc.add(const RefreshSynchronizations())).called(1);
+    });
+
+    // ==================== ACTIVITY TESTS ====================
+
+    testWidgets('should show the latest five backups until "See all" is tapped', (tester) async {
+      // Arrange
+      await pump(tester, loaded(8));
+      expect(find.byType(SynchronizationListItem), findsNWidgets(5));
+
+      // Act
+      await tester.tap(find.text('See all'));
       await tester.pump();
 
-      expect(find.byType(SliverToBoxAdapter), findsWidgets);
+      // Assert
+      expect(find.byType(SynchronizationListItem), findsNWidgets(8));
+      expect(find.text('See less'), findsOneWidget);
+    });
+
+    testWidgets('should not offer "See all" with few backups', (tester) async {
+      // Arrange & Act
+      await pump(tester, loaded(3));
+
+      // Assert
+      expect(find.text('See all'), findsNothing);
+    });
+
+    testWidgets('should start a new backup from a failed row', (tester) async {
+      // Arrange
+      await pump(tester, SynchronizationsLoaded(
+        sessions: [session('1', SynchronizationStatus.failed)],
+        hasMore: false,
+        currentPage: 0,
+      ));
+
+      // Act
+      await tester.tap(find.text('Retry'));
+      await tester.pump(const Duration(milliseconds: 60));
+
+      // Assert
+      verify(() => sessionBloc.add(any(that: isA<SyncSessionStarted>()))).called(1);
+    });
+
+    testWidgets('should hide retry on failed rows while a backup runs', (tester) async {
+      // Arrange
+      await pump(tester, SynchronizationsLoaded(
+        sessions: [session('1', SynchronizationStatus.failed)],
+        hasMore: false,
+        currentPage: 0,
+      ));
+
+      // Act
+      await emitSession(tester, const SyncSessionFetchingFiles());
+
+      // Assert
+      expect(find.text('Retry'), findsNothing);
     });
   });
 }

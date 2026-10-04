@@ -8,6 +8,7 @@ import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
 import 'package:photo_manager_app/features/gallery/domain/use_cases/get_files_use_case.dart';
+import 'package:photo_manager_app/features/gallery/domain/use_cases/get_pending_file_ids_use_case.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_state.dart';
 
@@ -17,15 +18,21 @@ import '../../domain/enums/file_filter.dart';
 class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
 
   final GetFilesUseCase getFilesUseCase;
+  final GetPendingFileIdsUseCase getPendingFileIdsUseCase;
   final AppEventBus eventBus;
   static const int _pageSize = 50;
+
+  /// Time the thumbnail of a file unmarked in the "Favorites" filter takes to fade out.
+  static const Duration unfavoritedExitDuration = Duration(milliseconds: 250);
 
   StreamSubscription<FileUpdatedEvent>? _fileUpdateSubscription;
   StreamSubscription<FolderUpdatedEvent>? _folderUpdateSubscription;
   StreamSubscription<SyncCompletedEvent>? _syncCompletedSubscription;
+  StreamSubscription<FavoritesChangedEvent>? _favoritesSubscription;
 
   GalleryBloc({
     required this.getFilesUseCase,
+    required this.getPendingFileIdsUseCase,
     required this.eventBus,
   }) : super(const GalleryStarting()) {
     on<LoadGallery>(_onLoadGallery);
@@ -36,6 +43,9 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     on<ToggleFileSelection>(_onToggleFileSelection);
     on<SelectAllFiles>(_onSelectAllFiles);
     on<ClearSelection>(_onClearSelection);
+    on<ReviewPendingFiles>(_onReviewPendingFiles);
+    on<FavoritesChanged>(_onFavoritesChanged);
+    on<RemoveUnfavoritedFiles>(_onRemoveUnfavoritedFiles);
 
     // Listen to file updates and auto-refresh
     _fileUpdateSubscription = eventBus.on<FileUpdatedEvent>().listen((_) {
@@ -51,6 +61,11 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     _syncCompletedSubscription = eventBus.on<SyncCompletedEvent>().listen((_) {
       add(const RefreshGallery());
     });
+
+    // Favorites marked elsewhere: update the hearts in place, without reloading
+    _favoritesSubscription = eventBus.on<FavoritesChangedEvent>().listen((event) {
+      add(FavoritesChanged(fileIds: event.fileIds, favorite: event.favorite));
+    });
   }
 
   @override
@@ -58,6 +73,7 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     _fileUpdateSubscription?.cancel();
     _folderUpdateSubscription?.cancel();
     _syncCompletedSubscription?.cancel();
+    _favoritesSubscription?.cancel();
     return super.close();
   }
 
@@ -191,6 +207,84 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
       Failure failure = ErrorHandler.handleError(e);
       emit(GalleryError(failure));
     }
+  }
+
+  /// Selects every pending file (one call, without the manual selection limit),
+  /// loads the first page of them for the grid and flags the review.
+  Future<void> _onReviewPendingFiles(ReviewPendingFiles event, Emitter<GalleryState> emit) async {
+
+    emit(const GalleryLoading(filter: FileFilter.pending));
+
+    try {
+      final pending = await getPendingFileIdsUseCase();
+      final result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: FileFilter.pending);
+
+      final selected = pending.fileIds.toSet();
+
+      emit(GalleryLoaded(
+        files: result.files,
+        groupedFiles: DateGroupingUtil.groupFilesByDate(result.files),
+        isSelectionMode: selected.isNotEmpty,
+        selectedFileIds: selected,
+        hasNext: result.hasNext,
+        currentPage: result.currentPage,
+        totalFilesCount: result.totalFilesCount,
+        totalPendingCount: result.totalPendingCount,
+        filter: FileFilter.pending,
+        reviewRequested: selected.isNotEmpty,
+        reviewSizeBytes: pending.totalSizeBytes,
+      ));
+    } catch (e) {
+      Failure failure = ErrorHandler.handleError(e);
+      emit(GalleryError(failure));
+    }
+  }
+
+  /// Updates the hearts of the loaded files. In the "Favorites" filter an
+  /// unmarked file fades out and then leaves the grid, and one marked again
+  /// reloads it.
+  void _onFavoritesChanged(FavoritesChanged event, Emitter<GalleryState> emit) {
+    final currentState = state;
+    if (currentState is! GalleryLoaded) return;
+
+    final ids = event.fileIds.toSet();
+    final onlyFavorites = currentState.filter.onlyFavorites;
+
+    if (!currentState.files.any((file) => ids.contains(file.id))) {
+      // A favorite that is not loaded yet in its own filter: reload to show it.
+      if (onlyFavorites && event.favorite) add(const RefreshGallery());
+      return;
+    }
+
+    final files = [
+      for (final file in currentState.files)
+        ids.contains(file.id) ? file.copyWith(isFavorite: event.favorite) : file,
+    ];
+    emit(currentState.copyWith(files: files, groupedFiles: DateGroupingUtil.groupFilesByDate(files)));
+
+    // The grid fades the unmarked thumbnails out first (see FilesGrid.fadeOutUnfavorited).
+    if (onlyFavorites && !event.favorite) {
+      Future.delayed(unfavoritedExitDuration, () {
+        if (!isClosed) add(const RemoveUnfavoritedFiles());
+      });
+    }
+  }
+
+  /// Removes the files that are still unmarked (a failed change may have marked them again).
+  void _onRemoveUnfavoritedFiles(RemoveUnfavoritedFiles event, Emitter<GalleryState> emit) {
+    final currentState = state;
+    if (currentState is! GalleryLoaded || !currentState.filter.onlyFavorites) return;
+
+    final removedIds = {for (final file in currentState.files) if (!file.isFavorite) file.id};
+    if (removedIds.isEmpty) return;
+
+    final files = currentState.files.where((file) => file.isFavorite).toList();
+    emit(currentState.copyWith(
+      files: files,
+      groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+      totalFilesCount: currentState.totalFilesCount - removedIds.length,
+      selectedFileIds: currentState.selectedFileIds.difference(removedIds),
+    ));
   }
 
   void _onEnterSelectionMode(EnterSelectionMode event, Emitter<GalleryState> emit) {

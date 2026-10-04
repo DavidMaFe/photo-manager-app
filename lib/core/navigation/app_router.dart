@@ -1,3 +1,7 @@
+import 'package:photo_manager_app/features/file_management/presentation/models/album_viewer_context.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
+import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +24,6 @@ import 'package:photo_manager_app/features/folders/presentation/pages/folders_pa
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/pages/gallery_page.dart';
-import 'package:photo_manager_app/features/notification/presentation/pages/notifications_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
@@ -137,6 +140,12 @@ class AppRouter {
               );
             },
           ),
+          // Notifications are now the Activity section of the Backup tab.
+          GoRoute(
+            path: RoutePaths.notifications,
+            redirect: (context, state) => RoutePaths.sync,
+          ),
+
           GoRoute(
               path: '/file/:fileId',
               name: RouteNames.fileDetail,
@@ -146,16 +155,19 @@ class AppRouter {
                 final files = extra?['files'] as List<GalleryFile>? ?? [];
                 final initialIndex = extra?['initialIndex'] ?? 0;
                 final totalFilesCount = extra?['totalFilesCount'] as int?;
+                final albumContext = extra?['albumContext'] as AlbumViewerContext?;
 
                 return MultiBlocProvider(
                   providers: [
                     BlocProvider(create: (context) => sl<FileManagementBloc>()),
-                    BlocProvider(create: (context) => sl<ManageFolderBloc>())
+                    BlocProvider(create: (context) => sl<ManageFolderBloc>()),
+                    BlocProvider(create: (context) => sl<FavoritesBloc>()),
                   ],
                   child: FileDetailPage(
                     files: files,
                     initialIndex: initialIndex,
-                    totalFilesCount: totalFilesCount
+                    totalFilesCount: totalFilesCount,
+                    albumContext: albumContext,
                   ),
                 );
               }
@@ -215,9 +227,14 @@ class AppRouter {
                             builder: (context, state) {
                               final folderId = state.pathParameters['folderId']!;
 
-                              return BlocProvider(
-                                create: (context) => sl<FolderContentBloc>()
-                                  ..add(LoadFolderContent(folderId: folderId)),
+                              return MultiBlocProvider(
+                                providers: [
+                                  BlocProvider(
+                                    create: (context) => sl<FolderContentBloc>()
+                                      ..add(LoadFolderContent(folderId: folderId)),
+                                  ),
+                                  BlocProvider(create: (context) => sl<FavoritesBloc>()),
+                                ],
                                 child: FolderContentPage(folderId: folderId),
                               );
                             },
@@ -233,27 +250,26 @@ class AppRouter {
                     GoRoute(
                       path: RoutePaths.sync,
                       name: RouteNames.sync,
-                      builder: (context, state) => BlocProvider(
-                        create: (context) => sl<SynchronizationBloc>()
-                          ..add(const LoadSynchronizations()),
+                      builder: (context, state) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider(
+                            create: (context) => sl<SynchronizationBloc>()
+                              ..add(const LoadSynchronizations()),
+                          ),
+                          // Feeds the backup condition pills of the status card.
+                          BlocProvider(
+                            create: (context) => sl<SyncConfigBloc>()..add(LoadSyncConfig()),
+                          ),
+                          // Singleton: the running backup outlives the page.
+                          BlocProvider.value(value: sl<SyncSessionBloc>()),
+                        ],
                         child: const SynchronizationPage(),
                       )
                     ),
                   ],
                 ),
 
-                // Branch 3: Notifications
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: RoutePaths.notifications,
-                      name: RouteNames.notifications,
-                      builder: (context, state) => const NotificationsPage()
-                    ),
-                  ],
-                ),
-
-                // Branch 4: Profile
+                // Branch 3: Profile
                 StatefulShellBranch(
                   routes: [
                     GoRoute(
@@ -269,7 +285,9 @@ class AppRouter {
                             name: RouteNames.editProfile,
                             builder: (context, state) => BlocProvider.value(
                               value: sl<ProfileBloc>(),
-                              child: const EditProfilePage(),
+                              child: EditProfilePage(
+                                scrollToPassword: state.extra == ProfilePage.passwordSection,
+                              ),
                             ),
                           ),
                           GoRoute(
@@ -299,7 +317,7 @@ class AppRouter {
                                   final initialIndex = extra?['initialIndex'] ?? 0;
 
                                   return BlocProvider.value(
-                                    value: sl<TrashBloc>(),
+                                    value: extra?['bloc'] as TrashBloc? ?? sl<TrashBloc>(),
                                     child: TrashFileDetailPage(
                                       files: files,
                                       initialIndex: initialIndex

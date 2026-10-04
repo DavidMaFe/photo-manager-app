@@ -195,6 +195,16 @@ class ErrorHandler {
           errorResponse: errorResponse,
         );
 
+      case FailureCodes.folderCoversLimitExceeded:
+      case FailureCodes.folderCoverDuplicated:
+      case FailureCodes.folderCoverFileNotValid:
+      case FailureCodes.folderCoverVideoNotAllowed:
+      case FailureCodes.folderCoverReplaceNotValid:
+        return ValidationFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
       // ==================== Password Reset Domain Errors ====================
       case FailureCodes.expiredResetCode:
       case FailureCodes.invalidResetCode:

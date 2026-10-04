@@ -1,7 +1,12 @@
 import 'dart:ui';
 
+import 'package:photo_manager_app/core/services/timezone_service.dart';
+
 /// Utility class for generating HTTP headers with proper localization support
 class HttpHeadersUtil {
+  /// Header with the device time zone (IANA id). The backend formats dates in it.
+  static const String timezoneHeader = 'X-Timezone';
+
   /// Generates standard JSON headers with Accept-Language based on current locale
   ///
   /// The Accept-Language header tells the backend which language the client prefers.
@@ -10,19 +15,17 @@ class HttpHeadersUtil {
   /// Returns a Map with:
   /// - Content-Type: application/json
   /// - Accept-Language: <current-locale> (e.g., "es", "en")
+  /// - X-Timezone: <device-time-zone> (e.g., "Europe/Madrid")
   static Map<String, String> getJsonHeaders() {
-    final locale = PlatformDispatcher.instance.locale;
-    final languageCode = locale.languageCode; // e.g., 'es', 'en'
-
     return {
       'Content-Type': 'application/json',
-      'Accept-Language': languageCode,
+      ..._localeHeaders(),
     };
   }
 
   /// Generates JSON headers with authorization token
   ///
-  /// Includes both Content-Type, Accept-Language, and Authorization headers.
+  /// Includes both Content-Type, Accept-Language, X-Timezone and Authorization headers.
   ///
   /// Parameters:
   /// - token: The authentication token (can be null, will throw if missing)
@@ -30,6 +33,7 @@ class HttpHeadersUtil {
   /// Returns a Map with:
   /// - Content-Type: application/json
   /// - Accept-Language: <current-locale>
+  /// - X-Timezone: <device-time-zone>
   /// - Authorization: Bearer <token>
   ///
   /// Throws [Exception] if token is null
@@ -38,12 +42,9 @@ class HttpHeadersUtil {
       throw Exception('Authentication token is required but was not found');
     }
 
-    final locale = PlatformDispatcher.instance.locale;
-    final languageCode = locale.languageCode;
-
     return {
       'Content-Type': 'application/json',
-      'Accept-Language': languageCode,
+      ..._localeHeaders(),
       'Authorization': 'Bearer $token',
     };
   }
@@ -56,13 +57,9 @@ class HttpHeadersUtil {
   ///
   /// Returns a Map with:
   /// - Accept-Language: <current-locale> (e.g., "es", "en")
+  /// - X-Timezone: <device-time-zone>
   static Map<String, String> getMultipartHeaders() {
-    final locale = PlatformDispatcher.instance.locale;
-    final languageCode = locale.languageCode;
-
-    return {
-      'Accept-Language': languageCode,
-    };
+    return _localeHeaders();
   }
 
   /// Generates headers with only authorization token (no Content-Type)
@@ -74,6 +71,7 @@ class HttpHeadersUtil {
   ///
   /// Returns a Map with:
   /// - Accept-Language: <current-locale>
+  /// - X-Timezone: <device-time-zone>
   /// - Authorization: Bearer <token>
   ///
   /// Throws [Exception] if token is null
@@ -82,12 +80,18 @@ class HttpHeadersUtil {
       throw Exception('Authentication token is required but was not found');
     }
 
-    final locale = PlatformDispatcher.instance.locale;
-    final languageCode = locale.languageCode;
+    return {
+      ..._localeHeaders(),
+      'Authorization': 'Bearer $token',
+    };
+  }
 
+  /// Language and time zone of the device, shared by every request.
+  static Map<String, String> _localeHeaders() {
+    final languageCode = PlatformDispatcher.instance.locale.languageCode; // e.g., 'es', 'en'
     return {
       'Accept-Language': languageCode,
-      'Authorization': 'Bearer $token',
+      timezoneHeader: TimezoneService.current,
     };
   }
 }

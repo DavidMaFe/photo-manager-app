@@ -1,544 +1,381 @@
+import 'package:photo_manager_app/core/navigation/shell_selection_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
-import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
-import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
-import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
-import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
+import 'package:photo_manager_app/core/widgets/app_context_menu.dart';
+import 'package:photo_manager_app/core/widgets/empty_state.dart';
+import 'package:photo_manager_app/core/widgets/filter_pill.dart';
+import 'package:photo_manager_app/core/widgets/icon_circle_button.dart';
+import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
+import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
+import 'package:photo_manager_app/core/widgets/selection_header.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
-import 'package:photo_manager_app/features/folders/presentation/bloc/folder/folder_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_bloc.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_event.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/breadcrumbs_bar.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/create_folder_modal.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/subfolders_section.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
-import 'package:photo_manager_app/features/gallery/presentation/widgets/date_section_header.dart';
-import 'package:photo_manager_app/features/gallery/presentation/widgets/file_thumbnail_card.dart';
-import 'package:photo_manager_app/features/gallery/presentation/widgets/filter_chips.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/file_filter_label.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/files_grid.dart';
+import 'package:photo_manager_app/config/app_config.dart';
+import 'package:photo_manager_app/core/widgets/selection_action_bar.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_event.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_state.dart';
+import 'package:photo_manager_app/features/file_management/presentation/models/album_viewer_context.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_cover_card.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_covers_sheet.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/cover_picker_sheet.dart';
+import 'package:photo_manager_app/core/constants/app_constants.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/folder_card.dart';
 
 
-class FolderContentPage extends StatefulWidget {
+class FolderContentPage extends StatelessWidget {
+
+  /// Filters offered inside an album ("to review" only applies to the gallery).
+  static const filters = [FileFilter.all, FileFilter.images, FileFilter.videos];
 
   final String folderId;
 
   const FolderContentPage({super.key, required this.folderId});
 
   @override
-  State<FolderContentPage> createState() => _FolderContentPageState();
-}
-
-class _FolderContentPageState extends State<FolderContentPage> {
-
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-
-    final state = context.read<FolderContentBloc>().state;
-
-    if (state is! FolderContentLoaded) return;
-    if (!state.hasMoreFiles) return;
-    if (state is FolderContentLoadingMore) return;
-
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.position.pixels;
-
-    if (currentScroll >= maxScroll * 0.9) {
-      context.read<FolderContentBloc>().add(const LoadMoreFiles());
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
 
     return BlocConsumer<FolderContentBloc, FolderContentState>(
-          listener: (context, state) {
-            if (state is FolderContentLoaded && state.selectionLimitReached) {
-              final l10n = AppLocalizations.of(context)!;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.selectionLimitReached),
-                  duration: const Duration(seconds: 3),
-                ),
-              );
-            }
-          },
-          builder: (context, state) {
+      listener: (context, state) {
+        if (state is FolderContentLoaded && state.selectionLimitReached) {
+          final l10n = AppLocalizations.of(context)!;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.selectionLimitReached),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
 
-            final isSelectionMode = state is FolderContentLoaded && state.isSelectionMode;
-            final selectedCount = isSelectionMode ? state.selectedFileIds.length : 0;
+        final isSelectionMode = state is FolderContentLoaded && state.isSelectionMode;
+        final selectedCount = isSelectionMode ? state.selectedFileIds.length : 0;
 
-            return Scaffold(
-              appBar: _buildAppBar(context, state, isSelectionMode, selectedCount),
-              body: Column(
+        final page = ReportSelectionMode(
+          active: isSelectionMode,
+          child: Scaffold(
+            appBar: isSelectionMode ? null : _buildTopBar(context),
+            body: SafeArea(
+              top: isSelectionMode,
+              bottom: false,
+              child: Column(
                 children: [
-                  // Always at index 0 — height is 0 when not refreshing.
+                  if (isSelectionMode) _buildSelectionHeader(context, state, selectedCount),
+                  // Always present — height is 0 when not refreshing.
                   // A conditional `if` would shift the indices of all siblings,
-                  // causing the CustomScrollView to be remounted and losing scroll position.
+                  // causing the scroll view to be remounted and losing scroll position.
                   SizedBox(
                     height: (state is FolderContentLoaded && state.isRefreshing) ? 2 : 0,
-                    child: const LinearProgressIndicator(
-                      backgroundColor: Colors.transparent,
-                      color: PhotoManagerColors.primary,
+                    child: LinearProgressIndicator(
+                      backgroundColor: context.palette.background,
+                      color: context.palette.accent,
                     ),
                   ),
-                  _buildFilters(context, state),
-                  _buildSubfolders(context, state),
                   Expanded(child: _buildMainContent(context, state))
                 ],
               ),
-              floatingActionButton: _buildFAB(context, state, isSelectionMode, selectedCount),
-            );
-          }
+            ),
+            bottomNavigationBar: isSelectionMode
+                ? ManageSelectionBar(
+                    fileIds: state.selectedFileIds.toList(),
+                    selectedSizeBytes: state.selectedSizeBytes,
+                    onFinished: () => context.read<FolderContentBloc>().add(const ExitSelectionMode()),
+                    albumActions: AppConfig.favoritesAndCoversEnabled
+                        ? [_coverAction(context, state), _favoritesAction(context, state)]
+                        : null,
+                    label: AppConfig.favoritesAndCoversEnabled ? AppLocalizations.of(context)!.upToThreeCovers(selectedCount) : null,
+                  )
+                : null,
+          ),
+        );
+
+        if (!AppConfig.favoritesAndCoversEnabled) return page;
+        return BlocListener<FavoritesBloc, FavoritesState>(
+          listenWhen: (previous, current) => current.outcome != null && previous.outcome != current.outcome,
+          listener: _showFavoritesOutcome,
+          child: page,
+        );
+      }
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, FolderContentState state, bool isSelectionMode, int selectedCount) {
+  /// "Cover" of the album selection: up to 3 photos (no videos). When it is not
+  /// available it still answers with the reason.
+  SelectionAction _coverAction(BuildContext context, FolderContentLoaded state) {
+    final l10n = AppLocalizations.of(context)!;
+    final selected = state.files.where((file) => state.selectedFileIds.contains(file.id)).toList();
+    final hasVideo = selected.any((file) => file.isVideo);
+    final tooMany = state.selectedFileIds.length > kMaxAlbumCovers;
+    final available = selected.isNotEmpty && !hasVideo && !tooMany;
+
+    return SelectionAction(
+      icon: Symbols.auto_awesome_mosaic_rounded,
+      iconFill: 1,
+      label: l10n.cover,
+      style: SelectionActionStyle.primary,
+      dimmed: !available,
+      onPressed: () {
+        if (!available) {
+          _showSnackBar(context, hasVideo && !tooMany ? l10n.videosCannotBeCovers : l10n.chooseUpToThree);
+          return;
+        }
+        _openCoverPicker(context, [for (final file in selected) file.id]);
+      },
+    );
+  }
+
+  Future<void> _openCoverPicker(BuildContext context, List<String> fileIds) async {
+    final l10n = AppLocalizations.of(context)!;
+    final bloc = context.read<FolderContentBloc>();
+    final result = await CoverPickerSheet.show(context, fileIds);
+    if (!context.mounted) return;
+    switch (result) {
+      case CoversSaved(:final changedAlbums):
+        bloc.add(const ExitSelectionMode());
+        _showSnackBar(context, l10n.coverUpdated(changedAlbums));
+      case NoSharedAlbum():
+        _showSnackBar(context, l10n.noSharedAlbum);
+      case null:
+        break;
+    }
+  }
+
+  static void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  /// "Favorites" of the album selection: removes them if every selected file
+  /// already is one, marks them all otherwise.
+  SelectionAction _favoritesAction(BuildContext context, FolderContentLoaded state) {
+    final l10n = AppLocalizations.of(context)!;
+    final selected = state.files.where((file) => state.selectedFileIds.contains(file.id)).toList();
+    final allFavorite = selected.isNotEmpty && selected.every((file) => file.isFavorite);
+
+    return SelectionAction(
+      icon: Symbols.favorite_rounded,
+      iconFill: allFavorite ? 0 : 1,
+      label: allFavorite ? l10n.removeFromFavorites : l10n.filterFavorites,
+      onPressed: selected.isEmpty
+          ? null
+          : () {
+              context.read<FavoritesBloc>().add(SetFavorites(files: selected, favorite: !allFavorite));
+              context.read<FolderContentBloc>().add(const ExitSelectionMode());
+            },
+    );
+  }
+
+  void _showFavoritesOutcome(BuildContext context, FavoritesState state) {
+    final l10n = AppLocalizations.of(context)!;
+    final message = switch (state.outcome) {
+      FavoritesSaved(:final count, favorite: true) => l10n.favoritesAdded(count),
+      FavoritesSaved(:final count, favorite: false) => l10n.favoritesRemoved(count),
+      FavoritesFailed() => l10n.favoriteError,
+      null => null,
+    };
+    if (message == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  PreferredSizeWidget _buildTopBar(BuildContext context) {
 
     final l10n = AppLocalizations.of(context)!;
 
-    if (isSelectionMode) {
-      final areAllFilesSelected = state is FolderContentLoaded && state.areAllFilesSelected;
-
-      return AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            context.read<FolderContentBloc>().add(const ExitSelectionMode());
-          },
-        ),
-        title: Text(l10n.selectedFilesWithLimit(selectedCount)),
-        centerTitle: false,
-        elevation: 0,
-        backgroundColor: PhotoManagerColors.primary.withValues(alpha: 0.1),
-        actions: [
-          if (areAllFilesSelected)
-            TextButton.icon(
-              onPressed: () {
-                context.read<FolderContentBloc>().add(const DeselectAllFiles());
-              },
-              icon: const Icon(Icons.deselect, size: 20),
-              label: Text(l10n.deselectAll),
-              style: TextButton.styleFrom(
-                foregroundColor: PhotoManagerColors.primary
-              ),
-            )
-          else
-            TextButton.icon(
-              onPressed: () {
-                context.read<FolderContentBloc>().add(const SelectAllFiles());
-              },
-              icon: const Icon(Icons.select_all, size: 20),
-              label: Text(l10n.selectAll),
-              style: TextButton.styleFrom(
-                foregroundColor: PhotoManagerColors.primary
-              ),
-            ),
-          const SizedBox(width: 8)
-        ],
-      );
-    }
-
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => context.pop(),
-      ),
-      title: BlocBuilder<FolderContentBloc, FolderContentState>(
-        builder: (context, state) {
-          if (state is FolderContentLoaded) {
-            return BreadcrumbsBar(
-              currentFolder: state.currentFolder,
-              onNavigate: (folderId) {
-                if(folderId == null) {
-                  context.pop();
-                } else {
-                  context.pushReplacementNamed(
-                      RouteNames.folderContent,
-                      pathParameters: {'folderId': folderId}
-                  );
-                }
-              },
-            );
-          }
-
-          if (state is FolderContentLoading && state.previousFolder != null) {
-            return BreadcrumbsBar(
-              currentFolder: state.previousFolder!,
-              onNavigate: (folderId) {
-                if(folderId == null) {
-                  context.pop();
-                } else {
-                  context.pushReplacementNamed(
-                      RouteNames.folderContent,
-                      pathParameters: {'folderId': folderId}
-                  );
-                }
-              },
-            );
-          }
-          return Text(l10n.folder);
-        },
-      ),
-      centerTitle: false,
-      elevation: 0,
-      backgroundColor: Colors.white,
-    );
-  }
-
-  Widget _buildMainContent(BuildContext context, FolderContentState state) {
-
-    if (state is FolderContentLoading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-        ),
-      );
-    }
-
-    if (state is FolderContentLoaded) {
-      return _buildContent(context, state);
-    }
-
-    if (state is FolderContentLoadingMore) {
-      return _buildContentWithLoadingMore(context, state);
-    }
-
-    if (state is FolderContentError) {
-      final l10n = AppLocalizations.of(context)!;
-      return _buildErrorState(context, state, l10n);
-    }
-
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildContent(BuildContext context, FolderContentLoaded state) {
-
-    return RefreshIndicator(
-      onRefresh: () async {
-        context.read<FolderContentBloc>().add(const RefreshFolderContent());
-      },
-      child: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          if (state.groupedFiles.isNotEmpty)
-            ..._buildGroupedFileSlivers(context, state),
-          if (state.hasMoreFiles)
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            ),
-          if (state.subfolders.isEmpty && state.files.isEmpty)
-            SliverFillRemaining(
-              child: _buildEmptyState(context),
-            )
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildGroupedFileSlivers(BuildContext context, FolderContentLoaded state) {
-    final slivers = <Widget>[];
-    final l10n = AppLocalizations.of(context)!;
-
-    // Build month names array
-    final monthNames = [
-      l10n.january, l10n.february, l10n.march, l10n.april,
-      l10n.may, l10n.june, l10n.july, l10n.august,
-      l10n.september, l10n.october, l10n.november, l10n.december,
-    ];
-
-    // Relabel groups with localized strings
-    final localizedGroups = DateGroupingUtil.relabelGroups(
-      state.groupedFiles,
-      todayLabel: l10n.today,
-      yesterdayLabel: l10n.yesterday,
-      thisWeekLabel: l10n.thisWeek,
-      lastWeekLabel: l10n.lastWeek,
-      monthNames: monthNames,
-    );
-
-    for (final group in localizedGroups) {
-      // Add header for the date
-      slivers.add(
-        SliverPersistentHeader(
-          pinned: false,
-          delegate: DateSectionHeaderDelegate(label: group.label),
-        ),
-      );
-
-      // Add grid for files in this date group
-      slivers.add(
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 4,
-              mainAxisSpacing: 4,
-              childAspectRatio: 1,
-            ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final file = group.files[index];
-                final fileIndexInAllFiles = state.files.indexWhere((f) => f.id == file.id);
-                return FileThumbnailCard(
-                  file: file,
-                  isSelectionMode: state.isSelectionMode,
-                  isSelected: state.selectedFileIds.contains(file.id),
-                  onTap: () {
-                    if (state.isSelectionMode) {
-                      context.read<FolderContentBloc>().add(ToggleFileSelection(file.id));
-                    } else {
-                      _navigateToFileDetail(context, state.files, fileIndexInAllFiles, state.totalFilesCount);
-                    }
-                  },
-                  onLongPress: () {
-                    if (!state.isSelectionMode) {
-                      context.read<FolderContentBloc>().add(const EnterSelectionMode());
-                    }
-                    context.read<FolderContentBloc>().add(ToggleFileSelection(file.id));
-                  },
-                );
-              },
-              childCount: group.files.length,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return slivers;
-  }
-
-  Widget _buildFilters(BuildContext context, FolderContentState state) {
-
-    FileFilter currentFilter = FileFilter.all;
-
-    if (state is FolderContentLoaded) {
-      currentFilter = state.currentFilter;
-    } else if (state is FolderContentLoadingMore) {
-      currentFilter = state.currentFilter;
-    }
-
-    return FilterChips(
-      selectedFilter: currentFilter,
-      onFilterSelected: (filter) {
-        context.read<FolderContentBloc>().add(
-            FilterFilesInFolder(filter: filter)
-        );
-      },
-    );
-  }
-
-  Widget _buildSubfolders(BuildContext context, FolderContentState state) {
-
-    List<Folder> subfolders = [];
-
-    if (state is FolderContentLoading) {
-      subfolders = state.previousSubfolders ?? [];
-    } else if (state is FolderContentLoaded) {
-      subfolders = state.subfolders;
-    } else if (state is FolderContentLoadingMore) {
-      subfolders = state.subfolders;
-    }
-
-    if (subfolders.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return SubfoldersSection(
-      subfolders: subfolders,
-      onFolderTap: (subfolder) {
-        context.pushNamed(
-            RouteNames.folderContent,
-            pathParameters: {'folderId': subfolder.id}
-        );
-      },
-    );
-  }
-
-  Widget _buildContentWithLoadingMore(BuildContext context, FolderContentLoadingMore state) {
-
-    return CustomScrollView(
-      controller: _scrollController,
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.all(4),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
-                childAspectRatio: 1
-            ),
-            delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                  final file = state.files[index];
-                  return FileThumbnailCard(
-                    file: file,
-                    isSelectionMode: false,
-                    isSelected: false,
-                    onTap: () => _navigateToFileDetail(context, state.files, index, state.totalFilesCount),
-                  );
-                },
-                childCount: state.files.length
-            ),
-          ),
-        ),
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Center(
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
+    return SecondaryTopBar(
+      onBack: () => context.pop(),
+      actions: [
+        Builder(
+          builder: (buttonContext) => IconCircleButton(
+            icon: Symbols.more_vert_rounded,
+            tooltip: l10n.moreOptions,
+            onPressed: () => _showMoreMenu(buttonContext),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildSelectionHeader(BuildContext context, FolderContentLoaded state, int selectedCount) {
 
     final l10n = AppLocalizations.of(context)!;
+    final bloc = context.read<FolderContentBloc>();
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.folder_open,
-            size: 80,
-            color: Colors.grey.shade400
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.emptyFolder,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.emptyFolderDescription,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade500
-            ),
-            textAlign: TextAlign.center,
-          )
-        ],
-      ),
+    return SelectionHeader(
+      title: l10n.selectedCount(selectedCount),
+      subtitle: AppConfig.favoritesAndCoversEnabled ? l10n.inAlbum(state.currentFolder.name) : null,
+      closeTooltip: l10n.closeSelection,
+      onClose: () => bloc.add(const ExitSelectionMode()),
+      toggleLabel: state.areAllFilesSelected ? l10n.selectNone : l10n.selectAllShort,
+      onToggle: () => bloc.add(state.areAllFilesSelected ? const DeselectAllFiles() : const SelectAllFiles()),
     );
   }
 
-  Widget _buildErrorState(BuildContext context, FolderContentError state, AppLocalizations l10n) {
-    return ErrorDisplay(
-      failure: state.failure,
-      onRetry: () => context.read<FolderContentBloc>().add(
-        LoadFolderContent(folderId: widget.folderId)
-      ),
+  Future<void> _showMoreMenu(BuildContext buttonContext) async {
+    final l10n = AppLocalizations.of(buttonContext)!;
+    final box = buttonContext.findRenderObject() as RenderBox;
+    final position = box.localToGlobal(box.size.bottomRight(Offset.zero));
+
+    final action = await showAppContextMenu<String>(
+      buttonContext,
+      position: position,
+      items: [
+        AppMenuItem(value: 'subalbum', label: l10n.newSubalbum, icon: Symbols.create_new_folder_rounded),
+      ],
     );
+    if (action == 'subalbum' && buttonContext.mounted) {
+      CreateFolderModal.show(buttonContext, parentFolderId: folderId);
+    }
   }
 
-  Widget _buildFAB(BuildContext context, FolderContentState state, bool isSelectionMode, int selectedCount) {
-    
-    final l10n = AppLocalizations.of(context)!;
-    
-    if (isSelectionMode && selectedCount > 0) {
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: PhotoManagerColors.primary.withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4)
-            )
-          ]
-        ),
-        child: FloatingActionButton.extended(
-          onPressed: () => _showManageModal(context, (state as FolderContentLoaded).selectedFileIds.toList()),
-          backgroundColor: PhotoManagerColors.primary,
-          elevation: 0,
-          icon: const Icon(Icons.tune, size: 22, color: Colors.white),
-          label: Text(
-            selectedCount == 1 ? l10n.manageSingleFile : l10n.manageMultipleFiles(selectedCount),
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-              fontSize: 15
-            ),
-          ),
+  Widget _buildMainContent(BuildContext context, FolderContentState state) {
+
+    if (state is FolderContentLoaded) {
+      return _buildContent(
+        context,
+        folder: state.currentFolder,
+        subfolders: state.subfolders,
+        files: state.files,
+        groupedFiles: state.groupedFiles,
+        totalFilesCount: state.totalFilesCount,
+        filter: state.currentFilter,
+        hasMoreFiles: state.hasMoreFiles,
+        isLoadingMore: false,
+        isSelectionMode: state.isSelectionMode,
+        selectedFileIds: state.selectedFileIds,
+      );
+    }
+
+    if (state is FolderContentLoadingMore) {
+      return _buildContent(
+        context,
+        folder: state.currentFolder,
+        subfolders: state.subfolders,
+        files: state.files,
+        groupedFiles: state.groupedFiles,
+        totalFilesCount: state.totalFilesCount,
+        filter: state.currentFilter,
+        hasMoreFiles: true,
+        isLoadingMore: true,
+        isSelectionMode: false,
+        selectedFileIds: const {},
+      );
+    }
+
+    if (state is FolderContentError) {
+      return ErrorDisplay(
+        failure: state.failure,
+        onRetry: () => context.read<FolderContentBloc>().add(
+          LoadFolderContent(folderId: folderId)
         ),
       );
     }
-    
-    return FloatingActionButton(
-        onPressed: () => _showCreateModal(context),
-        backgroundColor: PhotoManagerColors.primary,
-        child: const Icon(Icons.add, color: Colors.white)
-    );
+
+    return const MediaGridSkeleton();
   }
 
-  void _showCreateModal(BuildContext context) {
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (modalContext) => BlocProvider.value(
-          value: context.read<FolderBloc>(),
-          child: CreateFolderModal(parentFolderId: widget.folderId),
-        )
-    );
-  }
+  Widget _buildContent(
+    BuildContext context, {
+    required Folder folder,
+    required List<Folder> subfolders,
+    required List<GalleryFile> files,
+    required List<FileDateGroup> groupedFiles,
+    required int totalFilesCount,
+    required FileFilter filter,
+    required bool hasMoreFiles,
+    required bool isLoadingMore,
+    required bool isSelectionMode,
+    required Set<String> selectedFileIds,
+  }) {
 
-  void _showManageModal(BuildContext context, List<String> fileIds) async {
-    await showModalBottomSheet<bool>(
-      useSafeArea: true,
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (modalContext) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: context.read<FileManagementBloc>()),
-          BlocProvider.value(value: context.read<ManageFolderBloc>())
+    final l10n = AppLocalizations.of(context)!;
+    final bloc = context.read<FolderContentBloc>();
+    final isEmpty = files.isEmpty && subfolders.isEmpty && filter == FileFilter.all;
+
+    return FilesGrid(
+      groupedFiles: groupedFiles,
+      hasNext: hasMoreFiles,
+      isLoadingMore: isLoadingMore,
+      isSelectionMode: isSelectionMode,
+      selectedFileIds: selectedFileIds,
+      onLoadMore: () => bloc.add(const LoadMoreFiles()),
+      onRefresh: () => bloc.add(const RefreshFolderContent()),
+      onSelect: () => bloc.add(const EnterSelectionMode()),
+      coverOfFolderId: folder.id,
+      leading: [
+        if (!isSelectionMode) ...[
+          SliverToBoxAdapter(child: _AlbumHeader(folder: folder, totalFilesCount: totalFilesCount)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: SubfoldersSection(
+                subfolders: subfolders,
+                onFolderTap: (subfolder) => context.pushNamed(
+                  RouteNames.folderContent,
+                  pathParameters: {'folderId': subfolder.id},
+                ),
+                onCreate: () => CreateFolderModal.show(context, parentFolderId: folderId),
+              ),
+            ),
+          ),
         ],
-        child: ManageFileModal(fileIds: fileIds, isMultiple: fileIds.length > 1),
-      )
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: FilterPillBar<FileFilter>(
+              items: [
+                for (final f in filters) FilterPillItem(value: f, label: f.label(l10n)),
+              ],
+              selected: filter,
+              onSelected: (f) => bloc.add(FilterFilesInFolder(filter: f)),
+            ),
+          ),
+        ),
+      ],
+      emptyState: isEmpty
+          ? EmptyState(
+              icon: Symbols.photo_album_rounded,
+              title: l10n.emptyFolder,
+              message: l10n.emptyFolderDescription,
+            )
+          : files.isEmpty
+              ? EmptyState(icon: Symbols.filter_alt_off_rounded, title: l10n.noFiles)
+              : null,
+      onFileTap: (file) {
+        if (isSelectionMode) {
+          bloc.add(ToggleFileSelection(file.id));
+        } else {
+          _navigateToFileDetail(context, folder, files, files.indexWhere((f) => f.id == file.id), totalFilesCount);
+        }
+      },
+      onFileLongPress: (file) {
+        if (!isSelectionMode) {
+          bloc.add(const EnterSelectionMode());
+        }
+        bloc.add(ToggleFileSelection(file.id));
+      },
     );
-
-    if (!context.mounted) return;
-
-    // Exit selection mode after modal is dismissed (regardless of result)
-    context.read<FolderContentBloc>().add(const ExitSelectionMode());
   }
 
-  void _navigateToFileDetail(BuildContext context, List<GalleryFile> files, int index, int totalFilesCount) {
+  void _navigateToFileDetail(BuildContext context, Folder folder, List<GalleryFile> files, int index, int totalFilesCount) {
     context.pushNamed(
       RouteNames.fileDetail,
       pathParameters: {'fileId': files[index].id},
@@ -546,7 +383,59 @@ class _FolderContentPageState extends State<FolderContentPage> {
         'files': files,
         'initialIndex': index,
         'totalFilesCount': totalFilesCount,
+        'albumContext': AlbumViewerContext.fromFolder(folder),
       },
+    );
+  }
+
+}
+
+/// Breadcrumbs, album name, item count and the months it covers.
+class _AlbumHeader extends StatelessWidget {
+  final Folder folder;
+  final int totalFilesCount;
+
+  const _AlbumHeader({required this.folder, required this.totalFilesCount});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final p = context.palette;
+    final dateRange = FolderCard.dateRangeFor(folder, l10n);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BreadcrumbsBar(
+            currentFolder: folder,
+            onNavigate: (parentId) {
+              if (parentId == null) {
+                context.pop();
+              } else {
+                context.pushReplacementNamed(RouteNames.folderContent, pathParameters: {'folderId': parentId});
+              }
+            },
+          ),
+          Semantics(
+            header: true,
+            child: Text(
+              folder.name,
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: p.ink),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            [l10n.itemsCount(totalFilesCount), if (dateRange != null) dateRange].join(' · '),
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.ink2),
+          ),
+          if (AppConfig.favoritesAndCoversEnabled) ...[
+            const SizedBox(height: 14),
+            AlbumCoverCard(folder: folder, onEdit: () => AlbumCoversSheet.show(context, folder)),
+          ],
+        ],
+      ),
     );
   }
 }

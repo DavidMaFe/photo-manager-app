@@ -1,5 +1,6 @@
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/devices/domain/entities/device.dart';
+import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 import 'package:photo_manager_app/features/sync_config/domain/entities/sync_config.dart';
 import 'package:photo_manager_app/features/sync_config/domain/enums/battery_preference.dart';
@@ -541,4 +542,36 @@ class TestSyncConfigJsonData {
     'notifyOnSuccess': true,
     'notifyOnFailure': true,
   };
+}
+
+/// Albums shared by the folders presentation tests.
+class TestFolders {
+  static final createdAt = DateTime(2024, 1, 15);
+
+  static Folder album({
+    String id = 'folder-1',
+    String name = 'Vacation',
+    String? parentFolderId,
+    String? path,
+    int fileCount = 42,
+    int subfolderCount = 3,
+    DateTime? oldestCapturedAt,
+    DateTime? newestCapturedAt,
+    List<String> coverFileIds = const [],
+    List<String> fallbackCoverFileIds = const [],
+  }) {
+    return Folder(
+      id: id,
+      name: name,
+      parentFolderId: parentFolderId,
+      path: path ?? '/$name',
+      createdAt: createdAt,
+      fileCount: fileCount,
+      subfolderCount: subfolderCount,
+      oldestCapturedAt: oldestCapturedAt,
+      newestCapturedAt: newestCapturedAt,
+      coverFileIds: coverFileIds,
+      fallbackCoverFileIds: fallbackCoverFileIds,
+    );
+  }
 }

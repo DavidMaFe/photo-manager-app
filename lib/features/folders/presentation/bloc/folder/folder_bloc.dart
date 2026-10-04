@@ -23,6 +23,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
   final AppEventBus eventBus;
 
   StreamSubscription<FolderUpdatedEvent>? _folderUpdateSubscription;
+  StreamSubscription<CoversChangedEvent>? _coversSubscription;
   bool _isPerformingOperation = false;
 
   FolderBloc({
@@ -45,11 +46,17 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
         add(const RefreshFolders());
       }
     });
+
+    // Chosen covers changed: reload the album mosaics
+    _coversSubscription = eventBus.on<CoversChangedEvent>().listen((_) {
+      add(const RefreshFolders());
+    });
   }
 
   @override
   Future<void> close() {
     _folderUpdateSubscription?.cancel();
+    _coversSubscription?.cancel();
     return super.close();
   }
 

@@ -1,8 +1,12 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
+import 'package:photo_manager_app/core/widgets/app_card.dart';
+import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
+import 'package:photo_manager_app/core/widgets/section_label.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_state.dart';
@@ -12,7 +16,11 @@ import 'package:photo_manager_app/features/profile/presentation/widgets/edit_pro
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+
+  /// Opens the page scrolled to the password section.
+  final bool scrollToPassword;
+
+  const EditProfilePage({super.key, this.scrollToPassword = false});
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -20,6 +28,7 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
+  final _passwordSectionKey = GlobalKey();
 
   late TextEditingController _nameController;
   late TextEditingController _surnameController;
@@ -44,6 +53,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (state is ProfileLoaded) {
       _nameController.text = state.userProfile.name;
       _surnameController.text = state.userProfile.surname ?? '';
+    }
+
+    if (widget.scrollToPassword) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final sectionContext = _passwordSectionKey.currentContext;
+        if (sectionContext != null) {
+          Scrollable.ensureVisible(sectionContext, duration: const Duration(milliseconds: 300));
+        }
+      });
     }
   }
 
@@ -109,17 +127,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: Text(l10n.editProfileTitle),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => context.pop(),
-        ),
-      ),
+      appBar: SecondaryTopBar(title: l10n.editProfileTitle, onBack: () => context.pop()),
       body: BlocConsumer<ProfileBloc, ProfileState>(
+        // Keep the form on screen while saving; the button shows the progress.
+        buildWhen: (previous, current) => current is ProfileLoaded || current is ProfileUpdateSuccess,
         listener: (context, state) {
           if (state is ProfileUpdating || state is PasswordChanging) {
             setState(() {
@@ -131,10 +142,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             });
 
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.profileUpdatedSuccessfully),
-                backgroundColor: Colors.green,
-              ),
+              SnackBar(content: Text(l10n.profileUpdatedSuccessfully)),
             );
 
             // If no password change, navigate back
@@ -147,10 +155,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             });
 
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.passwordChangedSuccessfully),
-                backgroundColor: Colors.green,
-              ),
+              SnackBar(content: Text(l10n.passwordChangedSuccessfully)),
             );
 
             context.pop();
@@ -186,114 +191,86 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   : null);
 
           if (profile == null) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator(strokeWidth: 2));
           }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Profile Photo Picker
-                  ProfilePhotoPicker(
-                    currentPhotoUrl: profile.profileImageUrl,
-                    fullName: profile.fullName,
-                    onPhotoSelected: (base64Image) {
-                      setState(() {
-                        _selectedProfileImageBase64 = base64Image;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Basic Info Section
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 12),
+                        ProfilePhotoPicker(
+                          currentPhotoUrl: profile.profileImageUrl,
+                          name: profile.name,
+                          surname: profile.surname,
+                          onPhotoSelected: (base64Image) {
+                            setState(() {
+                              _selectedProfileImageBase64 = base64Image;
+                            });
+                          },
                         ),
-                      ],
-                    ),
-                    child: BasicInfoSection(
-                      nameController: _nameController,
-                      surnameController: _surnameController,
-                      enabled: !_isLoading,
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Password Change Section
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: PasswordChangeSection(
-                      currentPasswordController: _currentPasswordController,
-                      newPasswordController: _newPasswordController,
-                      confirmPasswordController: _confirmPasswordController,
-                      enabled: !_isLoading,
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Save Button
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _saveChanges,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: PhotoManagerColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : Text(
-                            l10n.saveChanges,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        SectionLabel(l10n.sectionData),
+                        AppCard(
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          child: BasicInfoSection(
+                            nameController: _nameController,
+                            surnameController: _surnameController,
+                            enabled: !_isLoading,
                           ),
+                        ),
+                        SectionLabel(l10n.sectionPassword, key: _passwordSectionKey),
+                        AppCard(
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          child: PasswordChangeSection(
+                            currentPasswordController: _currentPasswordController,
+                            newPasswordController: _newPasswordController,
+                            confirmPasswordController: _confirmPasswordController,
+                            enabled: !_isLoading,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-
-                  const SizedBox(height: 20),
-                ],
+                ),
               ),
-            ),
+              _BottomActionBar(
+                child: AppButton.primary(
+                  label: l10n.saveChanges,
+                  onPressed: _saveChanges,
+                  loading: _isLoading,
+                ),
+              ),
+            ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Primary action anchored at the bottom (background + top line).
+class _BottomActionBar extends StatelessWidget {
+  final Widget child;
+
+  const _BottomActionBar({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: p.background,
+        border: Border(top: BorderSide(color: p.line)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 12), child: child),
       ),
     );
   }

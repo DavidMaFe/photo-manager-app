@@ -1,7 +1,8 @@
 import 'gallery_file.dart';
 
 class FileDateGroup {
-  final DateTime date;
+  /// Normalized date of the group, or `null` for files without a capture date.
+  final DateTime? date;
   final String label;
   final List<GalleryFile> files;
 

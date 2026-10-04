@@ -2,30 +2,23 @@
   "@@locale": "en",
 
   "appTitle": "File Manager",
-  "welcome": "Welcome",
-  "loginTitle": "Login",
   "emailLabel": "Email",
   "emailPlaceholder": "your@email.com",
   "passwordLabel": "Password",
   "loginButton": "Sign In",
-  "logoutButton": "Sign Out",
-  "logoutConfirmation": "Are you sure to logout?",
-  "forgotPassword": "Forgot your password?",
-  "notHaveAccount": "You don't have an account? ",
-  "signUp": "Sign Up",
+  "logoutButton": "Sign out",
+  "logoutConfirmation": "Are you sure you want to sign out?",
+  "forgotPassword": "Forgot it?",
 
-  "createAccount": "Create Account",
   "accountCreated": "Account created! Please sign in",
-  "registerTitle": "Sign up to get started",
   "nameLabel": "Name",
   "namePlaceholder": "John",
-  "surnameLabel": "Last Name (optional)",
   "surnamePlaceholder": "Doe",
-  "confirmPasswordLabel": "Confirm Password",
+  "confirmPasswordLabel": "Confirm password",
   "errorNameRequired": "Name is required",
   "errorConfirmPasswordRequired": "Please confirm your password",
   "errorPasswordsDoNotMatch": "Passwords do not match",
-  "registerButton": "Create Account",
+  "registerButton": "Create account",
   "alreadyHaveAccount": "Already have an account? ",
   "signIn": "Sign in",
   "registerTermsDisclaimer": "By signing up, you agree to our Terms and Conditions",
@@ -38,53 +31,10 @@
   "yesterday": "Yesterday",
   "thisWeek": "This Week",
   "lastWeek": "Last Week",
-  "pendingSingular": "Pending",
-  "pendingPlural": "Pending",
-  "pendingFilesInfoSingle": "You have 1 file pending to manage",
-  "pendingFilesInfo": "You have {files} files pending to manage",
+  "noDate": "No date",
   "noFiles": "There is no files to show",
-  "syncToHaveFiles": "Synchronize your devices to see your files",
-  "selectedFilesSingle": "1 selected",
-  "selectedFiles": "{files} selected",
-  "selectedFilesWithLimit": "{count} / 100 selected",
-  "@selectedFilesWithLimit": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "selectionLimitReached": "You can only select up to 100 files at a time.",
-  "noFolders": "You don't have any folder. Create a new one.",
-  "selectFolder": "Select one folder",
-  "quickActionsTitle": "QUICK ACTIONS",
-  "saveAndKeepTitle": "Save",
-  "saveAndKeepSubtitle": "Save and keep in the device",
-  "saveAndDeleteTitle": "Save and free up space",
-  "saveAndDeleteSubtitle": "Save and delete from the device",
-  "saveInFolderTitle": "To folder",
-  "saveInFolderSubtitle": "Save in a folder",
-  "deleteBothTitle": "Delete all",
-  "deleteBothSubtitle": "Delete from all places",
-  "advancedOptionsTitle": "ADVANCED OPTIONS",
-  "nameFolder": "Name of the folder",
-  "saveInRootTitle": "Save in root",
-  "saveInRootSubtitle": "Without specific folder",
-  "moveToFolderTitle": "Move to existing folder",
-  "moveToFolderSubtitle": "Select one folder",
-  "newFolderTitle": "Create a new folder",
-  "newFolderSubtitle": "Write the folder name",
-  "deleteTitle": "Delete from server",
-  "deleteSubtitle": "This action is permanent",
-  "keepInDeviceTitle": "Keep file in my device",
-  "keepInDeviceSubtitle": "The file will continue to occupy local storage space.",
-  "deleteFromDeviceDescription": "The file will be removed from the device but will remain on the server",
-  "manageMultipleFiles": "Manage {files} files",
-  "manageSingleFile": "What would you like to do with this file?",
-  "sameActionWarning": "The same action will be applied to all the selected files",
-  "applyMultiple": "Apply to {files}",
-  "applySingle": "Apply",
-  "selectAction": "Please, select an action",
+  "newFolderTitle": "New album",
   "partialManageTitle": "Partial management",
   "filesRemovedFromServerLocalMayRemain": "Some files may still exist on this device if they were uploaded from another device.",
   "filesManaged": "Files Managed",
@@ -93,118 +43,58 @@
   "dontShowAgain": "Don't show this again",
   "correctManage": "{files} files were managed successfully",
   "failedManage": "{files} files failed",
-  "selectFolderError": "You must select a folder",
-  "newFolderNameError": "You must write a name for the new folder",
-  "invalidActionError": "Invalid action",
-  "fileCountLabel": "{currentFile} of {totalFiles}",
   "fileTypeNotSupported": "File type not supported",
-  "timePassedInMinutesSingular": "1 minute ago",
-  "timePassedInMinutesPlural": "{minutes} minutes ago",
-  "timePassedInHoursSingular": "1 hour ago",
-  "timePassedInHoursPlural": "{hours} hours ago",
-  "timePassedInDaysSingular": "1 day ago",
-  "timePassedInDaysPlural": "{days} days ago",
   "fileProperties": "File properties",
-  "filePropertyType": "Type",
   "filePropertyTypeImage": "Image",
   "filePropertyTypeVideo": "Video",
   "filePropertyStatus": "Status",
-  "filePropertyStatusManaged": "Managed",
-  "filePropertyStatusPending": "Pending",
   "filePropertyCapturedAt": "Captured at",
   "filePropertyDuration": "Duration",
-  "fileDetailManageFile": "Manage",
-  "fileShare": "Share file",
-  "fileDownload": "Download file",
   "loadingVideoError": "Error loading the video",
 
-  "foldersTitle": "Folders",
-  "folder": "Folder",
-  "subfolders": "Subfolders",
+  "folder": "Album",
+  "subfolders": "Sub-albums",
   "rename": "Rename",
   "create": "Create",
   "save": "Save",
-  "folderName": "Folder name",
+  "folderName": "Album name",
   "hintFolderName": "Ex: Holidays 2024",
-  "folderNameRequiredError": "Folder name is required",
+  "folderNameRequiredError": "Album name is required",
   "folderMaxHundredCharactersError": "Max 100 characters",
-  "renameFolder": "Rename folder",
+  "renameFolder": "Rename album",
   "newName": "New name",
-  "creatingFolder": "Creating folder...",
-  "renamingFolder": "Renaming folder...",
-  "deletingFolder": "Deleting folder...",
+  "creatingFolder": "Creating album...",
+  "renamingFolder": "Renaming album...",
+  "deletingFolder": "Deleting album...",
   "processing": "Processing...",
-  "emptyFolders": "You don't have folders",
-  "emptyFolder": "This folder is empty",
-  "emptyFolderDescription": "Move files here to organize them",
-  "createFirstFolder": "Tap the + button to create your first folder",
-  "deleteFolder": "Delete folder",
-  "deleteEmptyFolder": "¿Are you sure you want to delete the folder {folderName}?",
-  "deleteFolderWithFiles": "The folder {folderName} contains {files} files. Are you sure you want to delete all the content?",
-  "deleteFolderWithSubfolders": "The folder {folderName} contains {subfolders} folders. Are you sure you want to delete all the content?",
-  "deleteFolderWithFilesAndSubfoldersWarning": "The folder {folderName} contains {files} files and {subfolders} folders. Are you sure you want to delete all the content?",
-
-  "syncCurrentState": "Current state",
-  "syncLast": "Last synchronization",
-  "syncEmpty": "Without synchronizations",
-  "syncNow": "Synchronize now",
-  "synchronized": "Synchronized",
-  "syncPending": "Pending",
-  "syncFiles": "{syncFiles} synchronized files",
-  "notSyncYet": "You have not synchronized yet",
-  "syncStart": "Press the synchronization button to start",
-  "syncErrorLoad": "Error loading synchronizations",
-  "syncHistoric": "Recent Activity",
-
-  "syncSessionTitle": "Synchronization",
-  "syncSessionInit": "Starting synchronization...",
-  "syncSessionConnecting": "Connecting with the server",
-  "syncSessionFetchingFiles": "Fetching files from the gallery...",
-  "syncSessionWaitWarning": "This may take a few seconds",
-  "syncSessionUploadingFiles": "Uploading files...",
-  "syncSessionFiles": "{uploadedFiles}/{totalFiles} files",
-  "syncSessionCancel": "Cancel synchronization",
+  "emptyFolders": "You don't have albums",
+  "emptyFolder": "This album is empty",
+  "emptyFolderDescription": "Move photos here to organise them",
+  "createFirstFolder": "Create your first album to organise your photos",
+  "deleteFolder": "Delete album",
+  "deleteEmptyFolder": "Are you sure you want to delete the album {folderName}?",
+  "deleteFolderWithFiles": "The album {folderName} contains {files} files. Are you sure you want to delete all its content?",
+  "deleteFolderWithSubfolders": "The album {folderName} contains {subfolders} sub-albums. Are you sure you want to delete all its content?",
+  "deleteFolderWithFilesAndSubfoldersWarning": "The album {folderName} contains {files} files and {subfolders} sub-albums. Are you sure you want to delete all its content?",
   "syncSessionCancelWarning": "Cancel synchronization?",
   "syncSessionCancelDescription": "The current progress will be lost. The files uploaded will remain in the server.",
-  "syncSessionCancelShortDescription": "The synchronization is in progress. You want to cancel?",
   "syncSessionCancelConfirm": "Yes, cancel",
-  "syncSessionCompleting": "Completing synchronization...",
-  "syncSessionSave": "Saving information",
-  "syncSessionCompleted": "Synchronization completed",
-  "syncSessionFinished": "Synchronization finished",
-  "syncSessionError": "Error in the synchronization",
   "total": "Total",
   "uploaded": "Uploaded",
   "failed": "Failed",
-  "infoFiles": "{info} files",
-  "goBack": "Return",
-
-  "notificationsTitle": "Notifications",
-  "emptyNotifications": "Without notifications",
-  "noNotificationsYet": "You don't have notifications yet",
-
-  "errorLoadingProfile": "Error loading the profile",
   "close": "Close",
   "tryAgain": "Try again",
   "storage": "Storage",
   "files": "Files",
-  "folders": "Folders",
+  "folders": "Albums",
   "devices": "Devices",
   "editProfile": "Edit profile",
-  "editProfileSubtitle": "Change name and surname",
   "myDevices": "My devices",
-  "myDevicesSubtitle": "{devices} linked devices",
   "trash": "Trash",
-  "trashSubtitle": "View deleted files",
-  "syncSettings": "Sync Settings",
-  "syncSettingsSubtitle": "Auto sync every 6 hours",
   "notifications": "Notifications",
-  "notificationsSubtitle": "Manage notifications",
 
   "trashIsEmpty": "Trash is empty",
   "trashEmptyDescription": "Deleted files will appear here and be permanently deleted after 30 days",
-  "daysRemaining": "{days}d",
-  "filesSelected": "{count} selected",
   "emptyTrash": "Empty",
   "emptyTrashConfirmation": "Are you sure you want to permanently delete all files in trash? This action cannot be undone.",
   "restore": "Restore",
@@ -212,13 +102,10 @@
   "restoreFileConfirmation": "Do you want to restore this file to its original location?",
   "restoreFilesConfirmation": "Do you want to restore {count} files to their original locations?",
   "deletePermanently": "Delete permanently",
-  "deleteFilesPermanently": "Delete {count} permanently",
   "deletePermanentlyConfirmation": "Are you sure you want to permanently delete this file? This action cannot be undone.",
   "deleteFilesPermanentlyConfirmation": "Are you sure you want to permanently delete {count} files? This action cannot be undone.",
   "filesRestoredSuccessfully": "{count} files restored successfully",
   "filesDeletedPermanently": "{count} files permanently deleted",
-  "selectAll": "Select all",
-  "deselectAll": "Deselect all",
   "cancel": "Cancel",
   "delete": "Delete",
 
@@ -236,10 +123,11 @@
   "timeMoreThanOneHour": "{hours} hours ago",
   "timeYesterday": "Yesterday at {hour}",
 
-  "errorUnknownTitle": "Unknown Error",
   "errorUnknown": "An unexpected error ocurred. Please, try again later.",
   "errorNetworkTitle": "Connection Error",
   "errorNetwork": "No internet connection. Check your connection and try again.",
+  "syncInProgressErrorTitle": "Backup in progress",
+  "syncInProgressError": "A backup is already running. Wait for it to finish and try again.",
   "errorServerTitle": "Server Error",
   "errorServer": "Server error. Please, try again later.",
   "errorTimeout": "The operation took too long. Please, try again.",
@@ -266,51 +154,30 @@
   "errorEmailRequired": "Please enter an email address",
   "errorPasswordRequired": "Please enter a password",
 
-  "forgotPasswordTitle": "Recover password",
-  "forgotPasswordSubtitle": "Enter your email to receive a verification code",
   "sendCodeButton": "Send code",
   "emailSentSuccess": "Code sent to your email",
 
-  "validateCodeTitle": "Verify code",
-  "validateCodeSubtitle": "Enter the 6-digit code sent to {email}",
-  "@validateCodeSubtitle": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
-  "codeLabel": "Verification code",
-  "codePlaceholder": "123456",
-  "validateCodeButton": "Validate code",
+  "validateCodeButton": "Verify code",
   "resendCodeButton": "Resend code",
   "codeResent": "Code resent successfully",
-  "errorCodeRequired": "Code is required",
-  "errorCodeInvalid": "Code must be 6 digits",
 
-  "resetPasswordTitle": "New password",
-  "resetPasswordSubtitle": "Enter your new password",
   "newPasswordLabel": "New password",
   "confirmNewPasswordLabel": "Confirm new password",
-  "resetPasswordButton": "Reset password",
+  "resetPasswordButton": "Save password",
   "passwordResetSuccess": "Password reset successfully",
   "errorNewPasswordRequired": "New password is required",
-  "backToLogin": "Back to login",
 
-  "editProfileTitle": "Edit Profile",
+  "editProfileTitle": "Edit profile",
   "currentPasswordLabel": "Current password",
   "currentPasswordPlaceholder": "Your current password",
   "errorCurrentPasswordRequired": "Current password is required",
-  "errorCurrentPasswordIncorrect": "Current password is incorrect",
   "saveChanges": "Save changes",
-  "profileUpdatedSuccessfully": "Profile updated successfully",
-  "passwordChangedSuccessfully": "Password changed successfully",
+  "profileUpdatedSuccessfully": "Profile updated",
+  "passwordChangedSuccessfully": "Password changed",
   "selectProfilePhoto": "Select profile photo",
   "changePhoto": "Change photo",
-  "basicInfoSection": "Basic information",
   "passwordSection": "Change password",
-  "leavePasswordEmptyHint": "Leave blank if you don't want to change the password",
-  "savingChanges": "Saving changes...",
+  "leavePasswordEmptyHint": "Leave it blank if you don't want to change it",
 
   "january": "January",
   "february": "February",
@@ -326,107 +193,665 @@
   "december": "December",
 
   "renameDevice": "Rename device",
-  "renameDeviceDescription": "Enter a new name for your device",
   "deviceName": "Device name",
   "deviceNameRequired": "Device name is required",
   "deviceNameTooLong": "Name is too long (maximum 50 characters)",
-  "autoSync": "Auto-sync",
+  "autoSync": "Automatic backup",
   "unlinkDevice": "Unlink",
   "unlinkDeviceConfirmation": "Are you sure you want to unlink '{deviceName}'? This device will stop syncing with your account.",
-  "deviceActionSuccess": "Action completed successfully",
+  "deviceActionSuccess": "Done",
   "noDevices": "No linked devices",
   "noDevicesDescription": "Devices will appear here when you sign in to the app from other devices.",
-  "devicesLoadError": "Could not load devices",
   "retry": "Retry",
 
-  "syncConfigurationTitle": "Sync Configuration",
-  "syncConfigurationDescription": "Configure how and when your files will be automatically synced",
-  "enableAutoSync": "Enable automatic sync",
   "autoSyncEnabled": "Automatic sync is enabled",
-  "autoSyncDisabled": "Automatic sync is disabled",
 
-  "syncFrequencyTitle": "Sync frequency",
-  "syncFrequencyDaily": "Daily",
-  "syncFrequencyWeekly": "Weekly",
-  "syncFrequencyAt": "at",
-
-  "syncTimeTitle": "Sync time",
-  "syncTimeDescription": "Select the time you want the sync to run",
-  "selectTime": "Select time",
-
-  "syncDayOfWeekTitle": "Day of the week",
-  "syncDayOfWeekDescription": "Select the day you want the sync to run",
   "monday": "Monday",
-  "tuesday": "Tuesday",
-  "wednesday": "Wednesday",
-  "thursday": "Thursday",
-  "friday": "Friday",
-  "saturday": "Saturday",
-  "sunday": "Sunday",
-
-  "networkPreferenceTitle": "Network preference",
-  "networkPreferenceWifiOnly": "WiFi only",
-  "networkPreferenceWifiOnlyDescription": "Sync will only run when connected to WiFi",
-  "networkPreferenceAnyNetwork": "Any network",
-  "networkPreferenceAnyNetworkDescription": "Sync will run on WiFi or mobile data",
-
-  "batteryPreferenceTitle": "Battery preference",
-  "batteryPreferenceAny": "Any battery level",
-  "batteryPreferenceAnyDescription": "Sync will run regardless of battery level",
-  "batteryPreferenceCharging": "Charging or battery >15%",
-  "batteryPreferenceChargingDescription": "Sync will only run when device is charging or has more than 15% battery",
 
   "notifyOnSuccess": "Notify when sync is successful",
-  "notifyOnSuccessDescription": "You will receive a notification when sync completes successfully",
   "notifyOnFailure": "Notify when sync fails",
-  "notifyOnFailureDescription": "You will receive a notification when sync fails",
 
-  "saveConfiguration": "Save configuration",
-  "savingConfiguration": "Saving configuration...",
-  "configurationSaved": "Configuration saved",
-  "configurationSavedDescription": "Your automatic sync configuration has been saved successfully",
-  "configurationSaveError": "Error saving configuration",
+  "configurationSaved": "Settings saved",
   "loadingConfiguration": "Loading configuration...",
   "configurationLoadError": "Error loading configuration",
-
-  "syncInProgressError": "Sync in progress",
-  "syncInProgressErrorDescription": "A sync is already in progress. Please wait for it to finish before starting a new one.",
-  "syncInProgressDialogTitle": "Sync in progress",
-  "syncInProgressDialogMessage": "An automatic sync is in progress in the background. Please wait for it to finish before starting a manual sync.",
-  "understood": "Understood",
-
-  "onboardingWelcomeTitle": "Welcome to Photo Manager!",
-  "onboardingWelcomeMessage": "To give you the best experience, we need your permission to access your photos, send you notifications, and run automatic syncs in the background.\n\nThese permissions allow us to:\n\n• Automatically sync your photos and videos\n• Keep your files safely backed up\n• Notify you about sync progress\n• Run syncs while the app is closed",
-  "onboardingWelcomeButton": "Get Started",
-  "onboardingGetStarted": "Start setup",
-
-  "permissionNotificationTitle": "Notifications",
-  "permissionNotificationMessage": "We'll send you notifications to inform you about the progress of your automatic syncs and when they complete successfully or fail.",
-  "permissionNotificationContinue": "Allow Notifications",
-  "permissionNotificationDeniedTitle": "Notifications Disabled",
-  "permissionNotificationDeniedMessage": "Without notification permission, you won't receive updates about your sync status. You can enable notifications later in Settings.",
-
-  "permissionBackgroundTitle": "Background Sync",
-  "permissionBackgroundMessage": "For automatic sync to work properly, the app needs to run in the background. This allows your photos to sync even when the app is closed.",
-  "permissionBackgroundMessageAndroid": "For automatic sync to work properly, we need to:\n\n• Allow the app to run in the background\n• Disable battery optimization for this app\n\nThis allows your photos to sync even when the app is closed.",
-  "permissionBackgroundMessageIOS": "For automatic sync to work properly, we need to:\n\n• Enable background app refresh\n• Allow the app to run in the background\n\nThis allows your photos to sync even when the app is closed.",
-  "permissionBackgroundContinue": "Allow Background Sync",
-  "permissionBackgroundDeniedTitle": "Background Sync Disabled",
-  "permissionBackgroundDeniedMessage": "Without permission to run in the background, automatic sync will only work when you have the app open. You can enable this later in Settings.",
-
   "onboardingPermissionsRejectedTitle": "Some Permissions Were Not Granted",
   "onboardingPermissionsRejectedMessage": "You have denied some required permissions. The app will work with limited functionality. You can enable these permissions later from the app settings:",
-  "onboardingPermissionsRejectedButton": "I Understand",
-  "onboardingPermissionsRetryButton": "Try Again",
-
   "permissionLimitationPhoto": "• You won't be able to sync photos or videos",
   "permissionLimitationNotification": "• You won't receive notifications about syncs",
   "permissionLimitationBackground": "• Automatic sync will only work with the app open",
 
-  "onboardingPermissionsAllGrantedTitle": "All Set!",
-  "onboardingPermissionsAllGrantedMessage": "All permissions have been granted successfully. You can now start using Photo Manager with all its features.",
-  "onboardingPermissionsAllGrantedButton": "Go to Gallery",
+  "loginGreeting": "Welcome back",
+  "loginSubtitle": "Sign in to see and organise your photos.",
+  "noAccountYet": "Don't have an account yet?",
+  "createAccountLink": "Create account",
+  "registerHeadline": "Create your account",
+  "registerSubtitle": "Back up your photos and free up space on your phone.",
+  "surnameShortLabel": "Last name",
+  "optionalLabel": "(optional)",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "stepOf": "Step {current} of {total}",
+  "@stepOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "forgotPasswordHeadline": "Forgot your password?",
+  "forgotPasswordBody": "Enter your email and we'll send you a code to create a new one.",
+  "checkYourEmail": "Check your email",
+  "codeSentTo": "We've sent a 6-digit code to {email}",
+  "@codeSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "didNotReceiveCode": "Didn't get it?",
+  "resendIn": "Resend in {time}",
+  "@resendIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "newPasswordHeadline": "Create a new password",
+  "newPasswordBody": "Use one you haven't used before on this account.",
 
-  "errorGalleryPermissionTitle": "Gallery Permission Required",
-  "errorGalleryPermission": "The app needs access to your gallery to work. Please enable the permission in Settings."
+  "navPhotos": "Photos",
+  "backupUpToDate": "Up to date",
+  "backupInProgress": "Backing up {percent}%",
+  "@backupInProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "backupFailed": "Backup failed",
+  "filterAll": "All",
+  "filterToReview": "To review",
+  "toReviewTitle": "{count, plural, =1{1 item to review} other{{count} items to review}}",
+  "@toReviewTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "toReviewBody": "Decide whether to keep them or free up space on your phone",
+  "review": "Review",
+  "select": "Select",
+  "selectedCount": "{count, plural, =1{1 selected} other{{count} selected}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectAllShort": "All",
+  "selectNone": "None",
+  "noPhotosYet": "No photos yet",
+  "noPhotosBody": "Back up your phone to see them here",
+  "backupNow": "Back up now",
+  "openProfile": "Open profile",
+  "closeSelection": "Exit selection",
+
+  "dayAndTime": "{day}, {time}",
+  "@dayAndTime": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerInfo": "Info",
+  "actionSave": "Save",
+  "actionDelete": "Delete",
+  "deleteFileTitle": "Delete this file?",
+  "deleteFileBody": "It will be removed from your cloud and this phone. You can restore it from the trash for 30 days.",
+  "copyId": "Copy ID",
+  "copiedToClipboard": "Copied",
+  "statusSafe": "Backed up",
+
+  "navAlbums": "Albums",
+  "searchAlbums": "Search albums",
+  "newAlbum": "New",
+  "createAlbum": "Create album",
+  "albumMeta": "{count} · {subcount, plural, =1{1 sub-album} other{{subcount} sub-albums}}",
+  "@albumMeta": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "subcount": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsCount": "{count, plural, =0{Empty} =1{1 item} other{{count} items}}",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subalbum": "Sub-album",
+  "newSubalbum": "New sub-album",
+  "moreOptions": "More options",
+  "noAlbumsMatch": "No album matches “{query}”",
+  "@noAlbumsMatch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+
+  "navBackup": "Backup",
+  "allSafe": "All backed up",
+  "lastBackupMeta": "Last backup {when} · {count, plural, =1{1 item} other{{count} items}}",
+  "@lastBackupMeta": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "copyingNofM": "Backing up {done} of {total}",
+  "@copyingNofM": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "backupIncomplete": "The last backup didn't finish",
+  "backupIncompleteMeta": "{when} · {count, plural, =1{1 failure} other{{count} failures}}",
+  "@backupIncompleteMeta": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noBackupsYet": "You haven't backed up yet",
+  "noBackupsBody": "Save your photos to the cloud and free up space on your phone.",
+  "backupCancelledTitle": "The last backup was cancelled",
+  "condDaily": "Daily · {time}",
+  "@condDaily": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "condWeekly": "{day} · {time}",
+  "@condWeekly": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "condWifi": "Wi-Fi only",
+  "condAnyNetwork": "Wi-Fi and data",
+  "condBattery": "Charging or >15%",
+  "autoBackupOff": "Automatic backup off",
+  "backupSettings": "Backup settings",
+  "activity": "Activity",
+  "itemsSaved": "{count, plural, =1{1 item saved} other{{count} items saved}}",
+  "@itemsSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "incompleteWithFailures": "Incomplete backup · {count, plural, =1{1 failure} other{{count} failures}}",
+  "@incompleteWithFailures": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupCancelled": "Backup cancelled",
+  "backupRunning": "Backup in progress",
+
+  "navProfile": "Profile",
+  "edit": "Edit",
+  "storageOf": "{used} of {total}",
+  "@storageOf": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "elementsLabel": "{count, plural, =1{item} other{items}}",
+  "@elementsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "albumsLabel": "{count, plural, =1{album} other{albums}}",
+  "@albumsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "devicesLabel": "{count, plural, =1{device} other{devices}}",
+  "@devicesLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sectionBackupSpace": "Backup and space",
+  "sectionApp": "App",
+  "dailyAt": "Daily at {time}",
+  "@dailyAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyAt": "{day} at {time}",
+  "@weeklyAt": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "linkedDevices": "{count, plural, =0{None linked} =1{1 linked} other{{count} linked}}",
+  "@linkedDevices": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trashAutoEmpty": "Emptied after 30 days",
+  "notifOnlyFailures": "Failures only",
+  "notifOnlySuccess": "Finished only",
+  "notifAll": "All",
+  "notifOff": "Off",
+
+  "sectionData": "Details",
+  "sectionPassword": "Password",
+  "gallerySource": "Gallery",
+  "camera": "Camera",
+
+  "thisDevice": "This phone",
+
+  "emptyTrashShort": "Empty",
+  "trashInfo": "Items are deleted forever after 30 days. Long-press to restore several.",
+  "deletingSoon": "Deleted soon",
+  "thisMonth": "This month",
+  "daysLeft": "{count, plural, =0{Today} =1{1 day} other{{count} days}}",
+  "@daysLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteForever": "Delete forever",
+  "deletesIn": "Deleted in {time}",
+  "@deletesIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "selectedItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@selectedItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "autoBackupBody": "Your new photos are saved automatically",
+  "sectionWhen": "When",
+  "everyDay": "Every day",
+  "oncePerWeek": "Once a week",
+  "day": "Day",
+  "time": "Time",
+  "nextBackup": "Next backup: {when}",
+  "@nextBackup": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "sectionConditions": "Conditions",
+  "network": "Network",
+  "battery": "Battery",
+  "always": "Always",
+  "sectionAlerts": "Alerts",
+  "alertSuccess": "When it finishes",
+  "alertSuccessBody": "A notice with what was saved",
+  "alertFailure": "If something fails",
+  "alertFailureBody": "So you can retry it",
+  "sectionDiagnostics": "Diagnostics",
+
+  "manageQuestion": "{count, plural, =1{What should we do with this photo?} other{What should we do with these {count} photos?}}",
+  "@manageQuestion": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photosSelected": "{count, plural, =1{1 photo selected} other{{count} photos selected}}",
+  "@photosSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photosCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "@photosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "optSaveFree": "Save and free up space",
+  "optSaveFreeBody": "They're saved to your cloud and removed from the phone.",
+  "recommended": "Recommended",
+  "optSaveKeep": "Save and keep on the phone",
+  "optSaveKeepBody": "You'll have a copy in the cloud and another one here.",
+  "optAlbum": "Save to an album",
+  "optAlbumBody": "Pick an existing one or create a new one.",
+  "newAlbumChip": "New",
+  "deleteAfterSaving": "Remove from the phone afterwards",
+  "deleteEverywhere": "Delete everywhere",
+  "saveToAlbum": "Save to {album}",
+  "@saveToAlbum": {
+    "placeholders": {
+      "album": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseAlbum": "Choose an album",
+  "actionToAlbum": "To album",
+  "actionFreeUp": "Free up",
+  "freeUpTitle": "Free up space on the phone?",
+  "freeUpBody": "{count, plural, =1{The photo will be saved to your cloud and removed from this phone.} other{The {count} photos will be saved to your cloud and removed from this phone.}}",
+  "@freeUpBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteFilesTitle": "{count, plural, =1{Delete this photo?} other{Delete {count} photos?}}",
+  "@deleteFilesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteFilesBody": "They'll be removed from your cloud and this phone. You can restore them from the trash for 30 days.",
+
+  "preparingBackup": "Preparing the backup…",
+  "lookingForPhotos": "Looking for new photos",
+  "finishingBackup": "Finishing the backup…",
+  "cancellingBackup": "Cancelling…",
+  "remainingMinutes": "{count, plural, =1{About 1 min left} other{About {count} min left}}",
+  "@remainingMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "remainingLessThanMinute": "Less than a minute left",
+  "backgroundInfo": "You can leave the app: the backup continues in the background and we'll let you know when it's done.",
+  "seeAll": "See all",
+  "seeLess": "See less",
+
+  "welcomeUser": "Welcome, {name}",
+  "@welcomeUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomeGeneric": "Welcome",
+  "permissionsHeadline": "Three permissions and we're ready",
+  "permissionsBody": "That way we can save your photos automatically and let you know when each backup finishes.",
+  "permPhotosTitle": "Photos and videos",
+  "permPhotosBody": "To back them up and free up space",
+  "permNotifTitle": "Notifications",
+  "permNotifBody": "We let you know when it's done or if it fails",
+  "permBgTitle": "Background",
+  "permBgBody": "Backups with the app closed",
+  "allow": "Allow",
+  "done": "Done",
+  "permSettings": "Settings",
+  "privacyNote": "Your photos are private. You can change these permissions any time from Profile.",
+  "continueLabel": "Continue",
+  "later": "Do it later",
+  "continueAnyway": "Continue anyway",
+  "reviewPermissions": "Review permissions",
+
+  "appearance": "Appearance",
+  "themeSystem": "Automatic",
+  "themeSystemHint": "Follows your phone's mode",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "deviceLastBackup": "{os} · Last backup {when}",
+  "@deviceLastBackup": {
+    "placeholders": {
+      "os": {"type": "String"},
+      "when": {"type": "String"}
+    }
+  },
+  "photosSelectedSize": "{count, plural, =1{1 photo · {size}} other{{count} photos · {size}}}",
+  "@photosSelectedSize": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "size": {"type": "String"}
+    }
+  },
+  "freeUpSize": "Free up {size}",
+  "@freeUpSize": {
+    "placeholders": {
+      "size": {"type": "String"}
+    }
+  },
+  "filePropertyName": "Name",
+  "filePropertyUploadedAt": "Uploaded at",
+  "filePropertySize": "Size",
+  "filePropertyDimensions": "Dimensions",
+  "filePropertyAlbum": "Album",
+  "filePropertyDevice": "Device",
+  "fileInfoLoading": "Loading details…",
+  "filterFavorites": "Favorites",
+  "favorite": "Favorite",
+  "addToFavorites": "Add to favorites",
+  "removeFromFavorites": "Remove from favorites",
+  "favoritesEmptyTitle": "No favorites yet",
+  "favoritesEmptyBody": "Tap the heart while viewing a photo to keep it here",
+  "favoritesAdded": "{count, plural, =1{Added to favorites} other{{count} added to favorites}}",
+  "@favoritesAdded": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "favoritesRemoved": "{count, plural, =1{Removed from favorites} other{{count} removed from favorites}}",
+  "@favoritesRemoved": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "favoriteError": "Couldn't update. Please try again.",
+  "move": "Move",
+  "cover": "Cover",
+  "coverOf": "Cover of {album}",
+  "@coverOf": {
+    "placeholders": {
+      "album": {"type": "String"}
+    }
+  },
+  "coverOfMany": "{count, plural, =1{Cover of 1 album} other{Cover of {count} albums}}",
+  "@coverOfMany": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "useAsCover": "Use as cover",
+  "useAsCoverBody": "Tick the albums where you want it to appear. Up to 3 per album.",
+  "photoIsHere": "The photo is here",
+  "photosAreHere": "The photos are here",
+  "coverAlreadyHint": "Already a cover · untick to remove it",
+  "coverWillAdd": "Will be added · {count} of 3",
+  "@coverWillAdd": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "coverFullChoose": "Full · choose which to replace",
+  "coverFullChooseMany": "Full · choose {count} to replace",
+  "@coverFullChooseMany": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "coverWillRemove": "Will be removed from the cover",
+  "coverCount": "{count} of 3 covers",
+  "@coverCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "replace": "Replace",
+  "replaceCoverOf": "Replace cover {position} of {album}",
+  "@replaceCoverOf": {
+    "placeholders": {
+      "position": {"type": "int"},
+      "album": {"type": "String"}
+    }
+  },
+  "coverTreeNote": "Only the photo's album and the albums that contain it are shown.",
+  "saveChangesCount": "{count, plural, =1{Save · 1 change} other{Save · {count} changes}}",
+  "@saveChangesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "coverUpdated": "{count, plural, =1{Cover updated} other{Cover updated in {count} albums}}",
+  "@coverUpdated": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "upToThreeCovers": "{count, plural, =1{1 photo} other{{count} photos}} · up to 3 can be a cover",
+  "@upToThreeCovers": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "chooseUpToThree": "Choose up to 3 photos to use as cover",
+  "videosCannotBeCovers": "Videos can't be album covers",
+  "noSharedAlbum": "These photos don't share an album",
+  "inAlbum": "in {album}",
+  "@inAlbum": {
+    "placeholders": {
+      "album": {"type": "String"}
+    }
+  },
+  "albumCoverTitle": "Cover of {album}",
+  "@albumCoverTitle": {
+    "placeholders": {
+      "album": {"type": "String"}
+    }
+  },
+  "albumCoverSubtitle": "{count} of 3 photos · drag to change the order",
+  "@albumCoverSubtitle": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "albumCoverCard": "{count} of 3 photos",
+  "@albumCoverCard": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "albumCoverAuto": "Automatic · recent photos",
+  "previewInAlbums": "How it looks in Albums",
+  "previewInAlbumsBody": "The first photo is the big one. With 1 or 2 photos the mosaic adapts.",
+  "coverAutomatic": "Automatic",
+  "coverMain": "Main",
+  "coverSecond": "Second",
+  "coverThird": "Third",
+  "fromThisAlbum": "From this album",
+  "fromAlbum": "From {path}",
+  "@fromAlbum": {
+    "placeholders": {
+      "path": {"type": "String"}
+    }
+  },
+  "removeCover": "Remove from cover",
+  "coverRemoved": "Removed from the cover",
+  "addCoverHint": "To add another, open a photo of this album or its sub-albums and tap «Cover». Without covers, the most recent photos are used.",
+  "undo": "Undo",
+  "moveUp": "Move up",
+  "moveDown": "Move down",
+  "coverBadge": "Cover",
+  "bytesToUpload": "{size} left to upload",
+  "@bytesToUpload": {
+    "placeholders": {
+      "size": {"type": "String"}
+    }
+  }
 }

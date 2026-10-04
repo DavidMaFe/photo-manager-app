@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:photo_manager_app/config/app_config.dart';
 import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
+import 'package:photo_manager_app/core/widgets/media_grid.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
-import 'package:photo_manager_app/features/gallery/presentation/widgets/date_section_header.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/file_thumbnail_card.dart';
 
 import '../../../../l10n/app_localizations.dart';
@@ -20,6 +22,24 @@ class FilesGrid extends StatefulWidget {
   final ValueChanged<GalleryFile>? onFileTap;
   final ValueChanged<GalleryFile>? onFileLongPress;
 
+  /// "Select" action of each date header (hidden in selection mode).
+  final VoidCallback? onSelect;
+
+  /// Content shown when there are no files.
+  final Widget? emptyState;
+
+  /// "Favorites" filter: thumbnails of files no longer favorite fade out
+  /// before the bloc removes them.
+  final bool fadeOutUnfavorited;
+
+  /// Album being viewed: its covers show the «Cover» badge.
+  final String? coverOfFolderId;
+
+  /// Slivers placed above the grid (e.g. the review card).
+  final List<Widget> leading;
+
+  final double bottomPadding;
+
   const FilesGrid({
     super.key,
     required this.groupedFiles,
@@ -30,7 +50,13 @@ class FilesGrid extends StatefulWidget {
     required this.onLoadMore,
     required this.onRefresh,
     this.onFileTap,
-    this.onFileLongPress
+    this.onFileLongPress,
+    this.onSelect,
+    this.emptyState,
+    this.fadeOutUnfavorited = false,
+    this.coverOfFolderId,
+    this.leading = const [],
+    this.bottomPadding = 24,
   });
 
   @override
@@ -71,27 +97,7 @@ class _FilesGridState extends State<FilesGrid> {
   Widget build(BuildContext context) {
 
     final l10n = AppLocalizations.of(context)!;
-
-    if(widget.groupedFiles.isEmpty) {
-      return _buildEmptyState(l10n);
-    }
-
-    // Build month names array
-    final monthNames = [
-      l10n.january, l10n.february, l10n.march, l10n.april,
-      l10n.may, l10n.june, l10n.july, l10n.august,
-      l10n.september, l10n.october, l10n.november, l10n.december,
-    ];
-
-    // Relabel groups with localized strings
-    final localizedGroups = DateGroupingUtil.relabelGroups(
-      widget.groupedFiles,
-      todayLabel: l10n.today,
-      yesterdayLabel: l10n.yesterday,
-      thisWeekLabel: l10n.thisWeek,
-      lastWeekLabel: l10n.lastWeek,
-      monthNames: monthNames,
-    );
+    final groups = _localizedGroups(l10n);
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -100,94 +106,82 @@ class _FilesGridState extends State<FilesGrid> {
       },
       child: CustomScrollView(
         controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          ..._buildGroupedSlivers(localizedGroups),
-          if (widget.hasNext) _buildLoadingSliver(),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildGroupedSlivers(List<FileDateGroup> groups) {
-    final slivers = <Widget>[];
-
-    for (final group in groups) {
-      // Add header for the date
-      slivers.add(
-        SliverPersistentHeader(
-          pinned: false,
-          delegate: DateSectionHeaderDelegate(label: group.label),
-        ),
-      );
-
-      // Add grid for files in this date group
-      slivers.add(
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 4,
-              mainAxisSpacing: 4,
-              childAspectRatio: 1,
-            ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final file = group.files[index];
+          ...widget.leading,
+          if (groups.isEmpty)
+            SliverFillRemaining(hasScrollBody: false, child: widget.emptyState ?? const SizedBox())
+          else
+            MediaGrid(
+              groups: [
+                for (final group in groups)
+                  MediaGridGroup(
+                    title: group.label,
+                    subtitle: _shortDate(group, l10n),
+                    itemCount: group.files.length,
+                    actionLabel: widget.isSelectionMode || widget.onSelect == null ? null : l10n.select,
+                    onAction: widget.onSelect,
+                  ),
+              ],
+              itemBuilder: (context, g, i) {
+                final file = groups[g].files[i];
                 return FileThumbnailCard(
+                  key: ValueKey(file.id),
                   file: file,
                   isSelectionMode: widget.isSelectionMode,
                   isSelected: widget.selectedFileIds.contains(file.id),
+                  showFavorite: AppConfig.favoritesAndCoversEnabled,
+                  large: i == 0,
+                  leaving: widget.fadeOutUnfavorited && !file.isFavorite,
+                  isCover: AppConfig.favoritesAndCoversEnabled &&
+                      widget.coverOfFolderId != null &&
+                      file.isCoverOf(widget.coverOfFolderId!),
                   onTap: widget.onFileTap != null ? () => widget.onFileTap!(file) : null,
                   onLongPress: widget.onFileLongPress != null ? () => widget.onFileLongPress!(file) : null,
                 );
               },
-              childCount: group.files.length,
             ),
+          if (widget.hasNext)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              ),
+            ),
+          SliverPadding(
+            padding: EdgeInsets.only(bottom: widget.bottomPadding + MediaQuery.paddingOf(context).bottom),
           ),
-        ),
-      );
-    }
-
-    return slivers;
-  }
-
-  Widget _buildLoadingSliver() {
-    return SliverToBoxAdapter(
-      child: _buildLoadingIndicator(),
-    );
-  }
-
-  Widget _buildEmptyState(AppLocalizations l10n) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.photo_library_outlined,
-            size: 64,
-            color: Colors.grey.shade400
-          ),
-          const SizedBox(height: 16),
-          Text(l10n.noFiles, style: TextStyle(
-            fontSize: 16, color: Colors.grey.shade600,
-            fontWeight: FontWeight.w500
-          )),
-          const SizedBox(height: 8),
-          Text(l10n.syncToHaveFiles, style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade500
-          ), textAlign: TextAlign.center)
         ],
       ),
     );
   }
 
-  Widget _buildLoadingIndicator() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      alignment: Alignment.center,
-      child: const CircularProgressIndicator(strokeWidth: 2),
+  List<FileDateGroup> _localizedGroups(AppLocalizations l10n) {
+    final monthNames = [
+      l10n.january, l10n.february, l10n.march, l10n.april,
+      l10n.may, l10n.june, l10n.july, l10n.august,
+      l10n.september, l10n.october, l10n.november, l10n.december,
+    ];
+
+    return DateGroupingUtil.relabelGroups(
+      widget.groupedFiles,
+      todayLabel: l10n.today,
+      yesterdayLabel: l10n.yesterday,
+      thisWeekLabel: l10n.thisWeek,
+      lastWeekLabel: l10n.lastWeek,
+      monthNames: monthNames,
+      noDateLabel: l10n.noDate,
     );
+  }
+
+  /// Short date ("Thu, Oct 1") next to the "Today"/"Yesterday" headers.
+  String? _shortDate(FileDateGroup group, AppLocalizations l10n) {
+    final date = group.date;
+    if (date == null) return null;
+    final day = DateGroupingUtil.normalizeDateToDay(date);
+    final today = DateGroupingUtil.normalizeDateToDay(DateTime.now());
+    final isDayGroup = day == today || day == today.subtract(const Duration(days: 1));
+    if (!isDayGroup) return null;
+    return DateFormat.MMMEd(l10n.localeName).format(date);
   }
 }

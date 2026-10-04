@@ -37,6 +37,11 @@ class FailureCodes {
   // ==================== Folder Domain Errors ====================
   static const String folderNotFound = "FOLDER_NOT_FOUND";
   static const String folderAlreadyExists = "FOLDER_ALREADY_EXISTS";
+  static const String folderCoversLimitExceeded = "FOLDER_COVERS_LIMIT_EXCEEDED";
+  static const String folderCoverDuplicated = "FOLDER_COVER_DUPLICATED";
+  static const String folderCoverFileNotValid = "FOLDER_COVER_FILE_NOT_VALID";
+  static const String folderCoverVideoNotAllowed = "FOLDER_COVER_VIDEO_NOT_ALLOWED";
+  static const String folderCoverReplaceNotValid = "FOLDER_COVER_REPLACE_NOT_VALID";
 
   // ==================== Password Reset Domain Errors ====================
   static const String expiredResetCode = "EXPIRED_RESET_CODE";

@@ -1,73 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
+import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
+import 'package:photo_manager_app/core/widgets/user_avatar.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
+import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-import '../../../../core/widgets/authenticated_image.dart';
 
-
+/// User row: avatar, name, email and an "Edit" button.
 class ProfileHeader extends StatelessWidget {
 
   final UserProfile profile;
+  final VoidCallback? onEdit;
 
-  const ProfileHeader({super.key, required this.profile});
+  const ProfileHeader({super.key, required this.profile, this.onEdit});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+
+    final l10n = AppLocalizations.of(context)!;
+    final p = context.palette;
+
+    return Row(
       children: [
-        Stack(
-          children: [
-            profile.hasProfileImage
-                ? SizedBox(
-              width: 100,
-              height: 100,
-              child: ClipOval(
-                child: AuthenticatedImage(
-                  imageUrl: profile.profileImageUrl!,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            )
-                : CircleAvatar(
-              radius: 50,
-              backgroundColor: PhotoManagerColors.primary,
-              child: Text(
-                  _getInitials(profile.fullName),
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)
-              ),
-            ),
-          ],
+        UserAvatar(
+          name: profile.name,
+          surname: profile.surname,
+          size: 64,
+          photo: profile.hasProfileImage
+              ? AuthenticatedImage(imageUrl: profile.profileImageUrl!, fit: BoxFit.cover)
+              : null,
         ),
-
-        Text(
-          profile.fullName,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87
-          )
-        ),
-
-        const SizedBox(height: 4),
-
-        InkWell(
-          onTap: () {},
-          child: Text(
-            profile.email,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.blue[600],
-            ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                profile.fullName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: p.ink),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                profile.email,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.ink2),
+              ),
+            ],
           ),
-        )
+        ),
+        if (onEdit != null) ...[
+          const SizedBox(width: 8),
+          AppButton.neutral(label: l10n.edit, size: AppButtonSize.small, onPressed: onEdit),
+        ],
       ],
     );
-  }
-
-  String _getInitials(String fullName) {
-    final parts = fullName.trim().split(' ');
-    if(parts.isEmpty) return '?';
-    if(parts.length == 1) return parts[0][0].toUpperCase();
-    return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
   }
 }

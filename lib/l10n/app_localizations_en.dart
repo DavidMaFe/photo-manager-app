@@ -12,12 +12,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'File Manager';
 
   @override
-  String get welcome => 'Welcome';
-
-  @override
-  String get loginTitle => 'Login';
-
-  @override
   String get emailLabel => 'Email';
 
   @override
@@ -30,28 +24,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginButton => 'Sign In';
 
   @override
-  String get logoutButton => 'Sign Out';
+  String get logoutButton => 'Sign out';
 
   @override
-  String get logoutConfirmation => 'Are you sure to logout?';
+  String get logoutConfirmation => 'Are you sure you want to sign out?';
 
   @override
-  String get forgotPassword => 'Forgot your password?';
-
-  @override
-  String get notHaveAccount => 'You don\'t have an account? ';
-
-  @override
-  String get signUp => 'Sign Up';
-
-  @override
-  String get createAccount => 'Create Account';
+  String get forgotPassword => 'Forgot it?';
 
   @override
   String get accountCreated => 'Account created! Please sign in';
-
-  @override
-  String get registerTitle => 'Sign up to get started';
 
   @override
   String get nameLabel => 'Name';
@@ -60,13 +42,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get namePlaceholder => 'John';
 
   @override
-  String get surnameLabel => 'Last Name (optional)';
-
-  @override
   String get surnamePlaceholder => 'Doe';
 
   @override
-  String get confirmPasswordLabel => 'Confirm Password';
+  String get confirmPasswordLabel => 'Confirm password';
 
   @override
   String get errorNameRequired => 'Name is required';
@@ -78,7 +57,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorPasswordsDoNotMatch => 'Passwords do not match';
 
   @override
-  String get registerButton => 'Create Account';
+  String get registerButton => 'Create account';
 
   @override
   String get alreadyHaveAccount => 'Already have an account? ';
@@ -114,134 +93,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lastWeek => 'Last Week';
 
   @override
-  String get pendingSingular => 'Pending';
-
-  @override
-  String get pendingPlural => 'Pending';
-
-  @override
-  String get pendingFilesInfoSingle => 'You have 1 file pending to manage';
-
-  @override
-  String pendingFilesInfo(Object files) {
-    return 'You have $files files pending to manage';
-  }
+  String get noDate => 'No date';
 
   @override
   String get noFiles => 'There is no files to show';
 
   @override
-  String get syncToHaveFiles => 'Synchronize your devices to see your files';
-
-  @override
-  String get selectedFilesSingle => '1 selected';
-
-  @override
-  String selectedFiles(Object files) {
-    return '$files selected';
-  }
-
-  @override
-  String selectedFilesWithLimit(int count) {
-    return '$count / 100 selected';
-  }
-
-  @override
   String get selectionLimitReached => 'You can only select up to 100 files at a time.';
 
   @override
-  String get noFolders => 'You don\'t have any folder. Create a new one.';
-
-  @override
-  String get selectFolder => 'Select one folder';
-
-  @override
-  String get quickActionsTitle => 'QUICK ACTIONS';
-
-  @override
-  String get saveAndKeepTitle => 'Save';
-
-  @override
-  String get saveAndKeepSubtitle => 'Save and keep in the device';
-
-  @override
-  String get saveAndDeleteTitle => 'Save and free up space';
-
-  @override
-  String get saveAndDeleteSubtitle => 'Save and delete from the device';
-
-  @override
-  String get saveInFolderTitle => 'To folder';
-
-  @override
-  String get saveInFolderSubtitle => 'Save in a folder';
-
-  @override
-  String get deleteBothTitle => 'Delete all';
-
-  @override
-  String get deleteBothSubtitle => 'Delete from all places';
-
-  @override
-  String get advancedOptionsTitle => 'ADVANCED OPTIONS';
-
-  @override
-  String get nameFolder => 'Name of the folder';
-
-  @override
-  String get saveInRootTitle => 'Save in root';
-
-  @override
-  String get saveInRootSubtitle => 'Without specific folder';
-
-  @override
-  String get moveToFolderTitle => 'Move to existing folder';
-
-  @override
-  String get moveToFolderSubtitle => 'Select one folder';
-
-  @override
-  String get newFolderTitle => 'Create a new folder';
-
-  @override
-  String get newFolderSubtitle => 'Write the folder name';
-
-  @override
-  String get deleteTitle => 'Delete from server';
-
-  @override
-  String get deleteSubtitle => 'This action is permanent';
-
-  @override
-  String get keepInDeviceTitle => 'Keep file in my device';
-
-  @override
-  String get keepInDeviceSubtitle => 'The file will continue to occupy local storage space.';
-
-  @override
-  String get deleteFromDeviceDescription => 'The file will be removed from the device but will remain on the server';
-
-  @override
-  String manageMultipleFiles(Object files) {
-    return 'Manage $files files';
-  }
-
-  @override
-  String get manageSingleFile => 'What would you like to do with this file?';
-
-  @override
-  String get sameActionWarning => 'The same action will be applied to all the selected files';
-
-  @override
-  String applyMultiple(Object files) {
-    return 'Apply to $files';
-  }
-
-  @override
-  String get applySingle => 'Apply';
-
-  @override
-  String get selectAction => 'Please, select an action';
+  String get newFolderTitle => 'New album';
 
   @override
   String get partialManageTitle => 'Partial management';
@@ -272,51 +133,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get selectFolderError => 'You must select a folder';
-
-  @override
-  String get newFolderNameError => 'You must write a name for the new folder';
-
-  @override
-  String get invalidActionError => 'Invalid action';
-
-  @override
-  String fileCountLabel(Object currentFile, Object totalFiles) {
-    return '$currentFile of $totalFiles';
-  }
-
-  @override
   String get fileTypeNotSupported => 'File type not supported';
 
   @override
-  String get timePassedInMinutesSingular => '1 minute ago';
-
-  @override
-  String timePassedInMinutesPlural(Object minutes) {
-    return '$minutes minutes ago';
-  }
-
-  @override
-  String get timePassedInHoursSingular => '1 hour ago';
-
-  @override
-  String timePassedInHoursPlural(Object hours) {
-    return '$hours hours ago';
-  }
-
-  @override
-  String get timePassedInDaysSingular => '1 day ago';
-
-  @override
-  String timePassedInDaysPlural(Object days) {
-    return '$days days ago';
-  }
-
-  @override
   String get fileProperties => 'File properties';
-
-  @override
-  String get filePropertyType => 'Type';
 
   @override
   String get filePropertyTypeImage => 'Image';
@@ -328,37 +148,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filePropertyStatus => 'Status';
 
   @override
-  String get filePropertyStatusManaged => 'Managed';
-
-  @override
-  String get filePropertyStatusPending => 'Pending';
-
-  @override
   String get filePropertyCapturedAt => 'Captured at';
 
   @override
   String get filePropertyDuration => 'Duration';
 
   @override
-  String get fileDetailManageFile => 'Manage';
-
-  @override
-  String get fileShare => 'Share file';
-
-  @override
-  String get fileDownload => 'Download file';
-
-  @override
   String get loadingVideoError => 'Error loading the video';
 
   @override
-  String get foldersTitle => 'Folders';
+  String get folder => 'Album';
 
   @override
-  String get folder => 'Folder';
-
-  @override
-  String get subfolders => 'Subfolders';
+  String get subfolders => 'Sub-albums';
 
   @override
   String get rename => 'Rename';
@@ -370,130 +172,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
-  String get folderName => 'Folder name';
+  String get folderName => 'Album name';
 
   @override
   String get hintFolderName => 'Ex: Holidays 2024';
 
   @override
-  String get folderNameRequiredError => 'Folder name is required';
+  String get folderNameRequiredError => 'Album name is required';
 
   @override
   String get folderMaxHundredCharactersError => 'Max 100 characters';
 
   @override
-  String get renameFolder => 'Rename folder';
+  String get renameFolder => 'Rename album';
 
   @override
   String get newName => 'New name';
 
   @override
-  String get creatingFolder => 'Creating folder...';
+  String get creatingFolder => 'Creating album...';
 
   @override
-  String get renamingFolder => 'Renaming folder...';
+  String get renamingFolder => 'Renaming album...';
 
   @override
-  String get deletingFolder => 'Deleting folder...';
+  String get deletingFolder => 'Deleting album...';
 
   @override
   String get processing => 'Processing...';
 
   @override
-  String get emptyFolders => 'You don\'t have folders';
+  String get emptyFolders => 'You don\'t have albums';
 
   @override
-  String get emptyFolder => 'This folder is empty';
+  String get emptyFolder => 'This album is empty';
 
   @override
-  String get emptyFolderDescription => 'Move files here to organize them';
+  String get emptyFolderDescription => 'Move photos here to organise them';
 
   @override
-  String get createFirstFolder => 'Tap the + button to create your first folder';
+  String get createFirstFolder => 'Create your first album to organise your photos';
 
   @override
-  String get deleteFolder => 'Delete folder';
+  String get deleteFolder => 'Delete album';
 
   @override
   String deleteEmptyFolder(Object folderName) {
-    return '¿Are you sure you want to delete the folder $folderName?';
+    return 'Are you sure you want to delete the album $folderName?';
   }
 
   @override
   String deleteFolderWithFiles(Object files, Object folderName) {
-    return 'The folder $folderName contains $files files. Are you sure you want to delete all the content?';
+    return 'The album $folderName contains $files files. Are you sure you want to delete all its content?';
   }
 
   @override
   String deleteFolderWithSubfolders(Object folderName, Object subfolders) {
-    return 'The folder $folderName contains $subfolders folders. Are you sure you want to delete all the content?';
+    return 'The album $folderName contains $subfolders sub-albums. Are you sure you want to delete all its content?';
   }
 
   @override
   String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders) {
-    return 'The folder $folderName contains $files files and $subfolders folders. Are you sure you want to delete all the content?';
+    return 'The album $folderName contains $files files and $subfolders sub-albums. Are you sure you want to delete all its content?';
   }
-
-  @override
-  String get syncCurrentState => 'Current state';
-
-  @override
-  String get syncLast => 'Last synchronization';
-
-  @override
-  String get syncEmpty => 'Without synchronizations';
-
-  @override
-  String get syncNow => 'Synchronize now';
-
-  @override
-  String get synchronized => 'Synchronized';
-
-  @override
-  String get syncPending => 'Pending';
-
-  @override
-  String syncFiles(Object syncFiles) {
-    return '$syncFiles synchronized files';
-  }
-
-  @override
-  String get notSyncYet => 'You have not synchronized yet';
-
-  @override
-  String get syncStart => 'Press the synchronization button to start';
-
-  @override
-  String get syncErrorLoad => 'Error loading synchronizations';
-
-  @override
-  String get syncHistoric => 'Recent Activity';
-
-  @override
-  String get syncSessionTitle => 'Synchronization';
-
-  @override
-  String get syncSessionInit => 'Starting synchronization...';
-
-  @override
-  String get syncSessionConnecting => 'Connecting with the server';
-
-  @override
-  String get syncSessionFetchingFiles => 'Fetching files from the gallery...';
-
-  @override
-  String get syncSessionWaitWarning => 'This may take a few seconds';
-
-  @override
-  String get syncSessionUploadingFiles => 'Uploading files...';
-
-  @override
-  String syncSessionFiles(Object totalFiles, Object uploadedFiles) {
-    return '$uploadedFiles/$totalFiles files';
-  }
-
-  @override
-  String get syncSessionCancel => 'Cancel synchronization';
 
   @override
   String get syncSessionCancelWarning => 'Cancel synchronization?';
@@ -502,25 +243,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncSessionCancelDescription => 'The current progress will be lost. The files uploaded will remain in the server.';
 
   @override
-  String get syncSessionCancelShortDescription => 'The synchronization is in progress. You want to cancel?';
-
-  @override
   String get syncSessionCancelConfirm => 'Yes, cancel';
-
-  @override
-  String get syncSessionCompleting => 'Completing synchronization...';
-
-  @override
-  String get syncSessionSave => 'Saving information';
-
-  @override
-  String get syncSessionCompleted => 'Synchronization completed';
-
-  @override
-  String get syncSessionFinished => 'Synchronization finished';
-
-  @override
-  String get syncSessionError => 'Error in the synchronization';
 
   @override
   String get total => 'Total';
@@ -530,26 +253,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failed => 'Failed';
-
-  @override
-  String infoFiles(Object info) {
-    return '$info files';
-  }
-
-  @override
-  String get goBack => 'Return';
-
-  @override
-  String get notificationsTitle => 'Notifications';
-
-  @override
-  String get emptyNotifications => 'Without notifications';
-
-  @override
-  String get noNotificationsYet => 'You don\'t have notifications yet';
-
-  @override
-  String get errorLoadingProfile => 'Error loading the profile';
 
   @override
   String get close => 'Close';
@@ -564,7 +267,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get files => 'Files';
 
   @override
-  String get folders => 'Folders';
+  String get folders => 'Albums';
 
   @override
   String get devices => 'Devices';
@@ -573,49 +276,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editProfile => 'Edit profile';
 
   @override
-  String get editProfileSubtitle => 'Change name and surname';
-
-  @override
   String get myDevices => 'My devices';
-
-  @override
-  String myDevicesSubtitle(Object devices) {
-    return '$devices linked devices';
-  }
 
   @override
   String get trash => 'Trash';
 
   @override
-  String get trashSubtitle => 'View deleted files';
-
-  @override
-  String get syncSettings => 'Sync Settings';
-
-  @override
-  String get syncSettingsSubtitle => 'Auto sync every 6 hours';
-
-  @override
   String get notifications => 'Notifications';
-
-  @override
-  String get notificationsSubtitle => 'Manage notifications';
 
   @override
   String get trashIsEmpty => 'Trash is empty';
 
   @override
   String get trashEmptyDescription => 'Deleted files will appear here and be permanently deleted after 30 days';
-
-  @override
-  String daysRemaining(Object days) {
-    return '${days}d';
-  }
-
-  @override
-  String filesSelected(Object count) {
-    return '$count selected';
-  }
 
   @override
   String get emptyTrash => 'Empty';
@@ -643,11 +316,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deletePermanently => 'Delete permanently';
 
   @override
-  String deleteFilesPermanently(Object count) {
-    return 'Delete $count permanently';
-  }
-
-  @override
   String get deletePermanentlyConfirmation => 'Are you sure you want to permanently delete this file? This action cannot be undone.';
 
   @override
@@ -664,12 +332,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String filesDeletedPermanently(Object count) {
     return '$count files permanently deleted';
   }
-
-  @override
-  String get selectAll => 'Select all';
-
-  @override
-  String get deselectAll => 'Deselect all';
 
   @override
   String get cancel => 'Cancel';
@@ -720,9 +382,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get errorUnknownTitle => 'Unknown Error';
-
-  @override
   String get errorUnknown => 'An unexpected error ocurred. Please, try again later.';
 
   @override
@@ -730,6 +389,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorNetwork => 'No internet connection. Check your connection and try again.';
+
+  @override
+  String get syncInProgressErrorTitle => 'Backup in progress';
+
+  @override
+  String get syncInProgressError => 'A backup is already running. Wait for it to finish and try again.';
 
   @override
   String get errorServerTitle => 'Server Error';
@@ -805,33 +470,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorPasswordRequired => 'Please enter a password';
 
   @override
-  String get forgotPasswordTitle => 'Recover password';
-
-  @override
-  String get forgotPasswordSubtitle => 'Enter your email to receive a verification code';
-
-  @override
   String get sendCodeButton => 'Send code';
 
   @override
   String get emailSentSuccess => 'Code sent to your email';
 
   @override
-  String get validateCodeTitle => 'Verify code';
-
-  @override
-  String validateCodeSubtitle(String email) {
-    return 'Enter the 6-digit code sent to $email';
-  }
-
-  @override
-  String get codeLabel => 'Verification code';
-
-  @override
-  String get codePlaceholder => '123456';
-
-  @override
-  String get validateCodeButton => 'Validate code';
+  String get validateCodeButton => 'Verify code';
 
   @override
   String get resendCodeButton => 'Resend code';
@@ -840,25 +485,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get codeResent => 'Code resent successfully';
 
   @override
-  String get errorCodeRequired => 'Code is required';
-
-  @override
-  String get errorCodeInvalid => 'Code must be 6 digits';
-
-  @override
-  String get resetPasswordTitle => 'New password';
-
-  @override
-  String get resetPasswordSubtitle => 'Enter your new password';
-
-  @override
   String get newPasswordLabel => 'New password';
 
   @override
   String get confirmNewPasswordLabel => 'Confirm new password';
 
   @override
-  String get resetPasswordButton => 'Reset password';
+  String get resetPasswordButton => 'Save password';
 
   @override
   String get passwordResetSuccess => 'Password reset successfully';
@@ -867,10 +500,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorNewPasswordRequired => 'New password is required';
 
   @override
-  String get backToLogin => 'Back to login';
-
-  @override
-  String get editProfileTitle => 'Edit Profile';
+  String get editProfileTitle => 'Edit profile';
 
   @override
   String get currentPasswordLabel => 'Current password';
@@ -882,16 +512,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorCurrentPasswordRequired => 'Current password is required';
 
   @override
-  String get errorCurrentPasswordIncorrect => 'Current password is incorrect';
-
-  @override
   String get saveChanges => 'Save changes';
 
   @override
-  String get profileUpdatedSuccessfully => 'Profile updated successfully';
+  String get profileUpdatedSuccessfully => 'Profile updated';
 
   @override
-  String get passwordChangedSuccessfully => 'Password changed successfully';
+  String get passwordChangedSuccessfully => 'Password changed';
 
   @override
   String get selectProfilePhoto => 'Select profile photo';
@@ -900,16 +527,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changePhoto => 'Change photo';
 
   @override
-  String get basicInfoSection => 'Basic information';
-
-  @override
   String get passwordSection => 'Change password';
 
   @override
-  String get leavePasswordEmptyHint => 'Leave blank if you don\'t want to change the password';
-
-  @override
-  String get savingChanges => 'Saving changes...';
+  String get leavePasswordEmptyHint => 'Leave it blank if you don\'t want to change it';
 
   @override
   String get january => 'January';
@@ -951,9 +572,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get renameDevice => 'Rename device';
 
   @override
-  String get renameDeviceDescription => 'Enter a new name for your device';
-
-  @override
   String get deviceName => 'Device name';
 
   @override
@@ -963,7 +581,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deviceNameTooLong => 'Name is too long (maximum 50 characters)';
 
   @override
-  String get autoSync => 'Auto-sync';
+  String get autoSync => 'Automatic backup';
 
   @override
   String get unlinkDevice => 'Unlink';
@@ -974,7 +592,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deviceActionSuccess => 'Action completed successfully';
+  String get deviceActionSuccess => 'Done';
 
   @override
   String get noDevices => 'No linked devices';
@@ -983,130 +601,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noDevicesDescription => 'Devices will appear here when you sign in to the app from other devices.';
 
   @override
-  String get devicesLoadError => 'Could not load devices';
-
-  @override
   String get retry => 'Retry';
-
-  @override
-  String get syncConfigurationTitle => 'Sync Configuration';
-
-  @override
-  String get syncConfigurationDescription => 'Configure how and when your files will be automatically synced';
-
-  @override
-  String get enableAutoSync => 'Enable automatic sync';
 
   @override
   String get autoSyncEnabled => 'Automatic sync is enabled';
 
   @override
-  String get autoSyncDisabled => 'Automatic sync is disabled';
-
-  @override
-  String get syncFrequencyTitle => 'Sync frequency';
-
-  @override
-  String get syncFrequencyDaily => 'Daily';
-
-  @override
-  String get syncFrequencyWeekly => 'Weekly';
-
-  @override
-  String get syncFrequencyAt => 'at';
-
-  @override
-  String get syncTimeTitle => 'Sync time';
-
-  @override
-  String get syncTimeDescription => 'Select the time you want the sync to run';
-
-  @override
-  String get selectTime => 'Select time';
-
-  @override
-  String get syncDayOfWeekTitle => 'Day of the week';
-
-  @override
-  String get syncDayOfWeekDescription => 'Select the day you want the sync to run';
-
-  @override
   String get monday => 'Monday';
-
-  @override
-  String get tuesday => 'Tuesday';
-
-  @override
-  String get wednesday => 'Wednesday';
-
-  @override
-  String get thursday => 'Thursday';
-
-  @override
-  String get friday => 'Friday';
-
-  @override
-  String get saturday => 'Saturday';
-
-  @override
-  String get sunday => 'Sunday';
-
-  @override
-  String get networkPreferenceTitle => 'Network preference';
-
-  @override
-  String get networkPreferenceWifiOnly => 'WiFi only';
-
-  @override
-  String get networkPreferenceWifiOnlyDescription => 'Sync will only run when connected to WiFi';
-
-  @override
-  String get networkPreferenceAnyNetwork => 'Any network';
-
-  @override
-  String get networkPreferenceAnyNetworkDescription => 'Sync will run on WiFi or mobile data';
-
-  @override
-  String get batteryPreferenceTitle => 'Battery preference';
-
-  @override
-  String get batteryPreferenceAny => 'Any battery level';
-
-  @override
-  String get batteryPreferenceAnyDescription => 'Sync will run regardless of battery level';
-
-  @override
-  String get batteryPreferenceCharging => 'Charging or battery >15%';
-
-  @override
-  String get batteryPreferenceChargingDescription => 'Sync will only run when device is charging or has more than 15% battery';
 
   @override
   String get notifyOnSuccess => 'Notify when sync is successful';
 
   @override
-  String get notifyOnSuccessDescription => 'You will receive a notification when sync completes successfully';
-
-  @override
   String get notifyOnFailure => 'Notify when sync fails';
 
   @override
-  String get notifyOnFailureDescription => 'You will receive a notification when sync fails';
-
-  @override
-  String get saveConfiguration => 'Save configuration';
-
-  @override
-  String get savingConfiguration => 'Saving configuration...';
-
-  @override
-  String get configurationSaved => 'Configuration saved';
-
-  @override
-  String get configurationSavedDescription => 'Your automatic sync configuration has been saved successfully';
-
-  @override
-  String get configurationSaveError => 'Error saving configuration';
+  String get configurationSaved => 'Settings saved';
 
   @override
   String get loadingConfiguration => 'Loading configuration...';
@@ -1115,79 +625,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get configurationLoadError => 'Error loading configuration';
 
   @override
-  String get syncInProgressError => 'Sync in progress';
-
-  @override
-  String get syncInProgressErrorDescription => 'A sync is already in progress. Please wait for it to finish before starting a new one.';
-
-  @override
-  String get syncInProgressDialogTitle => 'Sync in progress';
-
-  @override
-  String get syncInProgressDialogMessage => 'An automatic sync is in progress in the background. Please wait for it to finish before starting a manual sync.';
-
-  @override
-  String get understood => 'Understood';
-
-  @override
-  String get onboardingWelcomeTitle => 'Welcome to Photo Manager!';
-
-  @override
-  String get onboardingWelcomeMessage => 'To give you the best experience, we need your permission to access your photos, send you notifications, and run automatic syncs in the background.\n\nThese permissions allow us to:\n\n• Automatically sync your photos and videos\n• Keep your files safely backed up\n• Notify you about sync progress\n• Run syncs while the app is closed';
-
-  @override
-  String get onboardingWelcomeButton => 'Get Started';
-
-  @override
-  String get onboardingGetStarted => 'Start setup';
-
-  @override
-  String get permissionNotificationTitle => 'Notifications';
-
-  @override
-  String get permissionNotificationMessage => 'We\'ll send you notifications to inform you about the progress of your automatic syncs and when they complete successfully or fail.';
-
-  @override
-  String get permissionNotificationContinue => 'Allow Notifications';
-
-  @override
-  String get permissionNotificationDeniedTitle => 'Notifications Disabled';
-
-  @override
-  String get permissionNotificationDeniedMessage => 'Without notification permission, you won\'t receive updates about your sync status. You can enable notifications later in Settings.';
-
-  @override
-  String get permissionBackgroundTitle => 'Background Sync';
-
-  @override
-  String get permissionBackgroundMessage => 'For automatic sync to work properly, the app needs to run in the background. This allows your photos to sync even when the app is closed.';
-
-  @override
-  String get permissionBackgroundMessageAndroid => 'For automatic sync to work properly, we need to:\n\n• Allow the app to run in the background\n• Disable battery optimization for this app\n\nThis allows your photos to sync even when the app is closed.';
-
-  @override
-  String get permissionBackgroundMessageIOS => 'For automatic sync to work properly, we need to:\n\n• Enable background app refresh\n• Allow the app to run in the background\n\nThis allows your photos to sync even when the app is closed.';
-
-  @override
-  String get permissionBackgroundContinue => 'Allow Background Sync';
-
-  @override
-  String get permissionBackgroundDeniedTitle => 'Background Sync Disabled';
-
-  @override
-  String get permissionBackgroundDeniedMessage => 'Without permission to run in the background, automatic sync will only work when you have the app open. You can enable this later in Settings.';
-
-  @override
   String get onboardingPermissionsRejectedTitle => 'Some Permissions Were Not Granted';
 
   @override
   String get onboardingPermissionsRejectedMessage => 'You have denied some required permissions. The app will work with limited functionality. You can enable these permissions later from the app settings:';
-
-  @override
-  String get onboardingPermissionsRejectedButton => 'I Understand';
-
-  @override
-  String get onboardingPermissionsRetryButton => 'Try Again';
 
   @override
   String get permissionLimitationPhoto => '• You won\'t be able to sync photos or videos';
@@ -1199,17 +640,996 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permissionLimitationBackground => '• Automatic sync will only work with the app open';
 
   @override
-  String get onboardingPermissionsAllGrantedTitle => 'All Set!';
+  String get loginGreeting => 'Welcome back';
 
   @override
-  String get onboardingPermissionsAllGrantedMessage => 'All permissions have been granted successfully. You can now start using Photo Manager with all its features.';
+  String get loginSubtitle => 'Sign in to see and organise your photos.';
 
   @override
-  String get onboardingPermissionsAllGrantedButton => 'Go to Gallery';
+  String get noAccountYet => 'Don\'t have an account yet?';
 
   @override
-  String get errorGalleryPermissionTitle => 'Gallery Permission Required';
+  String get createAccountLink => 'Create account';
 
   @override
-  String get errorGalleryPermission => 'The app needs access to your gallery to work. Please enable the permission in Settings.';
+  String get registerHeadline => 'Create your account';
+
+  @override
+  String get registerSubtitle => 'Back up your photos and free up space on your phone.';
+
+  @override
+  String get surnameShortLabel => 'Last name';
+
+  @override
+  String get optionalLabel => '(optional)';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String stepOf(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get forgotPasswordHeadline => 'Forgot your password?';
+
+  @override
+  String get forgotPasswordBody => 'Enter your email and we\'ll send you a code to create a new one.';
+
+  @override
+  String get checkYourEmail => 'Check your email';
+
+  @override
+  String codeSentTo(String email) {
+    return 'We\'ve sent a 6-digit code to $email';
+  }
+
+  @override
+  String get didNotReceiveCode => 'Didn\'t get it?';
+
+  @override
+  String resendIn(String time) {
+    return 'Resend in $time';
+  }
+
+  @override
+  String get newPasswordHeadline => 'Create a new password';
+
+  @override
+  String get newPasswordBody => 'Use one you haven\'t used before on this account.';
+
+  @override
+  String get navPhotos => 'Photos';
+
+  @override
+  String get backupUpToDate => 'Up to date';
+
+  @override
+  String backupInProgress(int percent) {
+    return 'Backing up $percent%';
+  }
+
+  @override
+  String get backupFailed => 'Backup failed';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterToReview => 'To review';
+
+  @override
+  String toReviewTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items to review',
+      one: '1 item to review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get toReviewBody => 'Decide whether to keep them or free up space on your phone';
+
+  @override
+  String get review => 'Review';
+
+  @override
+  String get select => 'Select';
+
+  @override
+  String selectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get selectAllShort => 'All';
+
+  @override
+  String get selectNone => 'None';
+
+  @override
+  String get noPhotosYet => 'No photos yet';
+
+  @override
+  String get noPhotosBody => 'Back up your phone to see them here';
+
+  @override
+  String get backupNow => 'Back up now';
+
+  @override
+  String get openProfile => 'Open profile';
+
+  @override
+  String get closeSelection => 'Exit selection';
+
+  @override
+  String dayAndTime(String day, String time) {
+    return '$day, $time';
+  }
+
+  @override
+  String get viewerInfo => 'Info';
+
+  @override
+  String get actionSave => 'Save';
+
+  @override
+  String get actionDelete => 'Delete';
+
+  @override
+  String get deleteFileTitle => 'Delete this file?';
+
+  @override
+  String get deleteFileBody => 'It will be removed from your cloud and this phone. You can restore it from the trash for 30 days.';
+
+  @override
+  String get copyId => 'Copy ID';
+
+  @override
+  String get copiedToClipboard => 'Copied';
+
+  @override
+  String get statusSafe => 'Backed up';
+
+  @override
+  String get navAlbums => 'Albums';
+
+  @override
+  String get searchAlbums => 'Search albums';
+
+  @override
+  String get newAlbum => 'New';
+
+  @override
+  String get createAlbum => 'Create album';
+
+  @override
+  String albumMeta(int count, int subcount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      subcount,
+      locale: localeName,
+      other: '$subcount sub-albums',
+      one: '1 sub-album',
+    );
+    return '$count · $_temp0';
+  }
+
+  @override
+  String itemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+      zero: 'Empty',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get subalbum => 'Sub-album';
+
+  @override
+  String get newSubalbum => 'New sub-album';
+
+  @override
+  String get moreOptions => 'More options';
+
+  @override
+  String noAlbumsMatch(String query) {
+    return 'No album matches “$query”';
+  }
+
+  @override
+  String get navBackup => 'Backup';
+
+  @override
+  String get allSafe => 'All backed up';
+
+  @override
+  String lastBackupMeta(String when, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return 'Last backup $when · $_temp0';
+  }
+
+  @override
+  String copyingNofM(int done, int total) {
+    return 'Backing up $done of $total';
+  }
+
+  @override
+  String get backupIncomplete => 'The last backup didn\'t finish';
+
+  @override
+  String backupIncompleteMeta(String when, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count failures',
+      one: '1 failure',
+    );
+    return '$when · $_temp0';
+  }
+
+  @override
+  String get noBackupsYet => 'You haven\'t backed up yet';
+
+  @override
+  String get noBackupsBody => 'Save your photos to the cloud and free up space on your phone.';
+
+  @override
+  String get backupCancelledTitle => 'The last backup was cancelled';
+
+  @override
+  String condDaily(String time) {
+    return 'Daily · $time';
+  }
+
+  @override
+  String condWeekly(String day, String time) {
+    return '$day · $time';
+  }
+
+  @override
+  String get condWifi => 'Wi-Fi only';
+
+  @override
+  String get condAnyNetwork => 'Wi-Fi and data';
+
+  @override
+  String get condBattery => 'Charging or >15%';
+
+  @override
+  String get autoBackupOff => 'Automatic backup off';
+
+  @override
+  String get backupSettings => 'Backup settings';
+
+  @override
+  String get activity => 'Activity';
+
+  @override
+  String itemsSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items saved',
+      one: '1 item saved',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String incompleteWithFailures(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count failures',
+      one: '1 failure',
+    );
+    return 'Incomplete backup · $_temp0';
+  }
+
+  @override
+  String get backupCancelled => 'Backup cancelled';
+
+  @override
+  String get backupRunning => 'Backup in progress';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String storageOf(String used, String total) {
+    return '$used of $total';
+  }
+
+  @override
+  String elementsLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'items',
+      one: 'item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String albumsLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'albums',
+      one: 'album',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String devicesLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'devices',
+      one: 'device',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sectionBackupSpace => 'Backup and space';
+
+  @override
+  String get sectionApp => 'App';
+
+  @override
+  String dailyAt(String time) {
+    return 'Daily at $time';
+  }
+
+  @override
+  String weeklyAt(String day, String time) {
+    return '$day at $time';
+  }
+
+  @override
+  String linkedDevices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count linked',
+      one: '1 linked',
+      zero: 'None linked',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get trashAutoEmpty => 'Emptied after 30 days';
+
+  @override
+  String get notifOnlyFailures => 'Failures only';
+
+  @override
+  String get notifOnlySuccess => 'Finished only';
+
+  @override
+  String get notifAll => 'All';
+
+  @override
+  String get notifOff => 'Off';
+
+  @override
+  String get sectionData => 'Details';
+
+  @override
+  String get sectionPassword => 'Password';
+
+  @override
+  String get gallerySource => 'Gallery';
+
+  @override
+  String get camera => 'Camera';
+
+  @override
+  String get thisDevice => 'This phone';
+
+  @override
+  String get emptyTrashShort => 'Empty';
+
+  @override
+  String get trashInfo => 'Items are deleted forever after 30 days. Long-press to restore several.';
+
+  @override
+  String get deletingSoon => 'Deleted soon';
+
+  @override
+  String get thisMonth => 'This month';
+
+  @override
+  String daysLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+      zero: 'Today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteForever => 'Delete forever';
+
+  @override
+  String deletesIn(String time) {
+    return 'Deleted in $time';
+  }
+
+  @override
+  String selectedItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get autoBackupBody => 'Your new photos are saved automatically';
+
+  @override
+  String get sectionWhen => 'When';
+
+  @override
+  String get everyDay => 'Every day';
+
+  @override
+  String get oncePerWeek => 'Once a week';
+
+  @override
+  String get day => 'Day';
+
+  @override
+  String get time => 'Time';
+
+  @override
+  String nextBackup(String when) {
+    return 'Next backup: $when';
+  }
+
+  @override
+  String get sectionConditions => 'Conditions';
+
+  @override
+  String get network => 'Network';
+
+  @override
+  String get battery => 'Battery';
+
+  @override
+  String get always => 'Always';
+
+  @override
+  String get sectionAlerts => 'Alerts';
+
+  @override
+  String get alertSuccess => 'When it finishes';
+
+  @override
+  String get alertSuccessBody => 'A notice with what was saved';
+
+  @override
+  String get alertFailure => 'If something fails';
+
+  @override
+  String get alertFailureBody => 'So you can retry it';
+
+  @override
+  String get sectionDiagnostics => 'Diagnostics';
+
+  @override
+  String manageQuestion(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'What should we do with these $count photos?',
+      one: 'What should we do with this photo?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String photosSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos selected',
+      one: '1 photo selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String photosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos',
+      one: '1 photo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get optSaveFree => 'Save and free up space';
+
+  @override
+  String get optSaveFreeBody => 'They\'re saved to your cloud and removed from the phone.';
+
+  @override
+  String get recommended => 'Recommended';
+
+  @override
+  String get optSaveKeep => 'Save and keep on the phone';
+
+  @override
+  String get optSaveKeepBody => 'You\'ll have a copy in the cloud and another one here.';
+
+  @override
+  String get optAlbum => 'Save to an album';
+
+  @override
+  String get optAlbumBody => 'Pick an existing one or create a new one.';
+
+  @override
+  String get newAlbumChip => 'New';
+
+  @override
+  String get deleteAfterSaving => 'Remove from the phone afterwards';
+
+  @override
+  String get deleteEverywhere => 'Delete everywhere';
+
+  @override
+  String saveToAlbum(String album) {
+    return 'Save to $album';
+  }
+
+  @override
+  String get chooseAlbum => 'Choose an album';
+
+  @override
+  String get actionToAlbum => 'To album';
+
+  @override
+  String get actionFreeUp => 'Free up';
+
+  @override
+  String get freeUpTitle => 'Free up space on the phone?';
+
+  @override
+  String freeUpBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The $count photos will be saved to your cloud and removed from this phone.',
+      one: 'The photo will be saved to your cloud and removed from this phone.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deleteFilesTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Delete $count photos?',
+      one: 'Delete this photo?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFilesBody => 'They\'ll be removed from your cloud and this phone. You can restore them from the trash for 30 days.';
+
+  @override
+  String get preparingBackup => 'Preparing the backup…';
+
+  @override
+  String get lookingForPhotos => 'Looking for new photos';
+
+  @override
+  String get finishingBackup => 'Finishing the backup…';
+
+  @override
+  String get cancellingBackup => 'Cancelling…';
+
+  @override
+  String remainingMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'About $count min left',
+      one: 'About 1 min left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get remainingLessThanMinute => 'Less than a minute left';
+
+  @override
+  String get backgroundInfo => 'You can leave the app: the backup continues in the background and we\'ll let you know when it\'s done.';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get seeLess => 'See less';
+
+  @override
+  String welcomeUser(String name) {
+    return 'Welcome, $name';
+  }
+
+  @override
+  String get welcomeGeneric => 'Welcome';
+
+  @override
+  String get permissionsHeadline => 'Three permissions and we\'re ready';
+
+  @override
+  String get permissionsBody => 'That way we can save your photos automatically and let you know when each backup finishes.';
+
+  @override
+  String get permPhotosTitle => 'Photos and videos';
+
+  @override
+  String get permPhotosBody => 'To back them up and free up space';
+
+  @override
+  String get permNotifTitle => 'Notifications';
+
+  @override
+  String get permNotifBody => 'We let you know when it\'s done or if it fails';
+
+  @override
+  String get permBgTitle => 'Background';
+
+  @override
+  String get permBgBody => 'Backups with the app closed';
+
+  @override
+  String get allow => 'Allow';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get permSettings => 'Settings';
+
+  @override
+  String get privacyNote => 'Your photos are private. You can change these permissions any time from Profile.';
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
+  String get later => 'Do it later';
+
+  @override
+  String get continueAnyway => 'Continue anyway';
+
+  @override
+  String get reviewPermissions => 'Review permissions';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get themeSystem => 'Automatic';
+
+  @override
+  String get themeSystemHint => 'Follows your phone\'s mode';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String deviceLastBackup(String os, String when) {
+    return '$os · Last backup $when';
+  }
+
+  @override
+  String photosSelectedSize(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos · $size',
+      one: '1 photo · $size',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String freeUpSize(String size) {
+    return 'Free up $size';
+  }
+
+  @override
+  String get filePropertyName => 'Name';
+
+  @override
+  String get filePropertyUploadedAt => 'Uploaded at';
+
+  @override
+  String get filePropertySize => 'Size';
+
+  @override
+  String get filePropertyDimensions => 'Dimensions';
+
+  @override
+  String get filePropertyAlbum => 'Album';
+
+  @override
+  String get filePropertyDevice => 'Device';
+
+  @override
+  String get fileInfoLoading => 'Loading details…';
+
+  @override
+  String get filterFavorites => 'Favorites';
+
+  @override
+  String get favorite => 'Favorite';
+
+  @override
+  String get addToFavorites => 'Add to favorites';
+
+  @override
+  String get removeFromFavorites => 'Remove from favorites';
+
+  @override
+  String get favoritesEmptyTitle => 'No favorites yet';
+
+  @override
+  String get favoritesEmptyBody => 'Tap the heart while viewing a photo to keep it here';
+
+  @override
+  String favoritesAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count added to favorites',
+      one: 'Added to favorites',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String favoritesRemoved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count removed from favorites',
+      one: 'Removed from favorites',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get favoriteError => 'Couldn\'t update. Please try again.';
+
+  @override
+  String get move => 'Move';
+
+  @override
+  String get cover => 'Cover';
+
+  @override
+  String coverOf(String album) {
+    return 'Cover of $album';
+  }
+
+  @override
+  String coverOfMany(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Cover of $count albums',
+      one: 'Cover of 1 album',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get useAsCover => 'Use as cover';
+
+  @override
+  String get useAsCoverBody => 'Tick the albums where you want it to appear. Up to 3 per album.';
+
+  @override
+  String get photoIsHere => 'The photo is here';
+
+  @override
+  String get photosAreHere => 'The photos are here';
+
+  @override
+  String get coverAlreadyHint => 'Already a cover · untick to remove it';
+
+  @override
+  String coverWillAdd(int count) {
+    return 'Will be added · $count of 3';
+  }
+
+  @override
+  String get coverFullChoose => 'Full · choose which to replace';
+
+  @override
+  String coverFullChooseMany(int count) {
+    return 'Full · choose $count to replace';
+  }
+
+  @override
+  String get coverWillRemove => 'Will be removed from the cover';
+
+  @override
+  String coverCount(int count) {
+    return '$count of 3 covers';
+  }
+
+  @override
+  String get replace => 'Replace';
+
+  @override
+  String replaceCoverOf(int position, String album) {
+    return 'Replace cover $position of $album';
+  }
+
+  @override
+  String get coverTreeNote => 'Only the photo\'s album and the albums that contain it are shown.';
+
+  @override
+  String saveChangesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Save · $count changes',
+      one: 'Save · 1 change',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coverUpdated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Cover updated in $count albums',
+      one: 'Cover updated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String upToThreeCovers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos',
+      one: '1 photo',
+    );
+    return '$_temp0 · up to 3 can be a cover';
+  }
+
+  @override
+  String get chooseUpToThree => 'Choose up to 3 photos to use as cover';
+
+  @override
+  String get videosCannotBeCovers => 'Videos can\'t be album covers';
+
+  @override
+  String get noSharedAlbum => 'These photos don\'t share an album';
+
+  @override
+  String inAlbum(String album) {
+    return 'in $album';
+  }
+
+  @override
+  String albumCoverTitle(String album) {
+    return 'Cover of $album';
+  }
+
+  @override
+  String albumCoverSubtitle(int count) {
+    return '$count of 3 photos · drag to change the order';
+  }
+
+  @override
+  String albumCoverCard(int count) {
+    return '$count of 3 photos';
+  }
+
+  @override
+  String get albumCoverAuto => 'Automatic · recent photos';
+
+  @override
+  String get previewInAlbums => 'How it looks in Albums';
+
+  @override
+  String get previewInAlbumsBody => 'The first photo is the big one. With 1 or 2 photos the mosaic adapts.';
+
+  @override
+  String get coverAutomatic => 'Automatic';
+
+  @override
+  String get coverMain => 'Main';
+
+  @override
+  String get coverSecond => 'Second';
+
+  @override
+  String get coverThird => 'Third';
+
+  @override
+  String get fromThisAlbum => 'From this album';
+
+  @override
+  String fromAlbum(String path) {
+    return 'From $path';
+  }
+
+  @override
+  String get removeCover => 'Remove from cover';
+
+  @override
+  String get coverRemoved => 'Removed from the cover';
+
+  @override
+  String get addCoverHint => 'To add another, open a photo of this album or its sub-albums and tap «Cover». Without covers, the most recent photos are used.';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get moveUp => 'Move up';
+
+  @override
+  String get moveDown => 'Move down';
+
+  @override
+  String get coverBadge => 'Cover';
+
+  @override
+  String bytesToUpload(String size) {
+    return '$size left to upload';
+  }
 }

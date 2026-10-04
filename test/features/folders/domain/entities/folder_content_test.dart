@@ -62,6 +62,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       // Assert
@@ -78,6 +79,7 @@ void main() {
         subfolders: testSubfolders,
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Act & Assert
@@ -91,6 +93,7 @@ void main() {
         subfolders: const [],
         files: testFiles,
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Act & Assert
@@ -104,6 +107,7 @@ void main() {
         subfolders: const [],
         files: testFiles,
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Act & Assert
@@ -117,6 +121,7 @@ void main() {
         subfolders: testSubfolders,
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Act & Assert
@@ -130,6 +135,7 @@ void main() {
         subfolders: const [],
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Act & Assert
@@ -143,6 +149,7 @@ void main() {
         subfolders: testSubfolders,
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Act & Assert
@@ -156,6 +163,7 @@ void main() {
         subfolders: const [],
         files: testFiles,
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Act & Assert
@@ -169,6 +177,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       final newFolder = Folder(
@@ -198,6 +207,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       final newSubfolders = <Folder>[];
@@ -219,6 +229,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       final newFiles = <GalleryFile>[];
@@ -240,6 +251,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       // Act
@@ -259,6 +271,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       final newFolder = Folder(
@@ -291,6 +304,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       // Act
@@ -310,6 +324,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       final content2 = FolderContent(
@@ -317,6 +332,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       // Act & Assert
@@ -331,6 +347,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       final differentFolder = Folder(
@@ -348,6 +365,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       // Act & Assert
@@ -361,6 +379,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       final content2 = FolderContent(
@@ -368,6 +387,7 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Act & Assert
@@ -381,6 +401,7 @@ void main() {
         subfolders: const [],
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Assert
@@ -410,6 +431,7 @@ void main() {
         subfolders: manySubfolders,
         files: const [],
         hasMoreFiles: false,
+        totalFilesCount: 0,
       );
 
       // Assert
@@ -435,6 +457,7 @@ void main() {
         subfolders: const [],
         files: manyFiles,
         hasMoreFiles: true,
+        totalFilesCount: 0,
       );
 
       // Assert
@@ -450,14 +473,15 @@ void main() {
         subfolders: testSubfolders,
         files: testFiles,
         hasMoreFiles: true,
+        totalFilesCount: 42,
       );
 
       // Act
       final props = content.props;
 
       // Assert
-      expect(props, [testFolder, testSubfolders, testFiles, true]);
-      expect(props.length, 4);
+      expect(props, [testFolder, testSubfolders, testFiles, true, 42]);
+      expect(props.length, 5);
     });
   });
 }

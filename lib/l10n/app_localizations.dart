@@ -101,18 +101,6 @@ abstract class AppLocalizations {
   /// **'File Manager'**
   String get appTitle;
 
-  /// No description provided for @welcome.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome'**
-  String get welcome;
-
-  /// No description provided for @loginTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Login'**
-  String get loginTitle;
-
   /// No description provided for @emailLabel.
   ///
   /// In en, this message translates to:
@@ -140,50 +128,26 @@ abstract class AppLocalizations {
   /// No description provided for @logoutButton.
   ///
   /// In en, this message translates to:
-  /// **'Sign Out'**
+  /// **'Sign out'**
   String get logoutButton;
 
   /// No description provided for @logoutConfirmation.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure to logout?'**
+  /// **'Are you sure you want to sign out?'**
   String get logoutConfirmation;
 
   /// No description provided for @forgotPassword.
   ///
   /// In en, this message translates to:
-  /// **'Forgot your password?'**
+  /// **'Forgot it?'**
   String get forgotPassword;
-
-  /// No description provided for @notHaveAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'You don\'t have an account? '**
-  String get notHaveAccount;
-
-  /// No description provided for @signUp.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign Up'**
-  String get signUp;
-
-  /// No description provided for @createAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Create Account'**
-  String get createAccount;
 
   /// No description provided for @accountCreated.
   ///
   /// In en, this message translates to:
   /// **'Account created! Please sign in'**
   String get accountCreated;
-
-  /// No description provided for @registerTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign up to get started'**
-  String get registerTitle;
 
   /// No description provided for @nameLabel.
   ///
@@ -197,12 +161,6 @@ abstract class AppLocalizations {
   /// **'John'**
   String get namePlaceholder;
 
-  /// No description provided for @surnameLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Last Name (optional)'**
-  String get surnameLabel;
-
   /// No description provided for @surnamePlaceholder.
   ///
   /// In en, this message translates to:
@@ -212,7 +170,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmPasswordLabel.
   ///
   /// In en, this message translates to:
-  /// **'Confirm Password'**
+  /// **'Confirm password'**
   String get confirmPasswordLabel;
 
   /// No description provided for @errorNameRequired.
@@ -236,7 +194,7 @@ abstract class AppLocalizations {
   /// No description provided for @registerButton.
   ///
   /// In en, this message translates to:
-  /// **'Create Account'**
+  /// **'Create account'**
   String get registerButton;
 
   /// No description provided for @alreadyHaveAccount.
@@ -305,29 +263,11 @@ abstract class AppLocalizations {
   /// **'Last Week'**
   String get lastWeek;
 
-  /// No description provided for @pendingSingular.
+  /// No description provided for @noDate.
   ///
   /// In en, this message translates to:
-  /// **'Pending'**
-  String get pendingSingular;
-
-  /// No description provided for @pendingPlural.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending'**
-  String get pendingPlural;
-
-  /// No description provided for @pendingFilesInfoSingle.
-  ///
-  /// In en, this message translates to:
-  /// **'You have 1 file pending to manage'**
-  String get pendingFilesInfoSingle;
-
-  /// No description provided for @pendingFilesInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'You have {files} files pending to manage'**
-  String pendingFilesInfo(Object files);
+  /// **'No date'**
+  String get noDate;
 
   /// No description provided for @noFiles.
   ///
@@ -335,215 +275,17 @@ abstract class AppLocalizations {
   /// **'There is no files to show'**
   String get noFiles;
 
-  /// No description provided for @syncToHaveFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronize your devices to see your files'**
-  String get syncToHaveFiles;
-
-  /// No description provided for @selectedFilesSingle.
-  ///
-  /// In en, this message translates to:
-  /// **'1 selected'**
-  String get selectedFilesSingle;
-
-  /// No description provided for @selectedFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'{files} selected'**
-  String selectedFiles(Object files);
-
-  /// No description provided for @selectedFilesWithLimit.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} / 100 selected'**
-  String selectedFilesWithLimit(int count);
-
   /// No description provided for @selectionLimitReached.
   ///
   /// In en, this message translates to:
   /// **'You can only select up to 100 files at a time.'**
   String get selectionLimitReached;
 
-  /// No description provided for @noFolders.
-  ///
-  /// In en, this message translates to:
-  /// **'You don\'t have any folder. Create a new one.'**
-  String get noFolders;
-
-  /// No description provided for @selectFolder.
-  ///
-  /// In en, this message translates to:
-  /// **'Select one folder'**
-  String get selectFolder;
-
-  /// No description provided for @quickActionsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'QUICK ACTIONS'**
-  String get quickActionsTitle;
-
-  /// No description provided for @saveAndKeepTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save'**
-  String get saveAndKeepTitle;
-
-  /// No description provided for @saveAndKeepSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save and keep in the device'**
-  String get saveAndKeepSubtitle;
-
-  /// No description provided for @saveAndDeleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save and free up space'**
-  String get saveAndDeleteTitle;
-
-  /// No description provided for @saveAndDeleteSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save and delete from the device'**
-  String get saveAndDeleteSubtitle;
-
-  /// No description provided for @saveInFolderTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'To folder'**
-  String get saveInFolderTitle;
-
-  /// No description provided for @saveInFolderSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save in a folder'**
-  String get saveInFolderSubtitle;
-
-  /// No description provided for @deleteBothTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete all'**
-  String get deleteBothTitle;
-
-  /// No description provided for @deleteBothSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete from all places'**
-  String get deleteBothSubtitle;
-
-  /// No description provided for @advancedOptionsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'ADVANCED OPTIONS'**
-  String get advancedOptionsTitle;
-
-  /// No description provided for @nameFolder.
-  ///
-  /// In en, this message translates to:
-  /// **'Name of the folder'**
-  String get nameFolder;
-
-  /// No description provided for @saveInRootTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Save in root'**
-  String get saveInRootTitle;
-
-  /// No description provided for @saveInRootSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Without specific folder'**
-  String get saveInRootSubtitle;
-
-  /// No description provided for @moveToFolderTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Move to existing folder'**
-  String get moveToFolderTitle;
-
-  /// No description provided for @moveToFolderSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Select one folder'**
-  String get moveToFolderSubtitle;
-
   /// No description provided for @newFolderTitle.
   ///
   /// In en, this message translates to:
-  /// **'Create a new folder'**
+  /// **'New album'**
   String get newFolderTitle;
-
-  /// No description provided for @newFolderSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Write the folder name'**
-  String get newFolderSubtitle;
-
-  /// No description provided for @deleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete from server'**
-  String get deleteTitle;
-
-  /// No description provided for @deleteSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'This action is permanent'**
-  String get deleteSubtitle;
-
-  /// No description provided for @keepInDeviceTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep file in my device'**
-  String get keepInDeviceTitle;
-
-  /// No description provided for @keepInDeviceSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'The file will continue to occupy local storage space.'**
-  String get keepInDeviceSubtitle;
-
-  /// No description provided for @deleteFromDeviceDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'The file will be removed from the device but will remain on the server'**
-  String get deleteFromDeviceDescription;
-
-  /// No description provided for @manageMultipleFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage {files} files'**
-  String manageMultipleFiles(Object files);
-
-  /// No description provided for @manageSingleFile.
-  ///
-  /// In en, this message translates to:
-  /// **'What would you like to do with this file?'**
-  String get manageSingleFile;
-
-  /// No description provided for @sameActionWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'The same action will be applied to all the selected files'**
-  String get sameActionWarning;
-
-  /// No description provided for @applyMultiple.
-  ///
-  /// In en, this message translates to:
-  /// **'Apply to {files}'**
-  String applyMultiple(Object files);
-
-  /// No description provided for @applySingle.
-  ///
-  /// In en, this message translates to:
-  /// **'Apply'**
-  String get applySingle;
-
-  /// No description provided for @selectAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Please, select an action'**
-  String get selectAction;
 
   /// No description provided for @partialManageTitle.
   ///
@@ -593,83 +335,17 @@ abstract class AppLocalizations {
   /// **'{files} files failed'**
   String failedManage(Object files);
 
-  /// No description provided for @selectFolderError.
-  ///
-  /// In en, this message translates to:
-  /// **'You must select a folder'**
-  String get selectFolderError;
-
-  /// No description provided for @newFolderNameError.
-  ///
-  /// In en, this message translates to:
-  /// **'You must write a name for the new folder'**
-  String get newFolderNameError;
-
-  /// No description provided for @invalidActionError.
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid action'**
-  String get invalidActionError;
-
-  /// No description provided for @fileCountLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'{currentFile} of {totalFiles}'**
-  String fileCountLabel(Object currentFile, Object totalFiles);
-
   /// No description provided for @fileTypeNotSupported.
   ///
   /// In en, this message translates to:
   /// **'File type not supported'**
   String get fileTypeNotSupported;
 
-  /// No description provided for @timePassedInMinutesSingular.
-  ///
-  /// In en, this message translates to:
-  /// **'1 minute ago'**
-  String get timePassedInMinutesSingular;
-
-  /// No description provided for @timePassedInMinutesPlural.
-  ///
-  /// In en, this message translates to:
-  /// **'{minutes} minutes ago'**
-  String timePassedInMinutesPlural(Object minutes);
-
-  /// No description provided for @timePassedInHoursSingular.
-  ///
-  /// In en, this message translates to:
-  /// **'1 hour ago'**
-  String get timePassedInHoursSingular;
-
-  /// No description provided for @timePassedInHoursPlural.
-  ///
-  /// In en, this message translates to:
-  /// **'{hours} hours ago'**
-  String timePassedInHoursPlural(Object hours);
-
-  /// No description provided for @timePassedInDaysSingular.
-  ///
-  /// In en, this message translates to:
-  /// **'1 day ago'**
-  String get timePassedInDaysSingular;
-
-  /// No description provided for @timePassedInDaysPlural.
-  ///
-  /// In en, this message translates to:
-  /// **'{days} days ago'**
-  String timePassedInDaysPlural(Object days);
-
   /// No description provided for @fileProperties.
   ///
   /// In en, this message translates to:
   /// **'File properties'**
   String get fileProperties;
-
-  /// No description provided for @filePropertyType.
-  ///
-  /// In en, this message translates to:
-  /// **'Type'**
-  String get filePropertyType;
 
   /// No description provided for @filePropertyTypeImage.
   ///
@@ -689,18 +365,6 @@ abstract class AppLocalizations {
   /// **'Status'**
   String get filePropertyStatus;
 
-  /// No description provided for @filePropertyStatusManaged.
-  ///
-  /// In en, this message translates to:
-  /// **'Managed'**
-  String get filePropertyStatusManaged;
-
-  /// No description provided for @filePropertyStatusPending.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending'**
-  String get filePropertyStatusPending;
-
   /// No description provided for @filePropertyCapturedAt.
   ///
   /// In en, this message translates to:
@@ -713,46 +377,22 @@ abstract class AppLocalizations {
   /// **'Duration'**
   String get filePropertyDuration;
 
-  /// No description provided for @fileDetailManageFile.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage'**
-  String get fileDetailManageFile;
-
-  /// No description provided for @fileShare.
-  ///
-  /// In en, this message translates to:
-  /// **'Share file'**
-  String get fileShare;
-
-  /// No description provided for @fileDownload.
-  ///
-  /// In en, this message translates to:
-  /// **'Download file'**
-  String get fileDownload;
-
   /// No description provided for @loadingVideoError.
   ///
   /// In en, this message translates to:
   /// **'Error loading the video'**
   String get loadingVideoError;
 
-  /// No description provided for @foldersTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Folders'**
-  String get foldersTitle;
-
   /// No description provided for @folder.
   ///
   /// In en, this message translates to:
-  /// **'Folder'**
+  /// **'Album'**
   String get folder;
 
   /// No description provided for @subfolders.
   ///
   /// In en, this message translates to:
-  /// **'Subfolders'**
+  /// **'Sub-albums'**
   String get subfolders;
 
   /// No description provided for @rename.
@@ -776,7 +416,7 @@ abstract class AppLocalizations {
   /// No description provided for @folderName.
   ///
   /// In en, this message translates to:
-  /// **'Folder name'**
+  /// **'Album name'**
   String get folderName;
 
   /// No description provided for @hintFolderName.
@@ -788,7 +428,7 @@ abstract class AppLocalizations {
   /// No description provided for @folderNameRequiredError.
   ///
   /// In en, this message translates to:
-  /// **'Folder name is required'**
+  /// **'Album name is required'**
   String get folderNameRequiredError;
 
   /// No description provided for @folderMaxHundredCharactersError.
@@ -800,7 +440,7 @@ abstract class AppLocalizations {
   /// No description provided for @renameFolder.
   ///
   /// In en, this message translates to:
-  /// **'Rename folder'**
+  /// **'Rename album'**
   String get renameFolder;
 
   /// No description provided for @newName.
@@ -812,19 +452,19 @@ abstract class AppLocalizations {
   /// No description provided for @creatingFolder.
   ///
   /// In en, this message translates to:
-  /// **'Creating folder...'**
+  /// **'Creating album...'**
   String get creatingFolder;
 
   /// No description provided for @renamingFolder.
   ///
   /// In en, this message translates to:
-  /// **'Renaming folder...'**
+  /// **'Renaming album...'**
   String get renamingFolder;
 
   /// No description provided for @deletingFolder.
   ///
   /// In en, this message translates to:
-  /// **'Deleting folder...'**
+  /// **'Deleting album...'**
   String get deletingFolder;
 
   /// No description provided for @processing.
@@ -836,170 +476,56 @@ abstract class AppLocalizations {
   /// No description provided for @emptyFolders.
   ///
   /// In en, this message translates to:
-  /// **'You don\'t have folders'**
+  /// **'You don\'t have albums'**
   String get emptyFolders;
 
   /// No description provided for @emptyFolder.
   ///
   /// In en, this message translates to:
-  /// **'This folder is empty'**
+  /// **'This album is empty'**
   String get emptyFolder;
 
   /// No description provided for @emptyFolderDescription.
   ///
   /// In en, this message translates to:
-  /// **'Move files here to organize them'**
+  /// **'Move photos here to organise them'**
   String get emptyFolderDescription;
 
   /// No description provided for @createFirstFolder.
   ///
   /// In en, this message translates to:
-  /// **'Tap the + button to create your first folder'**
+  /// **'Create your first album to organise your photos'**
   String get createFirstFolder;
 
   /// No description provided for @deleteFolder.
   ///
   /// In en, this message translates to:
-  /// **'Delete folder'**
+  /// **'Delete album'**
   String get deleteFolder;
 
   /// No description provided for @deleteEmptyFolder.
   ///
   /// In en, this message translates to:
-  /// **'¿Are you sure you want to delete the folder {folderName}?'**
+  /// **'Are you sure you want to delete the album {folderName}?'**
   String deleteEmptyFolder(Object folderName);
 
   /// No description provided for @deleteFolderWithFiles.
   ///
   /// In en, this message translates to:
-  /// **'The folder {folderName} contains {files} files. Are you sure you want to delete all the content?'**
+  /// **'The album {folderName} contains {files} files. Are you sure you want to delete all its content?'**
   String deleteFolderWithFiles(Object files, Object folderName);
 
   /// No description provided for @deleteFolderWithSubfolders.
   ///
   /// In en, this message translates to:
-  /// **'The folder {folderName} contains {subfolders} folders. Are you sure you want to delete all the content?'**
+  /// **'The album {folderName} contains {subfolders} sub-albums. Are you sure you want to delete all its content?'**
   String deleteFolderWithSubfolders(Object folderName, Object subfolders);
 
   /// No description provided for @deleteFolderWithFilesAndSubfoldersWarning.
   ///
   /// In en, this message translates to:
-  /// **'The folder {folderName} contains {files} files and {subfolders} folders. Are you sure you want to delete all the content?'**
+  /// **'The album {folderName} contains {files} files and {subfolders} sub-albums. Are you sure you want to delete all its content?'**
   String deleteFolderWithFilesAndSubfoldersWarning(Object files, Object folderName, Object subfolders);
-
-  /// No description provided for @syncCurrentState.
-  ///
-  /// In en, this message translates to:
-  /// **'Current state'**
-  String get syncCurrentState;
-
-  /// No description provided for @syncLast.
-  ///
-  /// In en, this message translates to:
-  /// **'Last synchronization'**
-  String get syncLast;
-
-  /// No description provided for @syncEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'Without synchronizations'**
-  String get syncEmpty;
-
-  /// No description provided for @syncNow.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronize now'**
-  String get syncNow;
-
-  /// No description provided for @synchronized.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronized'**
-  String get synchronized;
-
-  /// No description provided for @syncPending.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending'**
-  String get syncPending;
-
-  /// No description provided for @syncFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'{syncFiles} synchronized files'**
-  String syncFiles(Object syncFiles);
-
-  /// No description provided for @notSyncYet.
-  ///
-  /// In en, this message translates to:
-  /// **'You have not synchronized yet'**
-  String get notSyncYet;
-
-  /// No description provided for @syncStart.
-  ///
-  /// In en, this message translates to:
-  /// **'Press the synchronization button to start'**
-  String get syncStart;
-
-  /// No description provided for @syncErrorLoad.
-  ///
-  /// In en, this message translates to:
-  /// **'Error loading synchronizations'**
-  String get syncErrorLoad;
-
-  /// No description provided for @syncHistoric.
-  ///
-  /// In en, this message translates to:
-  /// **'Recent Activity'**
-  String get syncHistoric;
-
-  /// No description provided for @syncSessionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronization'**
-  String get syncSessionTitle;
-
-  /// No description provided for @syncSessionInit.
-  ///
-  /// In en, this message translates to:
-  /// **'Starting synchronization...'**
-  String get syncSessionInit;
-
-  /// No description provided for @syncSessionConnecting.
-  ///
-  /// In en, this message translates to:
-  /// **'Connecting with the server'**
-  String get syncSessionConnecting;
-
-  /// No description provided for @syncSessionFetchingFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'Fetching files from the gallery...'**
-  String get syncSessionFetchingFiles;
-
-  /// No description provided for @syncSessionWaitWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'This may take a few seconds'**
-  String get syncSessionWaitWarning;
-
-  /// No description provided for @syncSessionUploadingFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'Uploading files...'**
-  String get syncSessionUploadingFiles;
-
-  /// No description provided for @syncSessionFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'{uploadedFiles}/{totalFiles} files'**
-  String syncSessionFiles(Object totalFiles, Object uploadedFiles);
-
-  /// No description provided for @syncSessionCancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel synchronization'**
-  String get syncSessionCancel;
 
   /// No description provided for @syncSessionCancelWarning.
   ///
@@ -1013,47 +539,11 @@ abstract class AppLocalizations {
   /// **'The current progress will be lost. The files uploaded will remain in the server.'**
   String get syncSessionCancelDescription;
 
-  /// No description provided for @syncSessionCancelShortDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'The synchronization is in progress. You want to cancel?'**
-  String get syncSessionCancelShortDescription;
-
   /// No description provided for @syncSessionCancelConfirm.
   ///
   /// In en, this message translates to:
   /// **'Yes, cancel'**
   String get syncSessionCancelConfirm;
-
-  /// No description provided for @syncSessionCompleting.
-  ///
-  /// In en, this message translates to:
-  /// **'Completing synchronization...'**
-  String get syncSessionCompleting;
-
-  /// No description provided for @syncSessionSave.
-  ///
-  /// In en, this message translates to:
-  /// **'Saving information'**
-  String get syncSessionSave;
-
-  /// No description provided for @syncSessionCompleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronization completed'**
-  String get syncSessionCompleted;
-
-  /// No description provided for @syncSessionFinished.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronization finished'**
-  String get syncSessionFinished;
-
-  /// No description provided for @syncSessionError.
-  ///
-  /// In en, this message translates to:
-  /// **'Error in the synchronization'**
-  String get syncSessionError;
 
   /// No description provided for @total.
   ///
@@ -1072,42 +562,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed'**
   String get failed;
-
-  /// No description provided for @infoFiles.
-  ///
-  /// In en, this message translates to:
-  /// **'{info} files'**
-  String infoFiles(Object info);
-
-  /// No description provided for @goBack.
-  ///
-  /// In en, this message translates to:
-  /// **'Return'**
-  String get goBack;
-
-  /// No description provided for @notificationsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications'**
-  String get notificationsTitle;
-
-  /// No description provided for @emptyNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'Without notifications'**
-  String get emptyNotifications;
-
-  /// No description provided for @noNotificationsYet.
-  ///
-  /// In en, this message translates to:
-  /// **'You don\'t have notifications yet'**
-  String get noNotificationsYet;
-
-  /// No description provided for @errorLoadingProfile.
-  ///
-  /// In en, this message translates to:
-  /// **'Error loading the profile'**
-  String get errorLoadingProfile;
 
   /// No description provided for @close.
   ///
@@ -1136,7 +590,7 @@ abstract class AppLocalizations {
   /// No description provided for @folders.
   ///
   /// In en, this message translates to:
-  /// **'Folders'**
+  /// **'Albums'**
   String get folders;
 
   /// No description provided for @devices.
@@ -1151,23 +605,11 @@ abstract class AppLocalizations {
   /// **'Edit profile'**
   String get editProfile;
 
-  /// No description provided for @editProfileSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Change name and surname'**
-  String get editProfileSubtitle;
-
   /// No description provided for @myDevices.
   ///
   /// In en, this message translates to:
   /// **'My devices'**
   String get myDevices;
-
-  /// No description provided for @myDevicesSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'{devices} linked devices'**
-  String myDevicesSubtitle(Object devices);
 
   /// No description provided for @trash.
   ///
@@ -1175,35 +617,11 @@ abstract class AppLocalizations {
   /// **'Trash'**
   String get trash;
 
-  /// No description provided for @trashSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'View deleted files'**
-  String get trashSubtitle;
-
-  /// No description provided for @syncSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync Settings'**
-  String get syncSettings;
-
-  /// No description provided for @syncSettingsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Auto sync every 6 hours'**
-  String get syncSettingsSubtitle;
-
   /// No description provided for @notifications.
   ///
   /// In en, this message translates to:
   /// **'Notifications'**
   String get notifications;
-
-  /// No description provided for @notificationsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage notifications'**
-  String get notificationsSubtitle;
 
   /// No description provided for @trashIsEmpty.
   ///
@@ -1216,18 +634,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deleted files will appear here and be permanently deleted after 30 days'**
   String get trashEmptyDescription;
-
-  /// No description provided for @daysRemaining.
-  ///
-  /// In en, this message translates to:
-  /// **'{days}d'**
-  String daysRemaining(Object days);
-
-  /// No description provided for @filesSelected.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} selected'**
-  String filesSelected(Object count);
 
   /// No description provided for @emptyTrash.
   ///
@@ -1271,12 +677,6 @@ abstract class AppLocalizations {
   /// **'Delete permanently'**
   String get deletePermanently;
 
-  /// No description provided for @deleteFilesPermanently.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete {count} permanently'**
-  String deleteFilesPermanently(Object count);
-
   /// No description provided for @deletePermanentlyConfirmation.
   ///
   /// In en, this message translates to:
@@ -1300,18 +700,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} files permanently deleted'**
   String filesDeletedPermanently(Object count);
-
-  /// No description provided for @selectAll.
-  ///
-  /// In en, this message translates to:
-  /// **'Select all'**
-  String get selectAll;
-
-  /// No description provided for @deselectAll.
-  ///
-  /// In en, this message translates to:
-  /// **'Deselect all'**
-  String get deselectAll;
 
   /// No description provided for @cancel.
   ///
@@ -1397,12 +785,6 @@ abstract class AppLocalizations {
   /// **'Yesterday at {hour}'**
   String timeYesterday(Object hour);
 
-  /// No description provided for @errorUnknownTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Unknown Error'**
-  String get errorUnknownTitle;
-
   /// No description provided for @errorUnknown.
   ///
   /// In en, this message translates to:
@@ -1420,6 +802,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No internet connection. Check your connection and try again.'**
   String get errorNetwork;
+
+  /// No description provided for @syncInProgressErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup in progress'**
+  String get syncInProgressErrorTitle;
+
+  /// No description provided for @syncInProgressError.
+  ///
+  /// In en, this message translates to:
+  /// **'A backup is already running. Wait for it to finish and try again.'**
+  String get syncInProgressError;
 
   /// No description provided for @errorServerTitle.
   ///
@@ -1559,18 +953,6 @@ abstract class AppLocalizations {
   /// **'Please enter a password'**
   String get errorPasswordRequired;
 
-  /// No description provided for @forgotPasswordTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Recover password'**
-  String get forgotPasswordTitle;
-
-  /// No description provided for @forgotPasswordSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your email to receive a verification code'**
-  String get forgotPasswordSubtitle;
-
   /// No description provided for @sendCodeButton.
   ///
   /// In en, this message translates to:
@@ -1583,34 +965,10 @@ abstract class AppLocalizations {
   /// **'Code sent to your email'**
   String get emailSentSuccess;
 
-  /// No description provided for @validateCodeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Verify code'**
-  String get validateCodeTitle;
-
-  /// No description provided for @validateCodeSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter the 6-digit code sent to {email}'**
-  String validateCodeSubtitle(String email);
-
-  /// No description provided for @codeLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Verification code'**
-  String get codeLabel;
-
-  /// No description provided for @codePlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'123456'**
-  String get codePlaceholder;
-
   /// No description provided for @validateCodeButton.
   ///
   /// In en, this message translates to:
-  /// **'Validate code'**
+  /// **'Verify code'**
   String get validateCodeButton;
 
   /// No description provided for @resendCodeButton.
@@ -1624,30 +982,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Code resent successfully'**
   String get codeResent;
-
-  /// No description provided for @errorCodeRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Code is required'**
-  String get errorCodeRequired;
-
-  /// No description provided for @errorCodeInvalid.
-  ///
-  /// In en, this message translates to:
-  /// **'Code must be 6 digits'**
-  String get errorCodeInvalid;
-
-  /// No description provided for @resetPasswordTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'New password'**
-  String get resetPasswordTitle;
-
-  /// No description provided for @resetPasswordSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your new password'**
-  String get resetPasswordSubtitle;
 
   /// No description provided for @newPasswordLabel.
   ///
@@ -1664,7 +998,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetPasswordButton.
   ///
   /// In en, this message translates to:
-  /// **'Reset password'**
+  /// **'Save password'**
   String get resetPasswordButton;
 
   /// No description provided for @passwordResetSuccess.
@@ -1679,16 +1013,10 @@ abstract class AppLocalizations {
   /// **'New password is required'**
   String get errorNewPasswordRequired;
 
-  /// No description provided for @backToLogin.
-  ///
-  /// In en, this message translates to:
-  /// **'Back to login'**
-  String get backToLogin;
-
   /// No description provided for @editProfileTitle.
   ///
   /// In en, this message translates to:
-  /// **'Edit Profile'**
+  /// **'Edit profile'**
   String get editProfileTitle;
 
   /// No description provided for @currentPasswordLabel.
@@ -1709,12 +1037,6 @@ abstract class AppLocalizations {
   /// **'Current password is required'**
   String get errorCurrentPasswordRequired;
 
-  /// No description provided for @errorCurrentPasswordIncorrect.
-  ///
-  /// In en, this message translates to:
-  /// **'Current password is incorrect'**
-  String get errorCurrentPasswordIncorrect;
-
   /// No description provided for @saveChanges.
   ///
   /// In en, this message translates to:
@@ -1724,13 +1046,13 @@ abstract class AppLocalizations {
   /// No description provided for @profileUpdatedSuccessfully.
   ///
   /// In en, this message translates to:
-  /// **'Profile updated successfully'**
+  /// **'Profile updated'**
   String get profileUpdatedSuccessfully;
 
   /// No description provided for @passwordChangedSuccessfully.
   ///
   /// In en, this message translates to:
-  /// **'Password changed successfully'**
+  /// **'Password changed'**
   String get passwordChangedSuccessfully;
 
   /// No description provided for @selectProfilePhoto.
@@ -1745,12 +1067,6 @@ abstract class AppLocalizations {
   /// **'Change photo'**
   String get changePhoto;
 
-  /// No description provided for @basicInfoSection.
-  ///
-  /// In en, this message translates to:
-  /// **'Basic information'**
-  String get basicInfoSection;
-
   /// No description provided for @passwordSection.
   ///
   /// In en, this message translates to:
@@ -1760,14 +1076,8 @@ abstract class AppLocalizations {
   /// No description provided for @leavePasswordEmptyHint.
   ///
   /// In en, this message translates to:
-  /// **'Leave blank if you don\'t want to change the password'**
+  /// **'Leave it blank if you don\'t want to change it'**
   String get leavePasswordEmptyHint;
-
-  /// No description provided for @savingChanges.
-  ///
-  /// In en, this message translates to:
-  /// **'Saving changes...'**
-  String get savingChanges;
 
   /// No description provided for @january.
   ///
@@ -1847,12 +1157,6 @@ abstract class AppLocalizations {
   /// **'Rename device'**
   String get renameDevice;
 
-  /// No description provided for @renameDeviceDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a new name for your device'**
-  String get renameDeviceDescription;
-
   /// No description provided for @deviceName.
   ///
   /// In en, this message translates to:
@@ -1874,7 +1178,7 @@ abstract class AppLocalizations {
   /// No description provided for @autoSync.
   ///
   /// In en, this message translates to:
-  /// **'Auto-sync'**
+  /// **'Automatic backup'**
   String get autoSync;
 
   /// No description provided for @unlinkDevice.
@@ -1892,7 +1196,7 @@ abstract class AppLocalizations {
   /// No description provided for @deviceActionSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Action completed successfully'**
+  /// **'Done'**
   String get deviceActionSuccess;
 
   /// No description provided for @noDevices.
@@ -1907,35 +1211,11 @@ abstract class AppLocalizations {
   /// **'Devices will appear here when you sign in to the app from other devices.'**
   String get noDevicesDescription;
 
-  /// No description provided for @devicesLoadError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load devices'**
-  String get devicesLoadError;
-
   /// No description provided for @retry.
   ///
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
-
-  /// No description provided for @syncConfigurationTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync Configuration'**
-  String get syncConfigurationTitle;
-
-  /// No description provided for @syncConfigurationDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Configure how and when your files will be automatically synced'**
-  String get syncConfigurationDescription;
-
-  /// No description provided for @enableAutoSync.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable automatic sync'**
-  String get enableAutoSync;
 
   /// No description provided for @autoSyncEnabled.
   ///
@@ -1943,167 +1223,11 @@ abstract class AppLocalizations {
   /// **'Automatic sync is enabled'**
   String get autoSyncEnabled;
 
-  /// No description provided for @autoSyncDisabled.
-  ///
-  /// In en, this message translates to:
-  /// **'Automatic sync is disabled'**
-  String get autoSyncDisabled;
-
-  /// No description provided for @syncFrequencyTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync frequency'**
-  String get syncFrequencyTitle;
-
-  /// No description provided for @syncFrequencyDaily.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily'**
-  String get syncFrequencyDaily;
-
-  /// No description provided for @syncFrequencyWeekly.
-  ///
-  /// In en, this message translates to:
-  /// **'Weekly'**
-  String get syncFrequencyWeekly;
-
-  /// No description provided for @syncFrequencyAt.
-  ///
-  /// In en, this message translates to:
-  /// **'at'**
-  String get syncFrequencyAt;
-
-  /// No description provided for @syncTimeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync time'**
-  String get syncTimeTitle;
-
-  /// No description provided for @syncTimeDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Select the time you want the sync to run'**
-  String get syncTimeDescription;
-
-  /// No description provided for @selectTime.
-  ///
-  /// In en, this message translates to:
-  /// **'Select time'**
-  String get selectTime;
-
-  /// No description provided for @syncDayOfWeekTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Day of the week'**
-  String get syncDayOfWeekTitle;
-
-  /// No description provided for @syncDayOfWeekDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Select the day you want the sync to run'**
-  String get syncDayOfWeekDescription;
-
   /// No description provided for @monday.
   ///
   /// In en, this message translates to:
   /// **'Monday'**
   String get monday;
-
-  /// No description provided for @tuesday.
-  ///
-  /// In en, this message translates to:
-  /// **'Tuesday'**
-  String get tuesday;
-
-  /// No description provided for @wednesday.
-  ///
-  /// In en, this message translates to:
-  /// **'Wednesday'**
-  String get wednesday;
-
-  /// No description provided for @thursday.
-  ///
-  /// In en, this message translates to:
-  /// **'Thursday'**
-  String get thursday;
-
-  /// No description provided for @friday.
-  ///
-  /// In en, this message translates to:
-  /// **'Friday'**
-  String get friday;
-
-  /// No description provided for @saturday.
-  ///
-  /// In en, this message translates to:
-  /// **'Saturday'**
-  String get saturday;
-
-  /// No description provided for @sunday.
-  ///
-  /// In en, this message translates to:
-  /// **'Sunday'**
-  String get sunday;
-
-  /// No description provided for @networkPreferenceTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Network preference'**
-  String get networkPreferenceTitle;
-
-  /// No description provided for @networkPreferenceWifiOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'WiFi only'**
-  String get networkPreferenceWifiOnly;
-
-  /// No description provided for @networkPreferenceWifiOnlyDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync will only run when connected to WiFi'**
-  String get networkPreferenceWifiOnlyDescription;
-
-  /// No description provided for @networkPreferenceAnyNetwork.
-  ///
-  /// In en, this message translates to:
-  /// **'Any network'**
-  String get networkPreferenceAnyNetwork;
-
-  /// No description provided for @networkPreferenceAnyNetworkDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync will run on WiFi or mobile data'**
-  String get networkPreferenceAnyNetworkDescription;
-
-  /// No description provided for @batteryPreferenceTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Battery preference'**
-  String get batteryPreferenceTitle;
-
-  /// No description provided for @batteryPreferenceAny.
-  ///
-  /// In en, this message translates to:
-  /// **'Any battery level'**
-  String get batteryPreferenceAny;
-
-  /// No description provided for @batteryPreferenceAnyDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync will run regardless of battery level'**
-  String get batteryPreferenceAnyDescription;
-
-  /// No description provided for @batteryPreferenceCharging.
-  ///
-  /// In en, this message translates to:
-  /// **'Charging or battery >15%'**
-  String get batteryPreferenceCharging;
-
-  /// No description provided for @batteryPreferenceChargingDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync will only run when device is charging or has more than 15% battery'**
-  String get batteryPreferenceChargingDescription;
 
   /// No description provided for @notifyOnSuccess.
   ///
@@ -2111,53 +1235,17 @@ abstract class AppLocalizations {
   /// **'Notify when sync is successful'**
   String get notifyOnSuccess;
 
-  /// No description provided for @notifyOnSuccessDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'You will receive a notification when sync completes successfully'**
-  String get notifyOnSuccessDescription;
-
   /// No description provided for @notifyOnFailure.
   ///
   /// In en, this message translates to:
   /// **'Notify when sync fails'**
   String get notifyOnFailure;
 
-  /// No description provided for @notifyOnFailureDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'You will receive a notification when sync fails'**
-  String get notifyOnFailureDescription;
-
-  /// No description provided for @saveConfiguration.
-  ///
-  /// In en, this message translates to:
-  /// **'Save configuration'**
-  String get saveConfiguration;
-
-  /// No description provided for @savingConfiguration.
-  ///
-  /// In en, this message translates to:
-  /// **'Saving configuration...'**
-  String get savingConfiguration;
-
   /// No description provided for @configurationSaved.
   ///
   /// In en, this message translates to:
-  /// **'Configuration saved'**
+  /// **'Settings saved'**
   String get configurationSaved;
-
-  /// No description provided for @configurationSavedDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Your automatic sync configuration has been saved successfully'**
-  String get configurationSavedDescription;
-
-  /// No description provided for @configurationSaveError.
-  ///
-  /// In en, this message translates to:
-  /// **'Error saving configuration'**
-  String get configurationSaveError;
 
   /// No description provided for @loadingConfiguration.
   ///
@@ -2171,132 +1259,6 @@ abstract class AppLocalizations {
   /// **'Error loading configuration'**
   String get configurationLoadError;
 
-  /// No description provided for @syncInProgressError.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync in progress'**
-  String get syncInProgressError;
-
-  /// No description provided for @syncInProgressErrorDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'A sync is already in progress. Please wait for it to finish before starting a new one.'**
-  String get syncInProgressErrorDescription;
-
-  /// No description provided for @syncInProgressDialogTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync in progress'**
-  String get syncInProgressDialogTitle;
-
-  /// No description provided for @syncInProgressDialogMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'An automatic sync is in progress in the background. Please wait for it to finish before starting a manual sync.'**
-  String get syncInProgressDialogMessage;
-
-  /// No description provided for @understood.
-  ///
-  /// In en, this message translates to:
-  /// **'Understood'**
-  String get understood;
-
-  /// No description provided for @onboardingWelcomeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to Photo Manager!'**
-  String get onboardingWelcomeTitle;
-
-  /// No description provided for @onboardingWelcomeMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'To give you the best experience, we need your permission to access your photos, send you notifications, and run automatic syncs in the background.\n\nThese permissions allow us to:\n\n• Automatically sync your photos and videos\n• Keep your files safely backed up\n• Notify you about sync progress\n• Run syncs while the app is closed'**
-  String get onboardingWelcomeMessage;
-
-  /// No description provided for @onboardingWelcomeButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Get Started'**
-  String get onboardingWelcomeButton;
-
-  /// No description provided for @onboardingGetStarted.
-  ///
-  /// In en, this message translates to:
-  /// **'Start setup'**
-  String get onboardingGetStarted;
-
-  /// No description provided for @permissionNotificationTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications'**
-  String get permissionNotificationTitle;
-
-  /// No description provided for @permissionNotificationMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'We\'ll send you notifications to inform you about the progress of your automatic syncs and when they complete successfully or fail.'**
-  String get permissionNotificationMessage;
-
-  /// No description provided for @permissionNotificationContinue.
-  ///
-  /// In en, this message translates to:
-  /// **'Allow Notifications'**
-  String get permissionNotificationContinue;
-
-  /// No description provided for @permissionNotificationDeniedTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications Disabled'**
-  String get permissionNotificationDeniedTitle;
-
-  /// No description provided for @permissionNotificationDeniedMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Without notification permission, you won\'t receive updates about your sync status. You can enable notifications later in Settings.'**
-  String get permissionNotificationDeniedMessage;
-
-  /// No description provided for @permissionBackgroundTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Background Sync'**
-  String get permissionBackgroundTitle;
-
-  /// No description provided for @permissionBackgroundMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'For automatic sync to work properly, the app needs to run in the background. This allows your photos to sync even when the app is closed.'**
-  String get permissionBackgroundMessage;
-
-  /// No description provided for @permissionBackgroundMessageAndroid.
-  ///
-  /// In en, this message translates to:
-  /// **'For automatic sync to work properly, we need to:\n\n• Allow the app to run in the background\n• Disable battery optimization for this app\n\nThis allows your photos to sync even when the app is closed.'**
-  String get permissionBackgroundMessageAndroid;
-
-  /// No description provided for @permissionBackgroundMessageIOS.
-  ///
-  /// In en, this message translates to:
-  /// **'For automatic sync to work properly, we need to:\n\n• Enable background app refresh\n• Allow the app to run in the background\n\nThis allows your photos to sync even when the app is closed.'**
-  String get permissionBackgroundMessageIOS;
-
-  /// No description provided for @permissionBackgroundContinue.
-  ///
-  /// In en, this message translates to:
-  /// **'Allow Background Sync'**
-  String get permissionBackgroundContinue;
-
-  /// No description provided for @permissionBackgroundDeniedTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Background Sync Disabled'**
-  String get permissionBackgroundDeniedTitle;
-
-  /// No description provided for @permissionBackgroundDeniedMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Without permission to run in the background, automatic sync will only work when you have the app open. You can enable this later in Settings.'**
-  String get permissionBackgroundDeniedMessage;
-
   /// No description provided for @onboardingPermissionsRejectedTitle.
   ///
   /// In en, this message translates to:
@@ -2308,18 +1270,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have denied some required permissions. The app will work with limited functionality. You can enable these permissions later from the app settings:'**
   String get onboardingPermissionsRejectedMessage;
-
-  /// No description provided for @onboardingPermissionsRejectedButton.
-  ///
-  /// In en, this message translates to:
-  /// **'I Understand'**
-  String get onboardingPermissionsRejectedButton;
-
-  /// No description provided for @onboardingPermissionsRetryButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Try Again'**
-  String get onboardingPermissionsRetryButton;
 
   /// No description provided for @permissionLimitationPhoto.
   ///
@@ -2339,35 +1289,1439 @@ abstract class AppLocalizations {
   /// **'• Automatic sync will only work with the app open'**
   String get permissionLimitationBackground;
 
-  /// No description provided for @onboardingPermissionsAllGrantedTitle.
+  /// No description provided for @loginGreeting.
   ///
   /// In en, this message translates to:
-  /// **'All Set!'**
-  String get onboardingPermissionsAllGrantedTitle;
+  /// **'Welcome back'**
+  String get loginGreeting;
 
-  /// No description provided for @onboardingPermissionsAllGrantedMessage.
+  /// No description provided for @loginSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'All permissions have been granted successfully. You can now start using Photo Manager with all its features.'**
-  String get onboardingPermissionsAllGrantedMessage;
+  /// **'Sign in to see and organise your photos.'**
+  String get loginSubtitle;
 
-  /// No description provided for @onboardingPermissionsAllGrantedButton.
+  /// No description provided for @noAccountYet.
   ///
   /// In en, this message translates to:
-  /// **'Go to Gallery'**
-  String get onboardingPermissionsAllGrantedButton;
+  /// **'Don\'t have an account yet?'**
+  String get noAccountYet;
 
-  /// No description provided for @errorGalleryPermissionTitle.
+  /// No description provided for @createAccountLink.
   ///
   /// In en, this message translates to:
-  /// **'Gallery Permission Required'**
-  String get errorGalleryPermissionTitle;
+  /// **'Create account'**
+  String get createAccountLink;
 
-  /// No description provided for @errorGalleryPermission.
+  /// No description provided for @registerHeadline.
   ///
   /// In en, this message translates to:
-  /// **'The app needs access to your gallery to work. Please enable the permission in Settings.'**
-  String get errorGalleryPermission;
+  /// **'Create your account'**
+  String get registerHeadline;
+
+  /// No description provided for @registerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up your photos and free up space on your phone.'**
+  String get registerSubtitle;
+
+  /// No description provided for @surnameShortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get surnameShortLabel;
+
+  /// No description provided for @optionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'(optional)'**
+  String get optionalLabel;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
+  /// No description provided for @stepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String stepOf(int current, int total);
+
+  /// No description provided for @forgotPasswordHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get forgotPasswordHeadline;
+
+  /// No description provided for @forgotPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and we\'ll send you a code to create a new one.'**
+  String get forgotPasswordBody;
+
+  /// No description provided for @checkYourEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get checkYourEmail;
+
+  /// No description provided for @codeSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve sent a 6-digit code to {email}'**
+  String codeSentTo(String email);
+
+  /// No description provided for @didNotReceiveCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t get it?'**
+  String get didNotReceiveCode;
+
+  /// No description provided for @resendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend in {time}'**
+  String resendIn(String time);
+
+  /// No description provided for @newPasswordHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new password'**
+  String get newPasswordHeadline;
+
+  /// No description provided for @newPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use one you haven\'t used before on this account.'**
+  String get newPasswordBody;
+
+  /// No description provided for @navPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get navPhotos;
+
+  /// No description provided for @backupUpToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to date'**
+  String get backupUpToDate;
+
+  /// No description provided for @backupInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Backing up {percent}%'**
+  String backupInProgress(int percent);
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup failed'**
+  String get backupFailed;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'To review'**
+  String get filterToReview;
+
+  /// No description provided for @toReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item to review} other{{count} items to review}}'**
+  String toReviewTitle(int count);
+
+  /// No description provided for @toReviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Decide whether to keep them or free up space on your phone'**
+  String get toReviewBody;
+
+  /// No description provided for @review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get review;
+
+  /// No description provided for @select.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get select;
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 selected} other{{count} selected}}'**
+  String selectedCount(int count);
+
+  /// No description provided for @selectAllShort.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get selectAllShort;
+
+  /// No description provided for @selectNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get selectNone;
+
+  /// No description provided for @noPhotosYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos yet'**
+  String get noPhotosYet;
+
+  /// No description provided for @noPhotosBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up your phone to see them here'**
+  String get noPhotosBody;
+
+  /// No description provided for @backupNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get backupNow;
+
+  /// No description provided for @openProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open profile'**
+  String get openProfile;
+
+  /// No description provided for @closeSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit selection'**
+  String get closeSelection;
+
+  /// No description provided for @dayAndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {time}'**
+  String dayAndTime(String day, String time);
+
+  /// No description provided for @viewerInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get viewerInfo;
+
+  /// No description provided for @actionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get actionSave;
+
+  /// No description provided for @actionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get actionDelete;
+
+  /// No description provided for @deleteFileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this file?'**
+  String get deleteFileTitle;
+
+  /// No description provided for @deleteFileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be removed from your cloud and this phone. You can restore it from the trash for 30 days.'**
+  String get deleteFileBody;
+
+  /// No description provided for @copyId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy ID'**
+  String get copyId;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copiedToClipboard;
+
+  /// No description provided for @statusSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed up'**
+  String get statusSafe;
+
+  /// No description provided for @navAlbums.
+  ///
+  /// In en, this message translates to:
+  /// **'Albums'**
+  String get navAlbums;
+
+  /// No description provided for @searchAlbums.
+  ///
+  /// In en, this message translates to:
+  /// **'Search albums'**
+  String get searchAlbums;
+
+  /// No description provided for @newAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get newAlbum;
+
+  /// No description provided for @createAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Create album'**
+  String get createAlbum;
+
+  /// No description provided for @albumMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} · {subcount, plural, =1{1 sub-album} other{{subcount} sub-albums}}'**
+  String albumMeta(int count, int subcount);
+
+  /// No description provided for @itemsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Empty} =1{1 item} other{{count} items}}'**
+  String itemsCount(int count);
+
+  /// No description provided for @subalbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Sub-album'**
+  String get subalbum;
+
+  /// No description provided for @newSubalbum.
+  ///
+  /// In en, this message translates to:
+  /// **'New sub-album'**
+  String get newSubalbum;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get moreOptions;
+
+  /// No description provided for @noAlbumsMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No album matches “{query}”'**
+  String noAlbumsMatch(String query);
+
+  /// No description provided for @navBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get navBackup;
+
+  /// No description provided for @allSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'All backed up'**
+  String get allSafe;
+
+  /// No description provided for @lastBackupMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup {when} · {count, plural, =1{1 item} other{{count} items}}'**
+  String lastBackupMeta(String when, int count);
+
+  /// No description provided for @copyingNofM.
+  ///
+  /// In en, this message translates to:
+  /// **'Backing up {done} of {total}'**
+  String copyingNofM(int done, int total);
+
+  /// No description provided for @backupIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'The last backup didn\'t finish'**
+  String get backupIncomplete;
+
+  /// No description provided for @backupIncompleteMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{when} · {count, plural, =1{1 failure} other{{count} failures}}'**
+  String backupIncompleteMeta(String when, int count);
+
+  /// No description provided for @noBackupsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t backed up yet'**
+  String get noBackupsYet;
+
+  /// No description provided for @noBackupsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your photos to the cloud and free up space on your phone.'**
+  String get noBackupsBody;
+
+  /// No description provided for @backupCancelledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The last backup was cancelled'**
+  String get backupCancelledTitle;
+
+  /// No description provided for @condDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily · {time}'**
+  String condDaily(String time);
+
+  /// No description provided for @condWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'{day} · {time}'**
+  String condWeekly(String day, String time);
+
+  /// No description provided for @condWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi only'**
+  String get condWifi;
+
+  /// No description provided for @condAnyNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi and data'**
+  String get condAnyNetwork;
+
+  /// No description provided for @condBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Charging or >15%'**
+  String get condBattery;
+
+  /// No description provided for @autoBackupOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic backup off'**
+  String get autoBackupOff;
+
+  /// No description provided for @backupSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup settings'**
+  String get backupSettings;
+
+  /// No description provided for @activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get activity;
+
+  /// No description provided for @itemsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item saved} other{{count} items saved}}'**
+  String itemsSaved(int count);
+
+  /// No description provided for @incompleteWithFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Incomplete backup · {count, plural, =1{1 failure} other{{count} failures}}'**
+  String incompleteWithFailures(int count);
+
+  /// No description provided for @backupCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup cancelled'**
+  String get backupCancelled;
+
+  /// No description provided for @backupRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup in progress'**
+  String get backupRunning;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @storageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {total}'**
+  String storageOf(String used, String total);
+
+  /// No description provided for @elementsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{item} other{items}}'**
+  String elementsLabel(int count);
+
+  /// No description provided for @albumsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{album} other{albums}}'**
+  String albumsLabel(int count);
+
+  /// No description provided for @devicesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{device} other{devices}}'**
+  String devicesLabel(int count);
+
+  /// No description provided for @sectionBackupSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup and space'**
+  String get sectionBackupSpace;
+
+  /// No description provided for @sectionApp.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get sectionApp;
+
+  /// No description provided for @dailyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily at {time}'**
+  String dailyAt(String time);
+
+  /// No description provided for @weeklyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{day} at {time}'**
+  String weeklyAt(String day, String time);
+
+  /// No description provided for @linkedDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None linked} =1{1 linked} other{{count} linked}}'**
+  String linkedDevices(int count);
+
+  /// No description provided for @trashAutoEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Emptied after 30 days'**
+  String get trashAutoEmpty;
+
+  /// No description provided for @notifOnlyFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Failures only'**
+  String get notifOnlyFailures;
+
+  /// No description provided for @notifOnlySuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished only'**
+  String get notifOnlySuccess;
+
+  /// No description provided for @notifAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notifAll;
+
+  /// No description provided for @notifOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get notifOff;
+
+  /// No description provided for @sectionData.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get sectionData;
+
+  /// No description provided for @sectionPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get sectionPassword;
+
+  /// No description provided for @gallerySource.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallerySource;
+
+  /// No description provided for @camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get camera;
+
+  /// No description provided for @thisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone'**
+  String get thisDevice;
+
+  /// No description provided for @emptyTrashShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty'**
+  String get emptyTrashShort;
+
+  /// No description provided for @trashInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Items are deleted forever after 30 days. Long-press to restore several.'**
+  String get trashInfo;
+
+  /// No description provided for @deletingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted soon'**
+  String get deletingSoon;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get thisMonth;
+
+  /// No description provided for @daysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Today} =1{1 day} other{{count} days}}'**
+  String daysLeft(int count);
+
+  /// No description provided for @deleteForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete forever'**
+  String get deleteForever;
+
+  /// No description provided for @deletesIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted in {time}'**
+  String deletesIn(String time);
+
+  /// No description provided for @selectedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String selectedItems(int count);
+
+  /// No description provided for @autoBackupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your new photos are saved automatically'**
+  String get autoBackupBody;
+
+  /// No description provided for @sectionWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get sectionWhen;
+
+  /// No description provided for @everyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get everyDay;
+
+  /// No description provided for @oncePerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Once a week'**
+  String get oncePerWeek;
+
+  /// No description provided for @day.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get day;
+
+  /// No description provided for @time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
+  /// No description provided for @nextBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Next backup: {when}'**
+  String nextBackup(String when);
+
+  /// No description provided for @sectionConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions'**
+  String get sectionConditions;
+
+  /// No description provided for @network.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get network;
+
+  /// No description provided for @battery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery'**
+  String get battery;
+
+  /// No description provided for @always.
+  ///
+  /// In en, this message translates to:
+  /// **'Always'**
+  String get always;
+
+  /// No description provided for @sectionAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get sectionAlerts;
+
+  /// No description provided for @alertSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'When it finishes'**
+  String get alertSuccess;
+
+  /// No description provided for @alertSuccessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A notice with what was saved'**
+  String get alertSuccessBody;
+
+  /// No description provided for @alertFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'If something fails'**
+  String get alertFailure;
+
+  /// No description provided for @alertFailureBody.
+  ///
+  /// In en, this message translates to:
+  /// **'So you can retry it'**
+  String get alertFailureBody;
+
+  /// No description provided for @sectionDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics'**
+  String get sectionDiagnostics;
+
+  /// No description provided for @manageQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{What should we do with this photo?} other{What should we do with these {count} photos?}}'**
+  String manageQuestion(int count);
+
+  /// No description provided for @photosSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo selected} other{{count} photos selected}}'**
+  String photosSelected(int count);
+
+  /// No description provided for @photosCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo} other{{count} photos}}'**
+  String photosCount(int count);
+
+  /// No description provided for @optSaveFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and free up space'**
+  String get optSaveFree;
+
+  /// No description provided for @optSaveFreeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They\'re saved to your cloud and removed from the phone.'**
+  String get optSaveFreeBody;
+
+  /// No description provided for @recommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get recommended;
+
+  /// No description provided for @optSaveKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and keep on the phone'**
+  String get optSaveKeep;
+
+  /// No description provided for @optSaveKeepBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll have a copy in the cloud and another one here.'**
+  String get optSaveKeepBody;
+
+  /// No description provided for @optAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to an album'**
+  String get optAlbum;
+
+  /// No description provided for @optAlbumBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an existing one or create a new one.'**
+  String get optAlbumBody;
+
+  /// No description provided for @newAlbumChip.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get newAlbumChip;
+
+  /// No description provided for @deleteAfterSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from the phone afterwards'**
+  String get deleteAfterSaving;
+
+  /// No description provided for @deleteEverywhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everywhere'**
+  String get deleteEverywhere;
+
+  /// No description provided for @saveToAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to {album}'**
+  String saveToAlbum(String album);
+
+  /// No description provided for @chooseAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an album'**
+  String get chooseAlbum;
+
+  /// No description provided for @actionToAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'To album'**
+  String get actionToAlbum;
+
+  /// No description provided for @actionFreeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Free up'**
+  String get actionFreeUp;
+
+  /// No description provided for @freeUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Free up space on the phone?'**
+  String get freeUpTitle;
+
+  /// No description provided for @freeUpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The photo will be saved to your cloud and removed from this phone.} other{The {count} photos will be saved to your cloud and removed from this phone.}}'**
+  String freeUpBody(int count);
+
+  /// No description provided for @deleteFilesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete this photo?} other{Delete {count} photos?}}'**
+  String deleteFilesTitle(int count);
+
+  /// No description provided for @deleteFilesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They\'ll be removed from your cloud and this phone. You can restore them from the trash for 30 days.'**
+  String get deleteFilesBody;
+
+  /// No description provided for @preparingBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing the backup…'**
+  String get preparingBackup;
+
+  /// No description provided for @lookingForPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for new photos'**
+  String get lookingForPhotos;
+
+  /// No description provided for @finishingBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Finishing the backup…'**
+  String get finishingBackup;
+
+  /// No description provided for @cancellingBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling…'**
+  String get cancellingBackup;
+
+  /// No description provided for @remainingMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{About 1 min left} other{About {count} min left}}'**
+  String remainingMinutes(int count);
+
+  /// No description provided for @remainingLessThanMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than a minute left'**
+  String get remainingLessThanMinute;
+
+  /// No description provided for @backgroundInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'You can leave the app: the backup continues in the background and we\'ll let you know when it\'s done.'**
+  String get backgroundInfo;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAll;
+
+  /// No description provided for @seeLess.
+  ///
+  /// In en, this message translates to:
+  /// **'See less'**
+  String get seeLess;
+
+  /// No description provided for @welcomeUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, {name}'**
+  String welcomeUser(String name);
+
+  /// No description provided for @welcomeGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get welcomeGeneric;
+
+  /// No description provided for @permissionsHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Three permissions and we\'re ready'**
+  String get permissionsHeadline;
+
+  /// No description provided for @permissionsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'That way we can save your photos automatically and let you know when each backup finishes.'**
+  String get permissionsBody;
+
+  /// No description provided for @permPhotosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos and videos'**
+  String get permPhotosTitle;
+
+  /// No description provided for @permPhotosBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To back them up and free up space'**
+  String get permPhotosBody;
+
+  /// No description provided for @permNotifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get permNotifTitle;
+
+  /// No description provided for @permNotifBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We let you know when it\'s done or if it fails'**
+  String get permNotifBody;
+
+  /// No description provided for @permBgTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get permBgTitle;
+
+  /// No description provided for @permBgBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups with the app closed'**
+  String get permBgBody;
+
+  /// No description provided for @allow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get allow;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @permSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get permSettings;
+
+  /// No description provided for @privacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photos are private. You can change these permissions any time from Profile.'**
+  String get privacyNote;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
+  /// No description provided for @later.
+  ///
+  /// In en, this message translates to:
+  /// **'Do it later'**
+  String get later;
+
+  /// No description provided for @continueAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue anyway'**
+  String get continueAnyway;
+
+  /// No description provided for @reviewPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Review permissions'**
+  String get reviewPermissions;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get themeSystem;
+
+  /// No description provided for @themeSystemHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows your phone\'s mode'**
+  String get themeSystemHint;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @deviceLastBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'{os} · Last backup {when}'**
+  String deviceLastBackup(String os, String when);
+
+  /// No description provided for @photosSelectedSize.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo · {size}} other{{count} photos · {size}}}'**
+  String photosSelectedSize(int count, String size);
+
+  /// No description provided for @freeUpSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Free up {size}'**
+  String freeUpSize(String size);
+
+  /// No description provided for @filePropertyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get filePropertyName;
+
+  /// No description provided for @filePropertyUploadedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded at'**
+  String get filePropertyUploadedAt;
+
+  /// No description provided for @filePropertySize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get filePropertySize;
+
+  /// No description provided for @filePropertyDimensions.
+  ///
+  /// In en, this message translates to:
+  /// **'Dimensions'**
+  String get filePropertyDimensions;
+
+  /// No description provided for @filePropertyAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Album'**
+  String get filePropertyAlbum;
+
+  /// No description provided for @filePropertyDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get filePropertyDevice;
+
+  /// No description provided for @fileInfoLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading details…'**
+  String get fileInfoLoading;
+
+  /// No description provided for @filterFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get filterFavorites;
+
+  /// No description provided for @favorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite'**
+  String get favorite;
+
+  /// No description provided for @addToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get addToFavorites;
+
+  /// No description provided for @removeFromFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get removeFromFavorites;
+
+  /// No description provided for @favoritesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get favoritesEmptyTitle;
+
+  /// No description provided for @favoritesEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the heart while viewing a photo to keep it here'**
+  String get favoritesEmptyBody;
+
+  /// No description provided for @favoritesAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Added to favorites} other{{count} added to favorites}}'**
+  String favoritesAdded(int count);
+
+  /// No description provided for @favoritesRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Removed from favorites} other{{count} removed from favorites}}'**
+  String favoritesRemoved(int count);
+
+  /// No description provided for @favoriteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t update. Please try again.'**
+  String get favoriteError;
+
+  /// No description provided for @move.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get move;
+
+  /// No description provided for @cover.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover'**
+  String get cover;
+
+  /// No description provided for @coverOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover of {album}'**
+  String coverOf(String album);
+
+  /// No description provided for @coverOfMany.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Cover of 1 album} other{Cover of {count} albums}}'**
+  String coverOfMany(int count);
+
+  /// No description provided for @useAsCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Use as cover'**
+  String get useAsCover;
+
+  /// No description provided for @useAsCoverBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick the albums where you want it to appear. Up to 3 per album.'**
+  String get useAsCoverBody;
+
+  /// No description provided for @photoIsHere.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo is here'**
+  String get photoIsHere;
+
+  /// No description provided for @photosAreHere.
+  ///
+  /// In en, this message translates to:
+  /// **'The photos are here'**
+  String get photosAreHere;
+
+  /// No description provided for @coverAlreadyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Already a cover · untick to remove it'**
+  String get coverAlreadyHint;
+
+  /// No description provided for @coverWillAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be added · {count} of 3'**
+  String coverWillAdd(int count);
+
+  /// No description provided for @coverFullChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Full · choose which to replace'**
+  String get coverFullChoose;
+
+  /// No description provided for @coverFullChooseMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Full · choose {count} to replace'**
+  String coverFullChooseMany(int count);
+
+  /// No description provided for @coverWillRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be removed from the cover'**
+  String get coverWillRemove;
+
+  /// No description provided for @coverCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 3 covers'**
+  String coverCount(int count);
+
+  /// No description provided for @replace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get replace;
+
+  /// No description provided for @replaceCoverOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace cover {position} of {album}'**
+  String replaceCoverOf(int position, String album);
+
+  /// No description provided for @coverTreeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the photo\'s album and the albums that contain it are shown.'**
+  String get coverTreeNote;
+
+  /// No description provided for @saveChangesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Save · 1 change} other{Save · {count} changes}}'**
+  String saveChangesCount(int count);
+
+  /// No description provided for @coverUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Cover updated} other{Cover updated in {count} albums}}'**
+  String coverUpdated(int count);
+
+  /// No description provided for @upToThreeCovers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo} other{{count} photos}} · up to 3 can be a cover'**
+  String upToThreeCovers(int count);
+
+  /// No description provided for @chooseUpToThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose up to 3 photos to use as cover'**
+  String get chooseUpToThree;
+
+  /// No description provided for @videosCannotBeCovers.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos can\'t be album covers'**
+  String get videosCannotBeCovers;
+
+  /// No description provided for @noSharedAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'These photos don\'t share an album'**
+  String get noSharedAlbum;
+
+  /// No description provided for @inAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'in {album}'**
+  String inAlbum(String album);
+
+  /// No description provided for @albumCoverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover of {album}'**
+  String albumCoverTitle(String album);
+
+  /// No description provided for @albumCoverSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 3 photos · drag to change the order'**
+  String albumCoverSubtitle(int count);
+
+  /// No description provided for @albumCoverCard.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 3 photos'**
+  String albumCoverCard(int count);
+
+  /// No description provided for @albumCoverAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic · recent photos'**
+  String get albumCoverAuto;
+
+  /// No description provided for @previewInAlbums.
+  ///
+  /// In en, this message translates to:
+  /// **'How it looks in Albums'**
+  String get previewInAlbums;
+
+  /// No description provided for @previewInAlbumsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The first photo is the big one. With 1 or 2 photos the mosaic adapts.'**
+  String get previewInAlbumsBody;
+
+  /// No description provided for @coverAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get coverAutomatic;
+
+  /// No description provided for @coverMain.
+  ///
+  /// In en, this message translates to:
+  /// **'Main'**
+  String get coverMain;
+
+  /// No description provided for @coverSecond.
+  ///
+  /// In en, this message translates to:
+  /// **'Second'**
+  String get coverSecond;
+
+  /// No description provided for @coverThird.
+  ///
+  /// In en, this message translates to:
+  /// **'Third'**
+  String get coverThird;
+
+  /// No description provided for @fromThisAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'From this album'**
+  String get fromThisAlbum;
+
+  /// No description provided for @fromAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'From {path}'**
+  String fromAlbum(String path);
+
+  /// No description provided for @removeCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from cover'**
+  String get removeCover;
+
+  /// No description provided for @coverRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from the cover'**
+  String get coverRemoved;
+
+  /// No description provided for @addCoverHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To add another, open a photo of this album or its sub-albums and tap «Cover». Without covers, the most recent photos are used.'**
+  String get addCoverHint;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @moveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get moveUp;
+
+  /// No description provided for @moveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get moveDown;
+
+  /// No description provided for @coverBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover'**
+  String get coverBadge;
+
+  /// No description provided for @bytesToUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} left to upload'**
+  String bytesToUpload(String size);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

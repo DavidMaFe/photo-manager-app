@@ -10,7 +10,10 @@ class SynchronizationModel extends Synchronization {
     required super.status,
     required super.totalFiles,
     required super.uploadedFiles,
-    required super.failedFiles
+    required super.failedFiles,
+    super.completedAt,
+    super.cancelledAt,
+    super.totalSizeBytes
   });
 
   factory SynchronizationModel.fromJson(Map<String, dynamic> json) {
@@ -20,9 +23,14 @@ class SynchronizationModel extends Synchronization {
       status: SynchronizationStatus.fromString(json['status'] as String),
       totalFiles: json['syncFiles'] as int,
       uploadedFiles: json['uploadedFiles'] as int,
-      failedFiles: json['failedFiles'] as int
+      failedFiles: json['failedFiles'] as int,
+      completedAt: _parseDate(json['completedAt']),
+      cancelledAt: _parseDate(json['cancelledAt']),
+      totalSizeBytes: json['totalSizeBytes'] as int? ?? 0
     );
   }
+
+  static DateTime? _parseDate(Object? value) => value is String ? DateTime.parse(value) : null;
 
   Map<String, dynamic> toJson() {
     return {
@@ -31,7 +39,10 @@ class SynchronizationModel extends Synchronization {
       'status': status.value,
       'syncFiles': totalFiles,
       'uploadedFiles': uploadedFiles,
-      'failedFiles': failedFiles
+      'failedFiles': failedFiles,
+      'completedAt': completedAt?.toIso8601String(),
+      'cancelledAt': cancelledAt?.toIso8601String(),
+      'totalSizeBytes': totalSizeBytes
     };
   }
 }

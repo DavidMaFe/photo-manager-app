@@ -69,3 +69,14 @@ class SelectAllFiles extends FolderContentEvent {
 class DeselectAllFiles extends FolderContentEvent {
   const DeselectAllFiles();
 }
+
+/// The favorite mark of files changed elsewhere (viewer, album selection).
+class FavoritesChanged extends FolderContentEvent {
+  final List<String> fileIds;
+  final bool favorite;
+
+  const FavoritesChanged({required this.fileIds, required this.favorite});
+
+  @override
+  List<Object?> get props => [fileIds, favorite];
+}

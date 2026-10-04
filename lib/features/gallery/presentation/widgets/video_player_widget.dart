@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -162,10 +163,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.black.withValues(alpha: 0.3),
-            Colors.transparent,
-            Colors.transparent,
-            Colors.black.withValues(alpha: 0.5)
+            context.palette.media.withValues(alpha: 0.3),
+            context.palette.media.withValues(alpha: 0),
+            context.palette.media.withValues(alpha: 0),
+            context.palette.media.withValues(alpha: 0.5)
           ],
           stops: const [0.0, 0.15, 0.75, 1.0]
         )
@@ -177,7 +178,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           Center(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
+                color: context.palette.media.withValues(alpha: 0.5),
                 shape: BoxShape.circle
               ),
               child: IconButton(
@@ -185,7 +186,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                 icon: Icon(
                     _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
                     size: 64,
-                    color: Colors.white
+                    color: context.palette.onMedia
                 ),
               ),
             )
@@ -209,10 +210,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           VideoProgressIndicator(
             _controller,
             allowScrubbing: true,
-            colors: const VideoProgressColors(
-              playedColor: Colors.white,
-              bufferedColor: Colors.white38,
-              backgroundColor: Colors.white24
+            colors: VideoProgressColors(
+              playedColor: context.palette.onMedia,
+              bufferedColor: context.palette.onMedia.withValues(alpha: 0.38),
+              backgroundColor: context.palette.onMedia.withValues(alpha: 0.24)
             )
           ),
           const SizedBox(height: 8),
@@ -221,11 +222,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             children: [
               Text(
                 _formatDuration(position),
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                style: TextStyle(color: context.palette.onMedia, fontSize: 12),
               ),
               Text(
                 _formatDuration(duration),
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                style: TextStyle(color: context.palette.onMedia, fontSize: 12),
               )
             ],
           )
@@ -236,10 +237,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   Widget _buildLoading() {
     return Container(
-      color: Colors.black,
-      child: const Center(
+      color: context.palette.media,
+      child: Center(
         child: CircularProgressIndicator(
-          color: Colors.white
+          color: context.palette.onMedia
         ),
       ),
     );
@@ -247,20 +248,20 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   Widget _buildError(AppLocalizations l10n) {
     return Container(
-      color: Colors.black,
+      color: context.palette.media,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline,
-              color: Colors.white70,
+              color: context.palette.onMedia.withValues(alpha: 0.70),
               size: 64,
             ),
             const SizedBox(height: 16),
             Text(
               l10n.loadingVideoError,
-              style: const TextStyle(color: Colors.white70, fontSize: 16),
+              style: TextStyle(color: context.palette.onMedia.withValues(alpha: 0.70), fontSize: 16),
             ),
             if (_errorMessage != null) ...[
               const SizedBox(height: 8),
@@ -268,7 +269,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   _errorMessage!,
-                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                  style: TextStyle(color: context.palette.onMedia.withValues(alpha: 0.54), fontSize: 12),
                   textAlign: TextAlign.center,
                 ),
               )

@@ -78,7 +78,7 @@ genhtml ${FILTERED_LCOV} \
     }
 
 # Extract coverage percentage
-COVERAGE_PERCENT=$(lcov --summary ${FILTERED_LCOV} 2>&1 | grep "lines......:" | awk '{print $2}' | sed 's/%//')
+COVERAGE_PERCENT=$(lcov --summary ${FILTERED_LCOV} 2>&1 | grep -E "lines\.+:" | awk '{print $2}' | sed 's/%//')
 
 echo ""
 echo "========================================"

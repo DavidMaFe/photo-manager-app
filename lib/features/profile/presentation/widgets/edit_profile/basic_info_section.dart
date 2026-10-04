@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:photo_manager_app/core/widgets/app_text_field.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
-import 'package:photo_manager_app/config/theme/photo_manager_colors.dart';
 
+/// Name and last name fields.
 class BasicInfoSection extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController surnameController;
@@ -19,95 +20,35 @@ class BasicInfoSection extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l10n.basicInfoSection,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          l10n.nameLabel,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
+        AppTextField(
+          label: l10n.nameLabel,
           controller: nameController,
+          hintText: l10n.namePlaceholder,
+          enabled: enabled,
           keyboardType: TextInputType.name,
           textCapitalization: TextCapitalization.words,
-          enabled: enabled,
+          textInputAction: TextInputAction.next,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return l10n.errorNameRequired;
             }
             return null;
           },
-          decoration: _buildInputDecoration(
-            hintText: l10n.namePlaceholder,
-          ),
         ),
-        const SizedBox(height: 20),
-        Text(
-          l10n.surnameLabel,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
+        const SizedBox(height: 16),
+        AppTextField(
+          label: l10n.surnameShortLabel,
+          labelNote: l10n.optionalLabel,
           controller: surnameController,
+          hintText: l10n.surnamePlaceholder,
+          enabled: enabled,
           keyboardType: TextInputType.name,
           textCapitalization: TextCapitalization.words,
-          enabled: enabled,
-          decoration: _buildInputDecoration(
-            hintText: l10n.surnamePlaceholder,
-          ),
+          textInputAction: TextInputAction.next,
         ),
       ],
-    );
-  }
-
-  InputDecoration _buildInputDecoration({
-    required String hintText,
-    Widget? suffixIcon,
-  }) {
-    return InputDecoration(
-      hintText: hintText,
-      hintStyle: TextStyle(color: Colors.grey[400]),
-      filled: true,
-      fillColor: Colors.grey[50],
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red, width: 2),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red, width: 2),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey[300]!),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey[300]!),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: PhotoManagerColors.primary, width: 2),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      suffixIcon: suffixIcon,
     );
   }
 }

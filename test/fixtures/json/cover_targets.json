@@ -1,0 +1,30 @@
+[
+  {
+    "folderId": 1,
+    "name": "Vacaciones 2024",
+    "depth": 0,
+    "containsDirectly": false,
+    "covers": [
+      {"fileId": 101, "position": 1, "sourceFolderId": 1, "sourceFolderName": "Vacaciones 2024", "sourceFolderPath": []},
+      {"fileId": 100, "position": 0, "sourceFolderId": 2, "sourceFolderName": "Playa", "sourceFolderPath": ["Playa"]}
+    ]
+  },
+  {
+    "folderId": 2,
+    "name": "Playa",
+    "depth": 1,
+    "containsDirectly": false,
+    "covers": [
+      {"fileId": 100, "position": 0, "sourceFolderId": 2, "sourceFolderName": "Playa", "sourceFolderPath": []},
+      {"fileId": 102, "position": 1, "sourceFolderId": 3, "sourceFolderName": "Atardeceres", "sourceFolderPath": ["Atardeceres"]},
+      {"fileId": 103, "position": 2, "sourceFolderId": 2, "sourceFolderName": "Playa", "sourceFolderPath": []}
+    ]
+  },
+  {
+    "folderId": 3,
+    "name": "Atardeceres",
+    "depth": 2,
+    "containsDirectly": true,
+    "covers": []
+  }
+]

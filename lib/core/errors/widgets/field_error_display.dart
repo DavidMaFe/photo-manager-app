@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 
 /// Standalone widget for displaying field-level validation errors
@@ -56,8 +57,7 @@ class FieldErrorDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final errorColor = color ?? (isDark ? Colors.red.shade300 : Colors.red.shade700);
+    final errorColor = color ?? (context.palette.dangerInk);
 
     // Multiple field errors
     if (fieldErrors != null && fieldErrors!.isNotEmpty) {
@@ -96,7 +96,7 @@ class FieldErrorDisplay extends StatelessWidget {
                             text: TextSpan(
                               style: TextStyle(
                                 fontSize: 13,
-                                color: isDark ? Colors.white70 : Colors.black87,
+                                color: context.palette.ink,
                                 height: 1.4,
                               ),
                               children: [
@@ -114,7 +114,7 @@ class FieldErrorDisplay extends StatelessWidget {
                             entry.value,
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark ? Colors.white70 : Colors.black87,
+                              color: context.palette.ink,
                               height: 1.4,
                             ),
                           ),
@@ -154,7 +154,7 @@ class FieldErrorDisplay extends StatelessWidget {
                       text: TextSpan(
                         style: TextStyle(
                           fontSize: 13,
-                          color: isDark ? Colors.white70 : Colors.black87,
+                          color: context.palette.ink,
                           height: 1.4,
                         ),
                         children: [
@@ -172,7 +172,7 @@ class FieldErrorDisplay extends StatelessWidget {
                       errorMessage!,
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? Colors.white70 : Colors.black87,
+                        color: context.palette.ink,
                         height: 1.4,
                       ),
                     ),
