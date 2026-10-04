@@ -803,6 +803,18 @@ abstract class AppLocalizations {
   /// **'No internet connection. Check your connection and try again.'**
   String get errorNetwork;
 
+  /// No description provided for @syncInProgressErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup in progress'**
+  String get syncInProgressErrorTitle;
+
+  /// No description provided for @syncInProgressError.
+  ///
+  /// In en, this message translates to:
+  /// **'A backup is already running. Wait for it to finish and try again.'**
+  String get syncInProgressError;
+
   /// No description provided for @errorServerTitle.
   ///
   /// In en, this message translates to:

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/network/authenticated_http_client.dart';
 import 'package:photo_manager_app/core/services/background_sync_service.dart';
+import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/services/sync_log_service.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
@@ -148,6 +149,7 @@ Future<void> init() async {
   // Persistent sync log — registered immediately after SharedPreferences so it
   // is available in both the main isolate and the WorkManager background isolate.
   sl.registerLazySingleton(() => SyncLogService(sl<SharedPreferences>()));
+  sl.registerLazySingleton(() => SyncLock(sharedPreferences: sl<SharedPreferences>()));
 
   // Core Services
   sl.registerLazySingleton(() => UiPreferencesService(sl()));
@@ -179,6 +181,7 @@ Future<void> init() async {
       sharedPreferences: sl<SharedPreferences>(),
       notificationService: sl<SyncNotificationService>(),
       syncLogService: sl<SyncLogService>(),
+      syncLock: sl<SyncLock>(),
     ),
   );
 
@@ -809,7 +812,7 @@ Future<void> init() async {
         final syncDeviceRepository = sl<SyncDeviceRepository>();
         final mediaLocalDataSource = sl<MediaLocalDataSource>();
         final eventBus = sl<AppEventBus>();
-        final sharedPreferences = sl<SharedPreferences>();
+        final syncLock = sl<SyncLock>();
 
         return SyncSessionBloc(
           startSyncSessionUseCase: startSyncSessionUseCase,
@@ -820,7 +823,7 @@ Future<void> init() async {
           syncDeviceRepository: syncDeviceRepository,
           mediaLocalDataSource: mediaLocalDataSource,
           eventBus: eventBus,
-          sharedPreferences: sharedPreferences,
+          syncLock: syncLock,
         );
       }
   );

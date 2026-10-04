@@ -28,6 +28,7 @@ class FailureMessageHelper {
     if (failure is UnauthorizedFailure) return l10n.errorUnauthorizedTitle;
     if (failure is NotFoundFailure) return l10n.errorNotFoundTitle;
     if (failure is StorageSpaceExceededFailure) return l10n.errorStorageSpaceExceededTitle;
+    if (failure is ConcurrencyFailure) return l10n.syncInProgressErrorTitle;
 
     return l10n.errorUnknown;
   }
@@ -76,6 +77,10 @@ class FailureMessageHelper {
         return l10n.errorStorageSpaceExceeded;
       case 'errorPermissionDenied':
         return l10n.errorPermissionDenied;
+
+    // Sync
+      case 'syncInProgressError':
+        return l10n.syncInProgressError;
 
     // Generic
       case 'errorUnknown':

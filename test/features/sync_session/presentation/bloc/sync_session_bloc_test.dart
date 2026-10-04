@@ -2,8 +2,10 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
@@ -14,7 +16,6 @@ import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_bloc.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MockStartSyncSessionUseCase extends Mock implements StartSyncSessionUseCase {}
 class MockCheckDuplicatedFilesUseCase extends Mock implements CheckDuplicatedFilesUseCase {}
@@ -25,7 +26,7 @@ class MockSyncSessionRepository extends Mock implements SyncSessionRepository {}
 class MockMediaLocalDataSource extends Mock implements MediaLocalDataSource {}
 class MockAppEventBus extends Mock implements AppEventBus {}
 class MockBuildContext extends Mock implements BuildContext {}
-class MockSharedPreferences extends Mock implements SharedPreferences {}
+class MockSyncLock extends Mock implements SyncLock {}
 
 class FakeAppEvent extends Fake implements AppEvent {}
 
@@ -40,7 +41,7 @@ void main() {
   late MockMediaLocalDataSource mockMediaDataSource;
   late MockAppEventBus mockEventBus;
   late MockBuildContext mockContext;
-  late MockSharedPreferences mockSharedPreferences;
+  late MockSyncLock mockSyncLock;
 
   setUpAll(() {
     registerFallbackValue(FakeAppEvent());
@@ -56,7 +57,7 @@ void main() {
     mockMediaDataSource = MockMediaLocalDataSource();
     mockEventBus = MockAppEventBus();
     mockContext = MockBuildContext();
-    mockSharedPreferences = MockSharedPreferences();
+    mockSyncLock = MockSyncLock();
 
     // Mock context.mounted to return true
     when(() => mockContext.mounted).thenReturn(true);
@@ -65,8 +66,8 @@ void main() {
     when(() => mockSessionRepository.cancelSyncSession(sessionId: any(named: 'sessionId')))
         .thenAnswer((_) async => {});
 
-    // Mock SharedPreferences to return false for sync lock (no sync in progress)
-    when(() => mockSharedPreferences.getBool(any())).thenReturn(false);
+    // No sync in progress by default
+    when(() => mockSyncLock.check()).thenAnswer((_) async => const SyncLockCheck(SyncLockStatus.free));
 
     bloc = SyncSessionBloc(
       startSyncSessionUseCase: mockStartUseCase,
@@ -77,7 +78,7 @@ void main() {
       syncSessionRepository: mockSessionRepository,
       mediaLocalDataSource: mockMediaDataSource,
       eventBus: mockEventBus,
-      sharedPreferences: mockSharedPreferences,
+      syncLock: mockSyncLock,
     );
   });
 
@@ -164,6 +165,60 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockStartUseCase(deviceUuid: deviceUuid)).called(1);
+        },
+      );
+    });
+
+    group('SyncLock', () {
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should emit ConcurrencyFailure without starting a session when a sync is in progress',
+        setUp: () {
+          when(() => mockSyncLock.check()).thenAnswer(
+              (_) async => const SyncLockCheck(SyncLockStatus.held, age: Duration(minutes: 2)));
+        },
+        build: () => bloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        expect: () => [
+          isA<SyncSessionError>().having((state) => state.failure, 'failure', isA<ConcurrencyFailure>()),
+        ],
+        verify: (_) {
+          verifyNever(() => mockStartUseCase(deviceUuid: any(named: 'deviceUuid')));
+        },
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should start the session when a stale lock was released',
+        setUp: () {
+          when(() => mockSyncLock.check()).thenAnswer(
+              (_) async => const SyncLockCheck(SyncLockStatus.releasedStale, age: Duration(minutes: 31)));
+          when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => 'device-uuid-123');
+          when(() => mockStartUseCase(deviceUuid: 'device-uuid-123')).thenThrow(Exception('Network error'));
+        },
+        build: () => bloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        expect: () => [
+          const SyncSessionStarting(),
+          isA<SyncSessionError>(),
+        ],
+        verify: (_) {
+          verify(() => mockStartUseCase(deviceUuid: 'device-uuid-123')).called(1);
+        },
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should check the lock again on every start',
+        setUp: () {
+          when(() => mockSyncLock.check()).thenAnswer(
+              (_) async => const SyncLockCheck(SyncLockStatus.held, age: Duration(minutes: 2)));
+        },
+        build: () => bloc,
+        act: (bloc) async {
+          bloc.add(SyncSessionStarted(mockContext));
+          await Future<void>.delayed(Duration.zero);
+          bloc.add(SyncSessionStarted(mockContext));
+        },
+        verify: (_) {
+          verify(() => mockSyncLock.check()).called(2);
         },
       );
     });

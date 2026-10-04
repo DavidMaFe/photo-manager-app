@@ -128,6 +128,8 @@
   "errorNetwork": "Sin conexión a internet. Verifica tu conexión e inténtalo de nuevo.",
   "errorServerTitle": "Error del Servidor",
   "errorServer": "Error del servidor. Por favor, inténtalo más tarde",
+  "syncInProgressErrorTitle": "Copia en curso",
+  "syncInProgressError": "Ya se está haciendo una copia. Espera a que termine e inténtalo de nuevo.",
   "errorTimeout": "La operación tardó demasiado. Por favor, inténtalo de nuevo.",
   "errorUnauthorizedTitle": "No autorizado",
   "errorUnauthorized": "No tienes autorización. Por favor, inicia sesión.",

@@ -391,6 +391,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get errorNetwork => 'Sin conexión a internet. Verifica tu conexión e inténtalo de nuevo.';
 
   @override
+  String get syncInProgressErrorTitle => 'Copia en curso';
+
+  @override
+  String get syncInProgressError => 'Ya se está haciendo una copia. Espera a que termine e inténtalo de nuevo.';
+
+  @override
   String get errorServerTitle => 'Error del Servidor';
 
   @override

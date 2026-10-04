@@ -391,6 +391,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorNetwork => 'No internet connection. Check your connection and try again.';
 
   @override
+  String get syncInProgressErrorTitle => 'Backup in progress';
+
+  @override
+  String get syncInProgressError => 'A backup is already running. Wait for it to finish and try again.';
+
+  @override
   String get errorServerTitle => 'Server Error';
 
   @override
