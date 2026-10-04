@@ -94,14 +94,14 @@ Acceptance criteria: Propiedades muestra el dispositivo de origen y el tamaño; 
 Status: ✅ Completed
 
 ## Phase 4: Fechas de álbum
-- [ ] `Folder`: `oldestCapturedAt` y `newestCapturedAt` (nullable) en entidad y modelo (listado, `folderInfo` y `subfolders`)
-- [ ] Subtítulo del álbum con el rango de fechas («ago 2024» o «ene – ago 2024»); se omite si las fechas son nulas
-- [ ] Cabecera del contenido del álbum y tarjetas de subcarpetas con los mismos datos
-- [ ] Tests: modelos con y sin campos nuevos; formateo del rango (mismo mes, mismo año, años distintos); `FolderCard` con y sin fechas
+- [x] `Folder`: `oldestCapturedAt` y `newestCapturedAt` (nullable) en entidad y modelo (listado, `folderInfo` y `subfolders`)
+- [x] Subtítulo del álbum con el rango de fechas («ago 2024» o «ene – ago 2024»); se omite si las fechas son nulas
+- [x] Cabecera del contenido del álbum y tarjetas de subcarpetas con los mismos datos
+- [x] Tests: modelos con y sin campos nuevos; formateo del rango (mismo mes, mismo año, años distintos); `FolderCard` con y sin fechas
 
 Acceptance criteria: cada álbum muestra su rango de fechas, incluidos los álbumes que solo tienen subcarpetas.
 
-Status: ⏳ Pending
+Status: ✅ Completed
 
 ## Phase 5: Favoritas y portadas (`FAVORITOS_PORTADAS.md`)
 Se implementa siguiendo las fases 1–5 de `FAVORITOS_PORTADAS.md`, en su rama `feature/favoritas-portadas`. El backend ya implementa el contrato de su sección 2, con estas diferencias que la capa `data` debe respetar:

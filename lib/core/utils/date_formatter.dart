@@ -51,4 +51,17 @@ class DateFormatter {
     }
     return l10n.dayAndTime(dayLabel, DateFormat.Hm(locale).format(dateTime));
   }
+
+  /// Months covered by an album: "Aug 2024", "Jan – Aug 2024" or "Dec 2023 – Aug 2024"
+  /// ("ago 2024", "ene – ago 2024" in Spanish). `null` without dates.
+  static String? formatMonthRange(DateTime? oldest, DateTime? newest, String locale) {
+    final from = oldest ?? newest;
+    final to = newest ?? oldest;
+    if (from == null || to == null) return null;
+
+    final monthYear = DateFormat.yMMM(locale);
+    if (from.year == to.year && from.month == to.month) return monthYear.format(to);
+    if (from.year == to.year) return '${DateFormat.LLL(locale).format(from)} – ${monthYear.format(to)}';
+    return '${monthYear.format(from)} – ${monthYear.format(to)}';
+  }
 }

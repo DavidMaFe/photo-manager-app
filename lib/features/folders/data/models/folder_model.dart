@@ -10,7 +10,9 @@ class FolderModel extends Folder {
     required super.path,
     required super.createdAt,
     required super.fileCount,
-    required super.subfolderCount
+    required super.subfolderCount,
+    super.oldestCapturedAt,
+    super.newestCapturedAt
   });
 
   factory FolderModel.fromJson(Map<String, dynamic> json) {
@@ -21,9 +23,13 @@ class FolderModel extends Folder {
       path: json['path'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       fileCount: json['filesQuantity'] as int? ?? 0,
-      subfolderCount: json['subfolderCount'] as int? ?? 0
+      subfolderCount: json['subfolderCount'] as int? ?? 0,
+      oldestCapturedAt: _parseDate(json['oldestCapturedAt']),
+      newestCapturedAt: _parseDate(json['newestCapturedAt'])
     );
   }
+
+  static DateTime? _parseDate(Object? value) => value is String ? DateTime.parse(value) : null;
 
   Map<String, dynamic> toJson() {
     return {
@@ -33,7 +39,9 @@ class FolderModel extends Folder {
       'path': path,
       'createdAt': createdAt,
       'filesQuantity': fileCount,
-      'subfolderCount': subfolderCount
+      'subfolderCount': subfolderCount,
+      'oldestCapturedAt': oldestCapturedAt?.toIso8601String(),
+      'newestCapturedAt': newestCapturedAt?.toIso8601String()
     };
   }
 
@@ -49,7 +57,9 @@ class FolderModel extends Folder {
       path: folder.path,
       createdAt: folder.createdAt,
       fileCount: folder.fileCount,
-      subfolderCount: folder.subfolderCount
+      subfolderCount: folder.subfolderCount,
+      oldestCapturedAt: folder.oldestCapturedAt,
+      newestCapturedAt: folder.newestCapturedAt
     );
   }
 }

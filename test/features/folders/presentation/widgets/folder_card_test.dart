@@ -47,6 +47,30 @@ void main() {
       expect(find.text('Empty'), findsOneWidget);
     });
 
+    testWidgets('should show the months the album covers', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(build(TestFolders.album(
+        oldestCapturedAt: DateTime(2024, 1, 3),
+        newestCapturedAt: DateTime(2024, 8, 20),
+      )));
+
+      // Assert
+      expect(find.text('Jan – Aug 2024'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.byType(FolderCard)).label,
+        'Vacation, 42 · 3 sub-albums, Jan – Aug 2024',
+      );
+    });
+
+    testWidgets('should hide the date line without dates', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(build(TestFolders.album()));
+
+      // Assert
+      expect(find.textContaining('20'), findsNothing);
+      expect(tester.getSemantics(find.byType(FolderCard)).label, 'Vacation, 42 · 3 sub-albums');
+    });
+
     testWidgets('should render a square cover', (tester) async {
       // Arrange & Act
       await tester.pumpWidget(build(TestFolders.album()));

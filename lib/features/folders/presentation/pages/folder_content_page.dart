@@ -27,6 +27,7 @@ import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart
 import 'package:photo_manager_app/features/gallery/presentation/widgets/file_filter_label.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/files_grid.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/folder_card.dart';
 
 
 class FolderContentPage extends StatelessWidget {
@@ -285,7 +286,7 @@ class FolderContentPage extends StatelessWidget {
   }
 }
 
-/// Breadcrumbs, album name and item count.
+/// Breadcrumbs, album name, item count and the months it covers.
 class _AlbumHeader extends StatelessWidget {
   final Folder folder;
   final int totalFilesCount;
@@ -296,6 +297,7 @@ class _AlbumHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final p = context.palette;
+    final dateRange = FolderCard.dateRangeFor(folder, l10n);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -321,7 +323,7 @@ class _AlbumHeader extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            l10n.itemsCount(totalFilesCount),
+            [l10n.itemsCount(totalFilesCount), if (dateRange != null) dateRange].join(' · '),
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.ink2),
           ),
         ],

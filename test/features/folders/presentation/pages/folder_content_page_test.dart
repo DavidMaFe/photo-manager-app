@@ -129,6 +129,45 @@ void main() {
       expect(find.byType(FloatingActionButton), findsNothing);
     });
 
+    testWidgets('should show the item count with the months of the album', (tester) async {
+      // Arrange
+      final dated = FolderContentLoaded(
+        currentFolder: TestFolders.album(
+          id: 'folder-1',
+          name: 'Japan',
+          parentFolderId: 'parent-1',
+          path: '/Trips/Japan',
+          fileCount: 2,
+          subfolderCount: 1,
+          oldestCapturedAt: DateTime(2024, 8, 2),
+          newestCapturedAt: DateTime(2024, 8, 14),
+        ),
+        subfolders: [
+          TestFolders.album(
+            id: 'sub-1',
+            name: 'Kyoto',
+            parentFolderId: 'folder-1',
+            fileCount: 5,
+            oldestCapturedAt: DateTime(2023, 12, 30),
+            newestCapturedAt: DateTime(2024, 1, 2),
+          ),
+        ],
+        files: files,
+        groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+        hasMoreFiles: false,
+        totalFilesCount: files.length,
+        isSelectionMode: false,
+        selectedFileIds: const {},
+      );
+
+      // Act
+      await pumpPage(tester, dated);
+
+      // Assert
+      expect(find.text('2 items · Aug 2024'), findsOneWidget);
+      expect(find.text('Dec 2023 – Jan 2024'), findsOneWidget);
+    });
+
     testWidgets('should list sub-albums with a create card', (tester) async {
       // Arrange & Act
       await pumpPage(tester, loaded());

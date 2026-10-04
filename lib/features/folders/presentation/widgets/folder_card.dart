@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/config/theme/app_radius.dart';
+import 'package:photo_manager_app/core/utils/date_formatter.dart';
 import 'package:photo_manager_app/core/widgets/app_context_menu.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -10,7 +11,7 @@ import '../../domain/entities/folder.dart';
 
 enum _AlbumMenuAction { rename, delete }
 
-/// Album card: square cover, name and "items · sub-albums".
+/// Album card: square cover, name, "items · sub-albums" and the months it covers.
 /// A long press opens the rename/delete menu.
 class FolderCard extends StatelessWidget {
 
@@ -32,6 +33,11 @@ class FolderCard extends StatelessWidget {
     return folder.subfolderCount > 0
         ? l10n.albumMeta(folder.fileCount, folder.subfolderCount)
         : l10n.itemsCount(folder.fileCount);
+  }
+
+  /// "Aug 2024" / "Jan – Aug 2024", or `null` while the album has no dated files.
+  static String? dateRangeFor(Folder folder, AppLocalizations l10n) {
+    return DateFormatter.formatMonthRange(folder.oldestCapturedAt, folder.newestCapturedAt, l10n.localeName);
   }
 
   bool get _hasMenu => onRename != null || onDelete != null;
@@ -68,10 +74,11 @@ class FolderCard extends StatelessWidget {
 
     final l10n = AppLocalizations.of(context)!;
     final p = context.palette;
+    final dateRange = dateRangeFor(folder, l10n);
 
     return Semantics(
       button: true,
-      label: '${folder.name}, ${metaFor(folder, l10n)}',
+      label: [folder.name, metaFor(folder, l10n), if (dateRange != null) dateRange].join(', '),
       excludeSemantics: true,
       onLongPressHint: _hasMenu ? l10n.moreOptions : null,
       child: GestureDetector(
@@ -106,6 +113,13 @@ class FolderCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: p.ink2),
             ),
+            if (dateRange != null)
+              Text(
+                dateRange,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: p.ink3),
+              ),
           ],
         ),
       ),

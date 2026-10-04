@@ -555,6 +555,8 @@ class TestFolders {
     String? path,
     int fileCount = 42,
     int subfolderCount = 3,
+    DateTime? oldestCapturedAt,
+    DateTime? newestCapturedAt,
   }) {
     return Folder(
       id: id,
@@ -564,6 +566,8 @@ class TestFolders {
       createdAt: createdAt,
       fileCount: fileCount,
       subfolderCount: subfolderCount,
+      oldestCapturedAt: oldestCapturedAt,
+      newestCapturedAt: newestCapturedAt,
     );
   }
 }

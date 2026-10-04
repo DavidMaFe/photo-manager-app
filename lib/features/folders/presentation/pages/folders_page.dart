@@ -161,10 +161,11 @@ class _FoldersPageState extends State<FoldersPage> {
       },
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // Card = square cover + name + meta lines.
+          // Card = square cover + name + meta + date range lines.
+          // Every row keeps room for the date range so the grid stays even.
           final cellWidth = (constraints.maxWidth - 32 - 14) / 2;
           final textHeight = 8 + MediaQuery.textScalerOf(context).scale(15) * 1.4 + 2 +
-              MediaQuery.textScalerOf(context).scale(12) * 1.4;
+              MediaQuery.textScalerOf(context).scale(12) * 1.4 * 2;
 
           return GridView.builder(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 24 + MediaQuery.paddingOf(context).bottom),

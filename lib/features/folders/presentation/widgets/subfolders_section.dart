@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/create_album_card.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/folder_card.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 import '../../domain/entities/folder.dart';
@@ -31,7 +32,7 @@ class SubfoldersSection extends StatelessWidget {
     final p = context.palette;
 
     return SizedBox(
-      height: coverHeight + 48,
+      height: coverHeight + 48 + MediaQuery.textScalerOf(context).scale(11) * 1.4,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -53,11 +54,12 @@ class SubfoldersSection extends StatelessWidget {
           }
 
           final folder = subfolders[index];
+          final dateRange = FolderCard.dateRangeFor(folder, l10n);
           return SizedBox(
             width: cardWidth,
             child: Semantics(
               button: true,
-              label: '${folder.name}, ${l10n.itemsCount(folder.fileCount)}',
+              label: [folder.name, l10n.itemsCount(folder.fileCount), if (dateRange != null) dateRange].join(', '),
               excludeSemantics: true,
               child: GestureDetector(
                 onTap: () => onFolderTap?.call(folder),
@@ -81,6 +83,13 @@ class SubfoldersSection extends StatelessWidget {
                       maxLines: 1,
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: p.ink2),
                     ),
+                    if (dateRange != null)
+                      Text(
+                        dateRange,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: p.ink3),
+                      ),
                   ],
                 ),
               ),
