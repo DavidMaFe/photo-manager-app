@@ -513,8 +513,25 @@ Eliminar del `.arb` las claves que queden sin uso al final (comprobar con búsqu
 
 ## 9. Datos que el diseño muestra y hoy no existen
 
-| Dato del diseño | Situación actual | Qué hacer ahora | Qué haría falta |
-|---|---|---|---|
+> **Actualizado tras `ROADMAP-redesign-backend-integration.md`:** todos los datos que faltaban ya los envía el backend (`feature/redesign-support` y `feature/favoritas-portadas`) y la app los usa. Solo quedan como alternativa las dos funciones que no dependen de datos (Pausar y Compartir).
+
+| Dato del diseño | Estado | Dónde |
+|---|---|---|
+| Tamaño de archivos («Ocupan 48 MB», «Liberar 48 MB», «210 MB por subir», «412 MB») | ✅ Datos reales | `GalleryFile.sizeBytes` y `/api/file/pending-ids/` en la hoja Gestionar; `Synchronization.totalSizeBytes` en Actividad; bytes por subir calculados en cliente con los `SyncFile` de la copia en curso |
+| Desglose del almacenamiento (Fotos / Vídeos / Papelera) | ✅ Datos reales | `UserProfile.storage` y `StorageBar` segmentada con leyenda (sin desglose, barra de un color) |
+| «Este móvil» en dispositivos | ✅ Resuelto en cliente | Se compara `device.uuid` con el UUID local |
+| Última copia por dispositivo | ✅ Datos reales | `Device.lastSyncAt` en `DeviceCard` («Android 14 · Última copia hoy, 03:00») |
+| Hora de la copia | ✅ Datos reales | `completedAt` / `cancelledAt` en Actividad y en la tarjeta de estado |
+| Tiempo restante de la copia («Quedan unos 3 min») | ✅ Calculado en cliente | Media de tiempo por fichero subido; si < 3 ficheros, no se muestra |
+| Pausar copia | ⏳ Alternativa | Solo «Cancelar». Necesita pausa/reanudación en `SyncSessionBloc` |
+| Favoritos | ✅ Datos reales | Ver `FAVORITOS_PORTADAS.md` (visor, selección en álbum, filtro «Favoritas», indicador en miniaturas) |
+| Compartir | ⏳ Alternativa | Sin botón. Implementar con `share_plus` descargando el original a un temporal |
+| Portadas de álbum | ✅ Datos reales | Mosaico con `coverFileIds` / `fallbackCoverFileIds`; portadas elegidas por el usuario (ver `FAVORITOS_PORTADAS.md`) |
+| Fecha del álbum («ago 2024») | ✅ Datos reales | `oldestCapturedAt` / `newestCapturedAt` en tarjetas, subálbumes y cabecera del álbum |
+| Dispositivo de origen en propiedades | ✅ Datos reales | `/api/file/{id}/info/` en `FilePropertiesSheet` (también en la papelera) |
+| Fechas en la zona del usuario | ✅ Datos reales | Cabecera `X-Timezone` en todas las peticiones; `capturedAt` nulo agrupado en «Sin fecha» |
+
+---|---|---|---|
 | Tamaño de archivos («Ocupan 48 MB», «Liberar 48 MB», «210 MB por subir», «412 MB») | `GalleryFile` no tiene tamaño | Ocultar los MB: subtítulo «{n} fotos seleccionadas», botón «Guardar y liberar espacio» | Campo `sizeBytes` en la API de ficheros (y en la sesión de sync) |
 | Desglose del almacenamiento (Fotos / Vídeos / Otros) | Solo `storageUsedMb` y `storageTotalMb` | Barra de un solo color (accent) sin leyenda | Uso por tipo en el endpoint de perfil |
 | «Este móvil» en dispositivos | `Device` no indica el actual | Comparar `device.uuid` con el UUID local de `SyncDeviceLocalDataSource` (sí es posible en cliente) | — |

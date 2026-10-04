@@ -1,5 +1,5 @@
 {
   "ENV": "prod",
   "BACKEND_BASE_URL": "https://photo-manager-pro.com",
-  "FAVORITES_AND_COVERS_ENABLED": false
+  "FAVORITES_AND_COVERS_ENABLED": true
 }

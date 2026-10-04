@@ -125,10 +125,11 @@ Acceptance criteria: Perfil muestra cuánto ocupan fotos, vídeos y papelera, y 
 Status: ✅ Completed
 
 ## Phase 7: Cierre
-- [ ] Actualizar la sección 9 de `REDESIGN.md`: todas las alternativas sustituidas por datos reales
+- [x] Actualizar la sección 9 de `REDESIGN.md`: todas las alternativas sustituidas por datos reales
+- [x] «210 MB por subir» en la copia en curso, calculado en cliente con el tamaño de los ficheros pendientes (era la última alternativa por falta de datos)
 - [ ] Prueba manual en dispositivo, en modo claro y oscuro, contra el backend de `feature/favoritas-portadas`
-- [ ] Revisar la cobertura (`coverage.sh`)
+- [x] Revisar la cobertura (`coverage.sh`): 84,5 % de líneas (umbral 80 %); corregida la lectura del porcentaje con el `lcov` actual
 
 Acceptance criteria: ninguna pantalla usa ya una alternativa de la sección 9 por falta de datos.
 
-Status: ⏳ Pending
+Status: 🚧 In Progress (falta la prueba manual en dispositivo)
