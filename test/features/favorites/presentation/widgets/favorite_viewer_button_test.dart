@@ -70,6 +70,24 @@ void main() {
       expect(tester.getSemantics(find.byType(FavoriteViewerButton)), containsSemantics(hasToggledState: true, isToggled: true));
     });
 
+    testWidgets('should use the dark palette heart in dark mode', (tester) async {
+      // Arrange
+      when(() => bloc.state).thenReturn(const FavoritesState());
+
+      // Act
+      await tester.pumpWidget(makeTestableWidget(
+        BlocProvider<FavoritesBloc>.value(
+          value: bloc,
+          child: Scaffold(body: Center(child: FavoriteViewerButton(file: photo(favorite: true)))),
+        ),
+        themeMode: ThemeMode.dark,
+      ));
+
+      // Assert
+      expect(action(tester).iconColor, AppPalette.dark.favorite);
+      expect(action(tester).color, AppPalette.dark.favoriteInk);
+    });
+
     testWidgets('should follow the value set in the bloc over the file', (tester) async {
       await pump(tester, photo(), state: const FavoritesState(overrides: {'a': true}));
       expect(action(tester).iconFill, 1);
@@ -102,6 +120,19 @@ void main() {
       // Assert
       verify(() => bloc.add(SetFavorites(files: [photo(favorite: true)], favorite: false))).called(1);
       expect(action(tester).iconScale, 1);
+    });
+
+    testWidgets('should meet the tap target and label guidelines', (tester) async {
+      // Arrange
+      final handle = tester.ensureSemantics();
+
+      // Act
+      await pump(tester, photo());
+
+      // Assert
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      handle.dispose();
     });
 
     testWidgets('should show a snackbar when the change fails', (tester) async {

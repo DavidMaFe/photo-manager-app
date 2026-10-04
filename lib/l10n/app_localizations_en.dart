@@ -1618,4 +1618,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moveDown => 'Move down';
+
+  @override
+  String get coverBadge => 'Cover';
 }

@@ -314,9 +314,9 @@ No hacen falta rutas nuevas: ambas hojas se abren con `showAppSheet`. El visor r
 - [x] `CoversChangedEvent` y refresco de álbumes.
 
 **Fase 5 · Cierre**
-- [ ] Textos `.arb` completos y `flutter gen-l10n`.
-- [ ] Accesibilidad (sección 7).
-- [ ] Tests de bloc y widget (sección 8).
+- [x] Textos `.arb` completos y `flutter gen-l10n`.
+- [x] Accesibilidad (sección 7).
+- [x] Tests de bloc y widget (sección 8).
 - [ ] Prueba manual en claro y oscuro: marcar y desmarcar favoritas desde las tres entradas; portada en álbum directo, en ancestro y en varios a la vez; sustitución con álbum lleno; quitar y reordenar; mover una foto portada a otro álbum y comprobar que deja de serlo.
 
 ---

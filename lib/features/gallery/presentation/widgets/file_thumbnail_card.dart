@@ -64,7 +64,7 @@ class FileThumbnailCard extends StatelessWidget {
       selected: isSelected,
       isFavorite: isFavorite,
       large: large,
-      coverLabel: isCover ? l10n.cover : null,
+      coverLabel: isCover ? l10n.coverBadge : null,
       semanticLabel: [
         file.isVideo ? l10n.filePropertyTypeVideo : l10n.filePropertyTypeImage,
         if (isFavorite) l10n.favorite,

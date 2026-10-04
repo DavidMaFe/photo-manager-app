@@ -752,5 +752,6 @@
   "addCoverHint": "Para añadir otra, abre una foto de este álbum o de sus subálbumes y pulsa «Portada». Sin portadas, se usan las fotos más recientes.",
   "undo": "Deshacer",
   "moveUp": "Subir",
-  "moveDown": "Bajar"
+  "moveDown": "Bajar",
+  "coverBadge": "Portada"
 }

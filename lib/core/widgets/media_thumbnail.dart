@@ -111,7 +111,8 @@ class MediaThumbnail extends StatelessWidget {
                 curve: Curves.easeOutCubic,
                 top: isSelected ? 13 : 6,
                 left: isSelected ? 13 : 6,
-                child: _CoverBadge(label: coverLabel!, compact: selectable, palette: p),
+                // Already in the thumbnail's semantic label.
+                child: ExcludeSemantics(child: _CoverBadge(label: coverLabel!, compact: selectable, palette: p)),
               ),
             if (selectable)
               Positioned(

@@ -179,6 +179,19 @@ void main() {
       verify(() => cubit.load('a2')).called(1);
     });
 
+    testWidgets('should meet the tap target and label guidelines', (tester) async {
+      // Arrange
+      final handle = tester.ensureSemantics();
+
+      // Act
+      await pump(tester, ready([own, fromSub], lastRemoved: (fromSub, 2)));
+
+      // Assert
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      handle.dispose();
+    });
+
     testWidgets('should use the drag handle for each cover', (tester) async {
       await pump(tester, ready([own, fromSub]));
       expect(find.byIcon(Symbols.drag_indicator_rounded), findsNWidgets(2));

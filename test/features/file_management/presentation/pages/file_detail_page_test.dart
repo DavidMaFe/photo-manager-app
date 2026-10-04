@@ -244,6 +244,18 @@ void main() {
         expect(find.text('Save'), findsNothing);
       });
 
+      testWidgets('should meet the tap target guideline in the album bar', (tester) async {
+        // Arrange
+        final handle = tester.ensureSemantics();
+
+        // Act
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo(coverOf: ['a2'])], albumContext: album));
+
+        // Assert
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        handle.dispose();
+      });
+
       testWidgets('should not offer Cover for videos', (tester) async {
         // Arrange & Act
         await tester.pumpWidget(createWidgetUnderTest(files: [testFiles[2]], albumContext: album));

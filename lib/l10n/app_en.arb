@@ -844,5 +844,6 @@
   "addCoverHint": "To add another, open a photo of this album or its sub-albums and tap «Cover». Without covers, the most recent photos are used.",
   "undo": "Undo",
   "moveUp": "Move up",
-  "moveDown": "Move down"
+  "moveDown": "Move down",
+  "coverBadge": "Cover"
 }

@@ -2698,6 +2698,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Move down'**
   String get moveDown;
+
+  /// No description provided for @coverBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover'**
+  String get coverBadge;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

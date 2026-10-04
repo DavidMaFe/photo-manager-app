@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/album_cover.dart';
@@ -157,6 +158,53 @@ void main() {
     testWidgets('should disable saving without changes', (tester) async {
       await pump(tester, ready());
       expect(saveButton(tester).onPressed, isNull);
+    });
+
+    // ==================== ACCESSIBILITY TESTS ====================
+
+    testWidgets('should meet the tap target and label guidelines', (tester) async {
+      // Arrange
+      final handle = tester.ensureSemantics();
+
+      // Act
+      await pump(tester, ready(checked: {'a1', 'a2'}));
+
+      // Assert
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      expect(
+        tester.getSemantics(find.text('Playa')),
+        containsSemantics(label: 'Playa, Full · choose which to replace', hasCheckedState: true, isChecked: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('should take the colors of a changed row from the dark palette', (tester) async {
+      // Arrange
+      when(() => cubit.state).thenReturn(ready(checked: {'a3'}));
+      setUpCustomScreenSize(tester, 390, 1600);
+
+      // Act
+      await tester.pumpWidget(makeTestableWidget(
+        BlocProvider<CoverPickerCubit>.value(
+          value: cubit,
+          child: const Scaffold(body: SingleChildScrollView(child: CoverPickerSheet())),
+        ),
+        themeMode: ThemeMode.dark,
+      ));
+
+      // Assert
+      const p = AppPalette.dark;
+      final cards = tester.widgetList<AnimatedContainer>(find.byType(AnimatedContainer));
+      final decorations = cards.map((c) => c.decoration as BoxDecoration).toList();
+      expect(decorations.map((d) => d.color), [
+        p.accentSoft.withValues(alpha: 0.5), // root: will remove
+        p.surface, // beach: no change
+        p.accentSoft.withValues(alpha: 0.5), // sunsets: will add
+      ]);
+      expect((decorations.first.border! as Border).top.color, p.accent);
+      final status = tester.widget<Text>(find.text('Will be removed from the cover'));
+      expect(status.style!.color, p.dangerInk);
     });
 
     testWidgets('should say the photos are here for several photos', (tester) async {

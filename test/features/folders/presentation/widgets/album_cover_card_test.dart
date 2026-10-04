@@ -35,6 +35,22 @@ void main() {
       expect(tester.widget<AlbumMosaic>(find.byType(AlbumMosaic)).fileIds, ['r']);
     });
 
+    testWidgets('should be one labelled button big enough to tap', (tester) async {
+      // Arrange
+      final handle = tester.ensureSemantics();
+
+      // Act
+      await tester.pumpWidget(makeTestableWidget(Scaffold(
+        body: AlbumCoverCard(folder: TestFolders.album(coverFileIds: ['a']), onEdit: () {}),
+      )));
+
+      // Assert
+      expect(find.bySemanticsLabel('Cover, 1 of 3 photos, Edit'), findsOneWidget);
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      handle.dispose();
+    });
+
     testWidgets('should edit on tap', (tester) async {
       // Arrange
       var edits = 0;

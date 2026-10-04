@@ -167,6 +167,67 @@ void main() {
       expect(badge.right, lessThan(circle.right - 30));
     });
 
+    testWidgets('should fit favorite, cover, video and selection together without overlapping', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(thumb(const MediaThumbnail(
+        image: image,
+        isFavorite: true,
+        coverLabel: 'Cover',
+        isVideo: true,
+        videoDuration: Duration(seconds: 75),
+        selectable: true,
+        selected: true,
+      )));
+      await tester.pumpAndSettle();
+
+      // Assert
+      final rects = [
+        tester.getRect(find.ancestor(of: find.text('Cover'), matching: find.byType(Container)).first),
+        tester.getRect(find.byIcon(Symbols.favorite_rounded)),
+        tester.getRect(find.ancestor(of: find.text('1:15'), matching: find.byType(Container)).first),
+        tester.getRect(find.byIcon(Symbols.check_circle_rounded)),
+      ];
+      for (var i = 0; i < rects.length; i++) {
+        for (var j = i + 1; j < rects.length; j++) {
+          expect(rects[i].overlaps(rects[j]), isFalse, reason: 'indicators $i and $j overlap');
+        }
+      }
+    });
+
+    testWidgets('should keep the indicators inside the thumbnail label, not as separate nodes', (tester) async {
+      // Arrange
+      final handle = tester.ensureSemantics();
+
+      // Act
+      await tester.pumpWidget(thumb(const MediaThumbnail(
+        image: image,
+        isFavorite: true,
+        coverLabel: 'Cover',
+        semanticLabel: 'Image, Favorite, Cover',
+      )));
+
+      // Assert
+      expect(find.bySemanticsLabel('Image, Favorite, Cover'), findsOneWidget);
+      expect(find.bySemanticsLabel('Cover'), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('should take the cover badge colors from the dark palette', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(makeTestableWidget(
+        const Scaffold(
+          body: Center(child: SizedBox.square(dimension: 120, child: MediaThumbnail(image: image, coverLabel: 'Cover'))),
+        ),
+        themeMode: ThemeMode.dark,
+      ));
+
+      // Assert
+      const dark = AppPalette.dark;
+      final badge = tester.widget<Container>(find.ancestor(of: find.text('Cover'), matching: find.byType(Container)).first);
+      expect((badge.decoration! as BoxDecoration).color, dark.coverBadgeBg);
+      expect(tester.widget<Text>(find.text('Cover')).style!.color, dark.accentInk);
+    });
+
     testWidgets('should not show the cover badge by default', (tester) async {
       await tester.pumpWidget(thumb(const MediaThumbnail(image: image)));
       expect(find.byIcon(Symbols.auto_awesome_mosaic_rounded), findsNothing);

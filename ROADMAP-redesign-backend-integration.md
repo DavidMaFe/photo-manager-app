@@ -105,15 +105,15 @@ Status: ✅ Completed
 
 ## Phase 5: Favoritas y portadas (`FAVORITOS_PORTADAS.md`)
 Se implementa siguiendo las fases 1–5 de `FAVORITOS_PORTADAS.md`, en su rama `feature/favoritas-portadas`. El backend ya implementa el contrato de su sección 2, con estas diferencias que la capa `data` debe respetar:
-- [ ] Favoritas: `POST /api/file/favorite/` responde `{ updated, failed }` con IDs numéricos (convertir con `toString()`)
-- [ ] `sourceFolderPath` (lista de nombres) en cada portada: la app la une con « › » para «De Playa › Atardeceres»
-- [ ] `fallbackCoverFileIds` solo contiene fotos; un álbum con solo vídeos no tiene mosaico
-- [ ] Nuevos códigos de error a localizar: `FOLDER_COVER_VIDEO_NOT_ALLOWED`, `FOLDER_COVER_REPLACE_NOT_VALID`
+- [x] Favoritas: `POST /api/file/favorite/` responde `{ updated, failed }` con IDs numéricos (convertir con `toString()`)
+- [x] `sourceFolderPath` (lista de nombres) en cada portada: la app la une con « › » para «De Playa › Atardeceres»
+- [x] `fallbackCoverFileIds` solo contiene fotos; un álbum con solo vídeos no tiene mosaico
+- [x] Nuevos códigos de error a localizar: `FOLDER_COVER_VIDEO_NOT_ALLOWED`, `FOLDER_COVER_REPLACE_NOT_VALID`
 - [ ] El flag `AppConfig.favoritesAndCoversEnabled` puede activarse también en `prod.json` en cuanto se despliegue el backend de `feature/favoritas-portadas`
 
 Acceptance criteria: los criterios de las fases de `FAVORITOS_PORTADAS.md`.
 
-Status: 🚧 In Progress (FAVORITOS_PORTADAS fase 5 de 5)
+Status: ✅ Completed (falta la prueba manual de FAVORITOS_PORTADAS §9 y activar el flag en prod tras desplegar el backend)
 
 ## Phase 6: Desglose del almacenamiento
 - [ ] Entidad `StorageUsage { photosBytes, videosBytes, trashBytes, usedBytes, quotaBytes }` en `UserProfile`, nullable si la API no la envía

@@ -1618,4 +1618,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get moveDown => 'Bajar';
+
+  @override
+  String get coverBadge => 'Portada';
 }
