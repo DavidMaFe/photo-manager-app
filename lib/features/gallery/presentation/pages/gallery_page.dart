@@ -80,6 +80,7 @@ class GalleryPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     _buildFilters(context, state),
+                    const SizedBox(height: 8),
                     Expanded(child: _buildContent(context, state))
                   ],
                 ),
