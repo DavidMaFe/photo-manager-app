@@ -54,7 +54,12 @@ void main() {
     }
   }
 
-  Future<void> open(WidgetTester tester, {List<String> ids = const ['a', 'b'], ManageOption option = ManageOption.saveAndFree}) async {
+  Future<void> open(
+    WidgetTester tester, {
+    List<String> ids = const ['a', 'b'],
+    ManageOption option = ManageOption.saveAndFree,
+    int sizeBytes = 0,
+  }) async {
     setUpCustomScreenSize(tester, 390, 1200);
     await tester.pumpWidget(makeTestableWidgetWithBlocs(
       providers: [
@@ -64,7 +69,12 @@ void main() {
       child: Builder(
         builder: (context) => Scaffold(
           body: TextButton(
-            onPressed: () => ManageFileModal.show(context, fileIds: ids, initialOption: option),
+            onPressed: () => ManageFileModal.show(
+              context,
+              fileIds: ids,
+              initialOption: option,
+              totalSizeBytes: sizeBytes,
+            ),
             child: const Text('open'),
           ),
         ),
@@ -100,6 +110,33 @@ void main() {
 
       // Assert
       expect(find.text('What should we do with this photo?'), findsOneWidget);
+    });
+
+    testWidgets('should show how much the photos occupy and free up that size', (tester) async {
+      // Arrange & Act
+      await open(tester, sizeBytes: 48 * 1024 * 1024);
+
+      // Assert
+      expect(find.text('2 photos · 48 MB'), findsOneWidget);
+      expect(primary(tester).label, 'Free up 48 MB');
+    });
+
+    testWidgets('should keep the size-less texts while the size is unknown', (tester) async {
+      // Arrange & Act
+      await open(tester);
+
+      // Assert
+      expect(find.text('2 photos selected'), findsOneWidget);
+      expect(primary(tester).label, 'Save and free up space');
+    });
+
+    testWidgets('should only use the size on the "save and free" button', (tester) async {
+      // Arrange & Act
+      await open(tester, sizeBytes: 48 * 1024 * 1024, option: ManageOption.saveAndKeep);
+
+      // Assert
+      expect(find.text('2 photos · 48 MB'), findsOneWidget);
+      expect(primary(tester).label, 'Save');
     });
 
     testWidgets('should save and free up space by default', (tester) async {

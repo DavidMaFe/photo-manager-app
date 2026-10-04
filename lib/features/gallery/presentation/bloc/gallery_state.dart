@@ -45,6 +45,10 @@ class GalleryLoaded extends GalleryState {
   /// One-shot: the pending files are selected and the manage sheet should open.
   final bool reviewRequested;
 
+  /// Size of every pending file selected by "Review" (most are not loaded yet).
+  /// Dropped as soon as the selection changes.
+  final int? reviewSizeBytes;
+
   const GalleryLoaded({
     required this.files,
     required this.groupedFiles,
@@ -58,11 +62,21 @@ class GalleryLoaded extends GalleryState {
     this.selectionLimitReached = false,
     this.isRefreshing = false,
     this.reviewRequested = false,
+    this.reviewSizeBytes,
   });
 
   int get pendingCount => totalPendingCount;
   bool get hasPendingFiles => pendingCount > 0;
   bool get isEmpty => files.isEmpty;
+  /// Bytes of the selection: the "Review" total, or the sum of the selected files.
+  int get selectedSizeBytes {
+    final reviewSize = reviewSizeBytes;
+    if (reviewSize != null) return reviewSize;
+    return files
+        .where((file) => selectedFileIds.contains(file.id))
+        .fold(0, (total, file) => total + file.sizeBytes);
+  }
+
   bool get areAllFilesSelected =>
       files.isNotEmpty &&
       (selectedFileIds.length == files.length || selectedFileIds.length >= 100);
@@ -93,13 +107,15 @@ class GalleryLoaded extends GalleryState {
       filter: filter ?? this.filter,
       selectionLimitReached: selectionLimitReached,
       isRefreshing: isRefreshing,
+      // The review total only matches the selection it came with.
+      reviewSizeBytes: selectedFileIds == null ? reviewSizeBytes : null,
     );
   }
 
   @override
   List<Object?> get props => [files, groupedFiles, isSelectionMode, selectedFileIds, hasNext,
     currentPage, totalFilesCount, totalPendingCount, filter, selectionLimitReached, isRefreshing,
-    reviewRequested];
+    reviewRequested, reviewSizeBytes];
 }
 
 

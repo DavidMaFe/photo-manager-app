@@ -440,4 +440,69 @@ void main() {
       expect(result.files[1].id, '2');
     });
   });
+
+  group('GalleryRemoteDataSource - getPendingFileIds', () {
+    test('should GET every pending ID without query parameters', () async {
+      // Arrange
+      when(() => mockHttpClient.get(any(), headers: any(named: 'headers'))).thenAnswer(
+        (_) async => http.Response(jsonEncode({'fileIds': [1, 2, 3], 'totalSizeBytes': 4096}), 200),
+      );
+
+      // Act
+      final result = await dataSource.getPendingFileIds();
+
+      // Assert
+      final captured = verify(() => mockHttpClient.get(captureAny(), headers: captureAny(named: 'headers'))).captured;
+      final uri = captured[0] as Uri;
+      expect(uri.toString(), '$baseUrl/api/file/pending-ids/');
+      expect((captured[1] as Map<String, String>)['X-Timezone'], isNotNull);
+      expect(result.fileIds, ['1', '2', '3']);
+      expect(result.totalSizeBytes, 4096);
+    });
+
+    test('should send the type and folder filters', () async {
+      // Arrange
+      when(() => mockHttpClient.get(any(), headers: any(named: 'headers'))).thenAnswer(
+        (_) async => http.Response(jsonEncode({'fileIds': [], 'totalSizeBytes': 0}), 200),
+      );
+
+      // Act
+      await dataSource.getPendingFileIds(type: 'VIDEO', folderId: '7');
+
+      // Assert
+      final uri = verify(() => mockHttpClient.get(captureAny(), headers: any(named: 'headers'))).captured.single as Uri;
+      expect(uri.path, '/api/file/pending-ids/');
+      expect(uri.queryParameters, {'type': 'VIDEO', 'folder': '7'});
+    });
+
+    test('should throw ApiException on non-200 status code', () async {
+      // Arrange
+      when(() => mockHttpClient.get(any(), headers: any(named: 'headers'))).thenAnswer(
+        (_) async => http.Response(
+          jsonEncode({
+            'code': 'UNAUTHORIZED',
+            'message': 'Unauthorized',
+            'timestamp': '2025-01-26T10:30:45.123456',
+            'path': '/api/file/pending-ids/',
+          }),
+          401,
+        ),
+      );
+
+      // Act & Assert
+      expect(
+        () => dataSource.getPendingFileIds(),
+        throwsA(predicate((e) => e is ApiException && e.code == 'UNAUTHORIZED')),
+      );
+    });
+
+    test('should rethrow SocketException', () async {
+      // Arrange
+      when(() => mockHttpClient.get(any(), headers: any(named: 'headers')))
+          .thenThrow(const SocketException('No internet'));
+
+      // Act & Assert
+      expect(() => dataSource.getPendingFileIds(), throwsA(isA<SocketException>()));
+    });
+  });
 }

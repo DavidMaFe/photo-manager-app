@@ -13,12 +13,15 @@ import 'package:photo_manager_app/features/gallery/domain/entities/file_date_gro
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_page.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/pending_files.dart';
 import 'package:photo_manager_app/features/gallery/domain/use_cases/get_files_use_case.dart';
+import 'package:photo_manager_app/features/gallery/domain/use_cases/get_pending_file_ids_use_case.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_state.dart';
 
 class MockGetFilesUseCase extends Mock implements GetFilesUseCase {}
+class MockGetPendingFileIdsUseCase extends Mock implements GetPendingFileIdsUseCase {}
 class MockAppEventBus extends Mock implements AppEventBus {}
 class FakeStreamSubscription<T> extends Fake implements StreamSubscription<T> {}
 
@@ -31,10 +34,12 @@ void main() {
   });
   late GalleryBloc bloc;
   late MockGetFilesUseCase mockGetFilesUseCase;
+  late MockGetPendingFileIdsUseCase mockGetPendingFileIdsUseCase;
   late MockAppEventBus mockEventBus;
 
   setUp(() {
     mockGetFilesUseCase = MockGetFilesUseCase();
+    mockGetPendingFileIdsUseCase = MockGetPendingFileIdsUseCase();
     mockEventBus = MockAppEventBus();
 
     // Mock event bus streams
@@ -47,6 +52,7 @@ void main() {
 
     bloc = GalleryBloc(
       getFilesUseCase: mockGetFilesUseCase,
+      getPendingFileIdsUseCase: mockGetPendingFileIdsUseCase,
       eventBus: mockEventBus,
     );
   });
@@ -517,9 +523,15 @@ void main() {
           totalPendingCount: total,
         );
 
+    PendingFiles pendingIds(int count, {int size = 0}) => PendingFiles(
+          fileIds: List.generate(count, (i) => 'pending-$i'),
+          totalSizeBytes: size,
+        );
+
     blocTest<GalleryBloc, GalleryState>(
       'selects every pending file and requests the review',
       setUp: () {
+        when(() => mockGetPendingFileIdsUseCase.call()).thenAnswer((_) async => pendingIds(3, size: 3000));
         when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
             .thenAnswer((_) async => pendingPage(0, 3, hasNext: false, total: 3));
       },
@@ -532,34 +544,42 @@ void main() {
             .having((s) => s.isSelectionMode, 'selection mode', true)
             .having((s) => s.selectedFileIds, 'selected', {'pending-0', 'pending-1', 'pending-2'})
             .having((s) => s.reviewRequested, 'review requested', true)
+            .having((s) => s.selectedSizeBytes, 'selected size', 3000)
             .having((s) => s.selectionLimitReached, 'limit', false),
       ],
     );
 
     blocTest<GalleryBloc, GalleryState>(
-      'loads a second page and caps the selection at the limit',
+      'selects more than 100 pending files with one call and loads only the first page',
       setUp: () {
+        when(() => mockGetPendingFileIdsUseCase.call())
+            .thenAnswer((_) async => pendingIds(120, size: 48 * 1024 * 1024));
         when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
-            .thenAnswer((_) async => pendingPage(0, 50, hasNext: true, total: 130));
-        when(() => mockGetFilesUseCase.call(page: 1, pageSize: 50, filter: FileFilter.pending))
-            .thenAnswer((_) async => pendingPage(1, 50, hasNext: true, total: 130));
+            .thenAnswer((_) async => pendingPage(0, 50, hasNext: true, total: 120));
       },
       build: () => bloc,
       act: (bloc) => bloc.add(const ReviewPendingFiles()),
       expect: () => [
         const GalleryLoading(filter: FileFilter.pending),
         isA<GalleryLoaded>()
-            .having((s) => s.files.length, 'files', 100)
-            .having((s) => s.selectedFileIds.length, 'selected', 100)
-            .having((s) => s.currentPage, 'current page', 1)
+            .having((s) => s.files.length, 'files', 50)
+            .having((s) => s.selectedFileIds.length, 'selected', 120)
+            .having((s) => s.currentPage, 'current page', 0)
             .having((s) => s.hasNext, 'has next', true)
-            .having((s) => s.selectionLimitReached, 'limit', true),
+            .having((s) => s.selectedSizeBytes, 'selected size', 48 * 1024 * 1024)
+            .having((s) => s.selectionLimitReached, 'limit', false),
       ],
+      verify: (_) {
+        verify(() => mockGetPendingFileIdsUseCase.call()).called(1);
+        verify(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending)).called(1);
+        verifyNoMoreInteractions(mockGetFilesUseCase);
+      },
     );
 
     blocTest<GalleryBloc, GalleryState>(
       'does not request a review without pending files',
       setUp: () {
+        when(() => mockGetPendingFileIdsUseCase.call()).thenAnswer((_) async => pendingIds(0));
         when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
             .thenAnswer((_) async => pendingPage(0, 0, hasNext: false));
       },
@@ -574,8 +594,22 @@ void main() {
     );
 
     blocTest<GalleryBloc, GalleryState>(
+      'emits an error when loading the pending IDs fails',
+      setUp: () {
+        when(() => mockGetPendingFileIdsUseCase.call()).thenThrow(Exception('Network error'));
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const ReviewPendingFiles()),
+      expect: () => [
+        const GalleryLoading(filter: FileFilter.pending),
+        isA<GalleryError>(),
+      ],
+    );
+
+    blocTest<GalleryBloc, GalleryState>(
       'emits an error when loading the pending files fails',
       setUp: () {
+        when(() => mockGetPendingFileIdsUseCase.call()).thenAnswer((_) async => pendingIds(3));
         when(() => mockGetFilesUseCase.call(page: 0, pageSize: 50, filter: FileFilter.pending))
             .thenThrow(Exception('Network error'));
       },
@@ -584,6 +618,69 @@ void main() {
       expect: () => [
         const GalleryLoading(filter: FileFilter.pending),
         isA<GalleryError>(),
+      ],
+    );
+
+    // ==================== SELECTED SIZE TESTS ====================
+
+    group('selectedSizeBytes', () {
+      GalleryLoaded loaded({Set<String> selected = const {}, int? reviewSize}) => GalleryLoaded(
+            files: [
+              GalleryFile(id: 'a', type: FileType.image, status: FileStatus.pending, capturedAt: testDate, sizeBytes: 100),
+              GalleryFile(id: 'b', type: FileType.image, status: FileStatus.pending, capturedAt: testDate, sizeBytes: 250),
+              GalleryFile(id: 'c', type: FileType.image, status: FileStatus.pending, capturedAt: testDate, sizeBytes: 50),
+            ],
+            groupedFiles: const [],
+            isSelectionMode: true,
+            selectedFileIds: selected,
+            hasNext: false,
+            currentPage: 0,
+            totalFilesCount: 3,
+            totalPendingCount: 3,
+            filter: FileFilter.all,
+            reviewSizeBytes: reviewSize,
+          );
+
+      test('should add up the sizes of the selected files', () {
+        expect(loaded(selected: {'a', 'b'}).selectedSizeBytes, 350);
+      });
+
+      test('should be 0 without selection', () {
+        expect(loaded().selectedSizeBytes, 0);
+      });
+
+      test('should use the review total while the selection is unchanged', () {
+        final state = loaded(selected: {'a'}, reviewSize: 9999);
+        expect(state.selectedSizeBytes, 9999);
+        expect(state.copyWith(isSelectionMode: true).selectedSizeBytes, 9999);
+      });
+
+      test('should drop the review total when the selection changes', () {
+        final state = loaded(selected: {'a'}, reviewSize: 9999);
+        expect(state.copyWith(selectedFileIds: {'a', 'c'}).selectedSizeBytes, 150);
+      });
+    });
+
+    blocTest<GalleryBloc, GalleryState>(
+      'should update the selected size when toggling files',
+      build: () => bloc,
+      seed: () => GalleryLoaded(
+        files: [
+          GalleryFile(id: 'a', type: FileType.image, status: FileStatus.pending, capturedAt: testDate, sizeBytes: 100),
+          GalleryFile(id: 'b', type: FileType.image, status: FileStatus.pending, capturedAt: testDate, sizeBytes: 250),
+        ],
+        groupedFiles: const [],
+        isSelectionMode: true,
+        selectedFileIds: const {'a'},
+        hasNext: false,
+        currentPage: 0,
+        totalFilesCount: 2,
+        totalPendingCount: 2,
+        filter: FileFilter.all,
+      ),
+      act: (bloc) => bloc.add(const ToggleFileSelection('b')),
+      expect: () => [
+        isA<GalleryLoaded>().having((s) => s.selectedSizeBytes, 'selected size', 350),
       ],
     );
 

@@ -692,5 +692,18 @@
       "os": {"type": "String"},
       "when": {"type": "String"}
     }
+  },
+  "photosSelectedSize": "{count, plural, =1{1 photo · {size}} other{{count} photos · {size}}}",
+  "@photosSelectedSize": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "size": {"type": "String"}
+    }
+  },
+  "freeUpSize": "Free up {size}",
+  "@freeUpSize": {
+    "placeholders": {
+      "size": {"type": "String"}
+    }
   }
 }

@@ -85,6 +85,7 @@ class FolderContentPage extends StatelessWidget {
             bottomNavigationBar: isSelectionMode
                 ? ManageSelectionBar(
                     fileIds: state.selectedFileIds.toList(),
+                    selectedSizeBytes: state.selectedSizeBytes,
                     onFinished: () => context.read<FolderContentBloc>().add(const ExitSelectionMode()),
                   )
                 : null,

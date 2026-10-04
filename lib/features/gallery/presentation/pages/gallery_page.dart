@@ -88,6 +88,7 @@ class GalleryPage extends StatelessWidget {
               bottomNavigationBar: isSelectionMode
                   ? ManageSelectionBar(
                       fileIds: state.selectedFileIds.toList(),
+                      selectedSizeBytes: state.selectedSizeBytes,
                       onFinished: () => context.read<GalleryBloc>().add(const ExitSelectionMode()),
                     )
                   : null,
@@ -98,9 +99,9 @@ class GalleryPage extends StatelessWidget {
   }
 
   /// Manage sheet with every pending file selected by [ReviewPendingFiles].
-  Future<void> _openReviewSheet(BuildContext context, List<String> fileIds) async {
+  Future<void> _openReviewSheet(BuildContext context, List<String> fileIds, int totalSizeBytes) async {
     final bloc = context.read<GalleryBloc>();
-    await ManageFileModal.show(context, fileIds: fileIds);
+    await ManageFileModal.show(context, fileIds: fileIds, totalSizeBytes: totalSizeBytes);
     bloc.add(const ExitSelectionMode());
   }
 
@@ -122,7 +123,7 @@ class GalleryPage extends StatelessWidget {
 
   void _handleStateChanges(BuildContext context, GalleryState state) {
     if (state is GalleryLoaded && state.reviewRequested) {
-      _openReviewSheet(context, state.selectedFileIds.toList());
+      _openReviewSheet(context, state.selectedFileIds.toList(), state.selectedSizeBytes);
     }
 
     // GalleryError is handled by the full-page ErrorDisplay in _buildContent.

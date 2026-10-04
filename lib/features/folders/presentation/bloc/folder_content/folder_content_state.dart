@@ -63,6 +63,11 @@ class FolderContentLoaded extends FolderContentState {
       files.isNotEmpty &&
       (selectedFileIds.length == files.length || selectedFileIds.length >= 100);
 
+  /// Bytes of the selected files.
+  int get selectedSizeBytes => files
+      .where((file) => selectedFileIds.contains(file.id))
+      .fold(0, (total, file) => total + file.sizeBytes);
+
   @override
   List<Object?> get props => [currentFolder, subfolders, files, groupedFiles, hasMoreFiles,
     totalFilesCount, currentFilter, isSelectionMode, selectedFileIds, selectionLimitReached, isRefreshing];

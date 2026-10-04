@@ -4,6 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/config/theme/app_radius.dart';
+import 'package:photo_manager_app/core/utils/file_size_formatter.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/core/widgets/app_sheet.dart';
@@ -43,6 +44,9 @@ class ManageFileModal extends StatefulWidget {
   final List<String> fileIds;
   final bool isMultiple;
 
+  /// Size of the files, shown as "occupy 48 MB" / "Free up 48 MB"; 0 while unknown.
+  final int totalSizeBytes;
+
   /// Preselected option (e.g. from the selection bar).
   final ManageOption initialOption;
 
@@ -50,6 +54,7 @@ class ManageFileModal extends StatefulWidget {
     super.key,
     required this.fileIds,
     this.isMultiple = false,
+    this.totalSizeBytes = 0,
     this.initialOption = ManageOption.saveAndFree,
   });
 
@@ -58,6 +63,7 @@ class ManageFileModal extends StatefulWidget {
   static Future<bool?> show(
     BuildContext context, {
     required List<String> fileIds,
+    int totalSizeBytes = 0,
     ManageOption initialOption = ManageOption.saveAndFree,
   }) {
     final fileManagementBloc = context.read<FileManagementBloc>();
@@ -72,6 +78,7 @@ class ManageFileModal extends StatefulWidget {
         child: ManageFileModal(
           fileIds: fileIds,
           isMultiple: fileIds.length > 1,
+          totalSizeBytes: totalSizeBytes,
           initialOption: initialOption,
         ),
       ),
@@ -126,10 +133,16 @@ class _ManageFileModalState extends State<ManageFileModal> {
     }
   }
 
+  /// "48 MB", or `null` while the size is unknown.
+  String? _formattedSize(AppLocalizations l10n) => widget.totalSizeBytes > 0
+      ? FileSizeFormatter.format(widget.totalSizeBytes, locale: l10n.localeName)
+      : null;
+
   String _primaryLabel(AppLocalizations l10n) {
     switch (_option) {
       case ManageOption.saveAndFree:
-        return l10n.optSaveFree;
+        final size = _formattedSize(l10n);
+        return size == null ? l10n.optSaveFree : l10n.freeUpSize(size);
       case ManageOption.saveAndKeep:
         return l10n.actionSave;
       case ManageOption.album:
@@ -193,7 +206,7 @@ class _ManageFileModalState extends State<ManageFileModal> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _SheetHeader(fileIds: widget.fileIds),
+            _SheetHeader(fileIds: widget.fileIds, formattedSize: _formattedSize(l10n)),
             const SizedBox(height: 20),
             _OptionCard(
               title: l10n.optSaveFree,
@@ -321,7 +334,10 @@ class _ManageFileModalState extends State<ManageFileModal> {
 class _SheetHeader extends StatelessWidget {
   final List<String> fileIds;
 
-  const _SheetHeader({required this.fileIds});
+  /// "48 MB", or `null` while the size is unknown.
+  final String? formattedSize;
+
+  const _SheetHeader({required this.fileIds, this.formattedSize});
 
   @override
   Widget build(BuildContext context) {
@@ -370,7 +386,9 @@ class _SheetHeader extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                l10n.photosSelected(fileIds.length),
+                formattedSize == null
+                    ? l10n.photosSelected(fileIds.length)
+                    : l10n.photosSelectedSize(fileIds.length, formattedSize!),
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.ink2),
               ),
             ],

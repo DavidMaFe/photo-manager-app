@@ -8,6 +8,7 @@ import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
 import 'package:photo_manager_app/features/gallery/domain/use_cases/get_files_use_case.dart';
+import 'package:photo_manager_app/features/gallery/domain/use_cases/get_pending_file_ids_use_case.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_event.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_state.dart';
 
@@ -17,6 +18,7 @@ import '../../domain/enums/file_filter.dart';
 class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
 
   final GetFilesUseCase getFilesUseCase;
+  final GetPendingFileIdsUseCase getPendingFileIdsUseCase;
   final AppEventBus eventBus;
   static const int _pageSize = 50;
 
@@ -26,6 +28,7 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
 
   GalleryBloc({
     required this.getFilesUseCase,
+    required this.getPendingFileIdsUseCase,
     required this.eventBus,
   }) : super(const GalleryStarting()) {
     on<LoadGallery>(_onLoadGallery);
@@ -194,26 +197,21 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     }
   }
 
-  /// Loads up to [kMaxFileSelection] pending files (in regular pages so
-  /// pagination keeps working), selects them and flags the review.
+  /// Selects every pending file (one call, without the manual selection limit),
+  /// loads the first page of them for the grid and flags the review.
   Future<void> _onReviewPendingFiles(ReviewPendingFiles event, Emitter<GalleryState> emit) async {
 
     emit(const GalleryLoading(filter: FileFilter.pending));
 
     try {
-      var result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: FileFilter.pending);
-      final files = [...result.files];
+      final pending = await getPendingFileIdsUseCase();
+      final result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: FileFilter.pending);
 
-      while (result.hasNext && files.length < kMaxFileSelection) {
-        result = await getFilesUseCase(page: result.currentPage + 1, pageSize: _pageSize, filter: FileFilter.pending);
-        files.addAll(result.files);
-      }
-
-      final selected = files.take(kMaxFileSelection).map((f) => f.id).toSet();
+      final selected = pending.fileIds.toSet();
 
       emit(GalleryLoaded(
-        files: files,
-        groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+        files: result.files,
+        groupedFiles: DateGroupingUtil.groupFilesByDate(result.files),
         isSelectionMode: selected.isNotEmpty,
         selectedFileIds: selected,
         hasNext: result.hasNext,
@@ -221,8 +219,8 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
         totalFilesCount: result.totalFilesCount,
         totalPendingCount: result.totalPendingCount,
         filter: FileFilter.pending,
-        selectionLimitReached: result.totalPendingCount > kMaxFileSelection,
         reviewRequested: selected.isNotEmpty,
+        reviewSizeBytes: pending.totalSizeBytes,
       ));
     } catch (e) {
       Failure failure = ErrorHandler.handleError(e);

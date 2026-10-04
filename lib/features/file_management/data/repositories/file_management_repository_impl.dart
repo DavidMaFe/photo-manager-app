@@ -35,6 +35,11 @@ class FileManagementRepositoryImpl implements FileManagementRepository {
   }
 
   @override
+  Future<ManageFolder> createFolder(String name) async {
+    return await remoteDataSource.createFolder(name);
+  }
+
+  @override
   Future<List<String>> deleteLocalFiles(List<String> serverIds) async {
 
     try {

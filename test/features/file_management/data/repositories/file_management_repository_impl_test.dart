@@ -395,4 +395,19 @@ void main() {
       });
     });
   });
+
+  group('createFolder', () {
+    test('should delegate to the remote data source', () async {
+      // Arrange
+      final model = ManageFolderModel(id: '42', name: 'Viaje', fileCount: 0, createdAt: DateTime(2026, 10, 4));
+      when(() => mockRemoteDataSource.createFolder(any())).thenAnswer((_) async => model);
+
+      // Act
+      final result = await repository.createFolder('Viaje');
+
+      // Assert
+      expect(result, model);
+      verify(() => mockRemoteDataSource.createFolder('Viaje')).called(1);
+    });
+  });
 }

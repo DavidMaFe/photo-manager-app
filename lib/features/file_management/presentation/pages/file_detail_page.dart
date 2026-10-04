@@ -297,7 +297,11 @@ class _FileDetailPageState extends State<FileDetailPage> {
   }
 
   void _showManageModal(BuildContext context) async {
-    final result = await ManageFileModal.show(context, fileIds: [_currentFile.id]);
+    final result = await ManageFileModal.show(
+      context,
+      fileIds: [_currentFile.id],
+      totalSizeBytes: _currentFile.sizeBytes,
+    );
 
     // If the file was successfully managed (deleted, moved, etc.), close the detail page
     // and return to the previous page (gallery or folder content)

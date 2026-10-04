@@ -2338,6 +2338,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{os} · Last backup {when}'**
   String deviceLastBackup(String os, String when);
+
+  /// No description provided for @photosSelectedSize.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo · {size}} other{{count} photos · {size}}}'**
+  String photosSelectedSize(int count, String size);
+
+  /// No description provided for @freeUpSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Free up {size}'**
+  String freeUpSize(String size);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

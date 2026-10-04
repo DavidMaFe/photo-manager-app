@@ -505,5 +505,29 @@ void main() {
         ],
       );
     });
+
+    group('selectedSizeBytes', () {
+      test('should add up the sizes of the selected files', () {
+        // Arrange
+        final state = FolderContentLoaded(
+          currentFolder: testFolder,
+          subfolders: const [],
+          files: [
+            GalleryFile(id: 'a', type: FileType.image, status: FileStatus.pending, capturedAt: DateTime(2024), sizeBytes: 100),
+            GalleryFile(id: 'b', type: FileType.video, status: FileStatus.pending, capturedAt: DateTime(2024), sizeBytes: 900),
+            GalleryFile(id: 'c', type: FileType.image, status: FileStatus.managed, capturedAt: DateTime(2024), sizeBytes: 50),
+          ],
+          groupedFiles: const [],
+          hasMoreFiles: false,
+          selectedFileIds: const {'a', 'b'},
+          isSelectionMode: true,
+          totalFilesCount: 3,
+        );
+
+        // Act & Assert
+        expect(state.selectedSizeBytes, 1000);
+        expect(state.copyWith(selectedFileIds: const {}).selectedSizeBytes, 0);
+      });
+    });
   });
 }

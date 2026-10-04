@@ -692,5 +692,7 @@
       "os": {"type": "String"},
       "when": {"type": "String"}
     }
-  }
+  },
+  "photosSelectedSize": "{count, plural, =1{1 foto · ocupa {size}} other{{count} fotos · ocupan {size}}}",
+  "freeUpSize": "Liberar {size}"
 }

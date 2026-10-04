@@ -454,4 +454,58 @@ void main() {
       expect(headers.containsKey('Accept-Language'), true);
     });
   });
+
+  group('createFolder', () {
+    test('should POST the folder name and return the created folder', () async {
+      // Arrange
+      when(() => mockClient.post(any(), headers: any(named: 'headers'), body: any(named: 'body'))).thenAnswer(
+        (_) async => http.Response(
+          jsonEncode({'id': 42, 'name': 'Viaje', 'filesQuantity': 0, 'createdAt': '2026-10-04T12:00:00'}),
+          200,
+        ),
+      );
+
+      // Act
+      final folder = await dataSource.createFolder('Viaje');
+
+      // Assert
+      final captured = verify(
+        () => mockClient.post(captureAny(), headers: any(named: 'headers'), body: captureAny(named: 'body')),
+      ).captured;
+      expect(captured[0], Uri.parse('$baseUrl/api/folder/new/'));
+      expect(jsonDecode(captured[1] as String), {'folderName': 'Viaje'});
+      expect(folder.id, '42');
+      expect(folder.name, 'Viaje');
+    });
+
+    test('should throw ApiException on non-200 status code', () async {
+      // Arrange
+      when(() => mockClient.post(any(), headers: any(named: 'headers'), body: any(named: 'body'))).thenAnswer(
+        (_) async => http.Response(
+          jsonEncode({
+            'code': 'VALIDATION_ERROR',
+            'message': 'Invalid name',
+            'timestamp': '2026-10-04T12:00:00',
+            'path': '/api/folder/new/',
+          }),
+          400,
+        ),
+      );
+
+      // Act & Assert
+      expect(
+        () => dataSource.createFolder(''),
+        throwsA(predicate((e) => e is ApiException && e.code == 'VALIDATION_ERROR')),
+      );
+    });
+
+    test('should rethrow SocketException', () async {
+      // Arrange
+      when(() => mockClient.post(any(), headers: any(named: 'headers'), body: any(named: 'body')))
+          .thenThrow(const SocketException('No internet'));
+
+      // Act & Assert
+      expect(() => dataSource.createFolder('Viaje'), throwsA(isA<SocketException>()));
+    });
+  });
 }

@@ -17,10 +17,18 @@ import 'package:photo_manager_app/l10n/app_localizations.dart';
 class ManageSelectionBar extends StatefulWidget {
   final List<String> fileIds;
 
+  /// Size of the selection, shown in the manage sheet; 0 while unknown.
+  final int selectedSizeBytes;
+
   /// Called once the selection has been handled (to leave selection mode).
   final VoidCallback onFinished;
 
-  const ManageSelectionBar({super.key, required this.fileIds, required this.onFinished});
+  const ManageSelectionBar({
+    super.key,
+    required this.fileIds,
+    this.selectedSizeBytes = 0,
+    required this.onFinished,
+  });
 
   @override
   State<ManageSelectionBar> createState() => _ManageSelectionBarState();
@@ -32,7 +40,12 @@ class _ManageSelectionBarState extends State<ManageSelectionBar> {
   ManageAction? _pendingAction;
 
   Future<void> _openSheet(ManageOption option) async {
-    await ManageFileModal.show(context, fileIds: widget.fileIds, initialOption: option);
+    await ManageFileModal.show(
+      context,
+      fileIds: widget.fileIds,
+      totalSizeBytes: widget.selectedSizeBytes,
+      initialOption: option,
+    );
     if (mounted) widget.onFinished();
   }
 

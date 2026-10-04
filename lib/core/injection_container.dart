@@ -42,6 +42,7 @@ import 'package:photo_manager_app/features/gallery/data/data_sources/gallery_rem
 import 'package:photo_manager_app/features/gallery/data/repositories/gallery_repository_impl.dart';
 import 'package:photo_manager_app/features/gallery/domain/repositories/gallery_repository.dart';
 import 'package:photo_manager_app/features/gallery/domain/use_cases/get_files_use_case.dart';
+import 'package:photo_manager_app/features/gallery/domain/use_cases/get_pending_file_ids_use_case.dart';
 import 'package:photo_manager_app/features/gallery/presentation/bloc/gallery_bloc.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_local_data_source.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_remote_data_source.dart';
@@ -568,6 +569,12 @@ Future<void> init() async {
         return GetFilesUseCase(repository);
       }
   );
+  sl.registerFactory(
+      () {
+        final repository = sl<GalleryRepository>();
+        return GetPendingFileIdsUseCase(repository);
+      }
+  );
 
   // file management
   sl.registerFactory(
@@ -773,8 +780,13 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final getFileUseCase = sl<GetFilesUseCase>();
+        final getPendingFileIdsUseCase = sl<GetPendingFileIdsUseCase>();
         final eventBus = sl<AppEventBus>();
-        return GalleryBloc(getFilesUseCase: getFileUseCase, eventBus: eventBus);
+        return GalleryBloc(
+          getFilesUseCase: getFileUseCase,
+          getPendingFileIdsUseCase: getPendingFileIdsUseCase,
+          eventBus: eventBus,
+        );
       }
   );
 

@@ -68,17 +68,19 @@ Acceptance criteria: una copia completada muestra su hora de fin y su tamaño; c
 Status: ✅ Completed
 
 ## Phase 2: Revisar pendientes y liberar espacio
-- [ ] Data source y repositorio: `getPendingFileIds({FileType? type, String? folderId})` → entidad `PendingFiles { fileIds, totalSizeBytes }`
-- [ ] Caso de uso `GetPendingFileIdsUseCase`
-- [ ] `GalleryBloc._onReviewPendingFiles`: obtener todos los IDs en una llamada y seleccionarlos **sin el límite de `kMaxFileSelection`** (la selección manual mantiene el límite de 100). Cargar solo la primera página de ficheros para la cuadrícula
-- [ ] El estado de selección guarda el tamaño seleccionado: el `totalSizeBytes` de «Revisar», o la suma de `sizeBytes` en la selección manual (galería y contenido de álbum)
-- [ ] Hoja Gestionar: subtítulo «{n} fotos · ocupan {tamaño}» y botón «Liberar {tamaño}», en lugar de las alternativas sin MB
+- [x] Data source y repositorio: `getPendingFileIds({FileType? type, String? folderId})` → entidad `PendingFiles { fileIds, totalSizeBytes }`
+- [x] Caso de uso `GetPendingFileIdsUseCase`
+- [x] `GalleryBloc._onReviewPendingFiles`: obtener todos los IDs en una llamada y seleccionarlos **sin el límite de `kMaxFileSelection`** (la selección manual mantiene el límite de 100). Cargar solo la primera página de ficheros para la cuadrícula
+- [x] El estado de selección guarda el tamaño seleccionado: el `totalSizeBytes` de «Revisar», o la suma de `sizeBytes` en la selección manual (galería y contenido de álbum)
+- [x] Hoja Gestionar: subtítulo «{n} fotos · ocupan {tamaño}» y botón «Liberar {tamaño}», en lugar de las alternativas sin MB
 - [x] Utilidad de formato de bytes (`FileSizeFormatter`) en `core/utils`, reutilizada por las fases 1, 3 y 6 (hecha en la fase 1)
-- [ ] Tests: data source, caso de uso, `GalleryBloc` (más de 100 pendientes → todos seleccionados), formateador y hoja Gestionar con tamaño
+- [x] Tests: data source, caso de uso, `GalleryBloc` (más de 100 pendientes → todos seleccionados), formateador y hoja Gestionar con tamaño
+
+- [x] `ManageFilesUseCase` envía más de 100 ficheros en lotes de 100 (el backend no limita `/manage/`); con `newFolder` y varios lotes crea antes el álbum y envía todos los lotes a él
 
 Acceptance criteria: con 120 pendientes, «Revisar» hace una sola llamada, selecciona los 120 y la hoja muestra cuánto espacio se libera.
 
-Status: ⏳ Pending
+Status: ✅ Completed
 
 ## Phase 3: Propiedades del fichero
 - [ ] Entidad `FileInfo` y modelo con todos los campos de `/api/file/{fileId}/info/`

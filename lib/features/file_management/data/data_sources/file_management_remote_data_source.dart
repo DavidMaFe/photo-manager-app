@@ -14,6 +14,7 @@ import 'package:photo_manager_app/features/file_management/data/models/manage_fo
 abstract class FileManagementRemoteDataSource {
   Future<ManageFileResponseModel> manageFiles(ManageFileRequestModel request);
   Future<List<ManageFolderModel>> getFolders();
+  Future<ManageFolderModel> createFolder(String name);
 }
 
 
@@ -69,6 +70,32 @@ class FileManagementRemoteDataSourceImpl implements FileManagementRemoteDataSour
         return foldersJson
             .map((json) => ManageFolderModel.fromJson(json as Map<String, dynamic>))
             .toList();
+      } else {
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
+      }
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw Exception('Connection error: $e');
+    }
+  }
+
+  @override
+  Future<ManageFolderModel> createFolder(String name) async {
+    try {
+      final response = await client.post(
+        Uri.parse('$baseUrl/api/folder/new/'),
+        headers: HttpHeadersUtil.getJsonHeaders(),
+        body: jsonEncode({'folderName': name}),
+      );
+
+      if (response.statusCode == 200) {
+        return ManageFolderModel.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
       } else {
         final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
         throw ApiException(errorResponse);

@@ -1360,4 +1360,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String deviceLastBackup(String os, String when) {
     return '$os · Última copia $when';
   }
+
+  @override
+  String photosSelectedSize(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotos · ocupan $size',
+      one: '1 foto · ocupa $size',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String freeUpSize(String size) {
+    return 'Liberar $size';
+  }
 }

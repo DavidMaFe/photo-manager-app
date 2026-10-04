@@ -51,14 +51,20 @@ void main() {
     }
   }
 
-  Future<void> pump(WidgetTester tester, {List<String> ids = const ['a', 'b', 'c']}) {
+  Future<void> pump(WidgetTester tester, {List<String> ids = const ['a', 'b', 'c'], int sizeBytes = 0}) {
     setUpCustomScreenSize(tester, 390, 1200);
     return tester.pumpWidget(makeTestableWidgetWithBlocs(
       providers: [
         BlocProvider<FileManagementBloc>.value(value: fileBloc),
         BlocProvider<ManageFolderBloc>.value(value: folderBloc),
       ],
-      child: Scaffold(bottomNavigationBar: ManageSelectionBar(fileIds: ids, onFinished: () => finished++)),
+      child: Scaffold(
+        bottomNavigationBar: ManageSelectionBar(
+          fileIds: ids,
+          selectedSizeBytes: sizeBytes,
+          onFinished: () => finished++,
+        ),
+      ),
     ));
   }
 
@@ -98,6 +104,19 @@ void main() {
       final sheet = tester.widget<ManageFileModal>(find.byType(ManageFileModal));
       expect(sheet.initialOption, ManageOption.saveAndFree);
       expect(sheet.fileIds, ['a', 'b', 'c']);
+    });
+
+    testWidgets('should pass the selected size to the sheet', (tester) async {
+      // Arrange
+      await pump(tester, sizeBytes: 5 * 1024 * 1024);
+
+      // Act
+      await tester.tap(find.text('Save'));
+      await settle(tester);
+
+      // Assert
+      expect(tester.widget<ManageFileModal>(find.byType(ManageFileModal)).totalSizeBytes, 5 * 1024 * 1024);
+      expect(find.text('3 photos · 5 MB'), findsOneWidget);
     });
 
     testWidgets('should open the sheet with the album option preselected', (tester) async {
