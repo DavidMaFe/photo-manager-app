@@ -36,6 +36,15 @@ import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_event.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/album_mosaic.dart';
+import 'package:photo_manager_app/core/injection_container.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/album_covers/album_covers_cubit.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/album_covers/album_covers_state.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/cover_picker/cover_picker_cubit.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/cover_picker/cover_picker_state.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_cover_card.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_covers_sheet.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/cover_picker_sheet.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/file_thumbnail_card.dart';
 
 class MockFolderContentBloc extends Mock implements FolderContentBloc {}
 
@@ -46,6 +55,10 @@ class MockFileManagementBloc extends Mock implements FileManagementBloc {}
 class FakeFolderContentEvent extends Fake implements FolderContentEvent {}
 
 class MockFavoritesBloc extends MockBloc<FavoritesEvent, FavoritesState> implements FavoritesBloc {}
+
+class MockCoverPickerCubit extends MockCubit<CoverPickerState> implements CoverPickerCubit {}
+
+class MockAlbumCoversCubit extends MockCubit<AlbumCoversState> implements AlbumCoversCubit {}
 
 void main() {
   late MockFolderContentBloc contentBloc;
@@ -241,6 +254,127 @@ void main() {
 
         // Assert
         expect(find.text('3 added to favorites'), findsOneWidget);
+      });
+
+      // ==================== COVERS TESTS ====================
+
+      testWidgets('should show the cover card under the album title', (tester) async {
+        await pumpPage(tester, loaded());
+        expect(find.byType(AlbumCoverCard), findsOneWidget);
+        expect(find.text('Automatic · recent photos'), findsOneWidget);
+      });
+
+      testWidgets('should open the album covers sheet from the cover card', (tester) async {
+        // Arrange
+        final cubit = MockAlbumCoversCubit();
+        when(() => cubit.state).thenReturn(const AlbumCoversState(folderId: 'folder-1'));
+        when(() => cubit.load(any())).thenAnswer((_) async {});
+        sl.registerFactory<AlbumCoversCubit>(() => cubit);
+        addTearDown(() => sl.unregister<AlbumCoversCubit>());
+        await pumpPage(tester, loaded());
+
+        // Act
+        await tester.tap(find.byType(AlbumCoverCard));
+        await settle(tester);
+
+        // Assert
+        expect(find.byType(AlbumCoversSheet), findsOneWidget);
+        verify(() => cubit.load('folder-1')).called(1);
+      });
+
+      testWidgets('should mark the covers of this album in the grid', (tester) async {
+        // Arrange & Act
+        await pumpPage(tester, loaded(fileList: [
+          GalleryFile(id: 'c', type: FileType.image, status: FileStatus.managed, capturedAt: now, coverOf: const ['folder-1']),
+          GalleryFile(id: 'o', type: FileType.image, status: FileStatus.managed, capturedAt: now, coverOf: const ['parent-1']),
+        ]));
+
+        // Assert
+        final cards = tester.widgetList<FileThumbnailCard>(find.byType(FileThumbnailCard));
+        expect(cards.map((c) => c.isCover), [true, false]);
+      });
+
+      testWidgets('should say which album the selection is in and how many can be covers', (tester) async {
+        // Arrange & Act
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+
+        // Assert
+        expect(find.text('in Japan'), findsOneWidget);
+        expect(find.text('2 photos · up to 3 can be a cover'), findsOneWidget);
+        final actions = tester.widget<SelectionActionBar>(find.byType(SelectionActionBar)).actions;
+        expect(actions.map((a) => a.label), ['Cover', 'Favorites', 'Move', 'Delete']);
+        expect(actions.first.style, SelectionActionStyle.primary);
+        expect(actions.first.dimmed, isFalse);
+      });
+
+      testWidgets('should explain that videos cannot be covers', (tester) async {
+        // Arrange
+        final video = GalleryFile(id: 'v', type: FileType.video, status: FileStatus.managed, capturedAt: now);
+        await pumpPage(tester, loaded(fileList: [plain, video], isSelectionMode: true, selected: {'file-2', 'v'}));
+
+        // Act
+        await tester.tap(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Cover')));
+        await tester.pump();
+
+        // Assert
+        expect(tester.widget<SelectionActionBar>(find.byType(SelectionActionBar)).actions.first.dimmed, isTrue);
+        expect(find.text("Videos can't be album covers"), findsOneWidget);
+      });
+
+      testWidgets('should allow at most 3 photos as cover', (tester) async {
+        // Arrange
+        final photos = [
+          for (final id in ['1', '2', '3', '4'])
+            GalleryFile(id: id, type: FileType.image, status: FileStatus.managed, capturedAt: now),
+        ];
+        await pumpPage(tester, loaded(fileList: photos, isSelectionMode: true, selected: {'1', '2', '3', '4'}));
+
+        // Act
+        await tester.tap(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Cover')));
+        await tester.pump();
+
+        // Assert
+        expect(find.text('Choose up to 3 photos to use as cover'), findsOneWidget);
+      });
+
+      testWidgets('should open the cover sheet for the selected photos', (tester) async {
+        // Arrange
+        final cubit = MockCoverPickerCubit();
+        when(() => cubit.state).thenReturn(const CoverPickerState(fileIds: ['file-1', 'file-2']));
+        when(() => cubit.load(any())).thenAnswer((_) async {});
+        sl.registerFactory<CoverPickerCubit>(() => cubit);
+        addTearDown(() => sl.unregister<CoverPickerCubit>());
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+
+        // Act
+        await tester.tap(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Cover')));
+        await settle(tester);
+
+        // Assert
+        expect(find.byType(CoverPickerSheet), findsOneWidget);
+        verify(() => cubit.load(['file-1', 'file-2'])).called(1);
+      });
+
+      testWidgets('should tell when the selected photos share no album', (tester) async {
+        // Arrange
+        final cubit = MockCoverPickerCubit();
+        whenListen(
+          cubit,
+          Stream.value(const CoverPickerState(status: CoverPickerStatus.noSharedAlbum)),
+          initialState: const CoverPickerState(),
+        );
+        when(() => cubit.load(any())).thenAnswer((_) async {});
+        sl.registerFactory<CoverPickerCubit>(() => cubit);
+        addTearDown(() => sl.unregister<CoverPickerCubit>());
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+
+        // Act
+        await tester.tap(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Cover')));
+        await settle(tester);
+
+        // Assert
+        expect(find.byType(CoverPickerSheet), findsNothing);
+        expect(find.text("These photos don't share an album"), findsOneWidget);
       });
 
       testWidgets('should tell when favorites could not be updated', (tester) async {

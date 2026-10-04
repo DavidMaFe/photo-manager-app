@@ -30,6 +30,12 @@ import 'package:photo_manager_app/features/file_management/presentation/widgets/
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 
 import '../../../../helpers/widget_test_helper.dart';
+import 'package:photo_manager_app/features/file_management/presentation/models/album_viewer_context.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
+import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_action_bar.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/cover_picker/cover_picker_cubit.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/cover_picker/cover_picker_state.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/cover_picker_sheet.dart';
 
 class MockFileManagementBloc extends Mock implements FileManagementBloc {}
 
@@ -40,6 +46,8 @@ class FakeFileManagementEvent extends Fake implements FileManagementEvent {}
 class MockFileInfoBloc extends MockBloc<FileInfoEvent, FileInfoState> implements FileInfoBloc {}
 
 class MockFavoritesBloc extends MockBloc<FavoritesEvent, FavoritesState> implements FavoritesBloc {}
+
+class MockCoverPickerCubit extends MockCubit<CoverPickerState> implements CoverPickerCubit {}
 
 void main() {
   late MockFileManagementBloc mockFileManagementBloc;
@@ -85,14 +93,18 @@ void main() {
     ),
   ];
 
-  Widget createWidgetUnderTest({required List<GalleryFile> files, int initialIndex = 0}) {
+  Widget createWidgetUnderTest({
+    required List<GalleryFile> files,
+    int initialIndex = 0,
+    AlbumViewerContext? albumContext,
+  }) {
     return makeTestableWidgetWithBlocs(
       providers: [
         BlocProvider<FileManagementBloc>.value(value: mockFileManagementBloc),
         BlocProvider<ManageFolderBloc>.value(value: mockManageFolderBloc),
         BlocProvider<FavoritesBloc>.value(value: mockFavoritesBloc),
       ],
-      child: FileDetailPage(files: files, initialIndex: initialIndex),
+      child: FileDetailPage(files: files, initialIndex: initialIndex, albumContext: albumContext),
     );
   }
 
@@ -197,6 +209,106 @@ void main() {
         tester.getCenter(find.byType(FavoriteViewerButton)).dx,
         lessThan(tester.getCenter(find.text('Save')).dx),
       );
+    });
+
+    // ==================== ALBUM CONTEXT TESTS ====================
+
+    group('opened from an album', () {
+      setUp(() => AppConfig.favoritesAndCoversEnabled = true);
+      tearDown(() => AppConfig.favoritesAndCoversEnabled = false);
+
+      const album = AlbumViewerContext(
+        folderId: 'a3',
+        folderName: 'Atardeceres',
+        path: 'Vacaciones 2024 › Playa › Atardeceres',
+        albumNames: {'a3': 'Atardeceres', 'a2': 'Playa'},
+      );
+      GalleryFile photo({List<String> coverOf = const []}) =>
+          GalleryFile(id: 'p1', type: FileType.image, status: FileStatus.managed, capturedAt: now, coverOf: coverOf);
+
+      testWidgets('should show the album path in the header', (tester) async {
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo()], albumContext: album));
+        expect(tester.widget<MediaViewerTopBar>(find.byType(MediaViewerTopBar)).subtitle, album.path);
+      });
+
+      testWidgets('should show Favorite, Cover, Move and Delete', (tester) async {
+        // Arrange & Act
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo()], albumContext: album));
+
+        // Assert
+        expect(find.byType(FavoriteViewerButton), findsOneWidget);
+        expect(find.byType(MediaViewerCoverAction), findsOneWidget);
+        for (final label in ['Cover', 'Move', 'Delete']) {
+          expect(find.text(label), findsOneWidget);
+        }
+        expect(find.text('Save'), findsNothing);
+      });
+
+      testWidgets('should not offer Cover for videos', (tester) async {
+        // Arrange & Act
+        await tester.pumpWidget(createWidgetUnderTest(files: [testFiles[2]], albumContext: album));
+
+        // Assert
+        expect(find.byType(MediaViewerCoverAction), findsNothing);
+        expect(find.text('Move'), findsOneWidget);
+      });
+
+      testWidgets('should name the album a photo is the cover of', (tester) async {
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo(coverOf: ['a2'])], albumContext: album));
+        expect(find.text('Cover of Playa'), findsOneWidget);
+      });
+
+      testWidgets('should count the albums a photo is the cover of', (tester) async {
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo(coverOf: ['a1', 'a3'])], albumContext: album));
+        expect(find.text('Cover of 2 albums'), findsOneWidget);
+      });
+
+      testWidgets('should not show the pill when the photo is no cover', (tester) async {
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo()], albumContext: album));
+        expect(find.byType(MediaViewerCoverPill), findsNothing);
+      });
+
+      testWidgets('should open the cover sheet for the photo', (tester) async {
+        // Arrange
+        final cubit = MockCoverPickerCubit();
+        when(() => cubit.state).thenReturn(const CoverPickerState(fileIds: ['p1']));
+        when(() => cubit.load(any())).thenAnswer((_) async {});
+        sl.registerFactory<CoverPickerCubit>(() => cubit);
+        addTearDown(() => sl.unregister<CoverPickerCubit>());
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo()], albumContext: album));
+
+        // Act
+        await tester.tap(find.text('Cover'));
+        await settle(tester);
+
+        // Assert
+        expect(find.byType(CoverPickerSheet), findsOneWidget);
+        verify(() => cubit.load(['p1'])).called(1);
+      });
+
+      testWidgets('should open the album option of the manage sheet from Move', (tester) async {
+        // Arrange
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo()], albumContext: album));
+
+        // Act
+        await tester.tap(find.text('Move'));
+        await settle(tester);
+
+        // Assert
+        expect(tester.widget<ManageFileModal>(find.byType(ManageFileModal)).initialOption, ManageOption.album);
+      });
+    });
+
+    testWidgets('should ignore the album context while covers are off', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(createWidgetUnderTest(
+        files: testFiles,
+        albumContext: const AlbumViewerContext(folderId: 'a', folderName: 'A', path: 'A'),
+      ));
+
+      // Assert
+      expect(find.text('Save'), findsOneWidget);
+      expect(find.text('Move'), findsNothing);
     });
 
     testWidgets('should hide the favorite button while favorites are off', (tester) async {

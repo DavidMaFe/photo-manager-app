@@ -26,6 +26,9 @@ class MediaThumbnail extends StatelessWidget {
 
   /// Miniatura grande (2×2) de la rejilla: indicadores algo mayores.
   final bool large;
+
+  /// Texto de la etiqueta «Portada» (arriba a la izquierda); sin etiqueta si es `null`.
+  final String? coverLabel;
   final Widget? bottomLeftBadge;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
@@ -43,6 +46,7 @@ class MediaThumbnail extends StatelessWidget {
     this.selected = false,
     this.isFavorite = false,
     this.large = false,
+    this.coverLabel,
     this.bottomLeftBadge,
     this.onTap,
     this.onLongPress,
@@ -101,6 +105,14 @@ class MediaThumbnail extends StatelessWidget {
                 bottom: favoriteInset,
                 child: _FavoriteMark(size: large ? 20 : 18, palette: p),
               ),
+            if (coverLabel != null)
+              AnimatedPositioned(
+                duration: _animation,
+                curve: Curves.easeOutCubic,
+                top: isSelected ? 13 : 6,
+                left: isSelected ? 13 : 6,
+                child: _CoverBadge(label: coverLabel!, compact: selectable, palette: p),
+              ),
             if (selectable)
               Positioned(
                 top: 6,
@@ -124,6 +136,38 @@ class MediaThumbnail extends StatelessWidget {
       return '$hours:${minutes.toString().padLeft(2, '0')}:$seconds';
     }
     return '$minutes:$seconds';
+  }
+}
+
+/// «Portada» pill. Smaller in selection mode, next to the selection circle.
+class _CoverBadge extends StatelessWidget {
+  final String label;
+  final bool compact;
+  final AppPalette palette;
+
+  const _CoverBadge({required this.label, required this.compact, required this.palette});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: compact ? 20 : 22,
+      padding: const EdgeInsets.fromLTRB(5, 0, 8, 0),
+      decoration: BoxDecoration(
+        color: palette.coverBadgeBg,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Symbols.auto_awesome_mosaic_rounded, size: compact ? 12 : 14, fill: 1, color: palette.accentInk),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: TextStyle(fontSize: compact ? 9 : 10, fontWeight: FontWeight.w800, color: palette.accentInk),
+          ),
+        ],
+      ),
+    );
   }
 }
 

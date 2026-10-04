@@ -128,3 +128,30 @@ class MediaViewerReviewPill extends StatelessWidget {
     );
   }
 }
+
+/// "Cover of {album}" pill under the viewer header.
+class MediaViewerCoverPill extends StatelessWidget {
+  final String label;
+
+  const MediaViewerCoverPill({super.key, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: p.mediaCoverSoft,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Symbols.auto_awesome_mosaic_rounded, size: 16, fill: 1, color: p.mediaCover),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: p.mediaCover)),
+        ],
+      ),
+    );
+  }
+}

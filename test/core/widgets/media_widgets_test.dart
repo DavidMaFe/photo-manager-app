@@ -138,6 +138,40 @@ void main() {
       expect(find.byIcon(Symbols.favorite_rounded), findsNothing);
     });
 
+    // ==================== COVER BADGE TESTS ====================
+
+    testWidgets('should show the cover badge at the top left', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(thumb(const MediaThumbnail(image: image, coverLabel: 'Cover')));
+
+      // Assert
+      expect(find.text('Cover'), findsOneWidget);
+      final badge = tester.getRect(find.ancestor(of: find.text('Cover'), matching: find.byType(Container)).first);
+      final thumbnail = tester.getRect(find.byType(MediaThumbnail));
+      expect(badge.topLeft - thumbnail.topLeft, const Offset(6, 6));
+      expect(badge.height, 22);
+      final icon = tester.widget<Icon>(find.byIcon(Symbols.auto_awesome_mosaic_rounded));
+      expect(icon.size, 14);
+      expect(icon.color, p.accentInk);
+    });
+
+    testWidgets('should shrink the cover badge in selection mode, clear of the selection circle', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(thumb(const MediaThumbnail(image: image, coverLabel: 'Cover', selectable: true)));
+
+      // Assert
+      final badge = tester.getRect(find.ancestor(of: find.text('Cover'), matching: find.byType(Container)).first);
+      expect(badge.height, 20);
+      expect(tester.widget<Icon>(find.byIcon(Symbols.auto_awesome_mosaic_rounded)).size, 12);
+      final circle = tester.getRect(find.ancestor(of: find.byType(MediaThumbnail), matching: find.byType(Center)));
+      expect(badge.right, lessThan(circle.right - 30));
+    });
+
+    testWidgets('should not show the cover badge by default', (tester) async {
+      await tester.pumpWidget(thumb(const MediaThumbnail(image: image)));
+      expect(find.byIcon(Symbols.auto_awesome_mosaic_rounded), findsNothing);
+    });
+
     testWidgets('should forward taps and long presses', (tester) async {
       // Arrange
       var taps = 0;

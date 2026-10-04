@@ -32,6 +32,9 @@ class FilesGrid extends StatefulWidget {
   /// before the bloc removes them.
   final bool fadeOutUnfavorited;
 
+  /// Album being viewed: its covers show the «Cover» badge.
+  final String? coverOfFolderId;
+
   /// Slivers placed above the grid (e.g. the review card).
   final List<Widget> leading;
 
@@ -51,6 +54,7 @@ class FilesGrid extends StatefulWidget {
     this.onSelect,
     this.emptyState,
     this.fadeOutUnfavorited = false,
+    this.coverOfFolderId,
     this.leading = const [],
     this.bottomPadding = 24,
   });
@@ -129,6 +133,9 @@ class _FilesGridState extends State<FilesGrid> {
                   showFavorite: AppConfig.favoritesAndCoversEnabled,
                   large: i == 0,
                   leaving: widget.fadeOutUnfavorited && !file.isFavorite,
+                  isCover: AppConfig.favoritesAndCoversEnabled &&
+                      widget.coverOfFolderId != null &&
+                      file.isCoverOf(widget.coverOfFolderId!),
                   onTap: widget.onFileTap != null ? () => widget.onFileTap!(file) : null,
                   onLongPress: widget.onFileLongPress != null ? () => widget.onFileLongPress!(file) : null,
                 );

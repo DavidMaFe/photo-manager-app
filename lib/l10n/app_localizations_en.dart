@@ -1443,4 +1443,179 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get move => 'Move';
+
+  @override
+  String get cover => 'Cover';
+
+  @override
+  String coverOf(String album) {
+    return 'Cover of $album';
+  }
+
+  @override
+  String coverOfMany(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Cover of $count albums',
+      one: 'Cover of 1 album',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get useAsCover => 'Use as cover';
+
+  @override
+  String get useAsCoverBody => 'Tick the albums where you want it to appear. Up to 3 per album.';
+
+  @override
+  String get photoIsHere => 'The photo is here';
+
+  @override
+  String get photosAreHere => 'The photos are here';
+
+  @override
+  String get coverAlreadyHint => 'Already a cover · untick to remove it';
+
+  @override
+  String coverWillAdd(int count) {
+    return 'Will be added · $count of 3';
+  }
+
+  @override
+  String get coverFullChoose => 'Full · choose which to replace';
+
+  @override
+  String coverFullChooseMany(int count) {
+    return 'Full · choose $count to replace';
+  }
+
+  @override
+  String get coverWillRemove => 'Will be removed from the cover';
+
+  @override
+  String coverCount(int count) {
+    return '$count of 3 covers';
+  }
+
+  @override
+  String get replace => 'Replace';
+
+  @override
+  String replaceCoverOf(int position, String album) {
+    return 'Replace cover $position of $album';
+  }
+
+  @override
+  String get coverTreeNote => 'Only the photo\'s album and the albums that contain it are shown.';
+
+  @override
+  String saveChangesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Save · $count changes',
+      one: 'Save · 1 change',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coverUpdated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Cover updated in $count albums',
+      one: 'Cover updated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String upToThreeCovers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos',
+      one: '1 photo',
+    );
+    return '$_temp0 · up to 3 can be a cover';
+  }
+
+  @override
+  String get chooseUpToThree => 'Choose up to 3 photos to use as cover';
+
+  @override
+  String get videosCannotBeCovers => 'Videos can\'t be album covers';
+
+  @override
+  String get noSharedAlbum => 'These photos don\'t share an album';
+
+  @override
+  String inAlbum(String album) {
+    return 'in $album';
+  }
+
+  @override
+  String albumCoverTitle(String album) {
+    return 'Cover of $album';
+  }
+
+  @override
+  String albumCoverSubtitle(int count) {
+    return '$count of 3 photos · drag to change the order';
+  }
+
+  @override
+  String albumCoverCard(int count) {
+    return '$count of 3 photos';
+  }
+
+  @override
+  String get albumCoverAuto => 'Automatic · recent photos';
+
+  @override
+  String get previewInAlbums => 'How it looks in Albums';
+
+  @override
+  String get previewInAlbumsBody => 'The first photo is the big one. With 1 or 2 photos the mosaic adapts.';
+
+  @override
+  String get coverAutomatic => 'Automatic';
+
+  @override
+  String get coverMain => 'Main';
+
+  @override
+  String get coverSecond => 'Second';
+
+  @override
+  String get coverThird => 'Third';
+
+  @override
+  String get fromThisAlbum => 'From this album';
+
+  @override
+  String fromAlbum(String path) {
+    return 'From $path';
+  }
+
+  @override
+  String get removeCover => 'Remove from cover';
+
+  @override
+  String get coverRemoved => 'Removed from the cover';
+
+  @override
+  String get addCoverHint => 'To add another, open a photo of this album or its sub-albums and tap «Cover». Without covers, the most recent photos are used.';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get moveUp => 'Move up';
+
+  @override
+  String get moveDown => 'Move down';
 }

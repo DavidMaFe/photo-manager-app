@@ -31,6 +31,11 @@ import 'package:photo_manager_app/core/widgets/selection_action_bar.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_event.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_state.dart';
+import 'package:photo_manager_app/features/file_management/presentation/models/album_viewer_context.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_cover_card.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_covers_sheet.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/cover_picker_sheet.dart';
+import 'package:photo_manager_app/core/constants/app_constants.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/folder_card.dart';
 
@@ -94,8 +99,9 @@ class FolderContentPage extends StatelessWidget {
                     selectedSizeBytes: state.selectedSizeBytes,
                     onFinished: () => context.read<FolderContentBloc>().add(const ExitSelectionMode()),
                     albumActions: AppConfig.favoritesAndCoversEnabled
-                        ? [_favoritesAction(context, state)]
+                        ? [_coverAction(context, state), _favoritesAction(context, state)]
                         : null,
+                    label: AppConfig.favoritesAndCoversEnabled ? AppLocalizations.of(context)!.upToThreeCovers(selectedCount) : null,
                   )
                 : null,
           ),
@@ -109,6 +115,53 @@ class FolderContentPage extends StatelessWidget {
         );
       }
     );
+  }
+
+  /// "Cover" of the album selection: up to 3 photos (no videos). When it is not
+  /// available it still answers with the reason.
+  SelectionAction _coverAction(BuildContext context, FolderContentLoaded state) {
+    final l10n = AppLocalizations.of(context)!;
+    final selected = state.files.where((file) => state.selectedFileIds.contains(file.id)).toList();
+    final hasVideo = selected.any((file) => file.isVideo);
+    final tooMany = state.selectedFileIds.length > kMaxAlbumCovers;
+    final available = selected.isNotEmpty && !hasVideo && !tooMany;
+
+    return SelectionAction(
+      icon: Symbols.auto_awesome_mosaic_rounded,
+      iconFill: 1,
+      label: l10n.cover,
+      style: SelectionActionStyle.primary,
+      dimmed: !available,
+      onPressed: () {
+        if (!available) {
+          _showSnackBar(context, hasVideo && !tooMany ? l10n.videosCannotBeCovers : l10n.chooseUpToThree);
+          return;
+        }
+        _openCoverPicker(context, [for (final file in selected) file.id]);
+      },
+    );
+  }
+
+  Future<void> _openCoverPicker(BuildContext context, List<String> fileIds) async {
+    final l10n = AppLocalizations.of(context)!;
+    final bloc = context.read<FolderContentBloc>();
+    final result = await CoverPickerSheet.show(context, fileIds);
+    if (!context.mounted) return;
+    switch (result) {
+      case CoversSaved(:final changedAlbums):
+        bloc.add(const ExitSelectionMode());
+        _showSnackBar(context, l10n.coverUpdated(changedAlbums));
+      case NoSharedAlbum():
+        _showSnackBar(context, l10n.noSharedAlbum);
+      case null:
+        break;
+    }
+  }
+
+  static void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   /// "Favorites" of the album selection: removes them if every selected file
@@ -168,6 +221,7 @@ class FolderContentPage extends StatelessWidget {
 
     return SelectionHeader(
       title: l10n.selectedCount(selectedCount),
+      subtitle: AppConfig.favoritesAndCoversEnabled ? l10n.inAlbum(state.currentFolder.name) : null,
       closeTooltip: l10n.closeSelection,
       onClose: () => bloc.add(const ExitSelectionMode()),
       toggleLabel: state.areAllFilesSelected ? l10n.selectNone : l10n.selectAllShort,
@@ -265,6 +319,7 @@ class FolderContentPage extends StatelessWidget {
       onLoadMore: () => bloc.add(const LoadMoreFiles()),
       onRefresh: () => bloc.add(const RefreshFolderContent()),
       onSelect: () => bloc.add(const EnterSelectionMode()),
+      coverOfFolderId: folder.id,
       leading: [
         if (!isSelectionMode) ...[
           SliverToBoxAdapter(child: _AlbumHeader(folder: folder, totalFilesCount: totalFilesCount)),
@@ -308,7 +363,7 @@ class FolderContentPage extends StatelessWidget {
         if (isSelectionMode) {
           bloc.add(ToggleFileSelection(file.id));
         } else {
-          _navigateToFileDetail(context, files, files.indexWhere((f) => f.id == file.id), totalFilesCount);
+          _navigateToFileDetail(context, folder, files, files.indexWhere((f) => f.id == file.id), totalFilesCount);
         }
       },
       onFileLongPress: (file) {
@@ -320,7 +375,7 @@ class FolderContentPage extends StatelessWidget {
     );
   }
 
-  void _navigateToFileDetail(BuildContext context, List<GalleryFile> files, int index, int totalFilesCount) {
+  void _navigateToFileDetail(BuildContext context, Folder folder, List<GalleryFile> files, int index, int totalFilesCount) {
     context.pushNamed(
       RouteNames.fileDetail,
       pathParameters: {'fileId': files[index].id},
@@ -328,9 +383,11 @@ class FolderContentPage extends StatelessWidget {
         'files': files,
         'initialIndex': index,
         'totalFilesCount': totalFilesCount,
+        'albumContext': AlbumViewerContext.fromFolder(folder),
       },
     );
   }
+
 }
 
 /// Breadcrumbs, album name, item count and the months it covers.
@@ -373,6 +430,10 @@ class _AlbumHeader extends StatelessWidget {
             [l10n.itemsCount(totalFilesCount), if (dateRange != null) dateRange].join(' · '),
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.ink2),
           ),
+          if (AppConfig.favoritesAndCoversEnabled) ...[
+            const SizedBox(height: 14),
+            AlbumCoverCard(folder: folder, onEdit: () => AlbumCoversSheet.show(context, folder)),
+          ],
         ],
       ),
     );

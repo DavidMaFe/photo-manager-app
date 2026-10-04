@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/features/file_management/presentation/models/album_viewer_context.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_event.dart';
@@ -154,6 +155,7 @@ class AppRouter {
                 final files = extra?['files'] as List<GalleryFile>? ?? [];
                 final initialIndex = extra?['initialIndex'] ?? 0;
                 final totalFilesCount = extra?['totalFilesCount'] as int?;
+                final albumContext = extra?['albumContext'] as AlbumViewerContext?;
 
                 return MultiBlocProvider(
                   providers: [
@@ -164,7 +166,8 @@ class AppRouter {
                   child: FileDetailPage(
                     files: files,
                     initialIndex: initialIndex,
-                    totalFilesCount: totalFilesCount
+                    totalFilesCount: totalFilesCount,
+                    albumContext: albumContext,
                   ),
                 );
               }

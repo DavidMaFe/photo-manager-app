@@ -24,12 +24,16 @@ class SelectionAction {
   /// Icon fill (1 = filled); the icon's default when `null`.
   final double? iconFill;
 
+  /// Looks disabled but still reacts (e.g. to explain why it is not available).
+  final bool dimmed;
+
   const SelectionAction({
     required this.icon,
     required this.label,
     required this.onPressed,
     this.style = SelectionActionStyle.neutral,
     this.iconFill,
+    this.dimmed = false,
   });
 }
 
@@ -98,7 +102,7 @@ class _ActionButton extends StatelessWidget {
     final radius = BorderRadius.circular(AppRadius.button);
 
     return Opacity(
-      opacity: action.onPressed == null ? 0.45 : 1,
+      opacity: action.onPressed == null || action.dimmed ? 0.45 : 1,
       child: Material(
         color: background,
         borderRadius: radius,

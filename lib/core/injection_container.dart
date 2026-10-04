@@ -25,6 +25,8 @@ import 'package:photo_manager_app/features/folders/domain/use_cases/apply_cover_
 import 'package:photo_manager_app/features/folders/domain/use_cases/get_album_covers_use_case.dart';
 import 'package:photo_manager_app/features/folders/domain/use_cases/get_cover_targets_use_case.dart';
 import 'package:photo_manager_app/features/folders/domain/use_cases/set_album_covers_use_case.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/album_covers/album_covers_cubit.dart';
+import 'package:photo_manager_app/features/folders/presentation/bloc/cover_picker/cover_picker_cubit.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repository.dart';
@@ -858,6 +860,20 @@ Future<void> init() async {
   );
   sl.registerFactory(
       () => FavoritesBloc(setFavoriteUseCase: sl<SetFavoriteUseCase>(), eventBus: sl<AppEventBus>())
+  );
+  sl.registerFactory(
+      () => CoverPickerCubit(
+        getCoverTargetsUseCase: sl<GetCoverTargetsUseCase>(),
+        applyCoverChangesUseCase: sl<ApplyCoverChangesUseCase>(),
+        eventBus: sl<AppEventBus>(),
+      )
+  );
+  sl.registerFactory(
+      () => AlbumCoversCubit(
+        getAlbumCoversUseCase: sl<GetAlbumCoversUseCase>(),
+        setAlbumCoversUseCase: sl<SetAlbumCoversUseCase>(),
+        eventBus: sl<AppEventBus>(),
+      )
   );
 
   // folders

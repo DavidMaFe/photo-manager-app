@@ -13,10 +13,11 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color review, reviewInk, reviewSoft, reviewIcon, onReview;
   final Color safe, safeInk, safeSoft;
   final Color danger, dangerInk, dangerSoft;
-  final Color favorite, favoriteInk;
+  final Color favorite, favoriteInk, coverBadgeBg;
   final Color shadow, shadowSoft;
   final Color media, onMedia, scrim;
   final Color mediaChrome, mediaChromeRaised, onMediaMuted, mediaDanger, mediaReview;
+  final Color mediaCover, mediaCoverSoft;
 
   const AppPalette({
     required this.background,
@@ -44,6 +45,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.dangerSoft,
     required this.favorite,
     required this.favoriteInk,
+    required this.coverBadgeBg,
     required this.shadow,
     required this.shadowSoft,
     required this.media,
@@ -54,6 +56,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.onMediaMuted,
     required this.mediaDanger,
     required this.mediaReview,
+    required this.mediaCover,
+    required this.mediaCoverSoft,
   });
 
   static const light = AppPalette(
@@ -82,6 +86,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     dangerSoft: AppColors.dangerSoft,
     favorite: AppColors.favorite,
     favoriteInk: AppColors.favoriteInk,
+    coverBadgeBg: AppColors.coverBadgeBg,
     shadow: AppColors.shadow,
     shadowSoft: AppColors.shadowSoft,
     media: AppColors.media,
@@ -92,6 +97,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     onMediaMuted: AppColors.onMediaMuted,
     mediaDanger: AppColors.mediaDanger,
     mediaReview: AppColors.mediaReview,
+    mediaCover: AppColors.mediaCover,
+    mediaCoverSoft: AppColors.mediaCoverSoft,
   );
 
   static const dark = AppPalette(
@@ -120,6 +127,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     dangerSoft: AppColors.darkDangerSoft,
     favorite: AppColors.darkFavorite,
     favoriteInk: AppColors.favoriteInk,
+    coverBadgeBg: AppColors.darkCoverBadgeBg,
     shadow: AppColors.darkShadow,
     shadowSoft: AppColors.darkShadowSoft,
     media: AppColors.media,
@@ -130,6 +138,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     onMediaMuted: AppColors.onMediaMuted,
     mediaDanger: AppColors.mediaDanger,
     mediaReview: AppColors.mediaReview,
+    mediaCover: AppColors.mediaCover,
+    mediaCoverSoft: AppColors.mediaCoverSoft,
   );
 
   @override
@@ -159,6 +169,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? dangerSoft,
     Color? favorite,
     Color? favoriteInk,
+    Color? coverBadgeBg,
     Color? shadow,
     Color? shadowSoft,
     Color? media,
@@ -169,6 +180,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? onMediaMuted,
     Color? mediaDanger,
     Color? mediaReview,
+    Color? mediaCover,
+    Color? mediaCoverSoft,
   }) {
     return AppPalette(
       background: background ?? this.background,
@@ -196,6 +209,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       dangerSoft: dangerSoft ?? this.dangerSoft,
       favorite: favorite ?? this.favorite,
       favoriteInk: favoriteInk ?? this.favoriteInk,
+      coverBadgeBg: coverBadgeBg ?? this.coverBadgeBg,
       shadow: shadow ?? this.shadow,
       shadowSoft: shadowSoft ?? this.shadowSoft,
       media: media ?? this.media,
@@ -206,6 +220,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       onMediaMuted: onMediaMuted ?? this.onMediaMuted,
       mediaDanger: mediaDanger ?? this.mediaDanger,
       mediaReview: mediaReview ?? this.mediaReview,
+      mediaCover: mediaCover ?? this.mediaCover,
+      mediaCoverSoft: mediaCoverSoft ?? this.mediaCoverSoft,
     );
   }
 
@@ -239,6 +255,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       dangerSoft: l(dangerSoft, other.dangerSoft),
       favorite: l(favorite, other.favorite),
       favoriteInk: l(favoriteInk, other.favoriteInk),
+      coverBadgeBg: l(coverBadgeBg, other.coverBadgeBg),
       shadow: l(shadow, other.shadow),
       shadowSoft: l(shadowSoft, other.shadowSoft),
       media: l(media, other.media),
@@ -249,6 +266,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       onMediaMuted: l(onMediaMuted, other.onMediaMuted),
       mediaDanger: l(mediaDanger, other.mediaDanger),
       mediaReview: l(mediaReview, other.mediaReview),
+      mediaCover: l(mediaCover, other.mediaCover),
+      mediaCoverSoft: l(mediaCoverSoft, other.mediaCoverSoft),
     );
   }
 }

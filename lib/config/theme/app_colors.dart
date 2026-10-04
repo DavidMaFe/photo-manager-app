@@ -31,6 +31,7 @@ class AppColors {
   static const dangerSoft = Color(0xFFFDECEC);
   static const favorite = Color(0xFFE5466F); // corazón activo (visor, pastilla «Favoritas»)
   static const favoriteInk = Color(0xFFFF8FAB); // «Favorita» activa sobre la barra oscura del visor (claro y oscuro)
+  static const coverBadgeBg = Color(0xEBFFFFFF); // rgba(255,255,255,.92), etiqueta «Portada» sobre miniaturas
 
   // Sombras
   static const shadow = Color(0x1F131318); // rgba(19,19,24,.12)
@@ -47,6 +48,8 @@ class AppColors {
   static const onMediaMuted = Color(0xFFB9B9C4); // texto secundario en esas barras
   static const mediaDanger = Color(0xFFFF8A8A); // «Eliminar» sobre fondo oscuro
   static const mediaReview = Color(0xFFFFC766); // «Por revisar» sobre fondo oscuro
+  static const mediaCover = Color(0xFFD6D2FF); // «Portada de…» sobre fondo oscuro
+  static const mediaCoverSoft = Color(0x3D8E86FF); // rgba(142,134,255,.24), su pastilla
 
   // Oscuro (mismos roles)
   static const darkBackground = Color(0xFF0E0E12);
@@ -66,4 +69,5 @@ class AppColors {
   static const darkSafeInk = Color(0xFF6FD3A8);
   static const darkDangerSoft = Color(0xFF3D1C1F);
   static const darkFavorite = Color(0xFFFF5C85);
+  static const darkCoverBadgeBg = Color(0xEB18181F); // rgba(24,24,31,.92)
 }

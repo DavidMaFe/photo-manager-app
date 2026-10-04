@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../config/theme/app_palette.dart';
 import '../../../config/theme/app_radius.dart';
@@ -88,6 +89,52 @@ class MediaViewerAction extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+/// "Cover" action of the album viewer: the mosaic icon in an accent pill (52×30).
+class MediaViewerCoverAction extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+
+  const MediaViewerCoverAction({super.key, required this.label, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final radius = BorderRadius.circular(AppRadius.button);
+
+    return Material(
+      color: p.accent.withValues(alpha: 0),
+      borderRadius: radius,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: radius,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 56, minWidth: 64),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 52,
+                height: 30,
+                decoration: BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(AppRadius.pill)),
+                child: Icon(Symbols.auto_awesome_mosaic_rounded, size: 20, fill: 1, color: p.onAccent),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: p.onMedia),
+              ),
+            ],
           ),
         ),
       ),

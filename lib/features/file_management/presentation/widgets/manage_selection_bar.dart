@@ -27,12 +27,16 @@ class ManageSelectionBar extends StatefulWidget {
   /// Album layout: these actions first, then Move and Delete. `null` for the gallery layout.
   final List<SelectionAction>? albumActions;
 
+  /// Line above the buttons; «{n} photos» by default.
+  final String? label;
+
   const ManageSelectionBar({
     super.key,
     required this.fileIds,
     this.selectedSizeBytes = 0,
     required this.onFinished,
     this.albumActions,
+    this.label,
   });
 
   @override
@@ -109,7 +113,7 @@ class _ManageSelectionBarState extends State<ManageSelectionBar> {
     return BlocListener<FileManagementBloc, FileManagementState>(
       listener: _handleState,
       child: SelectionActionBar(
-        label: l10n.photosCount(count),
+        label: widget.label ?? l10n.photosCount(count),
         actions: [
           if (widget.albumActions case final albumActions?) ...[
             ...albumActions,

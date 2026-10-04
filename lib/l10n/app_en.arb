@@ -732,5 +732,117 @@
     }
   },
   "favoriteError": "Couldn't update. Please try again.",
-  "move": "Move"
+  "move": "Move",
+  "cover": "Cover",
+  "coverOf": "Cover of {album}",
+  "@coverOf": {
+    "placeholders": {
+      "album": {"type": "String"}
+    }
+  },
+  "coverOfMany": "{count, plural, =1{Cover of 1 album} other{Cover of {count} albums}}",
+  "@coverOfMany": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "useAsCover": "Use as cover",
+  "useAsCoverBody": "Tick the albums where you want it to appear. Up to 3 per album.",
+  "photoIsHere": "The photo is here",
+  "photosAreHere": "The photos are here",
+  "coverAlreadyHint": "Already a cover · untick to remove it",
+  "coverWillAdd": "Will be added · {count} of 3",
+  "@coverWillAdd": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "coverFullChoose": "Full · choose which to replace",
+  "coverFullChooseMany": "Full · choose {count} to replace",
+  "@coverFullChooseMany": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "coverWillRemove": "Will be removed from the cover",
+  "coverCount": "{count} of 3 covers",
+  "@coverCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "replace": "Replace",
+  "replaceCoverOf": "Replace cover {position} of {album}",
+  "@replaceCoverOf": {
+    "placeholders": {
+      "position": {"type": "int"},
+      "album": {"type": "String"}
+    }
+  },
+  "coverTreeNote": "Only the photo's album and the albums that contain it are shown.",
+  "saveChangesCount": "{count, plural, =1{Save · 1 change} other{Save · {count} changes}}",
+  "@saveChangesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "coverUpdated": "{count, plural, =1{Cover updated} other{Cover updated in {count} albums}}",
+  "@coverUpdated": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "upToThreeCovers": "{count, plural, =1{1 photo} other{{count} photos}} · up to 3 can be a cover",
+  "@upToThreeCovers": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "chooseUpToThree": "Choose up to 3 photos to use as cover",
+  "videosCannotBeCovers": "Videos can't be album covers",
+  "noSharedAlbum": "These photos don't share an album",
+  "inAlbum": "in {album}",
+  "@inAlbum": {
+    "placeholders": {
+      "album": {"type": "String"}
+    }
+  },
+  "albumCoverTitle": "Cover of {album}",
+  "@albumCoverTitle": {
+    "placeholders": {
+      "album": {"type": "String"}
+    }
+  },
+  "albumCoverSubtitle": "{count} of 3 photos · drag to change the order",
+  "@albumCoverSubtitle": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "albumCoverCard": "{count} of 3 photos",
+  "@albumCoverCard": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "albumCoverAuto": "Automatic · recent photos",
+  "previewInAlbums": "How it looks in Albums",
+  "previewInAlbumsBody": "The first photo is the big one. With 1 or 2 photos the mosaic adapts.",
+  "coverAutomatic": "Automatic",
+  "coverMain": "Main",
+  "coverSecond": "Second",
+  "coverThird": "Third",
+  "fromThisAlbum": "From this album",
+  "fromAlbum": "From {path}",
+  "@fromAlbum": {
+    "placeholders": {
+      "path": {"type": "String"}
+    }
+  },
+  "removeCover": "Remove from cover",
+  "coverRemoved": "Removed from the cover",
+  "addCoverHint": "To add another, open a photo of this album or its sub-albums and tap «Cover». Without covers, the most recent photos are used.",
+  "undo": "Undo",
+  "moveUp": "Move up",
+  "moveDown": "Move down"
 }

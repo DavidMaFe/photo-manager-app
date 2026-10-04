@@ -26,6 +26,7 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
   StreamSubscription<FileUpdatedEvent>? _fileUpdateSubscription;
   StreamSubscription<FolderUpdatedEvent>? _folderUpdateSubscription;
   StreamSubscription<FavoritesChangedEvent>? _favoritesSubscription;
+  StreamSubscription<CoversChangedEvent>? _coversSubscription;
 
   FolderContentBloc({
     required this.getFolderContentUseCase,
@@ -62,6 +63,12 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
     _favoritesSubscription = eventBus.on<FavoritesChangedEvent>().listen((event) {
       add(FavoritesChanged(fileIds: event.fileIds, favorite: event.favorite));
     });
+
+    // Covers changed (this album, an ancestor or a sub-album): reload the
+    // cover card, the sub-album mosaics and the "Cover" badges
+    _coversSubscription = eventBus.on<CoversChangedEvent>().listen((_) {
+      add(const RefreshFolderContent());
+    });
   }
 
   @override
@@ -69,6 +76,7 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
     _fileUpdateSubscription?.cancel();
     _folderUpdateSubscription?.cancel();
     _favoritesSubscription?.cancel();
+    _coversSubscription?.cancel();
     return super.close();
   }
 

@@ -1443,4 +1443,179 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get move => 'Mover';
+
+  @override
+  String get cover => 'Portada';
+
+  @override
+  String coverOf(String album) {
+    return 'Portada de $album';
+  }
+
+  @override
+  String coverOfMany(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Portada de $count álbumes',
+      one: 'Portada de 1 álbum',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get useAsCover => 'Usar como portada';
+
+  @override
+  String get useAsCoverBody => 'Marca los álbumes donde quieres que aparezca. Máx. 3 por álbum.';
+
+  @override
+  String get photoIsHere => 'La foto está aquí';
+
+  @override
+  String get photosAreHere => 'Las fotos están aquí';
+
+  @override
+  String get coverAlreadyHint => 'Ya es portada · desmarca para quitarla';
+
+  @override
+  String coverWillAdd(int count) {
+    return 'Se añade · $count de 3';
+  }
+
+  @override
+  String get coverFullChoose => 'Lleno · elige cuál sustituir';
+
+  @override
+  String coverFullChooseMany(int count) {
+    return 'Lleno · elige $count para sustituir';
+  }
+
+  @override
+  String get coverWillRemove => 'Se quita de la portada';
+
+  @override
+  String coverCount(int count) {
+    return '$count de 3 portadas';
+  }
+
+  @override
+  String get replace => 'Sustituir';
+
+  @override
+  String replaceCoverOf(int position, String album) {
+    return 'Sustituir portada $position de $album';
+  }
+
+  @override
+  String get coverTreeNote => 'Solo aparecen el álbum de la foto y los que lo contienen.';
+
+  @override
+  String saveChangesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Guardar · $count cambios',
+      one: 'Guardar · 1 cambio',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coverUpdated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Portada actualizada en $count álbumes',
+      one: 'Portada actualizada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String upToThreeCovers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotos',
+      one: '1 foto',
+    );
+    return '$_temp0 · hasta 3 pueden ser portada';
+  }
+
+  @override
+  String get chooseUpToThree => 'Elige hasta 3 fotos para usar como portada';
+
+  @override
+  String get videosCannotBeCovers => 'Los vídeos no pueden ser portada';
+
+  @override
+  String get noSharedAlbum => 'Estas fotos no comparten álbum';
+
+  @override
+  String inAlbum(String album) {
+    return 'en $album';
+  }
+
+  @override
+  String albumCoverTitle(String album) {
+    return 'Portada de $album';
+  }
+
+  @override
+  String albumCoverSubtitle(int count) {
+    return '$count de 3 fotos · arrastra para cambiar el orden';
+  }
+
+  @override
+  String albumCoverCard(int count) {
+    return '$count de 3 fotos';
+  }
+
+  @override
+  String get albumCoverAuto => 'Automática · fotos recientes';
+
+  @override
+  String get previewInAlbums => 'Así se ve en Álbumes';
+
+  @override
+  String get previewInAlbumsBody => 'La primera foto es la grande. Con 1 o 2 fotos el mosaico se adapta.';
+
+  @override
+  String get coverAutomatic => 'Automática';
+
+  @override
+  String get coverMain => 'Principal';
+
+  @override
+  String get coverSecond => 'Segunda';
+
+  @override
+  String get coverThird => 'Tercera';
+
+  @override
+  String get fromThisAlbum => 'De este álbum';
+
+  @override
+  String fromAlbum(String path) {
+    return 'De $path';
+  }
+
+  @override
+  String get removeCover => 'Quitar de portada';
+
+  @override
+  String get coverRemoved => 'Quitada de la portada';
+
+  @override
+  String get addCoverHint => 'Para añadir otra, abre una foto de este álbum o de sus subálbumes y pulsa «Portada». Sin portadas, se usan las fotos más recientes.';
+
+  @override
+  String get undo => 'Deshacer';
+
+  @override
+  String get moveUp => 'Subir';
+
+  @override
+  String get moveDown => 'Bajar';
 }

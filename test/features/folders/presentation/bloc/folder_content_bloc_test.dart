@@ -38,6 +38,8 @@ void main() {
         .thenAnswer((_) => const Stream<FolderUpdatedEvent>.empty());
     when(() => mockEventBus.on<FavoritesChangedEvent>())
         .thenAnswer((_) => const Stream<FavoritesChangedEvent>.empty());
+    when(() => mockEventBus.on<CoversChangedEvent>())
+        .thenAnswer((_) => const Stream<CoversChangedEvent>.empty());
   });
 
 
@@ -562,6 +564,24 @@ void main() {
         act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['zzz'], favorite: true)),
         expect: () => const <FolderContentState>[],
       );
+    });
+
+    test('should reload the album when covers change', () async {
+      // Arrange
+      final eventBus = AppEventBus();
+      when(() => mockGetFolderContentUseCase.call(folderId: 'folder-1', filter: FileFilter.all))
+          .thenAnswer((_) async => folderContent);
+      final listening = FolderContentBloc(getFolderContentUseCase: mockGetFolderContentUseCase, eventBus: eventBus)
+        ..add(const LoadFolderContent(folderId: 'folder-1'));
+      addTearDown(listening.close);
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+
+      // Act
+      eventBus.fire(const CoversChangedEvent(folderIds: ['folder-1']));
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+
+      // Assert
+      verify(() => mockGetFolderContentUseCase.call(folderId: 'folder-1', filter: FileFilter.all)).called(2);
     });
   });
 }

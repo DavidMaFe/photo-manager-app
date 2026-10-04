@@ -20,6 +20,8 @@ import 'package:photo_manager_app/features/file_management/presentation/widgets/
 import 'package:photo_manager_app/features/file_management/presentation/widgets/file_properties_sheet.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
 import 'package:photo_manager_app/features/favorites/presentation/widgets/favorite_viewer_button.dart';
+import 'package:photo_manager_app/features/file_management/presentation/models/album_viewer_context.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/cover_picker_sheet.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/video_player_widget.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -31,11 +33,16 @@ class FileDetailPage extends StatefulWidget {
   final int initialIndex;
   final int? totalFilesCount;
 
+  /// Opened from an album: album path in the header, "Cover of…" pill and
+  /// Cover / Move in the bar.
+  final AlbumViewerContext? albumContext;
+
   const FileDetailPage({
     super.key,
     required this.files,
     required this.initialIndex,
-    this.totalFilesCount
+    this.totalFilesCount,
+    this.albumContext
   });
 
   @override
@@ -52,6 +59,14 @@ class _FileDetailPageState extends State<FileDetailPage> {
   late PageController _pageController;
   late int _currentIndex;
   bool _chromeVisible = true;
+
+  /// Albums each file is a cover of after changing them here.
+  final Map<String, List<String>> _coverOfOverrides = {};
+
+  AlbumViewerContext? get _albumContext =>
+      AppConfig.favoritesAndCoversEnabled ? widget.albumContext : null;
+
+  List<String> _coverOf(GalleryFile file) => _coverOfOverrides[file.id] ?? file.coverOf;
 
   @override
   void initState() {
@@ -98,19 +113,30 @@ class _FileDetailPageState extends State<FileDetailPage> {
               left: 0,
               right: 0,
               child: _chrome(
-                MediaViewerTopBar(
-                  title: file.capturedAt != null
-                      ? DateFormatter.formatDayAndTime(file.capturedAt!, context)
-                      : l10n.noDate,
-                  subtitle: _subtitleFor(file, l10n),
-                  onBack: () => Navigator.pop(context),
-                  actions: [
-                    if (file.isPending) MediaViewerReviewPill(label: l10n.filterToReview),
-                    MediaViewerIconButton(
-                      icon: Symbols.info_rounded,
-                      tooltip: l10n.viewerInfo,
-                      onPressed: () => FilePropertiesSheet.show(context, file),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    MediaViewerTopBar(
+                      title: file.capturedAt != null
+                          ? DateFormatter.formatDayAndTime(file.capturedAt!, context)
+                          : l10n.noDate,
+                      subtitle: _albumContext?.path ?? _subtitleFor(file, l10n),
+                      onBack: () => Navigator.pop(context),
+                      actions: [
+                        if (file.isPending) MediaViewerReviewPill(label: l10n.filterToReview),
+                        MediaViewerIconButton(
+                          icon: Symbols.info_rounded,
+                          tooltip: l10n.viewerInfo,
+                          onPressed: () => FilePropertiesSheet.show(context, file),
+                        ),
+                      ],
                     ),
+                    if (_albumContext != null && _coverOf(file).isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                        child: MediaViewerCoverPill(label: _coverPillLabel(_coverOf(file), l10n)),
+                      ),
                   ],
                 ),
               ),
@@ -142,8 +168,10 @@ class _FileDetailPageState extends State<FileDetailPage> {
                           const SizedBox(height: 12),
                         ],
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: MediaViewerActionBar(
+                          padding: EdgeInsets.symmetric(horizontal: _albumContext != null ? 12 : 16),
+                          child: _albumContext != null
+                              ? _buildAlbumActionBar(context, file, l10n, palette)
+                              : MediaViewerActionBar(
                             children: [
                               if (AppConfig.favoritesAndCoversEnabled) ...[
                                 FavoriteViewerButton(key: ValueKey('favorite-${file.id}'), file: file),
@@ -302,11 +330,69 @@ class _FileDetailPageState extends State<FileDetailPage> {
     }
   }
 
-  void _showManageModal(BuildContext context) async {
+  /// Album bar: Favorite · Cover (photos only) · Move · Delete.
+  Widget _buildAlbumActionBar(BuildContext context, GalleryFile file, AppLocalizations l10n, AppPalette palette) {
+    return MediaViewerActionBar(
+      children: [
+        Expanded(child: FavoriteViewerButton(key: ValueKey('favorite-${file.id}'), file: file)),
+        if (file.isImage)
+          Expanded(
+            child: MediaViewerCoverAction(
+              label: l10n.cover,
+              onPressed: () => _openCoverPicker(context, file),
+            ),
+          ),
+        Expanded(
+          child: MediaViewerAction(
+            icon: Symbols.drive_file_move_rounded,
+            label: l10n.move,
+            onPressed: () => _showManageModal(context, initialOption: ManageOption.album),
+          ),
+        ),
+        Expanded(
+          child: MediaViewerAction(
+            icon: Symbols.delete_rounded,
+            label: l10n.actionDelete,
+            color: palette.mediaDanger,
+            onPressed: () => _confirmDelete(context, l10n),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// «Cover of Playa», or «Cover of 2 albums» (also when the album's name is not known here).
+  String _coverPillLabel(List<String> coverOf, AppLocalizations l10n) {
+    final name = coverOf.length == 1 ? _albumContext?.nameOf(coverOf.single) : null;
+    return name != null ? l10n.coverOf(name) : l10n.coverOfMany(coverOf.length);
+  }
+
+  Future<void> _openCoverPicker(BuildContext context, GalleryFile file) async {
+    final l10n = AppLocalizations.of(context)!;
+    final result = await CoverPickerSheet.show(context, [file.id]);
+    if (!context.mounted || result is! CoversSaved) return;
+
+    // Keep the pill right without reloading the album: update where this file is a cover.
+    final coverOf = {..._coverOf(file)};
+    for (final folder in result.folders) {
+      if (folder.covers.any((cover) => cover.fileId == file.id)) {
+        coverOf.add(folder.folderId);
+      } else {
+        coverOf.remove(folder.folderId);
+      }
+    }
+    setState(() => _coverOfOverrides[file.id] = coverOf.toList());
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(l10n.coverUpdated(result.changedAlbums))));
+  }
+
+  void _showManageModal(BuildContext context, {ManageOption initialOption = ManageOption.saveAndFree}) async {
     final result = await ManageFileModal.show(
       context,
       fileIds: [_currentFile.id],
       totalSizeBytes: _currentFile.sizeBytes,
+      initialOption: initialOption,
     );
 
     // If the file was successfully managed (deleted, moved, etc.), close the detail page

@@ -21,6 +21,9 @@ class FileThumbnailCard extends StatelessWidget {
 
   /// Fades and shrinks the thumbnail out (it is about to leave the grid).
   final bool leaving;
+
+  /// Shows the «Cover» badge (the file is a cover of the album being viewed).
+  final bool isCover;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
@@ -32,6 +35,7 @@ class FileThumbnailCard extends StatelessWidget {
     this.showFavorite = false,
     this.large = false,
     this.leaving = false,
+    this.isCover = false,
     this.onTap,
     this.onLongPress
   });
@@ -60,9 +64,11 @@ class FileThumbnailCard extends StatelessWidget {
       selected: isSelected,
       isFavorite: isFavorite,
       large: large,
+      coverLabel: isCover ? l10n.cover : null,
       semanticLabel: [
         file.isVideo ? l10n.filePropertyTypeVideo : l10n.filePropertyTypeImage,
         if (isFavorite) l10n.favorite,
+        if (isCover) l10n.cover,
       ].join(', '),
       onTap: onTap,
       onLongPress: onLongPress,

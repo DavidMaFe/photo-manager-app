@@ -306,12 +306,12 @@ No hacen falta rutas nuevas: ambas hojas se abren con `showAppSheet`. El visor r
 - [x] Mosaico adaptativo 0/1/2/3 en tarjetas de álbum, subálbum y tarjeta de portada.
 
 **Fase 4 · Portadas: gestión**
-- [ ] Contexto de álbum en el visor (ruta, pastilla «Portada de…», barra de 5 botones).
-- [ ] Hoja «Usar como portada» con árbol, estados y sustitución (una foto).
-- [ ] Modo selección dentro de álbum con acción «Portada» (hasta 3, ancestros comunes).
-- [ ] Tarjeta de portada en el álbum + hoja «Portada de {álbum}» (quitar, deshacer, reordenar).
-- [ ] Etiqueta «Portada» en miniaturas del álbum.
-- [ ] `CoversChangedEvent` y refresco de álbumes.
+- [x] Contexto de álbum en el visor (ruta, pastilla «Portada de…», barra de 5 botones).
+- [x] Hoja «Usar como portada» con árbol, estados y sustitución (una foto).
+- [x] Modo selección dentro de álbum con acción «Portada» (hasta 3, ancestros comunes).
+- [x] Tarjeta de portada en el álbum + hoja «Portada de {álbum}» (quitar, deshacer, reordenar).
+- [x] Etiqueta «Portada» en miniaturas del álbum.
+- [x] `CoversChangedEvent` y refresco de álbumes.
 
 **Fase 5 · Cierre**
 - [ ] Textos `.arb` completos y `flutter gen-l10n`.

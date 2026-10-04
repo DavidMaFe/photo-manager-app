@@ -2452,6 +2452,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Move'**
   String get move;
+
+  /// No description provided for @cover.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover'**
+  String get cover;
+
+  /// No description provided for @coverOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover of {album}'**
+  String coverOf(String album);
+
+  /// No description provided for @coverOfMany.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Cover of 1 album} other{Cover of {count} albums}}'**
+  String coverOfMany(int count);
+
+  /// No description provided for @useAsCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Use as cover'**
+  String get useAsCover;
+
+  /// No description provided for @useAsCoverBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick the albums where you want it to appear. Up to 3 per album.'**
+  String get useAsCoverBody;
+
+  /// No description provided for @photoIsHere.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo is here'**
+  String get photoIsHere;
+
+  /// No description provided for @photosAreHere.
+  ///
+  /// In en, this message translates to:
+  /// **'The photos are here'**
+  String get photosAreHere;
+
+  /// No description provided for @coverAlreadyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Already a cover · untick to remove it'**
+  String get coverAlreadyHint;
+
+  /// No description provided for @coverWillAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be added · {count} of 3'**
+  String coverWillAdd(int count);
+
+  /// No description provided for @coverFullChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Full · choose which to replace'**
+  String get coverFullChoose;
+
+  /// No description provided for @coverFullChooseMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Full · choose {count} to replace'**
+  String coverFullChooseMany(int count);
+
+  /// No description provided for @coverWillRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be removed from the cover'**
+  String get coverWillRemove;
+
+  /// No description provided for @coverCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 3 covers'**
+  String coverCount(int count);
+
+  /// No description provided for @replace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get replace;
+
+  /// No description provided for @replaceCoverOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace cover {position} of {album}'**
+  String replaceCoverOf(int position, String album);
+
+  /// No description provided for @coverTreeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the photo\'s album and the albums that contain it are shown.'**
+  String get coverTreeNote;
+
+  /// No description provided for @saveChangesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Save · 1 change} other{Save · {count} changes}}'**
+  String saveChangesCount(int count);
+
+  /// No description provided for @coverUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Cover updated} other{Cover updated in {count} albums}}'**
+  String coverUpdated(int count);
+
+  /// No description provided for @upToThreeCovers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo} other{{count} photos}} · up to 3 can be a cover'**
+  String upToThreeCovers(int count);
+
+  /// No description provided for @chooseUpToThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose up to 3 photos to use as cover'**
+  String get chooseUpToThree;
+
+  /// No description provided for @videosCannotBeCovers.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos can\'t be album covers'**
+  String get videosCannotBeCovers;
+
+  /// No description provided for @noSharedAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'These photos don\'t share an album'**
+  String get noSharedAlbum;
+
+  /// No description provided for @inAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'in {album}'**
+  String inAlbum(String album);
+
+  /// No description provided for @albumCoverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover of {album}'**
+  String albumCoverTitle(String album);
+
+  /// No description provided for @albumCoverSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 3 photos · drag to change the order'**
+  String albumCoverSubtitle(int count);
+
+  /// No description provided for @albumCoverCard.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 3 photos'**
+  String albumCoverCard(int count);
+
+  /// No description provided for @albumCoverAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic · recent photos'**
+  String get albumCoverAuto;
+
+  /// No description provided for @previewInAlbums.
+  ///
+  /// In en, this message translates to:
+  /// **'How it looks in Albums'**
+  String get previewInAlbums;
+
+  /// No description provided for @previewInAlbumsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The first photo is the big one. With 1 or 2 photos the mosaic adapts.'**
+  String get previewInAlbumsBody;
+
+  /// No description provided for @coverAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get coverAutomatic;
+
+  /// No description provided for @coverMain.
+  ///
+  /// In en, this message translates to:
+  /// **'Main'**
+  String get coverMain;
+
+  /// No description provided for @coverSecond.
+  ///
+  /// In en, this message translates to:
+  /// **'Second'**
+  String get coverSecond;
+
+  /// No description provided for @coverThird.
+  ///
+  /// In en, this message translates to:
+  /// **'Third'**
+  String get coverThird;
+
+  /// No description provided for @fromThisAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'From this album'**
+  String get fromThisAlbum;
+
+  /// No description provided for @fromAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'From {path}'**
+  String fromAlbum(String path);
+
+  /// No description provided for @removeCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from cover'**
+  String get removeCover;
+
+  /// No description provided for @coverRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from the cover'**
+  String get coverRemoved;
+
+  /// No description provided for @addCoverHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To add another, open a photo of this album or its sub-albums and tap «Cover». Without covers, the most recent photos are used.'**
+  String get addCoverHint;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @moveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get moveUp;
+
+  /// No description provided for @moveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get moveDown;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

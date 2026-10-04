@@ -34,6 +34,13 @@ class FavoritesChangedEvent extends AppEvent {
   const FavoritesChangedEvent({required this.fileIds, required this.favorite});
 }
 
+/// Event broadcasted when the chosen covers of albums change.
+class CoversChangedEvent extends AppEvent {
+  final List<String> folderIds;
+
+  const CoversChangedEvent({required this.folderIds});
+}
+
 /// Event broadcasted when folders are created, deleted, or renamed
 class FolderUpdatedEvent extends AppEvent {
   final List<String>? affectedFolderIds;
