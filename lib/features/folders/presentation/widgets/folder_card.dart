@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/config/app_config.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/config/theme/app_radius.dart';
 import 'package:photo_manager_app/core/utils/date_formatter.dart';
@@ -7,6 +8,7 @@ import 'package:photo_manager_app/core/widgets/app_context_menu.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 import '../../domain/entities/folder.dart';
+import 'album_mosaic.dart';
 
 
 enum _AlbumMenuAction { rename, delete }
@@ -38,6 +40,12 @@ class FolderCard extends StatelessWidget {
   /// "Aug 2024" / "Jan – Aug 2024", or `null` while the album has no dated files.
   static String? dateRangeFor(Folder folder, AppLocalizations l10n) {
     return DateFormatter.formatMonthRange(folder.oldestCapturedAt, folder.newestCapturedAt, l10n.localeName);
+  }
+
+  /// Photos of the album's mosaic: the chosen covers, else the recent photos.
+  /// None while the favorites and covers feature is off (the album icon).
+  static List<String> coverFileIdsFor(Folder folder) {
+    return AppConfig.favoritesAndCoversEnabled ? folder.mosaicFileIds : const [];
   }
 
   bool get _hasMenu => onRename != null || onDelete != null;
@@ -91,13 +99,7 @@ class FolderCard extends StatelessWidget {
           children: [
             AspectRatio(
               aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: p.surface2,
-                  borderRadius: BorderRadius.circular(AppRadius.card),
-                ),
-                child: Icon(Symbols.photo_album_rounded, size: 36, color: p.ink3),
-              ),
+              child: AlbumMosaic(fileIds: coverFileIdsFor(folder), radius: AppRadius.card),
             ),
             const SizedBox(height: 8),
             Text(

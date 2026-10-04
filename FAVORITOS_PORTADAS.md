@@ -303,7 +303,7 @@ No hacen falta rutas nuevas: ambas hojas se abren con `showAppSheet`. El visor r
 - [x] `FavoritesChangedEvent` en el bus de eventos.
 
 **Fase 3 · Mosaicos de portada**
-- [ ] Mosaico adaptativo 0/1/2/3 en tarjetas de álbum, subálbum y tarjeta de portada.
+- [x] Mosaico adaptativo 0/1/2/3 en tarjetas de álbum, subálbum y tarjeta de portada.
 
 **Fase 4 · Portadas: gestión**
 - [ ] Contexto de álbum en el visor (ruta, pastilla «Portada de…», barra de 5 botones).

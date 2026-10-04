@@ -35,6 +35,7 @@ import 'package:photo_manager_app/core/widgets/selection_action_bar.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_event.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_state.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_mosaic.dart';
 
 class MockFolderContentBloc extends Mock implements FolderContentBloc {}
 
@@ -257,6 +258,25 @@ void main() {
         // Assert
         expect(find.text("Couldn't update. Please try again."), findsOneWidget);
       });
+    });
+
+    testWidgets('should show the sub-album mosaic with its radius when covers are on', (tester) async {
+      // Arrange
+      AppConfig.favoritesAndCoversEnabled = true;
+      addTearDown(() => AppConfig.favoritesAndCoversEnabled = false);
+
+      // Act
+      await pumpPage(tester, loaded(subfolders: [
+        TestFolders.album(id: 'sub-1', name: 'Kyoto', parentFolderId: 'folder-1', fallbackCoverFileIds: ['5', '6']),
+      ]));
+
+      // Assert
+      final mosaic = tester.widget<AlbumMosaic>(
+        find.descendant(of: find.byType(SubfoldersSection), matching: find.byType(AlbumMosaic)),
+      );
+      expect(mosaic.fileIds, ['5', '6']);
+      expect(mosaic.radius, 16);
+      expect(mosaic.iconSize, 28);
     });
 
     testWidgets('should keep the gallery selection actions while favorites are off', (tester) async {

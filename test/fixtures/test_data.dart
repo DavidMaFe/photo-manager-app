@@ -557,6 +557,8 @@ class TestFolders {
     int subfolderCount = 3,
     DateTime? oldestCapturedAt,
     DateTime? newestCapturedAt,
+    List<String> coverFileIds = const [],
+    List<String> fallbackCoverFileIds = const [],
   }) {
     return Folder(
       id: id,
@@ -568,6 +570,8 @@ class TestFolders {
       subfolderCount: subfolderCount,
       oldestCapturedAt: oldestCapturedAt,
       newestCapturedAt: newestCapturedAt,
+      coverFileIds: coverFileIds,
+      fallbackCoverFileIds: fallbackCoverFileIds,
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/config/app_config.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_mosaic.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/create_album_card.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/folder_card.dart';
@@ -69,6 +71,42 @@ void main() {
       // Assert
       expect(find.textContaining('20'), findsNothing);
       expect(tester.getSemantics(find.byType(FolderCard)).label, 'Vacation, 42 · 3 sub-albums');
+    });
+
+    // ==================== COVER MOSAIC TESTS ====================
+
+    group('cover mosaic', () {
+      setUp(() => AppConfig.favoritesAndCoversEnabled = true);
+      tearDown(() => AppConfig.favoritesAndCoversEnabled = false);
+
+      AlbumMosaic mosaic(WidgetTester tester) => tester.widget<AlbumMosaic>(find.byType(AlbumMosaic));
+
+      testWidgets('should show the chosen covers in order with the card radius', (tester) async {
+        // Arrange & Act
+        await tester.pumpWidget(build(TestFolders.album(coverFileIds: ['3', '1'], fallbackCoverFileIds: ['9'])));
+
+        // Assert
+        expect(mosaic(tester).fileIds, ['3', '1']);
+        expect(mosaic(tester).radius, 22);
+      });
+
+      testWidgets('should use the recent photos without chosen covers', (tester) async {
+        await tester.pumpWidget(build(TestFolders.album(fallbackCoverFileIds: ['9', '8', '7'])));
+        expect(mosaic(tester).fileIds, ['9', '8', '7']);
+      });
+
+      testWidgets('should show the album icon without any photo', (tester) async {
+        await tester.pumpWidget(build(TestFolders.album()));
+        expect(mosaic(tester).fileIds, isEmpty);
+      });
+    });
+
+    testWidgets('should keep the album icon while covers are off', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(build(TestFolders.album(coverFileIds: ['3'])));
+
+      // Assert
+      expect(tester.widget<AlbumMosaic>(find.byType(AlbumMosaic)).fileIds, isEmpty);
     });
 
     testWidgets('should render a square cover', (tester) async {

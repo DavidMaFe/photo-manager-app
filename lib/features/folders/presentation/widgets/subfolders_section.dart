@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/features/folders/presentation/widgets/album_mosaic.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/create_album_card.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/folder_card.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -66,10 +66,9 @@ class SubfoldersSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
+                    SizedBox(
                       height: coverHeight,
-                      decoration: BoxDecoration(color: p.surface2, borderRadius: BorderRadius.circular(16)),
-                      child: Center(child: Icon(Symbols.photo_album_rounded, size: 28, color: p.ink3)),
+                      child: AlbumMosaic(fileIds: FolderCard.coverFileIdsFor(folder), radius: 16, iconSize: 28),
                     ),
                     const SizedBox(height: 6),
                     Text(

@@ -113,7 +113,7 @@ Se implementa siguiendo las fases 1–5 de `FAVORITOS_PORTADAS.md`, en su rama `
 
 Acceptance criteria: los criterios de las fases de `FAVORITOS_PORTADAS.md`.
 
-Status: 🚧 In Progress (FAVORITOS_PORTADAS fase 3 de 5)
+Status: 🚧 In Progress (FAVORITOS_PORTADAS fase 4 de 5)
 
 ## Phase 6: Desglose del almacenamiento
 - [ ] Entidad `StorageUsage { photosBytes, videosBytes, trashBytes, usedBytes, quotaBytes }` en `UserProfile`, nullable si la API no la envía
