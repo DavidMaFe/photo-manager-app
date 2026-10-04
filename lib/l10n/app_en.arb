@@ -705,5 +705,12 @@
     "placeholders": {
       "size": {"type": "String"}
     }
-  }
+  },
+  "filePropertyName": "Name",
+  "filePropertyUploadedAt": "Uploaded at",
+  "filePropertySize": "Size",
+  "filePropertyDimensions": "Dimensions",
+  "filePropertyAlbum": "Album",
+  "filePropertyDevice": "Device",
+  "fileInfoLoading": "Loading details…"
 }

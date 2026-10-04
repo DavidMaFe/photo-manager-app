@@ -1376,4 +1376,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String freeUpSize(String size) {
     return 'Free up $size';
   }
+
+  @override
+  String get filePropertyName => 'Name';
+
+  @override
+  String get filePropertyUploadedAt => 'Uploaded at';
+
+  @override
+  String get filePropertySize => 'Size';
+
+  @override
+  String get filePropertyDimensions => 'Dimensions';
+
+  @override
+  String get filePropertyAlbum => 'Album';
+
+  @override
+  String get filePropertyDevice => 'Device';
+
+  @override
+  String get fileInfoLoading => 'Loading details…';
 }

@@ -694,5 +694,12 @@
     }
   },
   "photosSelectedSize": "{count, plural, =1{1 foto · ocupa {size}} other{{count} fotos · ocupan {size}}}",
-  "freeUpSize": "Liberar {size}"
+  "freeUpSize": "Liberar {size}",
+  "filePropertyName": "Nombre",
+  "filePropertyUploadedAt": "Fecha de subida",
+  "filePropertySize": "Tamaño",
+  "filePropertyDimensions": "Dimensiones",
+  "filePropertyAlbum": "Álbum",
+  "filePropertyDevice": "Dispositivo",
+  "fileInfoLoading": "Cargando detalles…"
 }

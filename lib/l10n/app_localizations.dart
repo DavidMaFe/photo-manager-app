@@ -2350,6 +2350,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Free up {size}'**
   String freeUpSize(String size);
+
+  /// No description provided for @filePropertyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get filePropertyName;
+
+  /// No description provided for @filePropertyUploadedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded at'**
+  String get filePropertyUploadedAt;
+
+  /// No description provided for @filePropertySize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get filePropertySize;
+
+  /// No description provided for @filePropertyDimensions.
+  ///
+  /// In en, this message translates to:
+  /// **'Dimensions'**
+  String get filePropertyDimensions;
+
+  /// No description provided for @filePropertyAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Album'**
+  String get filePropertyAlbum;
+
+  /// No description provided for @filePropertyDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get filePropertyDevice;
+
+  /// No description provided for @fileInfoLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading details…'**
+  String get fileInfoLoading;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

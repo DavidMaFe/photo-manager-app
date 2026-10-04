@@ -1,8 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/database/app_database.dart';
+import 'package:photo_manager_app/core/enums/file_status.dart';
+import 'package:photo_manager_app/core/enums/file_type.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_deletion_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_management_remote_data_source.dart';
+import 'package:photo_manager_app/features/file_management/data/models/file_info_model.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_file_request_model.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_file_response_model.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_folder_model.dart';
@@ -408,6 +411,21 @@ void main() {
       // Assert
       expect(result, model);
       verify(() => mockRemoteDataSource.createFolder('Viaje')).called(1);
+    });
+  });
+
+  group('getFileInfo', () {
+    test('should delegate to the remote data source', () async {
+      // Arrange
+      const model = FileInfoModel(id: '42', type: FileType.image, status: FileStatus.managed);
+      when(() => mockRemoteDataSource.getFileInfo(any())).thenAnswer((_) async => model);
+
+      // Act
+      final result = await repository.getFileInfo('42');
+
+      // Assert
+      expect(result, model);
+      verify(() => mockRemoteDataSource.getFileInfo('42')).called(1);
     });
   });
 }

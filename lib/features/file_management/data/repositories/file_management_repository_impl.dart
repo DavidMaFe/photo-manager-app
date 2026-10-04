@@ -2,6 +2,7 @@ import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_deletion_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_management_remote_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/models/manage_file_request_model.dart';
+import 'package:photo_manager_app/features/file_management/domain/entities/file_info.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_file_result.dart';
 import 'package:photo_manager_app/features/file_management/domain/repositories/file_management_repository.dart';
@@ -37,6 +38,11 @@ class FileManagementRepositoryImpl implements FileManagementRepository {
   @override
   Future<ManageFolder> createFolder(String name) async {
     return await remoteDataSource.createFolder(name);
+  }
+
+  @override
+  Future<FileInfo> getFileInfo(String fileId) async {
+    return await remoteDataSource.getFileInfo(fileId);
   }
 
   @override

@@ -28,8 +28,10 @@ import 'package:photo_manager_app/features/file_management/data/repositories/fil
 import 'package:photo_manager_app/features/file_management/domain/repositories/file_management_repository.dart';
 import 'package:photo_manager_app/features/file_management/domain/use_cases/get_folders_use_case.dart';
 import 'package:photo_manager_app/features/file_management/domain/use_cases/manage_files_use_case.dart';
+import 'package:photo_manager_app/features/file_management/domain/use_cases/get_file_info_use_case.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_info/file_info_bloc.dart';
 import 'package:photo_manager_app/features/folders/data/data_sources/folder_remote_data_source.dart';
 import 'package:photo_manager_app/features/folders/data/repositories/folder_repository_impl.dart';
 import 'package:photo_manager_app/features/folders/domain/repositories/folder_repository.dart';
@@ -580,6 +582,12 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final repository = sl<FileManagementRepository>();
+        return GetFileInfoUseCase(repository);
+      }
+  );
+  sl.registerFactory(
+      () {
+        final repository = sl<FileManagementRepository>();
         return ManageFilesUseCase(repository);
       }
   );
@@ -805,6 +813,9 @@ Future<void> init() async {
         final eventBus = sl<AppEventBus>();
         return ManageFolderBloc(getFoldersUseCase: getFoldersUseCase, eventBus: eventBus);
       }
+  );
+  sl.registerFactory(
+      () => FileInfoBloc(getFileInfoUseCase: sl<GetFileInfoUseCase>())
   );
 
   // folders

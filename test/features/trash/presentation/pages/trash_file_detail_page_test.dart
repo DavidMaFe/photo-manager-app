@@ -1,10 +1,16 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_top_bar.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
+import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
+import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_top_bar.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_info/file_info_bloc.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_info/file_info_event.dart';
+import 'package:photo_manager_app/features/file_management/presentation/bloc/file_info/file_info_state.dart';
+import 'package:photo_manager_app/features/file_management/presentation/widgets/file_properties_sheet.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
 import 'package:photo_manager_app/features/trash/presentation/bloc/trash_bloc.dart';
 import 'package:photo_manager_app/features/trash/presentation/bloc/trash_event.dart';
@@ -17,10 +23,23 @@ class MockTrashBloc extends Mock implements TrashBloc {}
 
 class FakeTrashEvent extends Fake implements TrashEvent {}
 
+class MockFileInfoBloc extends MockBloc<FileInfoEvent, FileInfoState> implements FileInfoBloc {}
+
 void main() {
   late MockTrashBloc bloc;
 
+  late MockFileInfoBloc fileInfoBloc;
+
   setUpAll(() => registerFallbackValue(FakeTrashEvent()));
+
+  // The properties sheet takes its bloc from the service locator.
+  setUp(() {
+    fileInfoBloc = MockFileInfoBloc();
+    when(() => fileInfoBloc.state).thenReturn(const FileInfoLoading());
+    sl.registerFactory<FileInfoBloc>(() => fileInfoBloc);
+  });
+
+  tearDown(() => sl.unregister<FileInfoBloc>());
 
   setUp(() {
     bloc = MockTrashBloc();
@@ -77,6 +96,19 @@ void main() {
 
       // Assert
       expect(tester.widget<MediaViewerTopBar>(find.byType(MediaViewerTopBar)).title, 'No date');
+    });
+
+    testWidgets('should load the file details from the info button', (tester) async {
+      // Arrange
+      await pump(tester, [file('a', 18)]);
+
+      // Act
+      await tester.tap(find.byTooltip('Info'));
+      await settle(tester);
+
+      // Assert
+      expect(find.byType(FilePropertiesSheet), findsOneWidget);
+      verify(() => fileInfoBloc.add(const LoadFileInfo('a'))).called(1);
     });
 
     testWidgets('should confirm and restore the current file', (tester) async {

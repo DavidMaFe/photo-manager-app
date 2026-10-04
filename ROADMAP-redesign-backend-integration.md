@@ -83,15 +83,15 @@ Acceptance criteria: con 120 pendientes, «Revisar» hace una sola llamada, sele
 Status: ✅ Completed
 
 ## Phase 3: Propiedades del fichero
-- [ ] Entidad `FileInfo` y modelo con todos los campos de `/api/file/{fileId}/info/`
-- [ ] Data source, repositorio y caso de uso `GetFileInfoUseCase` (feature `file_management`)
-- [ ] `FilePropertiesSheet` carga la información al abrirse (estado de carga y de error con reintento) y muestra: nombre original, tamaño, dimensiones, duración, fecha de captura, fecha de subida, álbum y dispositivo de origen, además del estado y el ID actuales. Las filas sin dato se ocultan
-- [ ] Mismo comportamiento en el visor de la papelera (`trash_file_detail_page.dart`)
-- [ ] Tests: modelo, data source (incluido 400 `FILE_NOT_FOUND`), caso de uso y widget de la hoja (carga, datos, error)
+- [x] Entidad `FileInfo` y modelo con todos los campos de `/api/file/{fileId}/info/`
+- [x] Data source, repositorio y caso de uso `GetFileInfoUseCase` (feature `file_management`)
+- [x] `FilePropertiesSheet` carga la información al abrirse (estado de carga y de error con reintento) y muestra: nombre original, tamaño, dimensiones, duración, fecha de captura, fecha de subida, álbum y dispositivo de origen, además del estado y el ID actuales. Las filas sin dato se ocultan
+- [x] Mismo comportamiento en el visor de la papelera (`trash_file_detail_page.dart`)
+- [x] Tests: modelo, data source (incluido 400 `FILE_NOT_FOUND`), caso de uso y widget de la hoja (carga, datos, error)
 
 Acceptance criteria: Propiedades muestra el dispositivo de origen y el tamaño; un fichero sin dispositivo oculta esa fila.
 
-Status: ⏳ Pending
+Status: ✅ Completed
 
 ## Phase 4: Fechas de álbum
 - [ ] `Folder`: `oldestCapturedAt` y `newestCapturedAt` (nullable) en entidad y modelo (listado, `folderInfo` y `subfolders`)
