@@ -11,6 +11,7 @@ import 'package:photo_manager_app/core/services/background_sync_service.dart';
 import 'package:photo_manager_app/core/services/sync_log_service.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
+import 'package:photo_manager_app/core/services/timezone_service.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
@@ -111,6 +112,10 @@ import 'utils/onboarding_preferences.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
+
+  // Device time zone for the X-Timezone header: read once, before any request.
+  // init() also runs in the WorkManager background isolate, so uploads get it too.
+  await TimezoneService.init();
 
   // GENERAL INJECTIONS
   // Plain HTTP client (used for auth endpoints to avoid circular dependency)

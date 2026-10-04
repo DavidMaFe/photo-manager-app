@@ -94,7 +94,9 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
             right: 0,
             child: _chrome(
               MediaViewerTopBar(
-                title: DateFormatter.formatDayAndTime(file.capturedAt, context),
+                title: file.capturedAt != null
+                      ? DateFormatter.formatDayAndTime(file.capturedAt!, context)
+                      : l10n.noDate,
                 subtitle: _subtitleFor(file, l10n),
                 onBack: () => Navigator.pop(context),
                 actions: [

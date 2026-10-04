@@ -6,7 +6,6 @@ class TrashFile extends GalleryFile {
   final DateTime deletedAt;
   final String? originalFolderId;
   final String? originalFolderName;
-  final int sizeBytes;
 
   const TrashFile({
     required super.id,
@@ -14,7 +13,7 @@ class TrashFile extends GalleryFile {
     required super.status,
     required super.capturedAt,
     required this.deletedAt,
-    required this.sizeBytes,
+    required super.sizeBytes,
     super.durationSeconds,
     this.originalFolderId,
     this.originalFolderName,
@@ -56,7 +55,6 @@ class TrashFile extends GalleryFile {
         deletedAt,
         originalFolderId,
         originalFolderName,
-        sizeBytes,
       ];
 
   @override

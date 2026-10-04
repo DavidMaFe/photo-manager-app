@@ -104,6 +104,16 @@ void main() {
       expect(bar.subtitle, 'Image');
     });
 
+    testWidgets('should show "No date" in the top bar when the file has no capture date', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(createWidgetUnderTest(files: const [
+        GalleryFile(id: 'undated', type: FileType.image, status: FileStatus.managed, capturedAt: null),
+      ]));
+
+      // Assert
+      expect(tester.widget<MediaViewerTopBar>(find.byType(MediaViewerTopBar)).title, 'No date');
+    });
+
     testWidgets('should show the type and duration for older videos', (tester) async {
       // Arrange & Act
       await tester.pumpWidget(createWidgetUnderTest(files: testFiles, initialIndex: 2));

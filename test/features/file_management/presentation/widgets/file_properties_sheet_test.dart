@@ -50,6 +50,20 @@ void main() {
       expect(find.text('Duration'), findsNothing);
     });
 
+    testWidgets('should hide the capture date row when the file has no date', (tester) async {
+      // Arrange & Act
+      await pump(tester, const GalleryFile(
+        id: 'p1',
+        type: FileType.image,
+        status: FileStatus.managed,
+        capturedAt: null,
+      ));
+
+      // Assert
+      expect(find.text('Captured at'), findsNothing);
+      expect(find.text('p1'), findsOneWidget);
+    });
+
     testWidgets('should copy the id to the clipboard', (tester) async {
       // Arrange
       String? copied;

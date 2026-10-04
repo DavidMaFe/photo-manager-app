@@ -31,8 +31,10 @@ class FilePropertiesSheet extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final p = context.palette;
     final locale = l10n.localeName;
-    final captured = '${DateFormat.yMMMMEEEEd(locale).format(file.capturedAt)}, '
-        '${DateFormat.Hm(locale).format(file.capturedAt)}';
+    final capturedAt = file.capturedAt;
+    final captured = capturedAt != null
+        ? '${DateFormat.yMMMMEEEEd(locale).format(capturedAt)}, ${DateFormat.Hm(locale).format(capturedAt)}'
+        : null;
 
     final rows = <Widget>[
       _PropertyRow(
@@ -45,7 +47,7 @@ class FilePropertiesSheet extends StatelessWidget {
               variant: file.isPending ? StatusChipVariant.review : StatusChipVariant.safe,
             ),
       ),
-      _PropertyRow(label: l10n.filePropertyCapturedAt, value: captured),
+      if (captured != null) _PropertyRow(label: l10n.filePropertyCapturedAt, value: captured),
       if (file.isVideo && file.durationSeconds != null)
         _PropertyRow(
           label: l10n.filePropertyDuration,

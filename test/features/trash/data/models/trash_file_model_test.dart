@@ -95,6 +95,26 @@ void main() {
         expect(model.originalFolderName, null);
       });
 
+      test('should parse a null capturedAt as null', () {
+        // Arrange
+        final json = {
+          'id': 'trash-1',
+          'type': 'IMAGE',
+          'status': 'MANAGED',
+          'capturedAt': null,
+          'deletedAt': '2024-01-25T14:20:00',
+          'sizeBytes': 1024,
+        };
+
+        // Act
+        final model = TrashFileModel.fromJson(json);
+
+        // Assert
+        expect(model.capturedAt, isNull);
+        expect(model.sizeBytes, 1024);
+        expect(model.toJson()['capturedAt'], isNull);
+      });
+
       test('should convert numeric ID to string', () {
         // Arrange
         final json = {

@@ -31,6 +31,7 @@
   "yesterday": "Yesterday",
   "thisWeek": "This Week",
   "lastWeek": "Last Week",
+  "noDate": "No date",
   "noFiles": "There is no files to show",
   "selectionLimitReached": "You can only select up to 100 files at a time.",
   "newFolderTitle": "New album",

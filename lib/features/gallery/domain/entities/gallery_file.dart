@@ -9,14 +9,18 @@ class GalleryFile extends Equatable {
   final FileType type;
   final FileStatus status;
   final int? durationSeconds;
-  final DateTime capturedAt;
+
+  /// Local time of the phone when the photo was taken. The server may not know it.
+  final DateTime? capturedAt;
+  final int sizeBytes;
 
   const GalleryFile({
     required this.id,
     required this.type,
     required this.status,
     this.durationSeconds,
-    required this.capturedAt
+    required this.capturedAt,
+    this.sizeBytes = 0
   });
 
   bool get isImage => type == FileType.image;
@@ -29,17 +33,19 @@ class GalleryFile extends Equatable {
     FileType? type,
     FileStatus? status,
     int? durationSeconds,
-    DateTime? capturedAt
+    DateTime? capturedAt,
+    int? sizeBytes
   }) {
     return GalleryFile(
       id: id ?? this.id,
       type: type ?? this.type,
       status: status ?? this.status,
       durationSeconds: durationSeconds ?? this.durationSeconds,
-      capturedAt: capturedAt ?? this.capturedAt
+      capturedAt: capturedAt ?? this.capturedAt,
+      sizeBytes: sizeBytes ?? this.sizeBytes
     );
   }
 
   @override
-  List<Object?> get props => [id, type, status, durationSeconds, capturedAt];
+  List<Object?> get props => [id, type, status, durationSeconds, capturedAt, sizeBytes];
 }

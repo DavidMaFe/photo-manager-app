@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_top_bar.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
@@ -59,6 +60,23 @@ void main() {
       expect(find.text('Deleted in 12 days'), findsOneWidget);
       expect(find.text('Restore'), findsOneWidget);
       expect(find.text('Delete forever'), findsOneWidget);
+    });
+
+    testWidgets('should show "No date" in the top bar when the file has no capture date', (tester) async {
+      // Arrange & Act
+      await pump(tester, [
+        TrashFile(
+          id: 'undated',
+          type: FileType.image,
+          status: FileStatus.managed,
+          capturedAt: null,
+          deletedAt: DateTime.now(),
+          sizeBytes: 10,
+        ),
+      ]);
+
+      // Assert
+      expect(tester.widget<MediaViewerTopBar>(find.byType(MediaViewerTopBar)).title, 'No date');
     });
 
     testWidgets('should confirm and restore the current file', (tester) async {

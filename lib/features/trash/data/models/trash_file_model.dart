@@ -16,6 +16,7 @@ class TrashFileModel extends TrashFile {
   });
 
   factory TrashFileModel.fromJson(Map<String, dynamic> json) {
+    final capturedAt = json['capturedAt'] as String?;
     return TrashFileModel(
       id: json['id'].toString(),
       type: FileType.values.firstWhere(
@@ -24,7 +25,7 @@ class TrashFileModel extends TrashFile {
       status: FileStatus.values.firstWhere(
         (e) => e.name.toUpperCase() == json['status'].toString().toUpperCase(),
       ),
-      capturedAt: DateTime.parse(json['capturedAt'] as String),
+      capturedAt: capturedAt != null ? DateTime.parse(capturedAt) : null,
       deletedAt: DateTime.parse(json['deletedAt'] as String),
       sizeBytes: json['sizeBytes'] as int,
       durationSeconds: json['durationSeconds'] as int?,
@@ -38,7 +39,7 @@ class TrashFileModel extends TrashFile {
       'id': id,
       'type': type.name.toUpperCase(),
       'status': status.name.toUpperCase(),
-      'capturedAt': capturedAt.toIso8601String(),
+      'capturedAt': capturedAt?.toIso8601String(),
       'deletedAt': deletedAt.toIso8601String(),
       'sizeBytes': sizeBytes,
       'durationSeconds': durationSeconds,

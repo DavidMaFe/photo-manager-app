@@ -419,7 +419,7 @@ void main() {
             'id': 2,
             'type': 'VIDEO',
             'status': 'PENDING',
-            'durationSecionds': 120,
+            'durationSeconds': 120,
             'capturedAt': '2024-01-15T10:30:00.000Z',
           },
         ],

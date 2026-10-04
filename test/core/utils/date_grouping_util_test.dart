@@ -364,6 +364,66 @@ void main() {
         // Third group should be "This Week" if within the week
       });
     });
+
+    group('files without capture date', () {
+      test('should put undated files in a last group with a null date', () {
+        // Arrange
+        final today = DateTime.now();
+        final files = [
+          _createUndatedFile('1'),
+          _createTestFile('2', today),
+          _createTestFile('3', DateTime(2020, 5, 10)),
+          _createUndatedFile('4'),
+        ];
+
+        // Act
+        final result = DateGroupingUtil.groupFilesByDate(files, noDateLabel: 'Sin fecha');
+
+        // Assert
+        expect(result.length, 3);
+        expect(result[0].label, 'Today');
+        expect(result[1].date, DateTime(2020, 5, 1));
+        expect(result.last.date, isNull);
+        expect(result.last.label, 'Sin fecha');
+        expect(result.last.files.map((f) => f.id), ['1', '4']);
+      });
+
+      test('should use the default label when none is given', () {
+        // Act
+        final result = DateGroupingUtil.groupFilesByDate([_createUndatedFile('1')]);
+
+        // Assert
+        expect(result.single.label, 'No date');
+      });
+
+      test('should relabel the undated group', () {
+        // Arrange
+        final groups = DateGroupingUtil.groupFilesByDate([_createUndatedFile('1')]);
+
+        // Act
+        final result = DateGroupingUtil.relabelGroups(groups, noDateLabel: 'Sin fecha');
+
+        // Assert
+        expect(result.single.label, 'Sin fecha');
+      });
+
+      test('should keep the undated group last when merging new files', () {
+        // Arrange
+        final existing = DateGroupingUtil.groupFilesByDate([_createUndatedFile('1')]);
+
+        // Act
+        final result = DateGroupingUtil.mergeFilesIntoGroups(
+          existing,
+          [_createTestFile('2', DateTime.now()), _createUndatedFile('3')],
+        );
+
+        // Assert
+        expect(result.length, 2);
+        expect(result.first.date, isNotNull);
+        expect(result.last.date, isNull);
+        expect(result.last.files.map((f) => f.id), ['1', '3']);
+      });
+    });
   });
 }
 
@@ -374,5 +434,14 @@ GalleryFile _createTestFile(String id, DateTime capturedAt) {
     type: FileType.image,
     status: FileStatus.managed,
     capturedAt: capturedAt,
+  );
+}
+
+GalleryFile _createUndatedFile(String id) {
+  return GalleryFile(
+    id: id,
+    type: FileType.image,
+    status: FileStatus.managed,
+    capturedAt: null,
   );
 }

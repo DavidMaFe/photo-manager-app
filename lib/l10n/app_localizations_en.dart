@@ -93,6 +93,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lastWeek => 'Last Week';
 
   @override
+  String get noDate => 'No date';
+
+  @override
   String get noFiles => 'There is no files to show';
 
   @override

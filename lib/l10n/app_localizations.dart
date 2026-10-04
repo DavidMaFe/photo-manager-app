@@ -263,6 +263,12 @@ abstract class AppLocalizations {
   /// **'Last Week'**
   String get lastWeek;
 
+  /// No description provided for @noDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No date'**
+  String get noDate;
+
   /// No description provided for @noFiles.
   ///
   /// In en, this message translates to:

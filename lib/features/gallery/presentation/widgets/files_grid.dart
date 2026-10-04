@@ -154,15 +154,18 @@ class _FilesGridState extends State<FilesGrid> {
       thisWeekLabel: l10n.thisWeek,
       lastWeekLabel: l10n.lastWeek,
       monthNames: monthNames,
+      noDateLabel: l10n.noDate,
     );
   }
 
   /// Short date ("Thu, Oct 1") next to the "Today"/"Yesterday" headers.
   String? _shortDate(FileDateGroup group, AppLocalizations l10n) {
-    final day = DateGroupingUtil.normalizeDateToDay(group.date);
+    final date = group.date;
+    if (date == null) return null;
+    final day = DateGroupingUtil.normalizeDateToDay(date);
     final today = DateGroupingUtil.normalizeDateToDay(DateTime.now());
     final isDayGroup = day == today || day == today.subtract(const Duration(days: 1));
     if (!isDayGroup) return null;
-    return DateFormat.MMMEd(l10n.localeName).format(group.date);
+    return DateFormat.MMMEd(l10n.localeName).format(date);
   }
 }
