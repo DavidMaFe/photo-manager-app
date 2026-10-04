@@ -1,5 +1,6 @@
 
 import 'package:photo_manager_app/config/data_constants.dart';
+import 'package:photo_manager_app/features/profile/domain/entities/storage_usage.dart';
 
 class UserProfile {
 
@@ -14,6 +15,9 @@ class UserProfile {
   final int folderCount;
   final int deviceCount;
 
+  /// Use by type; `null` when the server does not send it.
+  final StorageUsage? storage;
+
   UserProfile({
     required this.id,
     required this.email,
@@ -24,7 +28,8 @@ class UserProfile {
     required this.storageTotalMb,
     required this.fileCount,
     required this.folderCount,
-    required this.deviceCount
+    required this.deviceCount,
+    this.storage
   });
 
   String get fullName => '$name${surname != null ? " $surname" : ''}';

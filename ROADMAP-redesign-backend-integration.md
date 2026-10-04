@@ -116,13 +116,13 @@ Acceptance criteria: los criterios de las fases de `FAVORITOS_PORTADAS.md`.
 Status: ✅ Completed (falta la prueba manual de FAVORITOS_PORTADAS §9 y activar el flag en prod tras desplegar el backend)
 
 ## Phase 6: Desglose del almacenamiento
-- [ ] Entidad `StorageUsage { photosBytes, videosBytes, trashBytes, usedBytes, quotaBytes }` en `UserProfile`, nullable si la API no la envía
-- [ ] `StorageBar`: barra segmentada (fotos, vídeos, papelera) con leyenda y tamaños; sin `storage`, la barra de un solo color actual
-- [ ] Tests: modelo con y sin `storage`; `StorageBar` con desglose, sin desglose y con uso 0
+- [x] Entidad `StorageUsage { photosBytes, videosBytes, trashBytes, usedBytes, quotaBytes }` en `UserProfile`, nullable si la API no la envía
+- [x] `StorageBar`: barra segmentada (fotos, vídeos, papelera) con leyenda y tamaños; sin `storage`, la barra de un solo color actual
+- [x] Tests: modelo con y sin `storage`; `StorageBar` con desglose, sin desglose y con uso 0
 
 Acceptance criteria: Perfil muestra cuánto ocupan fotos, vídeos y papelera, y los tres segmentos suman el uso total.
 
-Status: ⏳ Pending
+Status: ✅ Completed
 
 ## Phase 7: Cierre
 - [ ] Actualizar la sección 9 de `REDESIGN.md`: todas las alternativas sustituidas por datos reales

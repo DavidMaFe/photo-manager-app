@@ -1,4 +1,5 @@
 
+import 'package:photo_manager_app/features/profile/domain/entities/storage_usage.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 
 class UserProfileModel extends UserProfile {
@@ -13,7 +14,8 @@ class UserProfileModel extends UserProfile {
     required super.storageTotalMb,
     required super.fileCount,
     required super.folderCount,
-    required super.deviceCount
+    required super.deviceCount,
+    super.storage
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
@@ -29,7 +31,20 @@ class UserProfileModel extends UserProfile {
       storageTotalMb: json['storageTotalMb'] as int,
       fileCount: stats['fileCount'] as int? ?? 0,
       folderCount: stats['folderCount'] as int? ?? 0,
-      deviceCount: stats['deviceCount'] as int? ?? 0
+      deviceCount: stats['deviceCount'] as int? ?? 0,
+      storage: _parseStorage(json['storage'])
+    );
+  }
+
+  static StorageUsage? _parseStorage(Object? value) {
+    if (value is! Map<String, dynamic>) return null;
+    int bytes(String key) => (value[key] as num?)?.toInt() ?? 0;
+    return StorageUsage(
+      photosBytes: bytes('photosBytes'),
+      videosBytes: bytes('videosBytes'),
+      trashBytes: bytes('trashBytes'),
+      usedBytes: bytes('usedBytes'),
+      quotaBytes: bytes('quotaBytes'),
     );
   }
 
@@ -46,7 +61,15 @@ class UserProfileModel extends UserProfile {
         'fileCount': fileCount,
         'folderCount': folderCount,
         'deviceCount': deviceCount
-      }
+      },
+      if (storage case final storage?)
+        'storage': {
+          'photosBytes': storage.photosBytes,
+          'videosBytes': storage.videosBytes,
+          'trashBytes': storage.trashBytes,
+          'usedBytes': storage.usedBytes,
+          'quotaBytes': storage.quotaBytes
+        }
     };
   }
 
@@ -61,7 +84,8 @@ class UserProfileModel extends UserProfile {
       storageTotalMb: profile.storageTotalMb,
       fileCount: profile.fileCount,
       folderCount: profile.folderCount,
-      deviceCount: profile.deviceCount
+      deviceCount: profile.deviceCount,
+      storage: profile.storage
     );
   }
 }
