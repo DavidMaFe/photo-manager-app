@@ -438,5 +438,54 @@ void main() {
       // Assert
       expect(model.durationSeconds, null);
     });
+
+    group('favorites and covers', () {
+      test('should parse isFavorite and numeric coverOf IDs', () {
+        // Act
+        final model = GalleryFileModel.fromJson(const {
+          'id': 1,
+          'type': 'IMAGE',
+          'status': 'MANAGED',
+          'capturedAt': '2026-10-03T03:00:00',
+          'isFavorite': true,
+          'coverOf': [10, 12],
+        });
+
+        // Assert
+        expect(model.isFavorite, isTrue);
+        expect(model.coverOf, ['10', '12']);
+      });
+
+      test('should default to not favorite and no covers when the fields are missing', () {
+        // Act
+        final model = GalleryFileModel.fromJson(const {
+          'id': 1,
+          'type': 'IMAGE',
+          'status': 'MANAGED',
+          'capturedAt': '2026-10-03T03:00:00',
+        });
+
+        // Assert
+        expect(model.isFavorite, isFalse);
+        expect(model.coverOf, isEmpty);
+      });
+
+      test('should keep isFavorite and coverOf in toJson and fromEntity', () {
+        // Arrange
+        const file = GalleryFileModel(
+          id: '1',
+          type: FileType.image,
+          status: FileStatus.managed,
+          capturedAt: null,
+          isFavorite: true,
+          coverOf: ['10'],
+        );
+
+        // Act & Assert
+        expect(file.toJson()['isFavorite'], isTrue);
+        expect(file.toJson()['coverOf'], ['10']);
+        expect(GalleryFileModel.fromEntity(file).props, file.props);
+      });
+    });
   });
 }

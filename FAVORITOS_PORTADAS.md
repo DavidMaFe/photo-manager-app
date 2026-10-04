@@ -289,10 +289,10 @@ No hacen falta rutas nuevas: ambas hojas se abren con `showAppSheet`. El visor r
 ## 9. Fases
 
 **Fase 1 · Modelo y datos**
-- [ ] Campos nuevos en entidades y modelos (`isFavorite`, `coverFileIds`, `fallbackCoverFileIds`, `coverOf`) con valores por defecto si no vienen.
-- [ ] Repositorios, casos de uso y data sources de favoritas y portadas (sección 2) + DI.
-- [ ] Flag `favoritesAndCoversEnabled`.
-- [ ] Tests unitarios.
+- [x] Campos nuevos en entidades y modelos (`isFavorite`, `coverFileIds`, `fallbackCoverFileIds`, `coverOf`) con valores por defecto si no vienen.
+- [x] Repositorios, casos de uso y data sources de favoritas y portadas (sección 2) + DI.
+- [x] Flag `favoritesAndCoversEnabled`.
+- [x] Tests unitarios.
 
 **Fase 2 · Favoritas**
 - [ ] Tokens `favorite`/`favoriteInk`.

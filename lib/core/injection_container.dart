@@ -13,6 +13,17 @@ import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
 import 'package:photo_manager_app/core/services/timezone_service.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
+import 'package:photo_manager_app/features/favorites/data/data_sources/favorites_remote_data_source.dart';
+import 'package:photo_manager_app/features/favorites/data/repositories/favorites_data_repository.dart';
+import 'package:photo_manager_app/features/favorites/domain/repositories/favorites_repository.dart';
+import 'package:photo_manager_app/features/favorites/domain/use_cases/set_favorite_use_case.dart';
+import 'package:photo_manager_app/features/folders/data/data_sources/covers_remote_data_source.dart';
+import 'package:photo_manager_app/features/folders/data/repositories/covers_data_repository.dart';
+import 'package:photo_manager_app/features/folders/domain/repositories/covers_repository.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/apply_cover_changes_use_case.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/get_album_covers_use_case.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/get_cover_targets_use_case.dart';
+import 'package:photo_manager_app/features/folders/domain/use_cases/set_album_covers_use_case.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repository.dart';
@@ -253,6 +264,16 @@ Future<void> init() async {
       }
   );
 
+  // favorites
+  sl.registerLazySingleton<FavoritesRemoteDataSource>(
+      () => FavoritesRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>())
+  );
+
+  // album covers
+  sl.registerLazySingleton<CoversRemoteDataSource>(
+      () => CoversRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>())
+  );
+
   sl.registerLazySingleton<FileDeletionLocalDataSource>(
       () {
         return FileDeletionLocalDataSourceImpl();
@@ -381,6 +402,14 @@ Future<void> init() async {
           remoteDataSource: remoteDataSource
         );
       }
+  );
+
+  sl.registerLazySingleton<CoversRepository>(
+      () => CoversDataRepository(sl<CoversRemoteDataSource>())
+  );
+
+  sl.registerLazySingleton<FavoritesRepository>(
+      () => FavoritesDataRepository(sl<FavoritesRemoteDataSource>())
   );
 
   // synchronization
@@ -613,6 +642,15 @@ Future<void> init() async {
         return GetFolderContentUseCase(repository);
       }
   );
+
+  // album covers
+  sl.registerFactory(() => GetCoverTargetsUseCase(sl<CoversRepository>()));
+  sl.registerFactory(() => ApplyCoverChangesUseCase(sl<CoversRepository>()));
+  sl.registerFactory(() => GetAlbumCoversUseCase(sl<CoversRepository>()));
+  sl.registerFactory(() => SetAlbumCoversUseCase(sl<CoversRepository>()));
+
+  // favorites
+  sl.registerFactory(() => SetFavoriteUseCase(sl<FavoritesRepository>()));
 
   sl.registerFactory(
           () {

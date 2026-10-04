@@ -1,4 +1,5 @@
 {
   "ENV": "dev",
-  "BACKEND_BASE_URL": "http://10.0.2.2:8080"
+  "BACKEND_BASE_URL": "http://10.0.2.2:8080",
+  "FAVORITES_AND_COVERS_ENABLED": true
 }

@@ -386,6 +386,8 @@ void main() {
         5,
         null,
         null,
+        const <String>[],
+        const <String>[],
       ]);
     });
   });

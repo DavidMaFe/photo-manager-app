@@ -443,5 +443,46 @@ void main() {
         expect(model.toJson()['newestCapturedAt'], '2024-08-20T00:00:00.000');
       });
     });
+
+    group('covers', () {
+      const base = {'id': 1, 'name': 'Japan', 'path': '/Japan', 'createdAt': '2024-09-01T10:00:00'};
+
+      test('should parse numeric cover IDs in order', () {
+        // Act
+        final model = FolderModel.fromJson(const {
+          ...base,
+          'coverFileIds': [30, 10, 20],
+          'fallbackCoverFileIds': [],
+        });
+
+        // Assert
+        expect(model.coverFileIds, ['30', '10', '20']);
+        expect(model.hasCustomCovers, isTrue);
+        expect(model.mosaicFileIds, ['30', '10', '20']);
+      });
+
+      test('should use the fallback covers in the mosaic without chosen covers', () {
+        // Act
+        final model = FolderModel.fromJson(const {
+          ...base,
+          'coverFileIds': [],
+          'fallbackCoverFileIds': [5, 4],
+        });
+
+        // Assert
+        expect(model.hasCustomCovers, isFalse);
+        expect(model.mosaicFileIds, ['5', '4']);
+      });
+
+      test('should default to no covers when the fields are missing', () {
+        // Act
+        final model = FolderModel.fromJson(base);
+
+        // Assert
+        expect(model.coverFileIds, isEmpty);
+        expect(model.fallbackCoverFileIds, isEmpty);
+        expect(model.mosaicFileIds, isEmpty);
+      });
+    });
   });
 }

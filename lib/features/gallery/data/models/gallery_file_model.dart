@@ -12,7 +12,9 @@ class GalleryFileModel extends GalleryFile {
     required super.status,
     super.durationSeconds,
     required super.capturedAt,
-    super.sizeBytes
+    super.sizeBytes,
+    super.isFavorite,
+    super.coverOf
   });
 
   factory GalleryFileModel.fromJson(Map<String, dynamic> json) {
@@ -23,7 +25,9 @@ class GalleryFileModel extends GalleryFile {
       status: FileStatus.fromApiString(json['status'] as String),
       durationSeconds: json['durationSeconds'] as int?,
       capturedAt: capturedAt != null ? DateTime.parse(capturedAt) : null,
-      sizeBytes: json['sizeBytes'] as int? ?? 0
+      sizeBytes: json['sizeBytes'] as int? ?? 0,
+      isFavorite: json['isFavorite'] as bool? ?? false,
+      coverOf: (json['coverOf'] as List<dynamic>? ?? const []).map((id) => id.toString()).toList()
     );
   }
 
@@ -34,7 +38,9 @@ class GalleryFileModel extends GalleryFile {
       'status': status.toApiString(),
       'durationSeconds': durationSeconds,
       'capturedAt': capturedAt?.toIso8601String(),
-      'sizeBytes': sizeBytes
+      'sizeBytes': sizeBytes,
+      'isFavorite': isFavorite,
+      'coverOf': coverOf
     };
   }
 
@@ -45,7 +51,9 @@ class GalleryFileModel extends GalleryFile {
       status: file.status,
       durationSeconds: file.durationSeconds,
       capturedAt: file.capturedAt,
-      sizeBytes: file.sizeBytes
+      sizeBytes: file.sizeBytes,
+      isFavorite: file.isFavorite,
+      coverOf: file.coverOf
     );
   }
 }

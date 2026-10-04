@@ -1,0 +1,40 @@
+{
+  "folderInfo": {
+    "id": 2,
+    "name": "Playa",
+    "parentFolderId": 1,
+    "path": "/Vacaciones 2024/Playa",
+    "filesQuantity": 2,
+    "subfolderCount": 1,
+    "createdAt": "2024-08-01T10:00:00",
+    "coverFileIds": [100, 102],
+    "fallbackCoverFileIds": [],
+    "hasCustomCovers": true,
+    "oldestCapturedAt": "2024-08-02T09:00:00",
+    "newestCapturedAt": "2024-08-14T21:30:00"
+  },
+  "subfolders": [
+    {
+      "id": 3,
+      "name": "Atardeceres",
+      "parentFolderId": 2,
+      "path": "/Vacaciones 2024/Playa/Atardeceres",
+      "filesQuantity": 1,
+      "subfolderCount": 0,
+      "createdAt": "2024-08-03T10:00:00",
+      "coverFileIds": [],
+      "fallbackCoverFileIds": [102],
+      "hasCustomCovers": false,
+      "oldestCapturedAt": "2024-08-10T20:00:00",
+      "newestCapturedAt": "2024-08-10T20:00:00"
+    }
+  ],
+  "files": {
+    "files": [
+      {"id": 100, "thumbnailPath": "t", "type": "IMAGE", "status": "MANAGED", "durationSeconds": null, "capturedAt": "2024-08-14T21:30:00", "deletedAt": null, "sizeBytes": 2048, "originalFolderId": null, "originalFolderName": null, "isFavorite": true, "coverOf": [1, 2]},
+      {"id": 104, "thumbnailPath": "t", "type": "VIDEO", "status": "PENDING", "durationSeconds": 12, "capturedAt": "2024-08-02T09:00:00", "deletedAt": null, "sizeBytes": 9000, "originalFolderId": null, "originalFolderName": null, "isFavorite": false, "coverOf": []}
+    ],
+    "hasNext": false,
+    "totalCount": 2
+  }
+}
