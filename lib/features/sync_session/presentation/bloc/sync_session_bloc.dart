@@ -160,8 +160,9 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
 
       int uploadedCount = 0;
       int totalCount = duplicateCheckResult.totalFiles;
+      int remainingBytes = filesToUpload.fold(0, (total, file) => total + file.sizeBytes);
 
-      emit(SyncSessionUploading(uploadCount: uploadedCount, totalCount: totalCount));
+      emit(SyncSessionUploading(uploadCount: uploadedCount, totalCount: totalCount, remainingBytes: remainingBytes));
       for (final file in filesToUpload) {
 
         final uploadingFileStopWatch = Stopwatch()..start();
@@ -182,9 +183,11 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
 
           uploadedCount++;
         }
+        // Sent or failed, the file is no longer pending in this session.
+        remainingBytes -= file.sizeBytes;
 
         emit(SyncSessionUploading(uploadCount: uploadedCount,
-            totalCount: totalCount, currentFileName: file.fileName));
+            totalCount: totalCount, currentFileName: file.fileName, remainingBytes: remainingBytes));
 
         await _waitForLoading(uploadingFileStopWatch, 300);
       }

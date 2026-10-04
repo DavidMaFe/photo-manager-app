@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/utils/date_formatter.dart';
+import 'package:photo_manager_app/core/utils/file_size_formatter.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_card.dart';
 import 'package:photo_manager_app/core/widgets/icon_circle_button.dart';
@@ -26,7 +27,16 @@ class LiveBackup {
   /// Estimated time left; `null` until there is enough data.
   final Duration? remaining;
 
-  const LiveBackup({required this.phase, this.uploaded = 0, this.total = 0, this.remaining});
+  /// Bytes still to upload; 0 when unknown.
+  final int remainingBytes;
+
+  const LiveBackup({
+    required this.phase,
+    this.uploaded = 0,
+    this.total = 0,
+    this.remaining,
+    this.remainingBytes = 0,
+  });
 
   double get progress => total == 0 ? 0 : (uploaded / total).clamp(0.0, 1.0);
 }
@@ -124,13 +134,20 @@ class SynchronizationStatusCard extends StatelessWidget {
     switch (live.phase) {
       case LiveBackupPhase.uploading:
         final remaining = live.remaining;
+        final time = remaining == null
+            ? null
+            : remaining.inMinutes < 1
+                ? l10n.remainingLessThanMinute
+                : l10n.remainingMinutes(remaining.inMinutes);
+        final bytes = live.remainingBytes > 0
+            ? l10n.bytesToUpload(FileSizeFormatter.format(live.remainingBytes, locale: l10n.localeName))
+            : null;
         return _CardStatus(
           title: l10n.copyingNofM(live.uploaded, live.total),
-          meta: remaining == null
+          // «Quedan unos 3 min · 210 MB por subir», or as much of it as is known.
+          meta: time == null && bytes == null
               ? l10n.backupRunning
-              : remaining.inMinutes < 1
-                  ? l10n.remainingLessThanMinute
-                  : l10n.remainingMinutes(remaining.inMinutes),
+              : [if (time != null) time, if (bytes != null) bytes].join(' · '),
           icon: Symbols.sync_rounded,
           color: p.accent,
           softColor: p.accentSoft,

@@ -176,5 +176,18 @@ void main() {
         expect: () => [const SyncSessionStarting()],
       );
     });
+
+    group('SyncSessionUploading', () {
+      test('should not know the bytes left by default', () {
+        expect(const SyncSessionUploading(uploadCount: 0, totalCount: 2).remainingBytes, 0);
+      });
+
+      test('should tell states apart by the bytes left', () {
+        expect(
+          const SyncSessionUploading(uploadCount: 1, totalCount: 2, remainingBytes: 10),
+          isNot(const SyncSessionUploading(uploadCount: 1, totalCount: 2, remainingBytes: 5)),
+        );
+      });
+    });
   });
 }

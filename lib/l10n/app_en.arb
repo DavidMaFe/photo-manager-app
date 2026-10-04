@@ -845,5 +845,11 @@
   "undo": "Undo",
   "moveUp": "Move up",
   "moveDown": "Move down",
-  "coverBadge": "Cover"
+  "coverBadge": "Cover",
+  "bytesToUpload": "{size} left to upload",
+  "@bytesToUpload": {
+    "placeholders": {
+      "size": {"type": "String"}
+    }
+  }
 }

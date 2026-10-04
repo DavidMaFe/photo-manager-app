@@ -234,6 +234,19 @@ void main() {
       expect(find.text('About 10 min left'), findsOneWidget);
     });
 
+    testWidgets('should show the time left and how much is left to upload', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionUploading(uploadCount: 0, totalCount: 13));
+
+      // Act: 3 files in 3 minutes → 1 min per file, 10 left
+      now = now.add(const Duration(minutes: 3));
+      await emitSession(tester, const SyncSessionUploading(uploadCount: 3, totalCount: 13, remainingBytes: 210 * 1024 * 1024));
+
+      // Assert
+      expect(find.text('About 10 min left · 210 MB left to upload'), findsOneWidget);
+    });
+
     testWidgets('should say the backup keeps running in the background', (tester) async {
       // Arrange
       await pump(tester, loaded(1));

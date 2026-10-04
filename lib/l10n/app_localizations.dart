@@ -2704,6 +2704,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cover'**
   String get coverBadge;
+
+  /// No description provided for @bytesToUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} left to upload'**
+  String bytesToUpload(String size);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

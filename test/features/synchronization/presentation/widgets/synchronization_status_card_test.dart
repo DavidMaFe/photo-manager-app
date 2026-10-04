@@ -225,6 +225,35 @@ void main() {
       expect(find.textContaining('min left'), findsNothing);
     });
 
+    testWidgets('should add how much is left to upload to the time left', (tester) async {
+      // Arrange & Act
+      await pump(
+        tester,
+        live: const LiveBackup(
+          phase: LiveBackupPhase.uploading,
+          uploaded: 25,
+          total: 100,
+          remaining: Duration(minutes: 3),
+          remainingBytes: 210 * 1024 * 1024,
+        ),
+      );
+
+      // Assert
+      expect(find.text('About 3 min left · 210 MB left to upload'), findsOneWidget);
+    });
+
+    testWidgets('should show how much is left to upload before the time is known', (tester) async {
+      // Arrange & Act
+      await pump(
+        tester,
+        live: const LiveBackup(phase: LiveBackupPhase.uploading, uploaded: 1, total: 100, remainingBytes: 5 * 1024 * 1024),
+      );
+
+      // Assert
+      expect(find.text('5 MB left to upload'), findsOneWidget);
+      expect(find.text('Backup in progress'), findsNothing);
+    });
+
     testWidgets('should say less than a minute is left', (tester) async {
       // Arrange & Act
       await pump(

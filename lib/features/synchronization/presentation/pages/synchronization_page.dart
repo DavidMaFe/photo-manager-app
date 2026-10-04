@@ -260,6 +260,7 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
           uploaded: state.uploadCount,
           total: state.totalCount,
           remaining: _remaining,
+          remainingBytes: state.remainingBytes,
         ),
       SyncSessionCompleting() => const LiveBackup(phase: LiveBackupPhase.finishing, uploaded: 1, total: 1),
       _ => null,

@@ -753,5 +753,6 @@
   "undo": "Deshacer",
   "moveUp": "Subir",
   "moveDown": "Bajar",
-  "coverBadge": "Portada"
+  "coverBadge": "Portada",
+  "bytesToUpload": "{size} por subir"
 }

@@ -1621,4 +1621,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coverBadge => 'Cover';
+
+  @override
+  String bytesToUpload(String size) {
+    return '$size left to upload';
+  }
 }
