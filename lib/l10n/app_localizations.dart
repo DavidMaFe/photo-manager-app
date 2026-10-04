@@ -2392,6 +2392,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading details…'**
   String get fileInfoLoading;
+
+  /// No description provided for @filterFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get filterFavorites;
+
+  /// No description provided for @favorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite'**
+  String get favorite;
+
+  /// No description provided for @addToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get addToFavorites;
+
+  /// No description provided for @removeFromFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get removeFromFavorites;
+
+  /// No description provided for @favoritesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get favoritesEmptyTitle;
+
+  /// No description provided for @favoritesEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the heart while viewing a photo to keep it here'**
+  String get favoritesEmptyBody;
+
+  /// No description provided for @favoritesAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Added to favorites} other{{count} added to favorites}}'**
+  String favoritesAdded(int count);
+
+  /// No description provided for @favoritesRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Removed from favorites} other{{count} removed from favorites}}'**
+  String favoritesRemoved(int count);
+
+  /// No description provided for @favoriteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t update. Please try again.'**
+  String get favoriteError;
+
+  /// No description provided for @move.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get move;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

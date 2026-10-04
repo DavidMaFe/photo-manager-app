@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_event.dart';
 import 'package:flutter/foundation.dart';
@@ -157,7 +158,8 @@ class AppRouter {
                 return MultiBlocProvider(
                   providers: [
                     BlocProvider(create: (context) => sl<FileManagementBloc>()),
-                    BlocProvider(create: (context) => sl<ManageFolderBloc>())
+                    BlocProvider(create: (context) => sl<ManageFolderBloc>()),
+                    BlocProvider(create: (context) => sl<FavoritesBloc>()),
                   ],
                   child: FileDetailPage(
                     files: files,
@@ -222,9 +224,14 @@ class AppRouter {
                             builder: (context, state) {
                               final folderId = state.pathParameters['folderId']!;
 
-                              return BlocProvider(
-                                create: (context) => sl<FolderContentBloc>()
-                                  ..add(LoadFolderContent(folderId: folderId)),
+                              return MultiBlocProvider(
+                                providers: [
+                                  BlocProvider(
+                                    create: (context) => sl<FolderContentBloc>()
+                                      ..add(LoadFolderContent(folderId: folderId)),
+                                  ),
+                                  BlocProvider(create: (context) => sl<FavoritesBloc>()),
+                                ],
                                 child: FolderContentPage(folderId: folderId),
                               );
                             },

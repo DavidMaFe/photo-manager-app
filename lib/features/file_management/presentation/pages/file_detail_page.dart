@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/config/app_config.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/utils/date_formatter.dart';
@@ -18,6 +19,7 @@ import 'package:photo_manager_app/features/file_management/presentation/bloc/fil
 import 'package:photo_manager_app/features/file_management/presentation/widgets/file_management_feedback.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/file_properties_sheet.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
+import 'package:photo_manager_app/features/favorites/presentation/widgets/favorite_viewer_button.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/video_player_widget.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -143,6 +145,10 @@ class _FileDetailPageState extends State<FileDetailPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: MediaViewerActionBar(
                             children: [
+                              if (AppConfig.favoritesAndCoversEnabled) ...[
+                                FavoriteViewerButton(key: ValueKey('favorite-${file.id}'), file: file),
+                                const SizedBox(width: 8),
+                              ],
                               Expanded(
                                 child: MediaViewerAction(
                                   icon: Symbols.cloud_upload_rounded,

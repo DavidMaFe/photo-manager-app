@@ -21,11 +21,15 @@ class SelectionAction {
   final VoidCallback? onPressed;
   final SelectionActionStyle style;
 
+  /// Icon fill (1 = filled); the icon's default when `null`.
+  final double? iconFill;
+
   const SelectionAction({
     required this.icon,
     required this.label,
     required this.onPressed,
     this.style = SelectionActionStyle.neutral,
+    this.iconFill,
   });
 }
 
@@ -109,7 +113,7 @@ class _ActionButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(action.icon, size: 22, color: foreground),
+                  Icon(action.icon, size: 22, color: foreground, fill: action.iconFill),
                   const SizedBox(height: 4),
                   Text(
                     action.label,

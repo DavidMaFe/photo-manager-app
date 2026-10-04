@@ -32,6 +32,11 @@ import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_s
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
 
 import '../../../../helpers/widget_test_helper.dart';
+import 'package:photo_manager_app/config/app_config.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/features/gallery/presentation/widgets/file_thumbnail_card.dart';
 
 class MockGalleryBloc extends Mock implements GalleryBloc {}
 
@@ -152,6 +157,130 @@ void main() {
       final selected = tester.widgetList<FilterPill>(find.byType(FilterPill)).where((p) => p.selected);
       expect(selected.single.label, 'Photos');
       expect(find.text('7'), findsOneWidget);
+    });
+
+    // ==================== FAVORITES TESTS ====================
+
+    group('with favorites on', () {
+      setUp(() => AppConfig.favoritesAndCoversEnabled = true);
+      tearDown(() => AppConfig.favoritesAndCoversEnabled = false);
+
+      testWidgets('should offer the Favorites pill second, with a pink heart', (tester) async {
+        // Arrange
+        when(() => mockGalleryBloc.state).thenReturn(loaded());
+
+        // Act
+        await tester.pumpWidget(createWidgetUnderTest());
+
+        // Assert
+        final labels = tester.widgetList<FilterPill>(find.byType(FilterPill)).map((p) => p.label);
+        expect(labels, ['All', 'Favorites', 'Photos', 'Videos', 'To review']);
+        final heart = tester.widgetList<FilterPill>(find.byType(FilterPill)).elementAt(1);
+        expect(heart.icon, Symbols.favorite_rounded);
+        expect(heart.iconColor, AppPalette.light.favorite);
+      });
+
+      testWidgets('should load favorites from their pill', (tester) async {
+        // Arrange
+        when(() => mockGalleryBloc.state).thenReturn(loaded());
+        await tester.pumpWidget(createWidgetUnderTest());
+
+        // Act
+        await tester.tap(find.text('Favorites'));
+
+        // Assert
+        final event = verify(() => mockGalleryBloc.add(captureAny())).captured.last;
+        expect(event, isA<LoadGallery>().having((e) => e.filter, 'filter', FileFilter.favorites));
+      });
+
+      testWidgets('should explain how to add favorites when there are none', (tester) async {
+        // Arrange
+        when(() => mockGalleryBloc.state)
+            .thenReturn(loaded(files: const [], pending: 3, filter: FileFilter.favorites));
+
+        // Act
+        await tester.pumpWidget(createWidgetUnderTest());
+
+        // Assert
+        expect(find.text('No favorites yet'), findsOneWidget);
+        expect(find.text('Tap the heart while viewing a photo to keep it here'), findsOneWidget);
+        expect(find.byType(PendingReviewCard), findsNothing);
+      });
+
+      testWidgets('should show the heart on favorite thumbnails', (tester) async {
+        // Arrange
+        when(() => mockGalleryBloc.state).thenReturn(loaded(files: [
+          GalleryFile(id: 'f', type: FileType.image, status: FileStatus.managed, capturedAt: today, isFavorite: true),
+          GalleryFile(id: 'g', type: FileType.image, status: FileStatus.managed, capturedAt: today),
+        ]));
+
+        // Act
+        await tester.pumpWidget(createWidgetUnderTest());
+
+        // Assert
+        expect(
+          find.descendant(of: find.byType(MediaThumbnail), matching: find.byIcon(Symbols.favorite_rounded)),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('should fade out a thumbnail that is no longer a favorite in the favorites filter', (tester) async {
+        // Arrange
+        when(() => mockGalleryBloc.state).thenReturn(loaded(filter: FileFilter.favorites, files: [
+          GalleryFile(id: 'f', type: FileType.image, status: FileStatus.managed, capturedAt: today, isFavorite: true),
+          GalleryFile(id: 'g', type: FileType.image, status: FileStatus.managed, capturedAt: today),
+        ]));
+
+        // Act
+        await tester.pumpWidget(createWidgetUnderTest());
+
+        // Assert
+        final cards = tester.widgetList<FileThumbnailCard>(find.byType(FileThumbnailCard)).toList();
+        expect(cards.map((c) => c.leaving), [false, true]);
+        final opacities = tester.widgetList<AnimatedOpacity>(
+          find.descendant(of: find.byType(FileThumbnailCard), matching: find.byType(AnimatedOpacity)),
+        );
+        expect(opacities.map((o) => o.opacity), [1, 0]);
+      });
+
+      testWidgets('should not fade non favorites outside the favorites filter', (tester) async {
+        // Arrange
+        when(() => mockGalleryBloc.state).thenReturn(loaded());
+
+        // Act
+        await tester.pumpWidget(createWidgetUnderTest());
+
+        // Assert
+        expect(tester.widgetList<FileThumbnailCard>(find.byType(FileThumbnailCard)).any((c) => c.leaving), isFalse);
+      });
+
+      testWidgets('should keep the four gallery selection actions', (tester) async {
+        // Arrange
+        when(() => mockGalleryBloc.state).thenReturn(loaded(isSelectionMode: true, selectedFileIds: {'file-1'}));
+
+        // Act
+        await tester.pumpWidget(createWidgetUnderTest());
+
+        // Assert
+        for (final label in ['Save', 'To album', 'Free up', 'Delete']) {
+          expect(find.text(label), findsOneWidget);
+        }
+        expect(find.text('Favorites'), findsOneWidget); // only the filter pill
+      });
+    });
+
+    testWidgets('should hide the Favorites pill and hearts while favorites are off', (tester) async {
+      // Arrange
+      when(() => mockGalleryBloc.state).thenReturn(loaded(files: [
+        GalleryFile(id: 'f', type: FileType.image, status: FileStatus.managed, capturedAt: today, isFavorite: true),
+      ]));
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Assert
+      expect(find.text('Favorites'), findsNothing);
+      expect(find.byIcon(Symbols.favorite_rounded), findsNothing);
     });
 
     testWidgets('should load the filter tapped in the pill bar', (tester) async {

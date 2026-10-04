@@ -28,6 +28,13 @@ import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart
 
 import '../../../../fixtures/test_data.dart';
 import '../../../../helpers/widget_test_helper.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:photo_manager_app/config/app_config.dart';
+import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/widgets/selection_action_bar.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_event.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_state.dart';
 
 class MockFolderContentBloc extends Mock implements FolderContentBloc {}
 
@@ -37,10 +44,13 @@ class MockFileManagementBloc extends Mock implements FileManagementBloc {}
 
 class FakeFolderContentEvent extends Fake implements FolderContentEvent {}
 
+class MockFavoritesBloc extends MockBloc<FavoritesEvent, FavoritesState> implements FavoritesBloc {}
+
 void main() {
   late MockFolderContentBloc contentBloc;
   late MockFolderBloc folderBloc;
   late MockFileManagementBloc fileManagementBloc;
+  late MockFavoritesBloc favoritesBloc;
 
   setUpAll(() => registerFallbackValue(FakeFolderContentEvent()));
 
@@ -52,6 +62,9 @@ void main() {
     fileManagementBloc = MockFileManagementBloc();
     when(() => fileManagementBloc.stream).thenAnswer((_) => const Stream.empty());
     when(() => fileManagementBloc.state).thenReturn(const FileManagementStarting());
+
+    favoritesBloc = MockFavoritesBloc();
+    when(() => favoritesBloc.state).thenReturn(const FavoritesState());
 
     folderBloc = MockFolderBloc();
     when(() => folderBloc.stream).thenAnswer((_) => const Stream.empty());
@@ -109,6 +122,7 @@ void main() {
         BlocProvider<FolderContentBloc>.value(value: contentBloc),
         BlocProvider<FolderBloc>.value(value: folderBloc),
         BlocProvider<FileManagementBloc>.value(value: fileManagementBloc),
+        BlocProvider<FavoritesBloc>.value(value: favoritesBloc),
       ],
       child: const FolderContentPage(folderId: 'folder-1'),
     ));
@@ -166,6 +180,92 @@ void main() {
       // Assert
       expect(find.text('2 items · Aug 2024'), findsOneWidget);
       expect(find.text('Dec 2023 – Jan 2024'), findsOneWidget);
+    });
+
+    // ==================== FAVORITES TESTS ====================
+
+    group('with favorites on', () {
+      setUp(() => AppConfig.favoritesAndCoversEnabled = true);
+      tearDown(() => AppConfig.favoritesAndCoversEnabled = false);
+
+      final favorite = GalleryFile(id: 'file-1', type: FileType.image, status: FileStatus.managed, capturedAt: now, isFavorite: true);
+      final plain = GalleryFile(id: 'file-2', type: FileType.image, status: FileStatus.managed, capturedAt: now);
+
+      testWidgets('should show Favorites, Move and Delete in the album selection', (tester) async {
+        // Arrange & Act
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+
+        // Assert
+        final bar = find.byType(SelectionActionBar);
+        for (final label in ['Favorites', 'Move', 'Delete']) {
+          expect(find.descendant(of: bar, matching: find.text(label)), findsOneWidget);
+        }
+        expect(find.descendant(of: bar, matching: find.text('Save')), findsNothing);
+      });
+
+      testWidgets('should mark the whole selection and leave selection mode', (tester) async {
+        // Arrange
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+
+        // Act
+        await tester.tap(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Favorites')));
+
+        // Assert
+        verify(() => favoritesBloc.add(SetFavorites(files: [favorite, plain], favorite: true))).called(1);
+        verify(() => contentBloc.add(const ExitSelectionMode())).called(1);
+      });
+
+      testWidgets('should offer to remove when every selected file is a favorite', (tester) async {
+        // Arrange
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1'}));
+
+        // Act
+        await tester.tap(find.text('Remove from favorites'));
+
+        // Assert
+        verify(() => favoritesBloc.add(SetFavorites(files: [favorite], favorite: false))).called(1);
+      });
+
+      testWidgets('should confirm how many were added', (tester) async {
+        // Arrange
+        whenListen(
+          favoritesBloc,
+          Stream.value(const FavoritesState(outcome: FavoritesSaved(count: 3, favorite: true))),
+          initialState: const FavoritesState(),
+        );
+
+        // Act
+        await pumpPage(tester, loaded());
+        await tester.pump();
+
+        // Assert
+        expect(find.text('3 added to favorites'), findsOneWidget);
+      });
+
+      testWidgets('should tell when favorites could not be updated', (tester) async {
+        // Arrange
+        whenListen(
+          favoritesBloc,
+          Stream.value(const FavoritesState(outcome: FavoritesFailed(NetworkFailure()))),
+          initialState: const FavoritesState(),
+        );
+
+        // Act
+        await pumpPage(tester, loaded());
+        await tester.pump();
+
+        // Assert
+        expect(find.text("Couldn't update. Please try again."), findsOneWidget);
+      });
+    });
+
+    testWidgets('should keep the gallery selection actions while favorites are off', (tester) async {
+      // Arrange & Act
+      await pumpPage(tester, loaded(isSelectionMode: true, selected: {'file-1'}));
+
+      // Assert
+      expect(find.descendant(of: find.byType(SelectionActionBar), matching: find.text('Save')), findsOneWidget);
+      expect(find.text('Move'), findsNothing);
     });
 
     testWidgets('should list sub-albums with a create card', (tester) async {

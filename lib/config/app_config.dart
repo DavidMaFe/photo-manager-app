@@ -11,7 +11,8 @@ class AppConfig {
 
   /// Shows favorites and album covers. Off until the backend of
   /// `feature/favoritas-portadas` is deployed (see `config/*.json`).
-  static const bool favoritesAndCoversEnabled = bool.fromEnvironment(
+  /// Not `const` so widget tests can turn it on.
+  static bool favoritesAndCoversEnabled = const bool.fromEnvironment(
     'FAVORITES_AND_COVERS_ENABLED',
     defaultValue: false,
   );

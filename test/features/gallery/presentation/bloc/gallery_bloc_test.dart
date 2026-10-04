@@ -47,6 +47,8 @@ void main() {
         .thenAnswer((_) => const Stream.empty());
     when(() => mockEventBus.on<FolderUpdatedEvent>())
         .thenAnswer((_) => const Stream.empty());
+    when(() => mockEventBus.on<FavoritesChangedEvent>())
+        .thenAnswer((_) => const Stream.empty());
     when(() => mockEventBus.on<SyncCompletedEvent>())
         .thenAnswer((_) => const Stream.empty());
 
@@ -700,5 +702,138 @@ void main() {
       expect(state.copyWith().reviewRequested, isFalse);
     });
 
+
+    // ==================== FAVORITES TESTS ====================
+
+    group('FavoritesChanged', () {
+      GalleryFile fav(String id, {bool favorite = false}) => GalleryFile(
+            id: id,
+            type: FileType.image,
+            status: FileStatus.managed,
+            capturedAt: testDate,
+            isFavorite: favorite,
+          );
+
+      GalleryLoaded loaded(List<GalleryFile> files, {FileFilter filter = FileFilter.all, Set<String> selected = const {}}) =>
+          GalleryLoaded(
+            files: files,
+            groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+            isSelectionMode: selected.isNotEmpty,
+            selectedFileIds: selected,
+            hasNext: false,
+            currentPage: 0,
+            totalFilesCount: files.length,
+            totalPendingCount: 0,
+            filter: filter,
+          );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should update the hearts of the loaded files in place',
+        build: () => bloc,
+        seed: () => loaded([fav('a'), fav('b')]),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: true)),
+        expect: () => [
+          isA<GalleryLoaded>()
+              .having((s) => s.files.map((f) => f.isFavorite), 'favorites', [true, false])
+              .having((s) => s.groupedFiles.single.files.first.isFavorite, 'grouped', isTrue),
+        ],
+        verify: (_) => verifyNever(() => mockGetFilesUseCase(
+              page: any(named: 'page'),
+              pageSize: any(named: 'pageSize'),
+              filter: any(named: 'filter'),
+            )),
+      );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should ignore files that are not loaded',
+        build: () => bloc,
+        seed: () => loaded([fav('a')]),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['zzz'], favorite: true)),
+        expect: () => const <GalleryState>[],
+      );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should let unmarked files fade out of the favorites filter and then remove them',
+        build: () => bloc,
+        seed: () => loaded([fav('a', favorite: true), fav('b', favorite: true)], filter: FileFilter.favorites, selected: {'a'}),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: false)),
+        wait: GalleryBloc.unfavoritedExitDuration + const Duration(milliseconds: 50),
+        expect: () => [
+          // Still in the grid, unmarked: its thumbnail fades out.
+          isA<GalleryLoaded>()
+              .having((s) => s.files.map((f) => f.isFavorite), 'favorites', [false, true])
+              .having((s) => s.totalFilesCount, 'total', 2),
+          isA<GalleryLoaded>()
+              .having((s) => s.files.map((f) => f.id), 'files', ['b'])
+              .having((s) => s.totalFilesCount, 'total', 1)
+              .having((s) => s.selectedFileIds, 'selected', isEmpty),
+        ],
+      );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should keep a file marked again before it leaves',
+        build: () => bloc,
+        seed: () => loaded([fav('a', favorite: true)], filter: FileFilter.favorites),
+        act: (bloc) async {
+          bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: false));
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: true));
+        },
+        wait: GalleryBloc.unfavoritedExitDuration + const Duration(milliseconds: 50),
+        expect: () => [
+          isA<GalleryLoaded>().having((s) => s.files.single.isFavorite, 'favorite', isFalse),
+          isA<GalleryLoaded>().having((s) => s.files.single.isFavorite, 'favorite', isTrue),
+        ],
+      );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should not remove files outside the favorites filter',
+        build: () => bloc,
+        seed: () => loaded([fav('a')]),
+        act: (bloc) => bloc.add(const RemoveUnfavoritedFiles()),
+        expect: () => const <GalleryState>[],
+      );
+
+      blocTest<GalleryBloc, GalleryState>(
+        'should reload the favorites filter when a file is marked again',
+        setUp: () {
+          when(() => mockGetFilesUseCase(page: 0, pageSize: 50, filter: FileFilter.favorites)).thenAnswer(
+            (_) async => GalleryPage(
+              files: [fav('a', favorite: true)],
+              currentPage: 0,
+              pageSize: 50,
+              hasNext: false,
+              totalFilesCount: 1,
+              totalPendingCount: 0,
+            ),
+          );
+        },
+        build: () => bloc,
+        seed: () => loaded(const [], filter: FileFilter.favorites),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: true)),
+        expect: () => [
+          isA<GalleryLoaded>().having((s) => s.isRefreshing, 'refreshing', isTrue),
+          isA<GalleryLoaded>().having((s) => s.files.map((f) => f.id), 'files', ['a']),
+        ],
+      );
+
+      test('should listen to the favorites event of the app', () async {
+        // Arrange
+        final eventBus = AppEventBus();
+        final listening = GalleryBloc(
+          getFilesUseCase: mockGetFilesUseCase,
+          getPendingFileIdsUseCase: mockGetPendingFileIdsUseCase,
+          eventBus: eventBus,
+        )..emit(loaded([fav('a')]));
+        addTearDown(listening.close);
+
+        // Act
+        eventBus.fire(const FavoritesChangedEvent(fileIds: ['a'], favorite: true));
+        await Future<void>.delayed(Duration.zero);
+
+        // Assert
+        expect((listening.state as GalleryLoaded).files.single.isFavorite, isTrue);
+      });
+    });
 });
 }

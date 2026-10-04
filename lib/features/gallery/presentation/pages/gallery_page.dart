@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/config/app_config.dart';
 import 'package:photo_manager_app/core/navigation/shell_selection_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -161,11 +162,14 @@ class GalleryPage extends StatelessWidget {
     return FilterPillBar<FileFilter>(
       items: [
         for (final filter in FileFilter.values)
-          FilterPillItem(
-            value: filter,
-            label: filter.label(l10n),
-            count: filter == FileFilter.pending ? pendingCount : null,
-          ),
+          if (filter != FileFilter.favorites || AppConfig.favoritesAndCoversEnabled)
+            FilterPillItem(
+              value: filter,
+              label: filter.label(l10n),
+              count: filter == FileFilter.pending ? pendingCount : null,
+              icon: filter == FileFilter.favorites ? Symbols.favorite_rounded : null,
+              iconColor: filter == FileFilter.favorites ? context.palette.favorite : null,
+            ),
       ],
       selected: currentFilter,
       onSelected: (filter) {
@@ -256,8 +260,9 @@ class GalleryPage extends StatelessWidget {
       onSelect: () {
         context.read<GalleryBloc>().add(const EnterSelectionMode());
       },
+      fadeOutUnfavorited: filter == FileFilter.favorites,
       leading: [
-        if (!isSelectionMode && filter != FileFilter.pending)
+        if (!isSelectionMode && filter != FileFilter.pending && filter != FileFilter.favorites)
           SliverToBoxAdapter(
             child: PendingReviewCard(
               pendingCount: pendingCount,
@@ -265,19 +270,25 @@ class GalleryPage extends StatelessWidget {
             ),
           ),
       ],
-      emptyState: filter == FileFilter.all
-          ? EmptyState(
-              icon: Symbols.photo_library_rounded,
-              title: l10n.noPhotosYet,
-              message: l10n.noPhotosBody,
-              actionLabel: l10n.backupNow,
-              actionIcon: Symbols.sync_rounded,
-              onAction: () => context.go(RoutePaths.sync),
-            )
-          : EmptyState(
-              icon: Symbols.filter_alt_off_rounded,
-              title: l10n.noFiles,
-            ),
+      emptyState: switch (filter) {
+        FileFilter.all => EmptyState(
+            icon: Symbols.photo_library_rounded,
+            title: l10n.noPhotosYet,
+            message: l10n.noPhotosBody,
+            actionLabel: l10n.backupNow,
+            actionIcon: Symbols.sync_rounded,
+            onAction: () => context.go(RoutePaths.sync),
+          ),
+        FileFilter.favorites => EmptyState(
+            icon: Symbols.favorite_rounded,
+            title: l10n.favoritesEmptyTitle,
+            message: l10n.favoritesEmptyBody,
+          ),
+        _ => EmptyState(
+            icon: Symbols.filter_alt_off_rounded,
+            title: l10n.noFiles,
+          ),
+      },
       onFileTap: (file) {
         if (isSelectionMode) {
           context.read<GalleryBloc>().add(ToggleFileSelection(file.id));

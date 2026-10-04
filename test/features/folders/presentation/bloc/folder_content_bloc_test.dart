@@ -36,6 +36,8 @@ void main() {
 
     when(() => mockEventBus.on<FolderUpdatedEvent>())
         .thenAnswer((_) => const Stream<FolderUpdatedEvent>.empty());
+    when(() => mockEventBus.on<FavoritesChangedEvent>())
+        .thenAnswer((_) => const Stream<FavoritesChangedEvent>.empty());
   });
 
 
@@ -528,6 +530,38 @@ void main() {
         expect(state.selectedSizeBytes, 1000);
         expect(state.copyWith(selectedFileIds: const {}).selectedSizeBytes, 0);
       });
+    });
+
+    group('FavoritesChanged', () {
+      FolderContentLoaded loaded(List<GalleryFile> files) => FolderContentLoaded(
+            currentFolder: testFolder,
+            subfolders: const [],
+            files: files,
+            groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+            hasMoreFiles: false,
+            selectedFileIds: const {},
+            isSelectionMode: false,
+            totalFilesCount: files.length,
+          );
+      final photo = GalleryFile(id: 'a', type: FileType.image, status: FileStatus.managed, capturedAt: DateTime(2024));
+
+      blocTest<FolderContentBloc, FolderContentState>(
+        'should update the hearts of the album files in place',
+        build: () => FolderContentBloc(getFolderContentUseCase: mockGetFolderContentUseCase, eventBus: mockEventBus),
+        seed: () => loaded([photo]),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['a'], favorite: true)),
+        expect: () => [
+          isA<FolderContentLoaded>().having((s) => s.files.single.isFavorite, 'favorite', isTrue),
+        ],
+      );
+
+      blocTest<FolderContentBloc, FolderContentState>(
+        'should ignore files of other albums',
+        build: () => FolderContentBloc(getFolderContentUseCase: mockGetFolderContentUseCase, eventBus: mockEventBus),
+        seed: () => loaded([photo]),
+        act: (bloc) => bloc.add(const FavoritesChanged(fileIds: ['zzz'], favorite: true)),
+        expect: () => const <FolderContentState>[],
+      );
     });
   });
 }

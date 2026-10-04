@@ -4,6 +4,7 @@ import 'package:photo_manager_app/core/enums/file_type.dart';
 
 enum FileFilter {
   all,
+  favorites,
   images,
   videos,
   pending;
@@ -18,6 +19,8 @@ enum FileFilter {
         return null;
     }
   }
+
+  bool get onlyFavorites => this == FileFilter.favorites;
 
   FileStatus? get fileStatus {
     switch (this) {

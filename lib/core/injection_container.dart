@@ -17,6 +17,7 @@ import 'package:photo_manager_app/features/favorites/data/data_sources/favorites
 import 'package:photo_manager_app/features/favorites/data/repositories/favorites_data_repository.dart';
 import 'package:photo_manager_app/features/favorites/domain/repositories/favorites_repository.dart';
 import 'package:photo_manager_app/features/favorites/domain/use_cases/set_favorite_use_case.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:photo_manager_app/features/folders/data/data_sources/covers_remote_data_source.dart';
 import 'package:photo_manager_app/features/folders/data/repositories/covers_data_repository.dart';
 import 'package:photo_manager_app/features/folders/domain/repositories/covers_repository.dart';
@@ -854,6 +855,9 @@ Future<void> init() async {
   );
   sl.registerFactory(
       () => FileInfoBloc(getFileInfoUseCase: sl<GetFileInfoUseCase>())
+  );
+  sl.registerFactory(
+      () => FavoritesBloc(setFavoriteUseCase: sl<SetFavoriteUseCase>(), eventBus: sl<AppEventBus>())
   );
 
   // folders

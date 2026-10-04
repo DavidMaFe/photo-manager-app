@@ -22,7 +22,8 @@ class GalleryRepositoryImpl implements GalleryRepository {
       page: page, 
       pageSize: pageSize,
       type: _getTypeParam(filter),
-      status: _getStatusParam(filter)
+      status: _getStatusParam(filter),
+      favorite: filter.onlyFavorites
     );
   }
   

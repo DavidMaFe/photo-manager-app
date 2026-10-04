@@ -505,4 +505,32 @@ void main() {
       expect(() => dataSource.getPendingFileIds(), throwsA(isA<SocketException>()));
     });
   });
+
+  group('GalleryRemoteDataSource - favorites filter', () {
+    test('should ask only for favorites when requested', () async {
+      // Arrange
+      when(() => mockHttpClient.get(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async => http.Response(jsonEncode({'files': [], 'hasNext': false}), 200));
+
+      // Act
+      await dataSource.getFiles(page: 0, pageSize: 50, favorite: true);
+
+      // Assert
+      final uri = verify(() => mockHttpClient.get(captureAny(), headers: any(named: 'headers'))).captured.single as Uri;
+      expect(uri.queryParameters['favorite'], 'true');
+    });
+
+    test('should not send the favorite parameter by default', () async {
+      // Arrange
+      when(() => mockHttpClient.get(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async => http.Response(jsonEncode({'files': [], 'hasNext': false}), 200));
+
+      // Act
+      await dataSource.getFiles(page: 0, pageSize: 50);
+
+      // Assert
+      final uri = verify(() => mockHttpClient.get(captureAny(), headers: any(named: 'headers'))).captured.single as Uri;
+      expect(uri.queryParameters.containsKey('favorite'), isFalse);
+    });
+  });
 }

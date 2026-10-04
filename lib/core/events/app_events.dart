@@ -23,6 +23,17 @@ enum FileUpdateType {
   created,
 }
 
+/// Event broadcasted when the favorite mark of files changes.
+///
+/// Fired optimistically before the server answers, and fired again with the
+/// previous value for the files that could not change.
+class FavoritesChangedEvent extends AppEvent {
+  final List<String> fileIds;
+  final bool favorite;
+
+  const FavoritesChangedEvent({required this.fileIds, required this.favorite});
+}
+
 /// Event broadcasted when folders are created, deleted, or renamed
 class FolderUpdatedEvent extends AppEvent {
   final List<String>? affectedFolderIds;

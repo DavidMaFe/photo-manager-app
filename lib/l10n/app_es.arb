@@ -701,5 +701,15 @@
   "filePropertyDimensions": "Dimensiones",
   "filePropertyAlbum": "Álbum",
   "filePropertyDevice": "Dispositivo",
-  "fileInfoLoading": "Cargando detalles…"
+  "fileInfoLoading": "Cargando detalles…",
+  "filterFavorites": "Favoritas",
+  "favorite": "Favorita",
+  "addToFavorites": "Añadir a favoritas",
+  "removeFromFavorites": "Quitar de favoritas",
+  "favoritesEmptyTitle": "Aún no tienes favoritas",
+  "favoritesEmptyBody": "Toca el corazón al ver una foto para guardarla aquí",
+  "favoritesAdded": "{count, plural, =1{Añadida a favoritas} other{{count} añadidas a favoritas}}",
+  "favoritesRemoved": "{count, plural, =1{Quitada de favoritas} other{{count} quitadas de favoritas}}",
+  "favoriteError": "No se pudo actualizar. Inténtalo de nuevo.",
+  "move": "Mover"
 }

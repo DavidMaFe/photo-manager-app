@@ -7,6 +7,8 @@ extension FileFilterLabel on FileFilter {
     switch (this) {
       case FileFilter.all:
         return l10n.filterAll;
+      case FileFilter.favorites:
+        return l10n.filterFavorites;
       case FileFilter.images:
         return l10n.photos;
       case FileFilter.videos:

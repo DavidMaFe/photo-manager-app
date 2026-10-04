@@ -36,6 +36,12 @@ class MediaViewerAction extends StatelessWidget {
   /// Accent pill (main action).
   final bool highlighted;
 
+  /// Icon fill (1 = filled), label weight and icon scale, for toggles like Favorite.
+  final double? iconFill;
+  final Color? iconColor;
+  final FontWeight labelWeight;
+  final double iconScale;
+
   const MediaViewerAction({
     super.key,
     required this.icon,
@@ -43,6 +49,10 @@ class MediaViewerAction extends StatelessWidget {
     required this.onPressed,
     this.color,
     this.highlighted = false,
+    this.iconFill,
+    this.iconColor,
+    this.labelWeight = FontWeight.w700,
+    this.iconScale = 1,
   });
 
   @override
@@ -65,13 +75,16 @@ class MediaViewerAction extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 22, color: foreground),
+                Transform.scale(
+                  scale: iconScale,
+                  child: Icon(icon, size: 22, color: iconColor ?? foreground, fill: iconFill),
+                ),
                 const SizedBox(height: 2),
                 Text(
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: foreground),
+                  style: TextStyle(fontSize: 11, fontWeight: labelWeight, color: foreground),
                 ),
               ],
             ),

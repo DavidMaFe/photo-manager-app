@@ -1397,4 +1397,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fileInfoLoading => 'Loading details…';
+
+  @override
+  String get filterFavorites => 'Favorites';
+
+  @override
+  String get favorite => 'Favorite';
+
+  @override
+  String get addToFavorites => 'Add to favorites';
+
+  @override
+  String get removeFromFavorites => 'Remove from favorites';
+
+  @override
+  String get favoritesEmptyTitle => 'No favorites yet';
+
+  @override
+  String get favoritesEmptyBody => 'Tap the heart while viewing a photo to keep it here';
+
+  @override
+  String favoritesAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count added to favorites',
+      one: 'Added to favorites',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String favoritesRemoved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count removed from favorites',
+      one: 'Removed from favorites',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get favoriteError => 'Couldn\'t update. Please try again.';
+
+  @override
+  String get move => 'Move';
 }

@@ -20,6 +20,12 @@ class MediaThumbnail extends StatelessWidget {
   /// Modo selección: muestra el círculo vacío o la marca de seleccionada.
   final bool selectable;
   final bool selected;
+
+  /// Corazón blanco abajo a la izquierda (no se usa en la papelera).
+  final bool isFavorite;
+
+  /// Miniatura grande (2×2) de la rejilla: indicadores algo mayores.
+  final bool large;
   final Widget? bottomLeftBadge;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
@@ -35,6 +41,8 @@ class MediaThumbnail extends StatelessWidget {
     this.videoDuration,
     this.selectable = false,
     this.selected = false,
+    this.isFavorite = false,
+    this.large = false,
     this.bottomLeftBadge,
     this.onTap,
     this.onLongPress,
@@ -46,6 +54,8 @@ class MediaThumbnail extends StatelessWidget {
     final p = context.palette;
     final radius = BorderRadius.circular(AppRadius.thumb);
     final isSelected = selectable && selected;
+    // Indicators follow the image when it shrinks for the selection.
+    final favoriteInset = (large ? 8.0 : 6.0) + (isSelected ? 7 : 0);
 
     return Semantics(
       label: semanticLabel,
@@ -82,7 +92,15 @@ class MediaThumbnail extends StatelessWidget {
                 child: _VideoBadge(duration: videoDuration, palette: p),
               ),
             if (bottomLeftBadge != null)
-              Positioned(left: 6, bottom: 6, child: bottomLeftBadge!),
+              Positioned(left: 6, bottom: 6, child: bottomLeftBadge!)
+            else if (isFavorite)
+              AnimatedPositioned(
+                duration: _animation,
+                curve: Curves.easeOutCubic,
+                left: favoriteInset,
+                bottom: favoriteInset,
+                child: _FavoriteMark(size: large ? 20 : 18, palette: p),
+              ),
             if (selectable)
               Positioned(
                 top: 6,
@@ -106,6 +124,25 @@ class MediaThumbnail extends StatelessWidget {
       return '$hours:${minutes.toString().padLeft(2, '0')}:$seconds';
     }
     return '$minutes:$seconds';
+  }
+}
+
+class _FavoriteMark extends StatelessWidget {
+  final double size;
+  final AppPalette palette;
+
+  const _FavoriteMark({required this.size, required this.palette});
+
+  @override
+  Widget build(BuildContext context) {
+    // Always white with a shadow so it reads on any photo.
+    return Icon(
+      Symbols.favorite_rounded,
+      size: size,
+      fill: 1,
+      color: palette.onMedia,
+      shadows: [Shadow(color: palette.media.withValues(alpha: 0.45), blurRadius: 4, offset: const Offset(0, 1))],
+    );
   }
 }
 

@@ -29,6 +29,8 @@ class AppColors {
   static const danger = Color(0xFFD23A3A); // borrar / error
   static const dangerInk = Color(0xFFA62626);
   static const dangerSoft = Color(0xFFFDECEC);
+  static const favorite = Color(0xFFE5466F); // corazón activo (visor, pastilla «Favoritas»)
+  static const favoriteInk = Color(0xFFFF8FAB); // «Favorita» activa sobre la barra oscura del visor (claro y oscuro)
 
   // Sombras
   static const shadow = Color(0x1F131318); // rgba(19,19,24,.12)
@@ -63,4 +65,5 @@ class AppColors {
   static const darkSafeSoft = Color(0xFF12322A);
   static const darkSafeInk = Color(0xFF6FD3A8);
   static const darkDangerSoft = Color(0xFF3D1C1F);
+  static const darkFavorite = Color(0xFFFF5C85);
 }

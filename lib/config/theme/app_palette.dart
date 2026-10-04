@@ -13,6 +13,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color review, reviewInk, reviewSoft, reviewIcon, onReview;
   final Color safe, safeInk, safeSoft;
   final Color danger, dangerInk, dangerSoft;
+  final Color favorite, favoriteInk;
   final Color shadow, shadowSoft;
   final Color media, onMedia, scrim;
   final Color mediaChrome, mediaChromeRaised, onMediaMuted, mediaDanger, mediaReview;
@@ -41,6 +42,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.danger,
     required this.dangerInk,
     required this.dangerSoft,
+    required this.favorite,
+    required this.favoriteInk,
     required this.shadow,
     required this.shadowSoft,
     required this.media,
@@ -77,6 +80,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     danger: AppColors.danger,
     dangerInk: AppColors.dangerInk,
     dangerSoft: AppColors.dangerSoft,
+    favorite: AppColors.favorite,
+    favoriteInk: AppColors.favoriteInk,
     shadow: AppColors.shadow,
     shadowSoft: AppColors.shadowSoft,
     media: AppColors.media,
@@ -113,6 +118,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     danger: AppColors.danger,
     dangerInk: AppColors.darkDanger,
     dangerSoft: AppColors.darkDangerSoft,
+    favorite: AppColors.darkFavorite,
+    favoriteInk: AppColors.favoriteInk,
     shadow: AppColors.darkShadow,
     shadowSoft: AppColors.darkShadowSoft,
     media: AppColors.media,
@@ -150,6 +157,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? danger,
     Color? dangerInk,
     Color? dangerSoft,
+    Color? favorite,
+    Color? favoriteInk,
     Color? shadow,
     Color? shadowSoft,
     Color? media,
@@ -185,6 +194,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       danger: danger ?? this.danger,
       dangerInk: dangerInk ?? this.dangerInk,
       dangerSoft: dangerSoft ?? this.dangerSoft,
+      favorite: favorite ?? this.favorite,
+      favoriteInk: favoriteInk ?? this.favoriteInk,
       shadow: shadow ?? this.shadow,
       shadowSoft: shadowSoft ?? this.shadowSoft,
       media: media ?? this.media,
@@ -226,6 +237,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       danger: l(danger, other.danger),
       dangerInk: l(dangerInk, other.dangerInk),
       dangerSoft: l(dangerSoft, other.dangerSoft),
+      favorite: l(favorite, other.favorite),
+      favoriteInk: l(favoriteInk, other.favoriteInk),
       shadow: l(shadow, other.shadow),
       shadowSoft: l(shadowSoft, other.shadowSoft),
       media: l(media, other.media),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/config/app_config.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
@@ -10,6 +11,10 @@ import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_thumbnail_strip.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_top_bar.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_event.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_state.dart';
+import 'package:photo_manager_app/features/favorites/presentation/widgets/favorite_viewer_button.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_info/file_info_bloc.dart';
@@ -34,10 +39,13 @@ class FakeFileManagementEvent extends Fake implements FileManagementEvent {}
 
 class MockFileInfoBloc extends MockBloc<FileInfoEvent, FileInfoState> implements FileInfoBloc {}
 
+class MockFavoritesBloc extends MockBloc<FavoritesEvent, FavoritesState> implements FavoritesBloc {}
+
 void main() {
   late MockFileManagementBloc mockFileManagementBloc;
   late MockManageFolderBloc mockManageFolderBloc;
   late MockFileInfoBloc mockFileInfoBloc;
+  late MockFavoritesBloc mockFavoritesBloc;
 
   setUpAll(() => registerFallbackValue(FakeFileManagementEvent()));
 
@@ -46,6 +54,9 @@ void main() {
     mockFileInfoBloc = MockFileInfoBloc();
     when(() => mockFileInfoBloc.state).thenReturn(const FileInfoLoading());
     sl.registerFactory<FileInfoBloc>(() => mockFileInfoBloc);
+
+    mockFavoritesBloc = MockFavoritesBloc();
+    when(() => mockFavoritesBloc.state).thenReturn(const FavoritesState());
   });
 
   tearDown(() => sl.unregister<FileInfoBloc>());
@@ -79,6 +90,7 @@ void main() {
       providers: [
         BlocProvider<FileManagementBloc>.value(value: mockFileManagementBloc),
         BlocProvider<ManageFolderBloc>.value(value: mockManageFolderBloc),
+        BlocProvider<FavoritesBloc>.value(value: mockFavoritesBloc),
       ],
       child: FileDetailPage(files: files, initialIndex: initialIndex),
     );
@@ -170,6 +182,27 @@ void main() {
     });
 
     // ==================== THUMBNAIL STRIP TESTS ====================
+
+    testWidgets('should show the favorite button before save when favorites are on', (tester) async {
+      // Arrange
+      AppConfig.favoritesAndCoversEnabled = true;
+      addTearDown(() => AppConfig.favoritesAndCoversEnabled = false);
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest(files: testFiles));
+
+      // Assert
+      expect(find.byType(FavoriteViewerButton), findsOneWidget);
+      expect(
+        tester.getCenter(find.byType(FavoriteViewerButton)).dx,
+        lessThan(tester.getCenter(find.text('Save')).dx),
+      );
+    });
+
+    testWidgets('should hide the favorite button while favorites are off', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest(files: testFiles));
+      expect(find.byType(FavoriteViewerButton), findsNothing);
+    });
 
     testWidgets('should show the thumbnail strip for several files', (tester) async {
       // Arrange & Act

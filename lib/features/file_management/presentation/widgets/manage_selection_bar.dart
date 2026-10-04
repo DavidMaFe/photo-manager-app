@@ -12,8 +12,9 @@ import 'package:photo_manager_app/features/file_management/presentation/widgets/
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-/// Selection action bar of the gallery and albums: Save, To album, Free up
-/// and Delete for the selected files.
+/// Selection action bar: Save, To album, Free up and Delete for the selected
+/// files of the gallery; inside an album, [albumActions] (Favorites, Cover…),
+/// Move and Delete.
 class ManageSelectionBar extends StatefulWidget {
   final List<String> fileIds;
 
@@ -23,11 +24,15 @@ class ManageSelectionBar extends StatefulWidget {
   /// Called once the selection has been handled (to leave selection mode).
   final VoidCallback onFinished;
 
+  /// Album layout: these actions first, then Move and Delete. `null` for the gallery layout.
+  final List<SelectionAction>? albumActions;
+
   const ManageSelectionBar({
     super.key,
     required this.fileIds,
     this.selectedSizeBytes = 0,
     required this.onFinished,
+    this.albumActions,
   });
 
   @override
@@ -106,31 +111,40 @@ class _ManageSelectionBarState extends State<ManageSelectionBar> {
       child: SelectionActionBar(
         label: l10n.photosCount(count),
         actions: [
-          SelectionAction(
-            icon: Symbols.cloud_upload_rounded,
-            label: l10n.actionSave,
-            style: SelectionActionStyle.primary,
-            onPressed: enabled ? () => _openSheet(ManageOption.saveAndFree) : null,
-          ),
-          SelectionAction(
-            icon: Symbols.photo_album_rounded,
-            label: l10n.actionToAlbum,
-            onPressed: enabled ? () => _openSheet(ManageOption.album) : null,
-          ),
-          SelectionAction(
-            icon: Symbols.mobile_off_rounded,
-            label: l10n.actionFreeUp,
-            onPressed: enabled
-                ? () => _confirmAndDispatch(
-                      action: const ManageAction(serverAction: ServerAction.save, keepOnDevice: false),
-                      icon: Symbols.cloud_upload_rounded,
-                      tone: AppDialogTone.accent,
-                      title: l10n.freeUpTitle,
-                      message: l10n.freeUpBody(count),
-                      confirmLabel: l10n.actionFreeUp,
-                    )
-                : null,
-          ),
+          if (widget.albumActions case final albumActions?) ...[
+            ...albumActions,
+            SelectionAction(
+              icon: Symbols.drive_file_move_rounded,
+              label: l10n.move,
+              onPressed: enabled ? () => _openSheet(ManageOption.album) : null,
+            ),
+          ] else ...[
+            SelectionAction(
+              icon: Symbols.cloud_upload_rounded,
+              label: l10n.actionSave,
+              style: SelectionActionStyle.primary,
+              onPressed: enabled ? () => _openSheet(ManageOption.saveAndFree) : null,
+            ),
+            SelectionAction(
+              icon: Symbols.photo_album_rounded,
+              label: l10n.actionToAlbum,
+              onPressed: enabled ? () => _openSheet(ManageOption.album) : null,
+            ),
+            SelectionAction(
+              icon: Symbols.mobile_off_rounded,
+              label: l10n.actionFreeUp,
+              onPressed: enabled
+                  ? () => _confirmAndDispatch(
+                        action: const ManageAction(serverAction: ServerAction.save, keepOnDevice: false),
+                        icon: Symbols.cloud_upload_rounded,
+                        tone: AppDialogTone.accent,
+                        title: l10n.freeUpTitle,
+                        message: l10n.freeUpBody(count),
+                        confirmLabel: l10n.actionFreeUp,
+                      )
+                  : null,
+            ),
+          ],
           SelectionAction(
             icon: Symbols.delete_rounded,
             label: l10n.actionDelete,

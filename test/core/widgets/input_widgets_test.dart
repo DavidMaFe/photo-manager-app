@@ -144,6 +144,25 @@ void main() {
       expect(find.text('4'), findsOneWidget);
     });
 
+    testWidgets('should show the icon of a pill with its color', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(makeTestableWidget(Scaffold(
+        body: FilterPillBar<String>(
+          items: const [
+            FilterPillItem(value: 'fav', label: 'Favorites', icon: Icons.favorite, iconColor: Color(0xFFE5466F)),
+          ],
+          selected: 'all',
+          onSelected: (_) {},
+        ),
+      )));
+
+      // Assert
+      final icon = tester.widget<Icon>(find.byIcon(Icons.favorite));
+      expect(icon.size, 17);
+      expect(icon.color, const Color(0xFFE5466F));
+      expect(icon.fill, 1);
+    });
+
     testWidgets('should hide the counter when it is zero', (tester) async {
       // Arrange
       await tester.pumpWidget(makeTestableWidget(const Scaffold(

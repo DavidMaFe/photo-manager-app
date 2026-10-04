@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:photo_manager_app/config/app_config.dart';
 import 'package:photo_manager_app/core/utils/date_grouping_util.dart';
 import 'package:photo_manager_app/core/widgets/media_grid.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
@@ -27,6 +28,10 @@ class FilesGrid extends StatefulWidget {
   /// Content shown when there are no files.
   final Widget? emptyState;
 
+  /// "Favorites" filter: thumbnails of files no longer favorite fade out
+  /// before the bloc removes them.
+  final bool fadeOutUnfavorited;
+
   /// Slivers placed above the grid (e.g. the review card).
   final List<Widget> leading;
 
@@ -45,6 +50,7 @@ class FilesGrid extends StatefulWidget {
     this.onFileLongPress,
     this.onSelect,
     this.emptyState,
+    this.fadeOutUnfavorited = false,
     this.leading = const [],
     this.bottomPadding = 24,
   });
@@ -120,6 +126,9 @@ class _FilesGridState extends State<FilesGrid> {
                   file: file,
                   isSelectionMode: widget.isSelectionMode,
                   isSelected: widget.selectedFileIds.contains(file.id),
+                  showFavorite: AppConfig.favoritesAndCoversEnabled,
+                  large: i == 0,
+                  leaving: widget.fadeOutUnfavorited && !file.isFavorite,
                   onTap: widget.onFileTap != null ? () => widget.onFileTap!(file) : null,
                   onLongPress: widget.onFileLongPress != null ? () => widget.onFileLongPress!(file) : null,
                 );

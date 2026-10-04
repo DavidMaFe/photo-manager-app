@@ -712,5 +712,25 @@
   "filePropertyDimensions": "Dimensions",
   "filePropertyAlbum": "Album",
   "filePropertyDevice": "Device",
-  "fileInfoLoading": "Loading details…"
+  "fileInfoLoading": "Loading details…",
+  "filterFavorites": "Favorites",
+  "favorite": "Favorite",
+  "addToFavorites": "Add to favorites",
+  "removeFromFavorites": "Remove from favorites",
+  "favoritesEmptyTitle": "No favorites yet",
+  "favoritesEmptyBody": "Tap the heart while viewing a photo to keep it here",
+  "favoritesAdded": "{count, plural, =1{Added to favorites} other{{count} added to favorites}}",
+  "@favoritesAdded": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "favoritesRemoved": "{count, plural, =1{Removed from favorites} other{{count} removed from favorites}}",
+  "@favoritesRemoved": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "favoriteError": "Couldn't update. Please try again.",
+  "move": "Move"
 }

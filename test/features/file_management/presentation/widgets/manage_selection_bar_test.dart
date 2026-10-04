@@ -15,6 +15,7 @@ import 'package:photo_manager_app/features/file_management/presentation/bloc/man
 import 'package:photo_manager_app/features/file_management/presentation/bloc/manage_folder/manage_folder_state.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
+import 'package:photo_manager_app/core/widgets/selection_action_bar.dart';
 
 import '../../../../helpers/widget_test_helper.dart';
 
@@ -51,7 +52,12 @@ void main() {
     }
   }
 
-  Future<void> pump(WidgetTester tester, {List<String> ids = const ['a', 'b', 'c'], int sizeBytes = 0}) {
+  Future<void> pump(
+    WidgetTester tester, {
+    List<String> ids = const ['a', 'b', 'c'],
+    int sizeBytes = 0,
+    List<SelectionAction>? albumActions,
+  }) {
     setUpCustomScreenSize(tester, 390, 1200);
     return tester.pumpWidget(makeTestableWidgetWithBlocs(
       providers: [
@@ -63,6 +69,7 @@ void main() {
           fileIds: ids,
           selectedSizeBytes: sizeBytes,
           onFinished: () => finished++,
+          albumActions: albumActions,
         ),
       ),
     ));
@@ -104,6 +111,40 @@ void main() {
       final sheet = tester.widget<ManageFileModal>(find.byType(ManageFileModal));
       expect(sheet.initialOption, ManageOption.saveAndFree);
       expect(sheet.fileIds, ['a', 'b', 'c']);
+    });
+
+    // ==================== ALBUM LAYOUT TESTS ====================
+
+    testWidgets('should show the album actions, Move and Delete inside an album', (tester) async {
+      // Arrange
+      var favorites = 0;
+
+      // Act
+      await pump(tester, albumActions: [
+        SelectionAction(icon: Icons.favorite, label: 'Favorites', onPressed: () => favorites++),
+      ]);
+      await tester.tap(find.text('Favorites'));
+
+      // Assert
+      expect(favorites, 1);
+      for (final label in ['Move', 'Delete']) {
+        expect(find.text(label), findsOneWidget);
+      }
+      for (final label in ['Save', 'To album', 'Free up']) {
+        expect(find.text(label), findsNothing);
+      }
+    });
+
+    testWidgets('should open the album option of the sheet from Move', (tester) async {
+      // Arrange
+      await pump(tester, albumActions: const []);
+
+      // Act
+      await tester.tap(find.text('Move'));
+      await settle(tester);
+
+      // Assert
+      expect(tester.widget<ManageFileModal>(find.byType(ManageFileModal)).initialOption, ManageOption.album);
     });
 
     testWidgets('should pass the selected size to the sheet', (tester) async {

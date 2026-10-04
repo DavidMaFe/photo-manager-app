@@ -431,4 +431,30 @@ void main() {
       verify(() => mockRemoteDataSource.getPendingFileIds(type: null, folderId: null)).called(1);
     });
   });
+
+  group('favorites filter', () {
+    test('should ask the data source for favorites only, of any type and status', () async {
+      // Arrange
+      when(() => mockRemoteDataSource.getFiles(
+            page: any(named: 'page'),
+            pageSize: any(named: 'pageSize'),
+            type: any(named: 'type'),
+            status: any(named: 'status'),
+            favorite: any(named: 'favorite'),
+          )).thenAnswer((_) async => const GalleryPageModel(
+            files: [],
+            currentPage: 0,
+            pageSize: 50,
+            hasNext: false,
+            totalFilesCount: 0,
+            totalPendingCount: 0,
+          ));
+
+      // Act
+      await repository.getFiles(page: 0, pageSize: 50, filter: FileFilter.favorites);
+
+      // Assert
+      verify(() => mockRemoteDataSource.getFiles(page: 0, pageSize: 50, type: null, status: null, favorite: true)).called(1);
+    });
+  });
 }

@@ -15,7 +15,8 @@ abstract class GalleryRemoteDataSource {
     required int page,
     required int pageSize,
     String? type,
-    String? status
+    String? status,
+    bool favorite = false
   });
 
   /// Every pending file ID and their total size, without pagination.
@@ -39,6 +40,7 @@ class GalleryRemoteDataSourceImpl implements GalleryRemoteDataSource {
     required int pageSize,
     String? type,
     String? status,
+    bool favorite = false,
   }) async {
     final queryParams = <String, String>{
       'page': page.toString(),
@@ -52,6 +54,10 @@ class GalleryRemoteDataSourceImpl implements GalleryRemoteDataSource {
 
     if (status != null) {
       queryParams['status'] = status;
+    }
+
+    if (favorite) {
+      queryParams['favorite'] = 'true';
     }
 
     final url = Uri.parse('$baseUrl/api/file/list/').replace(

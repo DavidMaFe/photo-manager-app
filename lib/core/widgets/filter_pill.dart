@@ -12,12 +12,18 @@ class FilterPill extends StatelessWidget {
   /// Contador opcional (círculo 20 px de color review).
   final int? count;
 
+  /// Icono opcional delante del texto (p. ej. el corazón de «Favoritas»).
+  final IconData? icon;
+  final Color? iconColor;
+
   const FilterPill({
     super.key,
     required this.label,
     required this.selected,
     this.onTap,
     this.count,
+    this.icon,
+    this.iconColor,
   });
 
   @override
@@ -43,6 +49,10 @@ class FilterPill extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: 17, color: iconColor ?? foreground, fill: 1),
+                    const SizedBox(width: 5),
+                  ],
                   Text(
                     label,
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: foreground),
@@ -82,8 +92,10 @@ class FilterPillItem<T> {
   final T value;
   final String label;
   final int? count;
+  final IconData? icon;
+  final Color? iconColor;
 
-  const FilterPillItem({required this.value, required this.label, this.count});
+  const FilterPillItem({required this.value, required this.label, this.count, this.icon, this.iconColor});
 }
 
 /// Barra horizontal de [FilterPill] con scroll (sustituye FilterChips y FolderFilterChips).
@@ -113,6 +125,8 @@ class FilterPillBar<T> extends StatelessWidget {
             FilterPill(
               label: items[i].label,
               count: items[i].count,
+              icon: items[i].icon,
+              iconColor: items[i].iconColor,
               selected: items[i].value == selected,
               onTap: () => onSelected(items[i].value),
             ),

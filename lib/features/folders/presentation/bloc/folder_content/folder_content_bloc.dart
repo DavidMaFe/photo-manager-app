@@ -25,6 +25,7 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
 
   StreamSubscription<FileUpdatedEvent>? _fileUpdateSubscription;
   StreamSubscription<FolderUpdatedEvent>? _folderUpdateSubscription;
+  StreamSubscription<FavoritesChangedEvent>? _favoritesSubscription;
 
   FolderContentBloc({
     required this.getFolderContentUseCase,
@@ -39,6 +40,7 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
     on<ToggleFileSelection>(_onToggleFileSelection);
     on<SelectAllFiles>(_onSelectAllFiles);
     on<DeselectAllFiles>(_onDeselectAllFiles);
+    on<FavoritesChanged>(_onFavoritesChanged);
 
     // Listen to file updates (files moved in/out of this folder)
     _fileUpdateSubscription = eventBus.on<FileUpdatedEvent>().listen((event) {
@@ -55,12 +57,18 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
     _folderUpdateSubscription = eventBus.on<FolderUpdatedEvent>().listen((_) {
       add(const RefreshFolderContent());
     });
+
+    // Favorites marked in the viewer or the selection: update the hearts in place
+    _favoritesSubscription = eventBus.on<FavoritesChangedEvent>().listen((event) {
+      add(FavoritesChanged(fileIds: event.fileIds, favorite: event.favorite));
+    });
   }
 
   @override
   Future<void> close() {
     _fileUpdateSubscription?.cancel();
     _folderUpdateSubscription?.cancel();
+    _favoritesSubscription?.cancel();
     return super.close();
   }
 
@@ -295,5 +303,22 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
       final currentState = state as FolderContentLoaded;
       emit(currentState.copyWith(selectedFileIds: {}));
     }
+  }
+
+  void _onFavoritesChanged(FavoritesChanged event, Emitter<FolderContentState> emit) {
+    final currentState = state;
+    if (currentState is! FolderContentLoaded) return;
+
+    final ids = event.fileIds.toSet();
+    if (!currentState.files.any((file) => ids.contains(file.id))) return;
+
+    final files = [
+      for (final file in currentState.files)
+        ids.contains(file.id) ? file.copyWith(isFavorite: event.favorite) : file,
+    ];
+    emit(currentState.copyWith(
+      files: files,
+      groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+    ));
   }
 }

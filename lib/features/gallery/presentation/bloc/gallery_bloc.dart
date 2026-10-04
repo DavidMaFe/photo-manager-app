@@ -22,9 +22,13 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
   final AppEventBus eventBus;
   static const int _pageSize = 50;
 
+  /// Time the thumbnail of a file unmarked in the "Favorites" filter takes to fade out.
+  static const Duration unfavoritedExitDuration = Duration(milliseconds: 250);
+
   StreamSubscription<FileUpdatedEvent>? _fileUpdateSubscription;
   StreamSubscription<FolderUpdatedEvent>? _folderUpdateSubscription;
   StreamSubscription<SyncCompletedEvent>? _syncCompletedSubscription;
+  StreamSubscription<FavoritesChangedEvent>? _favoritesSubscription;
 
   GalleryBloc({
     required this.getFilesUseCase,
@@ -40,6 +44,8 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     on<SelectAllFiles>(_onSelectAllFiles);
     on<ClearSelection>(_onClearSelection);
     on<ReviewPendingFiles>(_onReviewPendingFiles);
+    on<FavoritesChanged>(_onFavoritesChanged);
+    on<RemoveUnfavoritedFiles>(_onRemoveUnfavoritedFiles);
 
     // Listen to file updates and auto-refresh
     _fileUpdateSubscription = eventBus.on<FileUpdatedEvent>().listen((_) {
@@ -55,6 +61,11 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     _syncCompletedSubscription = eventBus.on<SyncCompletedEvent>().listen((_) {
       add(const RefreshGallery());
     });
+
+    // Favorites marked elsewhere: update the hearts in place, without reloading
+    _favoritesSubscription = eventBus.on<FavoritesChangedEvent>().listen((event) {
+      add(FavoritesChanged(fileIds: event.fileIds, favorite: event.favorite));
+    });
   }
 
   @override
@@ -62,6 +73,7 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     _fileUpdateSubscription?.cancel();
     _folderUpdateSubscription?.cancel();
     _syncCompletedSubscription?.cancel();
+    _favoritesSubscription?.cancel();
     return super.close();
   }
 
@@ -226,6 +238,53 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
       Failure failure = ErrorHandler.handleError(e);
       emit(GalleryError(failure));
     }
+  }
+
+  /// Updates the hearts of the loaded files. In the "Favorites" filter an
+  /// unmarked file fades out and then leaves the grid, and one marked again
+  /// reloads it.
+  void _onFavoritesChanged(FavoritesChanged event, Emitter<GalleryState> emit) {
+    final currentState = state;
+    if (currentState is! GalleryLoaded) return;
+
+    final ids = event.fileIds.toSet();
+    final onlyFavorites = currentState.filter.onlyFavorites;
+
+    if (!currentState.files.any((file) => ids.contains(file.id))) {
+      // A favorite that is not loaded yet in its own filter: reload to show it.
+      if (onlyFavorites && event.favorite) add(const RefreshGallery());
+      return;
+    }
+
+    final files = [
+      for (final file in currentState.files)
+        ids.contains(file.id) ? file.copyWith(isFavorite: event.favorite) : file,
+    ];
+    emit(currentState.copyWith(files: files, groupedFiles: DateGroupingUtil.groupFilesByDate(files)));
+
+    // The grid fades the unmarked thumbnails out first (see FilesGrid.fadeOutUnfavorited).
+    if (onlyFavorites && !event.favorite) {
+      Future.delayed(unfavoritedExitDuration, () {
+        if (!isClosed) add(const RemoveUnfavoritedFiles());
+      });
+    }
+  }
+
+  /// Removes the files that are still unmarked (a failed change may have marked them again).
+  void _onRemoveUnfavoritedFiles(RemoveUnfavoritedFiles event, Emitter<GalleryState> emit) {
+    final currentState = state;
+    if (currentState is! GalleryLoaded || !currentState.filter.onlyFavorites) return;
+
+    final removedIds = {for (final file in currentState.files) if (!file.isFavorite) file.id};
+    if (removedIds.isEmpty) return;
+
+    final files = currentState.files.where((file) => file.isFavorite).toList();
+    emit(currentState.copyWith(
+      files: files,
+      groupedFiles: DateGroupingUtil.groupFilesByDate(files),
+      totalFilesCount: currentState.totalFilesCount - removedIds.length,
+      selectedFileIds: currentState.selectedFileIds.difference(removedIds),
+    ));
   }
 
   void _onEnterSelectionMode(EnterSelectionMode event, Emitter<GalleryState> emit) {

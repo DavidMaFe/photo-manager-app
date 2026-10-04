@@ -26,6 +26,11 @@ import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/file_filter_label.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/files_grid.dart';
+import 'package:photo_manager_app/config/app_config.dart';
+import 'package:photo_manager_app/core/widgets/selection_action_bar.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_event.dart';
+import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_state.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/folder_card.dart';
 
@@ -59,7 +64,7 @@ class FolderContentPage extends StatelessWidget {
         final isSelectionMode = state is FolderContentLoaded && state.isSelectionMode;
         final selectedCount = isSelectionMode ? state.selectedFileIds.length : 0;
 
-        return ReportSelectionMode(
+        final page = ReportSelectionMode(
           active: isSelectionMode,
           child: Scaffold(
             appBar: isSelectionMode ? null : _buildTopBar(context),
@@ -88,12 +93,54 @@ class FolderContentPage extends StatelessWidget {
                     fileIds: state.selectedFileIds.toList(),
                     selectedSizeBytes: state.selectedSizeBytes,
                     onFinished: () => context.read<FolderContentBloc>().add(const ExitSelectionMode()),
+                    albumActions: AppConfig.favoritesAndCoversEnabled
+                        ? [_favoritesAction(context, state)]
+                        : null,
                   )
                 : null,
           ),
         );
+
+        if (!AppConfig.favoritesAndCoversEnabled) return page;
+        return BlocListener<FavoritesBloc, FavoritesState>(
+          listenWhen: (previous, current) => current.outcome != null && previous.outcome != current.outcome,
+          listener: _showFavoritesOutcome,
+          child: page,
+        );
       }
     );
+  }
+
+  /// "Favorites" of the album selection: removes them if every selected file
+  /// already is one, marks them all otherwise.
+  SelectionAction _favoritesAction(BuildContext context, FolderContentLoaded state) {
+    final l10n = AppLocalizations.of(context)!;
+    final selected = state.files.where((file) => state.selectedFileIds.contains(file.id)).toList();
+    final allFavorite = selected.isNotEmpty && selected.every((file) => file.isFavorite);
+
+    return SelectionAction(
+      icon: Symbols.favorite_rounded,
+      iconFill: allFavorite ? 0 : 1,
+      label: allFavorite ? l10n.removeFromFavorites : l10n.filterFavorites,
+      onPressed: selected.isEmpty
+          ? null
+          : () {
+              context.read<FavoritesBloc>().add(SetFavorites(files: selected, favorite: !allFavorite));
+              context.read<FolderContentBloc>().add(const ExitSelectionMode());
+            },
+    );
+  }
+
+  void _showFavoritesOutcome(BuildContext context, FavoritesState state) {
+    final l10n = AppLocalizations.of(context)!;
+    final message = switch (state.outcome) {
+      FavoritesSaved(:final count, favorite: true) => l10n.favoritesAdded(count),
+      FavoritesSaved(:final count, favorite: false) => l10n.favoritesRemoved(count),
+      FavoritesFailed() => l10n.favoriteError,
+      null => null,
+    };
+    if (message == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   PreferredSizeWidget _buildTopBar(BuildContext context) {

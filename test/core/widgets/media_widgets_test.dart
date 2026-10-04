@@ -72,6 +72,72 @@ void main() {
       expect(find.byIcon(Symbols.check_circle_rounded), findsNothing);
     });
 
+    // ==================== FAVORITE TESTS ====================
+
+    Icon heart(WidgetTester tester) => tester.widget<Icon>(find.byIcon(Symbols.favorite_rounded));
+    Offset heartOffset(WidgetTester tester) =>
+        tester.getBottomLeft(find.byIcon(Symbols.favorite_rounded)) - tester.getBottomLeft(find.byType(MediaThumbnail));
+
+    testWidgets('should show a white filled heart at the bottom left of favorites', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(thumb(const MediaThumbnail(image: image, isFavorite: true)));
+
+      // Assert
+      expect(heart(tester).color, p.onMedia);
+      expect(heart(tester).fill, 1);
+      expect(heart(tester).size, 18);
+      expect(heart(tester).shadows, isNotEmpty);
+      expect(heartOffset(tester), const Offset(6, -6));
+    });
+
+    testWidgets('should hide the heart when the file is not a favorite', (tester) async {
+      await tester.pumpWidget(thumb(const MediaThumbnail(image: image)));
+      expect(find.byIcon(Symbols.favorite_rounded), findsNothing);
+    });
+
+    testWidgets('should use a bigger heart on the large tile', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(thumb(const MediaThumbnail(image: image, isFavorite: true, large: true)));
+
+      // Assert
+      expect(heart(tester).size, 20);
+      expect(heartOffset(tester), const Offset(8, -8));
+    });
+
+    testWidgets('should move the heart in with the image when selected, without overlapping', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(thumb(const MediaThumbnail(
+        image: image,
+        isFavorite: true,
+        isVideo: true,
+        videoDuration: Duration(seconds: 5),
+        selectable: true,
+        selected: true,
+      )));
+      await tester.pumpAndSettle();
+
+      // Assert
+      expect(heartOffset(tester), const Offset(13, -13));
+      final heartRect = tester.getRect(find.byIcon(Symbols.favorite_rounded));
+      final playRect = tester.getRect(find.byIcon(Symbols.play_arrow_rounded));
+      final checkRect = tester.getRect(find.byIcon(Symbols.check_circle_rounded));
+      expect(heartRect.overlaps(playRect), isFalse);
+      expect(heartRect.overlaps(checkRect), isFalse);
+    });
+
+    testWidgets('should let the trash badge take the bottom left corner', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(thumb(const MediaThumbnail(
+        image: image,
+        isFavorite: true,
+        bottomLeftBadge: Text('12 d'),
+      )));
+
+      // Assert
+      expect(find.text('12 d'), findsOneWidget);
+      expect(find.byIcon(Symbols.favorite_rounded), findsNothing);
+    });
+
     testWidgets('should forward taps and long presses', (tester) async {
       // Arrange
       var taps = 0;

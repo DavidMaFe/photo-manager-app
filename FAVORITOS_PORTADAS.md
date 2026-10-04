@@ -295,12 +295,12 @@ No hacen falta rutas nuevas: ambas hojas se abren con `showAppSheet`. El visor r
 - [x] Tests unitarios.
 
 **Fase 2 · Favoritas**
-- [ ] Tokens `favorite`/`favoriteInk`.
-- [ ] `MediaThumbnail.isFavorite` en todas las rejillas (excepto papelera).
-- [ ] Filtro «Favoritas» en Fotos + estado vacío.
-- [ ] Botón Favorita en el visor (optimista + animación).
-- [ ] Acción «Favoritas» en la selección dentro de álbum.
-- [ ] `FavoritesChangedEvent` en el bus de eventos.
+- [x] Tokens `favorite`/`favoriteInk`.
+- [x] `MediaThumbnail.isFavorite` en todas las rejillas (excepto papelera).
+- [x] Filtro «Favoritas» en Fotos + estado vacío.
+- [x] Botón Favorita en el visor (optimista + animación).
+- [x] Acción «Favoritas» en la selección dentro de álbum.
+- [x] `FavoritesChangedEvent` en el bus de eventos.
 
 **Fase 3 · Mosaicos de portada**
 - [ ] Mosaico adaptativo 0/1/2/3 en tarjetas de álbum, subálbum y tarjeta de portada.
