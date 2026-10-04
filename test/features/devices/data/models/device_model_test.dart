@@ -230,5 +230,39 @@ void main() {
         expect(resultJson['autoSync'], originalJson['autoSyncEnabled']);
       });
     });
+
+    group('lastSyncAt', () {
+      test('should parse lastSyncAt when present', () {
+        // Arrange
+        final json = {...TestDeviceJsonData.androidDeviceJson, 'lastSyncAt': '2026-10-03T03:00:00'};
+
+        // Act
+        final model = DeviceModel.fromJson(json);
+
+        // Assert
+        expect(model.lastSyncAt, DateTime(2026, 10, 3, 3));
+        expect(model.toJson()['lastSyncAt'], '2026-10-03T03:00:00.000');
+      });
+
+      test('should be null when missing or null', () {
+        // Arrange
+        final missing = Map<String, dynamic>.from(TestDeviceJsonData.androidDeviceJson)..remove('lastSyncAt');
+        final explicitNull = {...TestDeviceJsonData.androidDeviceJson, 'lastSyncAt': null};
+
+        // Act & Assert
+        expect(DeviceModel.fromJson(missing).lastSyncAt, isNull);
+        expect(DeviceModel.fromJson(explicitNull).lastSyncAt, isNull);
+      });
+
+      test('should keep lastSyncAt in fromEntity and copyWith', () {
+        // Arrange
+        final at = DateTime(2026, 10, 3, 3);
+        final device = TestDeviceEntities.androidDevice.copyWith(lastSyncAt: at);
+
+        // Act & Assert
+        expect(DeviceModel.fromEntity(device).lastSyncAt, at);
+        expect(device.copyWith(name: 'Other').lastSyncAt, at);
+      });
+    });
   });
 }

@@ -8,6 +8,9 @@ class Device {
   final String appVersion;
   final bool autoSync;
 
+  /// End of the last completed backup from this device; `null` if it never backed up.
+  final DateTime? lastSyncAt;
+
   const Device({
     required this.id,
     required this.uuid,
@@ -17,6 +20,7 @@ class Device {
     required this.osVersion,
     required this.appVersion,
     required this.autoSync,
+    this.lastSyncAt,
   });
 
   bool get isAndroid => osType.toLowerCase() == 'android';
@@ -32,6 +36,7 @@ class Device {
     String? osVersion,
     String? appVersion,
     bool? autoSync,
+    DateTime? lastSyncAt,
   }) {
     return Device(
       id: id ?? this.id,
@@ -42,6 +47,7 @@ class Device {
       osVersion: osVersion ?? this.osVersion,
       appVersion: appVersion ?? this.appVersion,
       autoSync: autoSync ?? this.autoSync,
+      lastSyncAt: lastSyncAt ?? this.lastSyncAt,
     );
   }
 

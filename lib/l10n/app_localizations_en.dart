@@ -1355,4 +1355,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeDark => 'Dark';
+
+  @override
+  String deviceLastBackup(String os, String when) {
+    return '$os · Last backup $when';
+  }
 }

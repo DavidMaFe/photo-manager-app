@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/utils/date_formatter.dart';
+import 'package:photo_manager_app/core/utils/file_size_formatter.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/features/synchronization/domain/entities/synchronization.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -50,7 +51,7 @@ class SynchronizationListItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    DateFormatter.formatDayAndTime(session.startedAt, context),
+                    _meta(context, l10n),
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: p.ink2),
                   ),
                   if (onRetry != null && session.status == SynchronizationStatus.failed) ...[
@@ -72,6 +73,13 @@ class SynchronizationListItem extends StatelessWidget {
 
     if (onTap == null) return row;
     return InkWell(onTap: onTap, child: row);
+  }
+
+  /// "Today, 03:00 · 412 MB": end time, plus the size of finished backups.
+  String _meta(BuildContext context, AppLocalizations l10n) {
+    final when = DateFormatter.formatDayAndTime(session.endedAt, context);
+    if (!session.isCompleted || session.totalSizeBytes <= 0) return when;
+    return '$when · ${FileSizeFormatter.format(session.totalSizeBytes, locale: l10n.localeName)}';
   }
 
   (Color, Color, IconData, String) _visualsFor(AppLocalizations l10n, AppPalette p) {

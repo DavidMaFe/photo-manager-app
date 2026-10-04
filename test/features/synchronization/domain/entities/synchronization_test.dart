@@ -277,7 +277,7 @@ void main() {
       // Assert
       expect(
         synchronization.props,
-        equals(['sync-1', testDate, SynchronizationStatus.inProgress, 100, 50, 5]),
+        equals(['sync-1', testDate, SynchronizationStatus.inProgress, 100, 50, 5, null, null, 0]),
       );
     });
 
@@ -295,6 +295,47 @@ void main() {
       // Assert
       expect(synchronization.totalFiles, 1);
       expect(synchronization.uploadedFiles, 1);
+    });
+
+    group('endedAt', () {
+      Synchronization build({DateTime? completedAt, DateTime? cancelledAt}) => Synchronization(
+            id: 'sync-1',
+            startedAt: testDate,
+            status: SynchronizationStatus.completed,
+            totalFiles: 1,
+            uploadedFiles: 1,
+            failedFiles: 0,
+            completedAt: completedAt,
+            cancelledAt: cancelledAt,
+          );
+
+      test('should use completedAt when present', () {
+        final end = testDate.add(const Duration(minutes: 5));
+        expect(build(completedAt: end).endedAt, end);
+      });
+
+      test('should use cancelledAt when there is no completedAt', () {
+        final end = testDate.add(const Duration(minutes: 2));
+        expect(build(cancelledAt: end).endedAt, end);
+      });
+
+      test('should fall back to startedAt', () {
+        expect(build().endedAt, testDate);
+      });
+    });
+
+    test('should default totalSizeBytes to 0', () {
+      expect(
+        Synchronization(
+          id: 'sync-1',
+          startedAt: testDate,
+          status: SynchronizationStatus.completed,
+          totalFiles: 1,
+          uploadedFiles: 1,
+          failedFiles: 0,
+        ).totalSizeBytes,
+        0,
+      );
     });
   });
 }

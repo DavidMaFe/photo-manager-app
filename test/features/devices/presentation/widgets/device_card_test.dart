@@ -60,6 +60,29 @@ void main() {
       expect(find.textContaining('Android '), findsOneWidget);
     });
 
+    testWidgets('should show the last backup next to the OS', (tester) async {
+      // Arrange
+      final now = DateTime.now();
+      final device = TestDeviceEntities.androidDevice.copyWith(
+        lastSyncAt: DateTime(now.year, now.month, now.day, 3),
+      );
+
+      // Act
+      await pump(tester, device);
+
+      // Assert
+      expect(find.text('Android ${device.osVersion} · Last backup today, 03:00'), findsOneWidget);
+    });
+
+    testWidgets('should show only the OS when the device never backed up', (tester) async {
+      // Arrange & Act
+      await pump(tester, TestDeviceEntities.androidDevice);
+
+      // Assert
+      expect(find.text('Android ${TestDeviceEntities.androidDevice.osVersion}'), findsOneWidget);
+      expect(find.textContaining('Last backup'), findsNothing);
+    });
+
     testWidgets('should use the phone icon per platform', (tester) async {
       await pump(tester, TestDeviceEntities.iosDevice);
       expect(find.byIcon(Symbols.phone_iphone_rounded), findsOneWidget);

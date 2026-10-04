@@ -10,9 +10,11 @@ class DeviceModel extends Device {
     required super.osVersion,
     required super.appVersion,
     required super.autoSync,
+    super.lastSyncAt,
   });
 
   factory DeviceModel.fromJson(Map<String, dynamic> json) {
+    final lastSyncAt = json['lastSyncAt'] as String?;
     return DeviceModel(
       id: json['deviceId'].toString(),
       uuid: json['uuid'] as String,
@@ -22,6 +24,7 @@ class DeviceModel extends Device {
       osVersion: json['osVersion'] as String,
       appVersion: json['appVersion'] as String,
       autoSync: json['autoSyncEnabled'] as bool? ?? false,
+      lastSyncAt: lastSyncAt != null ? DateTime.parse(lastSyncAt) : null,
     );
   }
 
@@ -35,6 +38,7 @@ class DeviceModel extends Device {
       'osVersion': osVersion,
       'appVersion': appVersion,
       'autoSync': autoSync,
+      'lastSyncAt': lastSyncAt?.toIso8601String(),
     };
   }
 
@@ -48,6 +52,7 @@ class DeviceModel extends Device {
       osVersion: device.osVersion,
       appVersion: device.appVersion,
       autoSync: device.autoSync,
+      lastSyncAt: device.lastSyncAt,
     );
   }
 }

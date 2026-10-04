@@ -182,7 +182,7 @@ class SynchronizationStatusCard extends StatelessWidget {
       );
     }
 
-    final relative = DateFormatter.formatRelativeTime(sync.startedAt, context);
+    final relative = DateFormatter.formatRelativeTime(sync.endedAt, context);
     // Lower-cased only when it goes in the middle of a sentence.
     final when = _lowerFirst(relative);
 

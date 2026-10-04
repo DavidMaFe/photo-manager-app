@@ -2332,6 +2332,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark'**
   String get themeDark;
+
+  /// No description provided for @deviceLastBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'{os} · Last backup {when}'**
+  String deviceLastBackup(String os, String when);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -73,6 +73,26 @@ void main() {
       expect(ring(tester).color, p.safe);
     });
 
+    testWidgets('should measure the last backup from its end time', (tester) async {
+      // Arrange
+      final now = DateTime.now();
+      final finished = Synchronization(
+        id: 's1',
+        startedAt: now.subtract(const Duration(hours: 5)),
+        status: SynchronizationStatus.completed,
+        totalFiles: 128,
+        uploadedFiles: 128,
+        failedFiles: 0,
+        completedAt: now.subtract(const Duration(hours: 2, minutes: 1)),
+      );
+
+      // Act
+      await pump(tester, latest: finished);
+
+      // Assert
+      expect(find.text('Last backup 2 hours ago · 128 items'), findsOneWidget);
+    });
+
     testWidgets('should show the progress percentage while a backup runs', (tester) async {
       // Arrange & Act
       await pump(tester, latest: sync(SynchronizationStatus.inProgress, total: 128, uploaded: 45));

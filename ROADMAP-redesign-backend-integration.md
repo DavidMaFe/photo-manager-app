@@ -54,17 +54,18 @@ Acceptance criteria: todas las peticiones llevan `X-Timezone`; los vídeos de la
 Status: ✅ Completed
 
 ## Phase 1: Copia y dispositivos
-- [ ] `Synchronization`: `completedAt`, `cancelledAt` (nullable) y `totalSizeBytes` en entidad y modelo
-- [ ] Actividad y tarjeta de estado: usar `completedAt` (o `cancelledAt`) como hora de la copia cuando exista, con `startedAt` como respaldo («Hoy, 03:00»)
-- [ ] Mostrar el tamaño de cada copia terminada en la lista de Actividad («412 MB»)
-- [ ] `Device.lastSyncAt` (nullable) en entidad y modelo
-- [ ] `DeviceCard`: «Android 14 · Última copia hoy, 03:00»; sin fecha, solo el sistema (comportamiento actual)
-- [ ] Textos nuevos en los `.arb`
-- [ ] Tests: modelos con y sin campos nuevos; widgets de Actividad, tarjeta de estado y `DeviceCard`
+- [x] `Synchronization`: `completedAt`, `cancelledAt` (nullable) y `totalSizeBytes` en entidad y modelo
+- [x] Actividad y tarjeta de estado: usar `completedAt` (o `cancelledAt`) como hora de la copia cuando exista, con `startedAt` como respaldo («Hoy, 03:00»)
+- [x] Mostrar el tamaño de cada copia terminada en la lista de Actividad («412 MB»)
+- [x] `Device.lastSyncAt` (nullable) en entidad y modelo
+- [x] `DeviceCard`: «Android 14 · Última copia hoy, 03:00»; sin fecha, solo el sistema (comportamiento actual)
+- [x] Textos nuevos en los `.arb`
+- [x] `FileSizeFormatter` en `core/utils` (adelantado desde la fase 2, lo necesita el tamaño de la copia)
+- [x] Tests: modelos con y sin campos nuevos; widgets de Actividad, tarjeta de estado y `DeviceCard`
 
 Acceptance criteria: una copia completada muestra su hora de fin y su tamaño; cada dispositivo muestra la fecha de su última copia.
 
-Status: ⏳ Pending
+Status: ✅ Completed
 
 ## Phase 2: Revisar pendientes y liberar espacio
 - [ ] Data source y repositorio: `getPendingFileIds({FileType? type, String? folderId})` → entidad `PendingFiles { fileIds, totalSizeBytes }`
@@ -72,7 +73,7 @@ Status: ⏳ Pending
 - [ ] `GalleryBloc._onReviewPendingFiles`: obtener todos los IDs en una llamada y seleccionarlos **sin el límite de `kMaxFileSelection`** (la selección manual mantiene el límite de 100). Cargar solo la primera página de ficheros para la cuadrícula
 - [ ] El estado de selección guarda el tamaño seleccionado: el `totalSizeBytes` de «Revisar», o la suma de `sizeBytes` en la selección manual (galería y contenido de álbum)
 - [ ] Hoja Gestionar: subtítulo «{n} fotos · ocupan {tamaño}» y botón «Liberar {tamaño}», en lugar de las alternativas sin MB
-- [ ] Utilidad de formato de bytes (`FileSizeFormatter`) en `core/utils`, reutilizada por las fases 1, 3 y 6
+- [x] Utilidad de formato de bytes (`FileSizeFormatter`) en `core/utils`, reutilizada por las fases 1, 3 y 6 (hecha en la fase 1)
 - [ ] Tests: data source, caso de uso, `GalleryBloc` (más de 100 pendientes → todos seleccionados), formateador y hoja Gestionar con tamaño
 
 Acceptance criteria: con 120 pendientes, «Revisar» hace una sola llamada, selecciona los 120 y la hoja muestra cuánto espacio se libera.

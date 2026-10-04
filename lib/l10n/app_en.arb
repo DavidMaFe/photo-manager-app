@@ -685,5 +685,12 @@
   "themeSystem": "Automatic",
   "themeSystemHint": "Follows your phone's mode",
   "themeLight": "Light",
-  "themeDark": "Dark"
+  "themeDark": "Dark",
+  "deviceLastBackup": "{os} · Last backup {when}",
+  "@deviceLastBackup": {
+    "placeholders": {
+      "os": {"type": "String"},
+      "when": {"type": "String"}
+    }
+  }
 }

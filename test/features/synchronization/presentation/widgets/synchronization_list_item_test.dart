@@ -86,6 +86,56 @@ void main() {
       expect(taps, 1);
     });
 
+    // ==================== END TIME AND SIZE TESTS ====================
+
+    testWidgets('should show the end time and size of a completed backup', (tester) async {
+      // Arrange
+      final finished = Synchronization(
+        id: 's1',
+        startedAt: at3,
+        status: SynchronizationStatus.completed,
+        totalFiles: 20,
+        uploadedFiles: 20,
+        failedFiles: 0,
+        completedAt: at3.add(const Duration(minutes: 12)),
+        totalSizeBytes: 412 * 1024 * 1024,
+      );
+
+      // Act
+      await pump(tester, finished);
+
+      // Assert
+      expect(find.text('Today, 03:12 · 412 MB'), findsOneWidget);
+    });
+
+    testWidgets('should use the cancel time of a cancelled backup without size', (tester) async {
+      // Arrange
+      final cancelled = Synchronization(
+        id: 's1',
+        startedAt: at3,
+        status: SynchronizationStatus.cancelled,
+        totalFiles: 20,
+        uploadedFiles: 3,
+        failedFiles: 0,
+        cancelledAt: at3.add(const Duration(minutes: 1)),
+        totalSizeBytes: 5 * 1024 * 1024,
+      );
+
+      // Act
+      await pump(tester, cancelled);
+
+      // Assert
+      expect(find.text('Today, 03:01'), findsOneWidget);
+    });
+
+    testWidgets('should hide the size of a completed backup when it is unknown', (tester) async {
+      // Arrange & Act
+      await pump(tester, session(SynchronizationStatus.completed));
+
+      // Assert
+      expect(find.textContaining(' · '), findsNothing);
+    });
+
     // ==================== RETRY TESTS ====================
 
     testWidgets('should retry a failed backup from its row', (tester) async {

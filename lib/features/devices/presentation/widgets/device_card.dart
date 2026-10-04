@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/utils/date_formatter.dart';
 import 'package:photo_manager_app/core/widgets/app_card.dart';
 import 'package:photo_manager_app/core/widgets/app_context_menu.dart';
 import 'package:photo_manager_app/core/widgets/app_switch.dart';
@@ -39,6 +40,15 @@ class DeviceCard extends StatelessWidget {
   String get _osLabel {
     final os = device.isIOS ? 'iOS' : (device.isAndroid ? 'Android' : device.osType);
     return '$os ${device.osVersion}'.trim();
+  }
+
+  /// "Android 14 · Last backup today, 03:00"; only the OS if it never backed up.
+  String _subtitle(BuildContext context, AppLocalizations l10n) {
+    final lastSyncAt = device.lastSyncAt;
+    if (lastSyncAt == null) return _osLabel;
+    final when = DateFormatter.formatDayAndTime(lastSyncAt, context);
+    // Lower-cased only when it goes in the middle of a sentence ("Hoy" → "hoy").
+    return l10n.deviceLastBackup(_osLabel, when[0].toLowerCase() + when.substring(1));
   }
 
   @override
@@ -91,7 +101,7 @@ class DeviceCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _osLabel,
+                      _subtitle(context, l10n),
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: p.ink2),
                     ),
                   ],
