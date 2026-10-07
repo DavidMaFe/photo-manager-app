@@ -1,4 +1,10 @@
 
+import 'package:photo_manager_app/core/crypto/data/master_key_local_data_source.dart';
+import 'package:photo_manager_app/core/crypto/data/sodium_crypto_engine.dart';
+import 'package:photo_manager_app/core/crypto/domain/crypto_engine.dart';
+import 'package:photo_manager_app/core/storage/flutter_secure_store.dart';
+import 'package:photo_manager_app/core/storage/secure_store.dart';
+import 'package:sodium_libs/sodium_libs_sumo.dart';
 import 'package:photo_manager_app/core/permissions/device_permission_service.dart';
 import 'package:photo_manager_app/core/permissions/permission_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -146,6 +152,14 @@ Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
+  // End-to-end encryption: secrets in the Keystore/Keychain and libsodium (docs/e2ee-spec.md).
+  // Also available in the WorkManager background isolate, which encrypts the uploads.
+  sl.registerLazySingleton<SecureStore>(() => const FlutterSecureStore());
+  final sodium = await SodiumSumoInit.init();
+  sl.registerLazySingleton<CryptoEngine>(() => SodiumCryptoEngine(sodium));
+  sl.registerLazySingleton<MasterKeyLocalDataSource>(
+      () => MasterKeyLocalDataSourceImpl(secureStore: sl<SecureStore>()));
+
   // Persistent sync log — registered immediately after SharedPreferences so it
   // is available in both the main isolate and the WorkManager background isolate.
   sl.registerLazySingleton(() => SyncLogService(sl<SharedPreferences>()));
@@ -197,7 +211,7 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthLocalDataSource>(
       () {
         final sharedPreferences = sl<SharedPreferences>();
-        return AuthLocalDataSourceImpl(sharedPreferences: sharedPreferences);
+        return AuthLocalDataSourceImpl(sharedPreferences: sharedPreferences, secureStore: sl<SecureStore>());
       }
   );
 

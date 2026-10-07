@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:photo_manager_app/core/storage/secure_store.dart';
 import 'package:photo_manager_app/features/auth/data/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,16 +19,19 @@ abstract class AuthLocalDataSource {
 }
 
 
+/// The tokens live in the secure storage (Keystore/Keychain); the cached user and the login time, which are not
+/// secrets, stay in SharedPreferences.
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   final SharedPreferences sharedPreferences;
+  final SecureStore secureStore;
 
   static const String _keyUser = 'CACHED_USER';
   static const String _keyToken = 'AUTH_TOKEN';
   static const String _keyRefreshToken = 'REFRESH_TOKEN';
   static const String _keyLoginTimestamp = 'LOGIN_TIMESTAMP';
 
-  AuthLocalDataSourceImpl({required this.sharedPreferences});
+  AuthLocalDataSourceImpl({required this.sharedPreferences, required this.secureStore});
 
   @override
   Future<void> cacheUser(UserModel user) async {
@@ -51,22 +55,24 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> cacheToken(String token) async {
-    await sharedPreferences.setString(_keyToken, token);
+    await secureStore.write(_keyToken, token);
+    await _removeLegacyTokens();
   }
 
   @override
   Future<String?> getToken() async{
-    return sharedPreferences.getString(_keyToken);
+    return secureStore.read(_keyToken);
   }
 
   @override
   Future<void> cacheRefreshToken(String refreshToken) async {
-    await sharedPreferences.setString(_keyRefreshToken, refreshToken);
+    await secureStore.write(_keyRefreshToken, refreshToken);
+    await _removeLegacyTokens();
   }
 
   @override
   Future<String?> getRefreshToken() async {
-    return sharedPreferences.getString(_keyRefreshToken);
+    return secureStore.read(_keyRefreshToken);
   }
 
   @override
@@ -93,8 +99,15 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> clearCache() async{
     await sharedPreferences.remove(_keyUser);
+    await sharedPreferences.remove(_keyLoginTimestamp);
+    await secureStore.delete(_keyToken);
+    await secureStore.delete(_keyRefreshToken);
+    await _removeLegacyTokens();
+  }
+
+  /// Versions before the end-to-end encryption kept the tokens in SharedPreferences, unencrypted.
+  Future<void> _removeLegacyTokens() async {
     await sharedPreferences.remove(_keyToken);
     await sharedPreferences.remove(_keyRefreshToken);
-    await sharedPreferences.remove(_keyLoginTimestamp);
   }
 }
