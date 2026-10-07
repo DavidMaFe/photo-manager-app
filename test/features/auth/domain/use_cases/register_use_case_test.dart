@@ -13,6 +13,8 @@ import 'package:photo_manager_app/features/auth/domain/entities/login_result.dar
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:photo_manager_app/features/legal/domain/entities/legal_failures.dart';
+import 'package:photo_manager_app/features/legal/domain/entities/legal_versions.dart';
 
 import '../../../../fixtures/e2ee_test_data.dart';
 import '../../../../helpers/e2ee_test_kit.dart';
@@ -26,6 +28,8 @@ class _Received {
   late NewKeyMaterial key;
   late String name;
   String? surname;
+  late String termsVersion;
+  late String privacyVersion;
 }
 
 void main() {
@@ -57,6 +61,8 @@ void main() {
           surname: any(named: 'surname'),
           kdfParams: any(named: 'kdfParams'),
           key: any(named: 'key'),
+          acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+          acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
         )).thenAnswer((invocation) async {
       final args = invocation.namedArguments;
       received
@@ -64,7 +70,9 @@ void main() {
         ..kdfParams = args[#kdfParams] as KdfParams
         ..key = args[#key] as NewKeyMaterial
         ..name = args[#name] as String
-        ..surname = args[#surname] as String?;
+        ..surname = args[#surname] as String?
+        ..termsVersion = args[#acceptedTermsVersion] as String
+        ..privacyVersion = args[#acceptedPrivacyVersion] as String;
       return LoginResult(user: user,
           keys: AccountKeys(accountLocked: false, versions: [E2eeTestKit.serverVersion(received.key)]));
     });
@@ -72,7 +80,8 @@ void main() {
 
   Future<void> register({String name = 'John', String? surname, String userEmail = email,
       RecoveryPhraseLanguage language = RecoveryPhraseLanguage.english}) {
-    return useCase(email: userEmail, password: password, name: name, surname: surname, language: language);
+    return useCase(email: userEmail, password: password, name: name, surname: surname, language: language,
+        acceptedLegalTerms: true);
   }
 
   group('RegisterUseCase', () {
@@ -81,7 +90,7 @@ void main() {
     test('should return the 24 words of the recovery key that keep the account', () async {
       // Act
       final result = await useCase(email: email, password: password, name: 'John',
-          language: RecoveryPhraseLanguage.english);
+          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true);
 
       // Assert
       expect(result.user, user);
@@ -92,7 +101,7 @@ void main() {
 
     test('should give the words in Spanish when asked', () async {
       final result = await useCase(email: email, password: password, name: 'John',
-          language: RecoveryPhraseLanguage.spanish);
+          language: RecoveryPhraseLanguage.spanish, acceptedLegalTerms: true);
 
       final spanish = RecoveryPhraseLanguage.spanish.words.map(RecoveryPhrase.normalizeWord).toSet();
       expect(result.recoveryWords.map(RecoveryPhrase.normalizeWord).every(spanish.contains), isTrue);
@@ -129,6 +138,32 @@ void main() {
       expect(received.surname, isNull);
     });
 
+    test('should send the versions of the terms and the privacy policy shown by the app', () async {
+      await register();
+
+      expect(received.termsVersion, LegalVersions.terms);
+      expect(received.privacyVersion, LegalVersions.privacy);
+    });
+
+    test('should throw LegalTermsNotAcceptedFailure without calling the server when the terms are not accepted',
+        () async {
+      await expectLater(useCase(email: email, password: password, name: 'John',
+          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: false),
+          throwsA(isA<LegalTermsNotAcceptedFailure>()));
+
+      expect(await kit.store.getVersions(), isEmpty);
+      verifyNever(() => repository.register(
+            email: any(named: 'email'),
+            authKey: any(named: 'authKey'),
+            name: any(named: 'name'),
+            surname: any(named: 'surname'),
+            kdfParams: any(named: 'kdfParams'),
+            key: any(named: 'key'),
+            acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+            acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+          ));
+    });
+
     test('should register with the trimmed email', () async {
       await register(userEmail: '  $email ');
 
@@ -139,6 +174,8 @@ void main() {
             surname: any(named: 'surname'),
             kdfParams: any(named: 'kdfParams'),
             key: any(named: 'key'),
+            acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+            acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
           )).called(1);
     });
 
@@ -152,6 +189,8 @@ void main() {
             surname: any(named: 'surname'),
             kdfParams: any(named: 'kdfParams'),
             key: any(named: 'key'),
+            acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+            acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
           )).thenThrow(Exception('Email already exists'));
 
       await expectLater(register(), throwsException);
@@ -162,7 +201,7 @@ void main() {
 
     test('should throw WeakPasswordFailure with fewer than 10 characters', () async {
       await expectLater(useCase(email: email, password: 'short', name: 'John',
-          language: RecoveryPhraseLanguage.english), throwsA(isA<WeakPasswordFailure>()));
+          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true), throwsA(isA<WeakPasswordFailure>()));
     });
 
     for (final (description, badEmail, badName) in [
@@ -172,7 +211,7 @@ void main() {
     ]) {
       test('should throw without calling the server when $description', () async {
         await expectLater(useCase(email: badEmail, password: password, name: badName,
-            language: RecoveryPhraseLanguage.english), throwsException);
+            language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true), throwsException);
 
         verifyNever(() => repository.register(
               email: any(named: 'email'),
@@ -181,6 +220,8 @@ void main() {
               surname: any(named: 'surname'),
               kdfParams: any(named: 'kdfParams'),
               key: any(named: 'key'),
+              acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+              acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
             ));
       });
     }

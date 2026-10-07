@@ -101,6 +101,15 @@ void main() {
         expect(result.keys, keys);
       });
 
+      test('should tell when the terms in force must be accepted', () async {
+        when(() => remote.login(any(), any(), any())).thenAnswer((_) async => AuthResponseModel(
+            token: 'access', refreshToken: 'refresh', user: user, keys: keys, legalAcceptanceRequired: true));
+
+        final result = await repository.login(email: email, authKey: E2eeTestData.key(7));
+
+        expect(result.legalAcceptanceRequired, isTrue);
+      });
+
       test('should cache the session after a successful login', () async {
         when(() => remote.login(any(), any(), any())).thenAnswer((_) async => authResponse);
 
@@ -134,15 +143,19 @@ void main() {
               deviceUuid: any(named: 'deviceUuid'),
               kdfParams: any(named: 'kdfParams'),
               key: any(named: 'key'),
+              acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+              acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
             )).thenAnswer((_) async => authResponse);
 
         // Act
         final result = await repository.register(email: email, authKey: E2eeTestData.key(7), name: 'John',
-            surname: 'Doe', kdfParams: params, key: material);
+            surname: 'Doe', kdfParams: params, key: material, acceptedTermsVersion: '1.0',
+            acceptedPrivacyVersion: '1.0');
 
         // Assert
         verify(() => remote.register(email: email, authKey: base64Encode(E2eeTestData.key(7).bytes), name: 'John',
-            surname: 'Doe', deviceUuid: deviceUuid, kdfParams: params, key: material)).called(1);
+            surname: 'Doe', deviceUuid: deviceUuid, kdfParams: params, key: material, acceptedTermsVersion: '1.0',
+            acceptedPrivacyVersion: '1.0')).called(1);
         verify(() => local.cacheToken('access')).called(1);
         expect(result.keys.versions.single.version, 1);
       });

@@ -30,6 +30,8 @@ abstract class AuthRemoteDataSource {
     required String deviceUuid,
     required KdfParams kdfParams,
     required NewKeyMaterial key,
+    required String acceptedTermsVersion,
+    required String acceptedPrivacyVersion,
   });
   Future<RefreshTokenResponseModel> refreshToken(String refreshToken, String deviceUuid);
   Future<void> requestPasswordReset(String email);
@@ -116,6 +118,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String deviceUuid,
     required KdfParams kdfParams,
     required NewKeyMaterial key,
+    required String acceptedTermsVersion,
+    required String acceptedPrivacyVersion,
   }) async {
     final json = await _post('/api/register/', {
       'email': email,
@@ -126,6 +130,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'kdfSalt': KdfParamsModel.saltToJson(kdfParams),
       'kdfParams': KdfParamsModel.paramsToJson(kdfParams),
       'key': KeyRequestModel.newKey(key),
+      'acceptedTermsVersion': acceptedTermsVersion,
+      'acceptedPrivacyVersion': acceptedPrivacyVersion,
     });
     return AuthResponseModel.fromJson(json as Map<String, dynamic>);
   }

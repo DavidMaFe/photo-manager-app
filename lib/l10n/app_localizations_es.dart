@@ -66,9 +66,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get signIn => 'Inicia sesión';
 
   @override
-  String get registerTermsDisclaimer => 'Al registrarte, aceptas nuestros Términos y Condiciones';
-
-  @override
   String get gallery => 'Galería';
 
   @override
@@ -1833,4 +1830,65 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get lockedNone => 'No tienes fotos bloqueadas: todas tus claves están disponibles.';
+
+  @override
+  String get legalInfoTitle => 'Información y legal';
+
+  @override
+  String get legalInfoLink => 'Cómo funciona, términos y privacidad';
+
+  @override
+  String get legalInfoSubtitle => 'Cómo se protegen tus fotos y las normas del servicio. Puedes leerlo sin tener cuenta.';
+
+  @override
+  String legalVersionLabel(String version, String date) {
+    return 'Versión $version · vigente desde el $date';
+  }
+
+  @override
+  String get legalAcceptPrefix => 'He leído y acepto los';
+
+  @override
+  String get legalTermsLink => 'Términos de uso';
+
+  @override
+  String get legalAcceptMiddle => 'y la';
+
+  @override
+  String get legalPrivacyLink => 'Política de privacidad';
+
+  @override
+  String get legalAcceptRequired => 'Tienes que aceptar los términos de uso y la política de privacidad';
+
+  @override
+  String get legalAcceptanceTitle => 'Términos de uso y privacidad';
+
+  @override
+  String get legalAcceptanceMessage => 'Para seguir usando Photo Manager, lee y acepta los términos de uso y la política de privacidad. Explican cómo se protegen tus fotos y qué pasa si pierdes el acceso a ellas.';
+
+  @override
+  String get legalAcceptanceButton => 'Aceptar y continuar';
+
+  @override
+  String get errorLegalTermsNotAccepted => 'Tienes que aceptar los términos de uso y la política de privacidad';
+
+  @override
+  String get recoveryPhraseImportanceTitle => 'Lee esto antes de continuar';
+
+  @override
+  String get recoveryPhraseImportance1 => 'Si olvidas tu contraseña, estas 24 palabras son la única forma de recuperar tus fotos.';
+
+  @override
+  String get recoveryPhraseImportance2 => 'Nadie puede recuperarlas por ti, ni siquiera nosotros.';
+
+  @override
+  String get recoveryPhraseImportance3 => 'Guárdalas ahora en el gestor de contraseñas o en PDF, y conserva una copia en un lugar seguro.';
+
+  @override
+  String recoveryPhraseWait(int seconds) {
+    return 'Lee con atención ($seconds)';
+  }
+
+  @override
+  String get recoveryPhraseLearnMore => 'Más sobre las 24 palabras';
 }

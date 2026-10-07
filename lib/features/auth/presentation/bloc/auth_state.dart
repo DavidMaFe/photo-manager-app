@@ -19,6 +19,18 @@ class AuthSuccessful extends AuthState {
 }
 
 
+/// Logged in, but the terms of use and the privacy policy in force must be accepted before going on (accounts created
+/// before them, or a new version). [accountLocked] says where to go next.
+class AuthLegalAcceptanceRequired extends AuthState {
+  final User user;
+  final bool accountLocked;
+  final bool working;
+  final Failure? failure;
+
+  AuthLegalAcceptanceRequired(this.user, {required this.accountLocked, this.working = false, this.failure});
+}
+
+
 /// Registered: the 24 recovery words must be shown and confirmed before the session starts.
 class RecoveryPhraseRequired extends AuthState {
   final User user;

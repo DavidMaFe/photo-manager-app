@@ -15,6 +15,9 @@ class RouteNames {
   static const String verifyRecoveryWords = 'verify_recovery_words';
   static const String forgotPassword = 'forgot_password';
   static const String lockedPhotos = 'locked_photos';
+  static const String legal = 'legal';
+  static const String legalDocument = 'legal_document';
+  static const String legalAcceptance = 'legal_acceptance';
 
   // Main
   static const String shell = 'shell';
@@ -57,6 +60,13 @@ class RoutePaths {
   static const String recoveryPhrase = '/recovery-phrase';
   static const String confirmRecoveryPhrase = '/recovery-phrase/confirm';
   static const String lockedAccount = '/locked-account';
+
+  // Information and legal texts, readable without a session (/legal/{document slug})
+  static const String legal = '/legal';
+  static const String legalDocument = '/legal/:document';
+  static const String legalAcceptance = '/legal-acceptance';
+
+  static String legalDocumentOf(String slug) => '$legal/$slug';
 
   // End-to-end encryption: security options of the profile
   static const String recoveryWords = '/profile/recovery-words';

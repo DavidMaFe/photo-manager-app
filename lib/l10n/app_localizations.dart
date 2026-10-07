@@ -209,12 +209,6 @@ abstract class AppLocalizations {
   /// **'Sign in'**
   String get signIn;
 
-  /// No description provided for @registerTermsDisclaimer.
-  ///
-  /// In en, this message translates to:
-  /// **'By signing up, you agree to our Terms and Conditions'**
-  String get registerTermsDisclaimer;
-
   /// No description provided for @gallery.
   ///
   /// In en, this message translates to:
@@ -3112,6 +3106,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have no locked photos: all your keys are available.'**
   String get lockedNone;
+
+  /// No description provided for @legalInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Information and legal'**
+  String get legalInfoTitle;
+
+  /// No description provided for @legalInfoLink.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works, terms and privacy'**
+  String get legalInfoLink;
+
+  /// No description provided for @legalInfoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How your photos are protected and the rules of the service. You can read them without an account.'**
+  String get legalInfoSubtitle;
+
+  /// No description provided for @legalVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} · in force since {date}'**
+  String legalVersionLabel(String version, String date);
+
+  /// No description provided for @legalAcceptPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'I have read and accept the'**
+  String get legalAcceptPrefix;
+
+  /// No description provided for @legalTermsLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get legalTermsLink;
+
+  /// No description provided for @legalAcceptMiddle.
+  ///
+  /// In en, this message translates to:
+  /// **'and the'**
+  String get legalAcceptMiddle;
+
+  /// No description provided for @legalPrivacyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get legalPrivacyLink;
+
+  /// No description provided for @legalAcceptRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'You must accept the terms of use and the privacy policy'**
+  String get legalAcceptRequired;
+
+  /// No description provided for @legalAcceptanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use and privacy'**
+  String get legalAcceptanceTitle;
+
+  /// No description provided for @legalAcceptanceMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'To keep using Photo Manager, read and accept the terms of use and the privacy policy. They explain how your photos are protected and what happens if you lose access to them.'**
+  String get legalAcceptanceMessage;
+
+  /// No description provided for @legalAcceptanceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept and continue'**
+  String get legalAcceptanceButton;
+
+  /// No description provided for @errorLegalTermsNotAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'You must accept the terms of use and the privacy policy'**
+  String get errorLegalTermsNotAccepted;
+
+  /// No description provided for @recoveryPhraseImportanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read this before you continue'**
+  String get recoveryPhraseImportanceTitle;
+
+  /// No description provided for @recoveryPhraseImportance1.
+  ///
+  /// In en, this message translates to:
+  /// **'If you forget your password, these 24 words are the only way to recover your photos.'**
+  String get recoveryPhraseImportance1;
+
+  /// No description provided for @recoveryPhraseImportance2.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody can recover them for you, not even us.'**
+  String get recoveryPhraseImportance2;
+
+  /// No description provided for @recoveryPhraseImportance3.
+  ///
+  /// In en, this message translates to:
+  /// **'Save them now in the password manager or as a PDF, and keep a copy somewhere safe.'**
+  String get recoveryPhraseImportance3;
+
+  /// No description provided for @recoveryPhraseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Read carefully ({seconds})'**
+  String recoveryPhraseWait(int seconds);
+
+  /// No description provided for @recoveryPhraseLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More about the 24 words'**
+  String get recoveryPhraseLearnMore;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

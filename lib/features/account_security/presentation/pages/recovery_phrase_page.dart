@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -9,6 +11,7 @@ import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
 import 'package:photo_manager_app/features/account_security/domain/services/recovery_phrase_exporter.dart';
 import 'package:photo_manager_app/features/account_security/presentation/widgets/recovery_words_grid.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
+import 'package:photo_manager_app/features/legal/domain/entities/legal_document.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 /// Where the 24 words come from: they decide whether the user must confirm them and what happens next.
@@ -38,7 +41,12 @@ class RecoveryPhraseArgs {
 }
 
 /// Shows the 24 words and lets the user save them in the password manager or as a PDF.
+///
+/// When the words are new (registration or new key), the page explains why they matter and the user cannot continue
+/// nor go back for [minimumReadingTime] (ROADMAP-e2e-encryption.md, Phase 4).
 class RecoveryPhrasePage extends StatefulWidget {
+  static const Duration minimumReadingTime = Duration(seconds: 10);
+
   final RecoveryPhraseArgs args;
   final RecoveryPhraseExporter? exporter;
 
@@ -52,6 +60,28 @@ class _RecoveryPhrasePageState extends State<RecoveryPhrasePage> {
   late final RecoveryPhraseExporter _exporter = widget.exporter ?? sl<RecoveryPhraseExporter>();
   bool _saving = false;
   bool _savedToPasswordManager = false;
+  Timer? _countdown;
+  int _secondsLeft = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.args.needsConfirmation) {
+      _secondsLeft = RecoveryPhrasePage.minimumReadingTime.inSeconds;
+      _countdown = Timer.periodic(const Duration(seconds: 1), (timer) {
+        setState(() => _secondsLeft--);
+        if (_secondsLeft <= 0) {
+          timer.cancel();
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _countdown?.cancel();
+    super.dispose();
+  }
 
   Future<void> _saveToPasswordManager() async {
     final l10n = AppLocalizations.of(context)!;
@@ -113,6 +143,10 @@ class _RecoveryPhrasePageState extends State<RecoveryPhrasePage> {
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: palette.ink)),
                 const SizedBox(height: 8),
                 Text(l10n.recoveryPhraseSubtitle, style: TextStyle(fontSize: 15, color: palette.ink2)),
+                if (!viewOnly) ...[
+                  const SizedBox(height: 16),
+                  _importance(l10n, palette),
+                ],
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -144,16 +178,62 @@ class _RecoveryPhrasePageState extends State<RecoveryPhrasePage> {
                   icon: Symbols.picture_as_pdf_rounded,
                   onPressed: _sharePdf,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 4),
+                TextButton(
+                  key: const ValueKey('recovery-phrase-learn-more'),
+                  onPressed: () => context.push(RoutePaths.legalDocumentOf(LegalDocumentType.recoveryWords.slug)),
+                  child: Text(l10n.recoveryPhraseLearnMore),
+                ),
+                const SizedBox(height: 16),
                 AppButton.primary(
                   key: const ValueKey('recovery-phrase-continue'),
-                  label: viewOnly ? l10n.recoveryPhraseDone : l10n.recoveryPhraseContinue,
-                  onPressed: _continue,
+                  label: _secondsLeft > 0
+                      ? l10n.recoveryPhraseWait(_secondsLeft)
+                      : viewOnly
+                          ? l10n.recoveryPhraseDone
+                          : l10n.recoveryPhraseContinue,
+                  onPressed: _secondsLeft > 0 ? null : _continue,
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _importance(AppLocalizations l10n, AppPalette palette) {
+    final style = TextStyle(fontSize: 14, height: 1.4, color: palette.ink);
+    return Container(
+      key: const ValueKey('recovery-phrase-importance'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: palette.surface2,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: palette.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.recoveryPhraseImportanceTitle,
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: palette.ink)),
+          const SizedBox(height: 8),
+          for (final text in [
+            l10n.recoveryPhraseImportance1,
+            l10n.recoveryPhraseImportance2,
+            l10n.recoveryPhraseImportance3,
+          ])
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('•  ', style: style),
+                  Expanded(child: Text(text, style: style)),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

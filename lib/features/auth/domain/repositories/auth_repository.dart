@@ -23,6 +23,8 @@ abstract class AuthRepository {
     String? surname,
     required KdfParams kdfParams,
     required NewKeyMaterial key,
+    required String acceptedTermsVersion,
+    required String acceptedPrivacyVersion,
   });
   Future<bool> hasToken();
   Future<void> refreshToken();

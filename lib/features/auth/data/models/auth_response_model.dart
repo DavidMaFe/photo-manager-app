@@ -4,6 +4,7 @@ import 'package:photo_manager_app/core/crypto/domain/key_version.dart';
 import 'package:photo_manager_app/features/auth/data/models/user_model.dart';
 
 /// Login and register response. [keys] are the user's master key versions, wrapped (docs/e2ee-spec.md, section 12).
+/// [legalAcceptanceRequired]: the user has not accepted the terms of use and the privacy policy in force.
 class AuthResponseModel {
 
   final String token;
@@ -11,6 +12,7 @@ class AuthResponseModel {
   final DateTime? expiresAt;
   final UserModel user;
   final AccountKeys? keys;
+  final bool legalAcceptanceRequired;
 
   AuthResponseModel({
     required this.token,
@@ -18,6 +20,7 @@ class AuthResponseModel {
     this.expiresAt,
     required this.user,
     this.keys,
+    this.legalAcceptanceRequired = false,
   });
 
   factory AuthResponseModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +44,7 @@ class AuthResponseModel {
       expiresAt: expiresAt,
       user: user,
       keys: json['keys'] == null ? null : AccountKeysModel.fromJson(json['keys'] as Map<String, dynamic>),
+      legalAcceptanceRequired: json['legalAcceptanceRequired'] as bool? ?? false,
     );
   }
 

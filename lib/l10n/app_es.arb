@@ -21,7 +21,6 @@
   "registerButton": "Crear cuenta",
   "alreadyHaveAccount": "¿Ya tienes cuenta? ",
   "signIn": "Inicia sesión",
-  "registerTermsDisclaimer": "Al registrarte, aceptas nuestros Términos y Condiciones",
 
   "gallery": "Galería",
   "all": "Todos",
@@ -822,5 +821,24 @@
   "profileVerifyWords": "Verificar mis 24 palabras",
   "profileForgotPassword": "He olvidado mi contraseña",
   "profileLockedPhotos": "Recuperar fotos bloqueadas",
-  "lockedNone": "No tienes fotos bloqueadas: todas tus claves están disponibles."
+  "lockedNone": "No tienes fotos bloqueadas: todas tus claves están disponibles.",
+  "legalInfoTitle": "Información y legal",
+  "legalInfoLink": "Cómo funciona, términos y privacidad",
+  "legalInfoSubtitle": "Cómo se protegen tus fotos y las normas del servicio. Puedes leerlo sin tener cuenta.",
+  "legalVersionLabel": "Versión {version} · vigente desde el {date}",
+  "legalAcceptPrefix": "He leído y acepto los",
+  "legalTermsLink": "Términos de uso",
+  "legalAcceptMiddle": "y la",
+  "legalPrivacyLink": "Política de privacidad",
+  "legalAcceptRequired": "Tienes que aceptar los términos de uso y la política de privacidad",
+  "legalAcceptanceTitle": "Términos de uso y privacidad",
+  "legalAcceptanceMessage": "Para seguir usando Photo Manager, lee y acepta los términos de uso y la política de privacidad. Explican cómo se protegen tus fotos y qué pasa si pierdes el acceso a ellas.",
+  "legalAcceptanceButton": "Aceptar y continuar",
+  "errorLegalTermsNotAccepted": "Tienes que aceptar los términos de uso y la política de privacidad",
+  "recoveryPhraseImportanceTitle": "Lee esto antes de continuar",
+  "recoveryPhraseImportance1": "Si olvidas tu contraseña, estas 24 palabras son la única forma de recuperar tus fotos.",
+  "recoveryPhraseImportance2": "Nadie puede recuperarlas por ti, ni siquiera nosotros.",
+  "recoveryPhraseImportance3": "Guárdalas ahora en el gestor de contraseñas o en PDF, y conserva una copia en un lugar seguro.",
+  "recoveryPhraseWait": "Lee con atención ({seconds})",
+  "recoveryPhraseLearnMore": "Más sobre las 24 palabras"
 }

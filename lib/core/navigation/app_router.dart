@@ -7,12 +7,17 @@ import 'package:photo_manager_app/features/account_security/presentation/pages/l
 import 'package:photo_manager_app/features/account_security/presentation/pages/recovery_phrase_page.dart';
 import 'package:photo_manager_app/features/account_security/presentation/pages/verify_recovery_phrase_page.dart';
 import 'package:photo_manager_app/features/file_management/presentation/models/album_viewer_context.dart';
+import 'package:photo_manager_app/features/legal/domain/entities/legal_document.dart';
+import 'package:photo_manager_app/features/legal/presentation/pages/legal_acceptance_page.dart';
+import 'package:photo_manager_app/features/legal/presentation/pages/legal_document_page.dart';
+import 'package:photo_manager_app/features/legal/presentation/pages/legal_index_page.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:photo_manager_app/core/navigation/app_redirect.dart';
 import 'package:photo_manager_app/core/navigation/auth_notifier.dart';
 import 'package:photo_manager_app/core/navigation/main_shell.dart';
 import 'package:photo_manager_app/core/navigation/onboarding_notifier.dart';
@@ -67,62 +72,18 @@ class AppRouter {
     return GoRouter(
         initialLocation: RoutePaths.login,
         refreshListenable: Listenable.merge([authNotifier, onboardingNotifier]),
-        redirect: (context, state) {
-          final isAuthenticated = authNotifier.isAuthenticated;
-          final isLoading = authNotifier.isLoading;
-          final isCheckingOnboardingStatus = onboardingNotifier.isCheckingStatus;
-          final isOnboardingRequired = onboardingNotifier.isOnboardingRequired;
-          final isGoingToLogin = state.matchedLocation == RoutePaths.login;
-          final isGoingToRegister = state.matchedLocation == RoutePaths.register;
-          final isGoingToPasswordReset = state.matchedLocation == RoutePaths.requestPasswordReset ||
-              state.matchedLocation == RoutePaths.validateResetCode ||
-              state.matchedLocation == RoutePaths.resetPassword;
-          final isGoingToOnboarding = state.matchedLocation == RoutePaths.onboarding;
-          final isGoingToRecoveryPhrase = state.matchedLocation == RoutePaths.recoveryPhrase ||
-              state.matchedLocation == RoutePaths.confirmRecoveryPhrase;
-          final isGoingToLockedAccount = state.matchedLocation == RoutePaths.lockedAccount;
-
-          if (isLoading || isCheckingOnboardingStatus) {
-            return null;
-          }
-
-          // Just registered: show and confirm the 24 words before anything else
-          if (authNotifier.isRecoveryPhrasePending) {
-            return isGoingToRecoveryPhrase ? null : RoutePaths.recoveryPhrase;
-          }
-
-          // Locked account: the locked account page (and the words of a new key) before the gallery
-          if (authNotifier.isAccountLocked) {
-            return isGoingToLockedAccount || isGoingToRecoveryPhrase ? null : RoutePaths.lockedAccount;
-          }
-
-          // Those flows are over once the session starts
-          if (isAuthenticated && (isGoingToRecoveryPhrase || isGoingToLockedAccount)) {
-            return isOnboardingRequired ? RoutePaths.onboarding : RoutePaths.home;
-          }
-
-          if (!isAuthenticated && !isGoingToLogin && !isGoingToRegister && !isGoingToPasswordReset) {
-            return RoutePaths.login;
-          }
-
-          // Authenticated user trying to access auth pages: redirect appropriately
-          if (isAuthenticated && (isGoingToLogin || isGoingToRegister || isGoingToPasswordReset)) {
-            // If onboarding is required, redirect to onboarding instead of home
-            return isOnboardingRequired ? RoutePaths.onboarding : RoutePaths.home;
-          }
-
-          // Authenticated user who needs onboarding but is not going there
-          if (isAuthenticated && isOnboardingRequired && !isGoingToOnboarding) {
-            return RoutePaths.onboarding;
-          }
-
-          // Authenticated user who completed onboarding but is on onboarding page
-          if (isAuthenticated && !isOnboardingRequired && isGoingToOnboarding) {
-            return RoutePaths.home;
-          }
-
-          return null;
-        },
+        redirect: (context, state) => AppRedirect.resolve(
+          AppRedirectStatus(
+            isLoading: authNotifier.isLoading,
+            isCheckingOnboarding: onboardingNotifier.isCheckingStatus,
+            isOnboardingRequired: onboardingNotifier.isOnboardingRequired,
+            isAuthenticated: authNotifier.isAuthenticated,
+            isRecoveryPhrasePending: authNotifier.isRecoveryPhrasePending,
+            isLegalAcceptancePending: authNotifier.isLegalAcceptancePending,
+            isAccountLocked: authNotifier.isAccountLocked,
+          ),
+          state.matchedLocation,
+        ),
 
         routes: [
           GoRoute(
@@ -142,6 +103,25 @@ class AppRouter {
             path: RoutePaths.confirmRecoveryPhrase,
             name: RouteNames.confirmRecoveryPhrase,
             builder: (context, state) => ConfirmRecoveryPhrasePage(args: _recoveryPhraseArgs(state, authBloc)),
+          ),
+          GoRoute(
+            path: RoutePaths.legal,
+            name: RouteNames.legal,
+            builder: (context, state) => const LegalIndexPage(),
+            routes: [
+              GoRoute(
+                path: ':document',
+                name: RouteNames.legalDocument,
+                builder: (context, state) => LegalDocumentPage(
+                  type: LegalDocumentType.fromSlug(state.pathParameters['document']) ?? LegalDocumentType.protection,
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: RoutePaths.legalAcceptance,
+            name: RouteNames.legalAcceptance,
+            builder: (context, state) => const LegalAcceptancePage(),
           ),
           GoRoute(
             path: RoutePaths.lockedAccount,

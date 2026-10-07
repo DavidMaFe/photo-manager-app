@@ -21,6 +21,7 @@ import 'package:photo_manager_app/features/auth/domain/use_cases/validate_reset_
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/features/legal/domain/use_cases/accept_legal_terms_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/register_sync_device_use_case.dart';
 
@@ -46,6 +47,8 @@ class MockRefreshTokenUseCase extends Mock implements RefreshTokenUseCase {}
 
 class MockRecoveryReminderUseCase extends Mock implements RecoveryReminderUseCase {}
 
+class MockAcceptLegalTermsUseCase extends Mock implements AcceptLegalTermsUseCase {}
+
 void main() {
   late AuthBloc authBloc;
   late MockLoginUseCase mockLoginUseCase;
@@ -59,6 +62,7 @@ void main() {
   late MockSyncDeviceRepository mockSyncDeviceRepository;
   late MockRefreshTokenUseCase mockRefreshTokenUseCase;
   late MockRecoveryReminderUseCase mockRecoveryReminderUseCase;
+  late MockAcceptLegalTermsUseCase mockAcceptLegalTermsUseCase;
 
   setUpAll(() {
     registerFallbackValue(RecoveryPhraseLanguage.english);
@@ -76,6 +80,7 @@ void main() {
     mockSyncDeviceRepository = MockSyncDeviceRepository();
     mockRefreshTokenUseCase = MockRefreshTokenUseCase();
     mockRecoveryReminderUseCase = MockRecoveryReminderUseCase();
+    mockAcceptLegalTermsUseCase = MockAcceptLegalTermsUseCase();
     when(() => mockRecoveryReminderUseCase.start()).thenAnswer((_) async {});
 
     authBloc = AuthBloc(
@@ -90,6 +95,7 @@ void main() {
         syncDeviceRepository: mockSyncDeviceRepository,
         refreshTokenUseCase: mockRefreshTokenUseCase,
         recoveryReminderUseCase: mockRecoveryReminderUseCase,
+        acceptLegalTermsUseCase: mockAcceptLegalTermsUseCase,
         eventBus: AppEventBus(),
     );
   });
@@ -109,8 +115,10 @@ void main() {
     );
     final testWords = List.filled(RecoveryPhrase.wordCount, 'abandon');
 
-    LoginResult loginResult({bool accountLocked = false}) =>
-        LoginResult(user: testUser, keys: AccountKeys(accountLocked: accountLocked, versions: const []));
+    LoginResult loginResult({bool accountLocked = false, bool legalAcceptanceRequired = false}) => LoginResult(
+        user: testUser,
+        keys: AccountKeys(accountLocked: accountLocked, versions: const []),
+        legalAcceptanceRequired: legalAcceptanceRequired);
 
     test('initial state should be AuthInitial', () {
       expect(authBloc.state, isA<AuthInitial>());
@@ -279,6 +287,7 @@ void main() {
               name: any(named: 'name'),
               surname: any(named: 'surname'),
               language: any(named: 'language'),
+              acceptedLegalTerms: any(named: 'acceptedLegalTerms'),
             )).thenAnswer((_) async => RegistrationResult(user: testUser, recoveryWords: testWords));
       }
 
@@ -288,6 +297,7 @@ void main() {
             name: testName,
             surname: surname,
             language: RecoveryPhraseLanguage.spanish,
+            acceptedLegalTerms: true,
           );
 
       blocTest<AuthBloc, AuthState>(
@@ -321,6 +331,7 @@ void main() {
                 name: testName,
                 surname: null,
                 language: RecoveryPhraseLanguage.spanish,
+                acceptedLegalTerms: true,
               )).called(1);
         },
       );
@@ -348,6 +359,7 @@ void main() {
                 name: any(named: 'name'),
                 surname: any(named: 'surname'),
                 language: any(named: 'language'),
+                acceptedLegalTerms: any(named: 'acceptedLegalTerms'),
               )).thenThrow(Exception('Email already registered'));
           return authBloc;
         },
@@ -368,6 +380,7 @@ void main() {
                 name: any(named: 'name'),
                 surname: any(named: 'surname'),
                 language: any(named: 'language'),
+                acceptedLegalTerms: any(named: 'acceptedLegalTerms'),
               )).thenThrow(const WeakPasswordFailure());
           return authBloc;
         },
@@ -377,6 +390,80 @@ void main() {
           isA<AuthLoading>(),
           isA<AuthError>().having((state) => state.failure, 'failure', isA<WeakPasswordFailure>()),
         ],
+      );
+    });
+
+    group('LegalTermsAccepted', () {
+      AuthLegalAcceptanceRequired pending({bool accountLocked = false}) =>
+          AuthLegalAcceptanceRequired(testUser, accountLocked: accountLocked);
+
+      blocTest<AuthBloc, AuthState>(
+        'should ask for the terms in force after a login that requires them',
+        build: () {
+          when(() => mockLoginUseCase(email: any(named: 'email'), password: any(named: 'password')))
+              .thenAnswer((_) async => loginResult(accountLocked: true, legalAcceptanceRequired: true));
+          return authBloc;
+        },
+        act: (bloc) => bloc.add(LoginRequested(email: testEmail, password: testPassword)),
+        wait: const Duration(milliseconds: 900),
+        expect: () => [
+          isA<AuthLoading>(),
+          isA<AuthLegalAcceptanceRequired>()
+              .having((s) => s.user, 'user', testUser)
+              .having((s) => s.accountLocked, 'accountLocked', isTrue),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should start the session once the terms are accepted',
+        build: () {
+          when(() => mockAcceptLegalTermsUseCase()).thenAnswer((_) async {});
+          return authBloc;
+        },
+        seed: pending,
+        act: (bloc) => bloc.add(LegalTermsAccepted()),
+        expect: () => [
+          isA<AuthLegalAcceptanceRequired>().having((s) => s.working, 'working', isTrue),
+          isA<AuthSuccessful>().having((s) => s.user, 'user', testUser),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should go on to the locked account flow once the terms are accepted',
+        build: () {
+          when(() => mockAcceptLegalTermsUseCase()).thenAnswer((_) async {});
+          return authBloc;
+        },
+        seed: () => pending(accountLocked: true),
+        act: (bloc) => bloc.add(LegalTermsAccepted()),
+        expect: () => [
+          isA<AuthLegalAcceptanceRequired>(),
+          isA<AuthAccountLocked>().having((s) => s.user, 'user', testUser),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should stay on the acceptance with the failure when it cannot be saved',
+        build: () {
+          when(() => mockAcceptLegalTermsUseCase()).thenThrow(Exception('network'));
+          return authBloc;
+        },
+        seed: pending,
+        act: (bloc) => bloc.add(LegalTermsAccepted()),
+        expect: () => [
+          isA<AuthLegalAcceptanceRequired>().having((s) => s.working, 'working', isTrue),
+          isA<AuthLegalAcceptanceRequired>()
+              .having((s) => s.working, 'working', isFalse)
+              .having((s) => s.failure, 'failure', isA<Failure>()),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should ignore the acceptance when none is pending',
+        build: () => authBloc,
+        act: (bloc) => bloc.add(LegalTermsAccepted()),
+        expect: () => <AuthState>[],
+        verify: (_) => verifyNever(() => mockAcceptLegalTermsUseCase()),
       );
     });
 

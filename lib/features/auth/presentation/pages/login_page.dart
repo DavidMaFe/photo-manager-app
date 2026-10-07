@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/features/legal/presentation/widgets/legal_info_link.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
@@ -97,7 +98,9 @@ class _LoginPageState extends State<LoginPage> {
                     onLogin: _handleLogin,
                     onRegister: _handleRegister,
                     isLoading: isLoading,
-                  )
+                  ),
+                  const SizedBox(height: 8),
+                  const LegalInfoLink(),
                 ],
               ),
             )

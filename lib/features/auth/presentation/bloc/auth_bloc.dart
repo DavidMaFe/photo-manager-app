@@ -15,6 +15,7 @@ import 'package:photo_manager_app/features/auth/domain/use_cases/validate_reset_
 import 'package:photo_manager_app/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/features/legal/domain/use_cases/accept_legal_terms_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/register_sync_device_use_case.dart';
 
@@ -32,6 +33,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository authRepository;
   final SyncDeviceRepository syncDeviceRepository;
   final RecoveryReminderUseCase? recoveryReminderUseCase;
+  final AcceptLegalTermsUseCase acceptLegalTermsUseCase;
 
   static const int minimumLoadingDuration = 800;
 
@@ -51,6 +53,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.authRepository,
     required this.syncDeviceRepository,
     this.recoveryReminderUseCase,
+    required this.acceptLegalTermsUseCase,
     required AppEventBus eventBus,
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
@@ -64,6 +67,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<NewPasswordSubmitted>(_onNewPasswordSubmitted);
     on<RecoveryPhraseConfirmed>(_onRecoveryPhraseConfirmed);
     on<AccountUnlocked>((event, emit) => emit(AuthSuccessful(event.user)));
+    on<LegalTermsAccepted>(_onLegalTermsAccepted);
 
     // When the HTTP layer cannot refresh the token (session fully expired),
     // trigger a logout so GoRouter redirects back to the login screen.
@@ -95,8 +99,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _registerDevice();
       await _waitForLoading(stopwatch);
 
-      // A locked account goes through the locked account flow before the gallery
-      emit(result.accountLocked ? AuthAccountLocked(result.user) : AuthSuccessful(result.user));
+      if (result.legalAcceptanceRequired) {
+        // The terms in force are accepted first, then the locked account flow or the gallery
+        emit(AuthLegalAcceptanceRequired(result.user, accountLocked: result.accountLocked));
+      } else {
+        // A locked account goes through the locked account flow before the gallery
+        emit(result.accountLocked ? AuthAccountLocked(result.user) : AuthSuccessful(result.user));
+      }
     } catch (e) {
       await _waitForLoading(stopwatch);
       final failure = ErrorHandler.handleError(e);
@@ -112,7 +121,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
 
       final result = await registerUseCase(email: event.email, password: event.password,
-          name: event.name, surname: event.surname, language: event.language);
+          name: event.name, surname: event.surname, language: event.language,
+          acceptedLegalTerms: event.acceptedLegalTerms);
       await _waitForLoading(stopwatch);
       emit(RecoveryPhraseRequired(result.user, result.recoveryWords));
 
@@ -239,6 +249,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _waitForLoading(stopwatch);
       final failure = ErrorHandler.handleError(e);
       emit(AuthError(failure));
+    }
+  }
+
+  Future<void> _onLegalTermsAccepted(LegalTermsAccepted event, Emitter<AuthState> emit) async {
+    final current = state;
+    if (current is! AuthLegalAcceptanceRequired) {
+      return;
+    }
+    emit(AuthLegalAcceptanceRequired(current.user, accountLocked: current.accountLocked, working: true));
+    try {
+      await acceptLegalTermsUseCase();
+      emit(current.accountLocked ? AuthAccountLocked(current.user) : AuthSuccessful(current.user));
+    } catch (e) {
+      // The state stays (an error state would send the router back to the login)
+      emit(AuthLegalAcceptanceRequired(current.user, accountLocked: current.accountLocked,
+          failure: ErrorHandler.handleError(e)));
     }
   }
 

@@ -145,6 +145,12 @@ import '../features/sync_config/domain/repositories/sync_config_repository.dart'
 import '../features/sync_config/domain/use_cases/get_sync_config_use_case.dart';
 import '../features/sync_config/domain/use_cases/save_sync_config_use_case.dart';
 import '../features/sync_config/presentation/bloc/sync_config_bloc.dart';
+import '../features/legal/data/data_sources/legal_remote_data_source.dart';
+import '../features/legal/data/repositories/bundled_legal_document_repository.dart';
+import '../features/legal/data/repositories/legal_acceptance_data_repository.dart';
+import '../features/legal/domain/repositories/legal_acceptance_repository.dart';
+import '../features/legal/domain/repositories/legal_document_repository.dart';
+import '../features/legal/domain/use_cases/accept_legal_terms_use_case.dart';
 import 'events/app_event_bus.dart';
 import 'utils/onboarding_preferences.dart';
 
@@ -513,6 +519,14 @@ Future<void> init() async {
   sl.registerFactory(() => GetRecoveryWordsUseCase(sl<KeyringService>()));
   sl.registerFactory(() => VerifyRecoveryWordsUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
   sl.registerFactory(() => RecoveryReminderUseCase(sl<RecoveryReminderRepository>()));
+
+  // Legal texts and their acceptance (Phase 4)
+  sl.registerLazySingleton<LegalDocumentRepository>(() => const BundledLegalDocumentRepository());
+  sl.registerLazySingleton<LegalRemoteDataSource>(
+      () => LegalRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<LegalAcceptanceRepository>(
+      () => LegalAcceptanceDataRepository(remoteDataSource: sl<LegalRemoteDataSource>()));
+  sl.registerFactory(() => AcceptLegalTermsUseCase(sl<LegalAcceptanceRepository>()));
   sl.registerFactory(() => LockedAccountBloc(
         getStatusUseCase: sl(),
         unlockWithRecoveryPhraseUseCase: sl(),
@@ -816,6 +830,7 @@ Future<void> init() async {
             authRepository: authRepository,
             syncDeviceRepository: syncDeviceRepository,
             recoveryReminderUseCase: sl<RecoveryReminderUseCase>(),
+            acceptLegalTermsUseCase: sl<AcceptLegalTermsUseCase>(),
             eventBus: eventBus,
         );
       }

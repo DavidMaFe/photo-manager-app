@@ -2,6 +2,7 @@ import 'package:photo_manager_app/config/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
+import 'package:photo_manager_app/features/legal/presentation/widgets/legal_acceptance_checkbox.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 
@@ -9,12 +10,14 @@ class RegisterActions extends StatelessWidget {
 
   final VoidCallback onRegister;
   final VoidCallback onGoToLogin;
+  final ValueChanged<bool> onLegalTermsChanged;
   final bool isLoading;
 
   const RegisterActions({
     super.key,
     required this.onRegister,
     required this.onGoToLogin,
+    required this.onLegalTermsChanged,
     this.isLoading = false
   });
 
@@ -27,11 +30,7 @@ class RegisterActions extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l10n.registerTermsDisclaimer,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: palette.ink2),
-        ),
+        LegalAcceptanceCheckbox(enabled: !isLoading, onChanged: onLegalTermsChanged),
 
         const SizedBox(height: 12),
 

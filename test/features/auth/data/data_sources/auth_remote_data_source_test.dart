@@ -78,6 +78,7 @@ void main() {
         expect(response.keys!.accountLocked, isFalse);
         expect(response.keys!.versions.single.state, KeyState.current);
         expect(response.keys!.versions.single.encryptedMasterKey, E2eeTestData.bytes(72, 1));
+        expect(response.legalAcceptanceRequired, isFalse);
       });
 
       test('should parse a locked account', () async {
@@ -122,11 +123,15 @@ void main() {
           deviceUuid: 'uuid_123',
           kdfParams: E2eeTestData.kdfParams(),
           key: key,
+          acceptedTermsVersion: '1.0',
+          acceptedPrivacyVersion: '1.1',
         );
 
         // Assert
         final body = capturedPost().body;
         expect(body['authKey'], 'YXV0aEtleQ==');
+        expect(body['acceptedTermsVersion'], '1.0');
+        expect(body['acceptedPrivacyVersion'], '1.1');
         expect(body.containsKey('surname'), isFalse);
         expect(body['kdfSalt'], base64Encode(E2eeTestData.bytes(16, 1)));
         expect(body['kdfParams'], {'algorithm': 'argon2id13', 'ops': 2, 'memBytes': 32 * 1024 * 1024});
@@ -143,7 +148,8 @@ void main() {
         stubPost(E2eeTestData.authResponseJson());
 
         await dataSource.register(email: 'e@example.com', authKey: 'a', name: 'John', surname: 'Doe',
-            deviceUuid: 'u', kdfParams: E2eeTestData.kdfParams(), key: E2eeTestData.newKeyMaterial());
+            deviceUuid: 'u', kdfParams: E2eeTestData.kdfParams(), key: E2eeTestData.newKeyMaterial(),
+            acceptedTermsVersion: '1.0', acceptedPrivacyVersion: '1.0');
 
         expect(capturedPost().body['surname'], 'Doe');
       });

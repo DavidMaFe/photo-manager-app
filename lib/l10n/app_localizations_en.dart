@@ -66,9 +66,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signIn => 'Sign in';
 
   @override
-  String get registerTermsDisclaimer => 'By signing up, you agree to our Terms and Conditions';
-
-  @override
   String get gallery => 'Gallery';
 
   @override
@@ -1833,4 +1830,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lockedNone => 'You have no locked photos: all your keys are available.';
+
+  @override
+  String get legalInfoTitle => 'Information and legal';
+
+  @override
+  String get legalInfoLink => 'How it works, terms and privacy';
+
+  @override
+  String get legalInfoSubtitle => 'How your photos are protected and the rules of the service. You can read them without an account.';
+
+  @override
+  String legalVersionLabel(String version, String date) {
+    return 'Version $version · in force since $date';
+  }
+
+  @override
+  String get legalAcceptPrefix => 'I have read and accept the';
+
+  @override
+  String get legalTermsLink => 'Terms of use';
+
+  @override
+  String get legalAcceptMiddle => 'and the';
+
+  @override
+  String get legalPrivacyLink => 'Privacy policy';
+
+  @override
+  String get legalAcceptRequired => 'You must accept the terms of use and the privacy policy';
+
+  @override
+  String get legalAcceptanceTitle => 'Terms of use and privacy';
+
+  @override
+  String get legalAcceptanceMessage => 'To keep using Photo Manager, read and accept the terms of use and the privacy policy. They explain how your photos are protected and what happens if you lose access to them.';
+
+  @override
+  String get legalAcceptanceButton => 'Accept and continue';
+
+  @override
+  String get errorLegalTermsNotAccepted => 'You must accept the terms of use and the privacy policy';
+
+  @override
+  String get recoveryPhraseImportanceTitle => 'Read this before you continue';
+
+  @override
+  String get recoveryPhraseImportance1 => 'If you forget your password, these 24 words are the only way to recover your photos.';
+
+  @override
+  String get recoveryPhraseImportance2 => 'Nobody can recover them for you, not even us.';
+
+  @override
+  String get recoveryPhraseImportance3 => 'Save them now in the password manager or as a PDF, and keep a copy somewhere safe.';
+
+  @override
+  String recoveryPhraseWait(int seconds) {
+    return 'Read carefully ($seconds)';
+  }
+
+  @override
+  String get recoveryPhraseLearnMore => 'More about the 24 words';
 }

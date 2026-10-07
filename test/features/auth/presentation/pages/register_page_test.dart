@@ -40,11 +40,27 @@ void main() {
 
   Finder field(int index) => find.byType(TextFormField).at(index);
 
+  Future<void> acceptLegalTerms(WidgetTester tester) async {
+    // The text selection menu of the last field would cover the checkbox
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump();
+    await tester.ensureVisible(find.byKey(const ValueKey('legal-accept-checkbox')));
+    await tester.tap(find.byKey(const ValueKey('legal-accept-checkbox')));
+    await tester.pump();
+  }
+
+  Future<void> tapRegister(WidgetTester tester) async {
+    await tester.ensureVisible(find.byType(AppButton));
+    await tester.tap(find.byType(AppButton));
+    await tester.pump();
+  }
+
   Future<void> fillValidForm(WidgetTester tester) async {
     await tester.enterText(field(0), 'Ana');
     await tester.enterText(field(2), 'ana@example.com');
     await tester.enterText(field(3), 'long secret 1');
     await tester.enterText(field(4), 'long secret 1');
+    await acceptLegalTerms(tester);
   }
 
   group('RegisterPage', () {
@@ -76,15 +92,15 @@ void main() {
       expect(surname.left, greaterThan(name.right));
     });
 
-    testWidgets('should fit on the reference screen without scrolling', (tester) async {
+    testWidgets('should need at most a short scroll on the reference screen', (tester) async {
       // Arrange
       await pumpPage(tester);
 
       // Act
       final scrollable = tester.state<ScrollableState>(find.byType(Scrollable).first);
 
-      // Assert
-      expect(scrollable.position.maxScrollExtent, 0);
+      // Assert: the mandatory acceptance of the terms (Phase 4) added a few lines below the fields
+      expect(scrollable.position.maxScrollExtent, lessThan(80));
     });
 
     testWidgets('should dispatch RegisterRequested with trimmed values', (tester) async {
@@ -95,10 +111,10 @@ void main() {
       await tester.enterText(field(2), ' ana@example.com ');
       await tester.enterText(field(3), 'long secret 1');
       await tester.enterText(field(4), 'long secret 1');
+      await acceptLegalTerms(tester);
 
       // Act
-      await tester.tap(find.byType(AppButton));
-      await tester.pump();
+      await tapRegister(tester);
 
       // Assert
       final event = verify(() => mockAuthBloc.add(captureAny())).captured.single as RegisterRequested;
@@ -107,6 +123,7 @@ void main() {
       expect(event.email, 'ana@example.com');
       expect(event.password, 'long secret 1');
       expect(event.language, RecoveryPhraseLanguage.english);
+      expect(event.acceptedLegalTerms, isTrue);
     });
 
     testWidgets('should ask for the recovery words in Spanish when the app is in Spanish', (tester) async {
@@ -115,8 +132,7 @@ void main() {
       await fillValidForm(tester);
 
       // Act
-      await tester.tap(find.byType(AppButton));
-      await tester.pump();
+      await tapRegister(tester);
 
       // Assert
       final event = verify(() => mockAuthBloc.add(captureAny())).captured.single as RegisterRequested;
@@ -130,8 +146,7 @@ void main() {
       await pumpPage(tester);
 
       // Act
-      await tester.tap(find.byType(AppButton));
-      await tester.pump();
+      await tapRegister(tester);
 
       // Assert
       expect(find.text('Name is required'), findsOneWidget);
@@ -148,11 +163,24 @@ void main() {
       await tester.enterText(field(4), 'long secret 2');
 
       // Act
-      await tester.tap(find.byType(AppButton));
-      await tester.pump();
+      await tapRegister(tester);
 
       // Assert
       expect(find.text('Passwords do not match'), findsOneWidget);
+      verifyNever(() => mockAuthBloc.add(any()));
+    });
+
+    testWidgets('should not register without accepting the terms and the privacy policy', (tester) async {
+      // Arrange
+      await pumpPage(tester);
+      await fillValidForm(tester);
+      await acceptLegalTerms(tester); // untick
+
+      // Act
+      await tapRegister(tester);
+
+      // Assert
+      expect(find.text('You must accept the terms of use and the privacy policy'), findsOneWidget);
       verifyNever(() => mockAuthBloc.add(any()));
     });
 
@@ -164,8 +192,7 @@ void main() {
       await tester.enterText(field(4), 'secret1');
 
       // Act
-      await tester.tap(find.byType(AppButton));
-      await tester.pump();
+      await tapRegister(tester);
 
       // Assert
       expect(find.text('The password must have at least 10 characters.'), findsOneWidget);

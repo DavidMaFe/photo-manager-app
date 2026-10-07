@@ -95,6 +95,8 @@ class FailureMessageHelper {
         return l10n.errorKeyUnlock;
       case 'errorDeviceAuthentication':
         return l10n.errorDeviceAuthentication;
+      case 'errorLegalTermsNotAccepted':
+        return l10n.errorLegalTermsNotAccepted;
 
     // Generic
       case 'errorUnknown':

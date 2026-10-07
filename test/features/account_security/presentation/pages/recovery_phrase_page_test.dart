@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
 import 'package:photo_manager_app/features/account_security/domain/services/recovery_phrase_exporter.dart';
 import 'package:photo_manager_app/features/account_security/presentation/pages/recovery_phrase_page.dart';
@@ -37,6 +38,7 @@ void main() {
     router = GoRouter(routes: [
       GoRoute(path: '/', builder: (_, __) => const Text('home')),
       GoRoute(path: '/words', builder: (_, __) => RecoveryPhrasePage(args: args, exporter: exporter)),
+      GoRoute(path: RoutePaths.legalDocument, builder: (_, state) => Text('legal ${state.pathParameters['document']}')),
       GoRoute(path: RoutePaths.confirmRecoveryPhrase, builder: (_, state) {
         confirmArgs = state.extra as RecoveryPhraseArgs;
         return const Text('confirm page');
@@ -69,6 +71,7 @@ void main() {
 
     testWidgets('should go to the confirmation after registering, with the same words', (tester) async {
       await pumpPage(tester, RecoveryPhraseFlow.registration);
+      await tester.pump(RecoveryPhrasePage.minimumReadingTime);
 
       await tapButton(tester, 'recovery-phrase-continue');
 
@@ -88,6 +91,57 @@ void main() {
     });
 
     // ==================== BUSINESS LOGIC TESTS ====================
+
+    testWidgets('should not let the user continue for 10 seconds after registering', (tester) async {
+      // Arrange
+      await pumpPage(tester, RecoveryPhraseFlow.registration);
+      AppButton continueButton() => tester.widget<AppButton>(find.byKey(const ValueKey('recovery-phrase-continue')));
+
+      // Assert: disabled with a countdown
+      expect(continueButton().onPressed, isNull);
+      expect(find.text('Read carefully (10)'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 6));
+      expect(continueButton().onPressed, isNull);
+      expect(find.text('Read carefully (4)'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 4));
+      expect(continueButton().onPressed, isNotNull);
+      expect(find.text('I have saved them'), findsOneWidget);
+    });
+
+    testWidgets('should wait 10 seconds as well for the words of a new key', (tester) async {
+      await pumpPage(tester, RecoveryPhraseFlow.newKey);
+
+      expect(tester.widget<AppButton>(find.byKey(const ValueKey('recovery-phrase-continue'))).onPressed, isNull);
+      expect(find.byKey(const ValueKey('recovery-phrase-importance')), findsOneWidget);
+    });
+
+    testWidgets('should explain why the words matter before showing them', (tester) async {
+      await pumpPage(tester, RecoveryPhraseFlow.registration);
+
+      final importance = tester.getRect(find.byKey(const ValueKey('recovery-phrase-importance')));
+      final firstWord = tester.getRect(find.byKey(const ValueKey('recovery-word-0')));
+      expect(find.text('Read this before you continue'), findsOneWidget);
+      expect(find.text('If you forget your password, these 24 words are the only way to recover your photos.'),
+          findsOneWidget);
+      expect(importance.bottom, lessThan(firstWord.top));
+    });
+
+    testWidgets('should not make the user wait when only viewing the words', (tester) async {
+      await pumpPage(tester, RecoveryPhraseFlow.view);
+
+      expect(tester.widget<AppButton>(find.byKey(const ValueKey('recovery-phrase-continue'))).onPressed, isNotNull);
+      expect(find.byKey(const ValueKey('recovery-phrase-importance')), findsNothing);
+    });
+
+    testWidgets('should open the information about the 24 words', (tester) async {
+      await pumpPage(tester, RecoveryPhraseFlow.registration);
+
+      await tapButton(tester, 'recovery-phrase-learn-more');
+
+      expect(find.text('legal recovery-words'), findsOneWidget);
+    });
 
     testWidgets('should not let the user leave before confirming the words of a new account', (tester) async {
       await pumpPage(tester, RecoveryPhraseFlow.registration);

@@ -42,7 +42,8 @@ class AuthDataRepository implements AuthRepository {
     final authResponse = await remoteDataSource.login(email, base64Encode(authKey.bytes), deviceUuid);
 
     await _cacheSession(authResponse);
-    return LoginResult(user: authResponse.user, keys: authResponse.keys!);
+    return LoginResult(user: authResponse.user, keys: authResponse.keys!,
+        legalAcceptanceRequired: authResponse.legalAcceptanceRequired);
   }
 
   @override
@@ -73,6 +74,8 @@ class AuthDataRepository implements AuthRepository {
     String? surname,
     required KdfParams kdfParams,
     required NewKeyMaterial key,
+    required String acceptedTermsVersion,
+    required String acceptedPrivacyVersion,
   }) async {
     final deviceUuid = await syncDeviceLocalDataSource.getDeviceUuid();
     final authResponse = await remoteDataSource.register(
@@ -83,10 +86,13 @@ class AuthDataRepository implements AuthRepository {
       deviceUuid: deviceUuid,
       kdfParams: kdfParams,
       key: key,
+      acceptedTermsVersion: acceptedTermsVersion,
+      acceptedPrivacyVersion: acceptedPrivacyVersion,
     );
 
     await _cacheSession(authResponse);
-    return LoginResult(user: authResponse.user, keys: authResponse.keys!);
+    return LoginResult(user: authResponse.user, keys: authResponse.keys!,
+        legalAcceptanceRequired: authResponse.legalAcceptanceRequired);
   }
 
   @override

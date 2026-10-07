@@ -41,6 +41,14 @@ void main() {
       expect(notifier.isRecoveryPhrasePending, isFalse);
     });
 
+    test('should ask for the terms in force before the session starts', () {
+      when(() => authBloc.state).thenReturn(AuthLegalAcceptanceRequired(user, accountLocked: false));
+
+      expect(notifier.isLegalAcceptancePending, isTrue);
+      expect(notifier.isAuthenticated, isFalse);
+      expect(notifier.isAccountLocked, isFalse);
+    });
+
     test('should be authenticated only with a usable session', () {
       when(() => authBloc.state).thenReturn(AuthSuccessful(user));
 

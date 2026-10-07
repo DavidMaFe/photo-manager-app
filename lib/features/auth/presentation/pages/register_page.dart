@@ -34,6 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _confirmPasswordInputController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  bool _acceptedLegalTerms = false;
 
   @override
   void dispose() {
@@ -62,6 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
           language: Localizations.localeOf(context).languageCode == 'es'
               ? RecoveryPhraseLanguage.spanish
               : RecoveryPhraseLanguage.english,
+          acceptedLegalTerms: _acceptedLegalTerms,
         ),
       );
     }
@@ -115,8 +117,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   RegisterActions(
                     onRegister: _handleRegister,
                     onGoToLogin: _handleGoToLogin,
+                    onLegalTermsChanged: (accepted) => _acceptedLegalTerms = accepted,
                     isLoading: isLoading,
-                  )
+                  ),
                 ],
               ),
             ),

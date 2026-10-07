@@ -188,6 +188,17 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
                 SecuritySection(email: profile.email),
+                ListRowGroup(
+                  margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  children: [
+                    ListRow(
+                      key: const ValueKey('profile-legal-info'),
+                      icon: Symbols.info_rounded,
+                      title: l10n.legalInfoTitle,
+                      onTap: () => context.push(RoutePaths.legal),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

@@ -97,7 +97,9 @@ void main() {
       expect(find.text('Verify my 24 words'), findsOneWidget);
       expect(find.text('I forgot my password'), findsOneWidget);
       expect(find.text('Recover locked photos'), findsOneWidget);
-      expect(find.byType(ListRow), findsNWidgets(10));
+      // Information pages and legal texts
+      expect(find.text('Information and legal'), findsOneWidget);
+      expect(find.byType(ListRow), findsNWidgets(11));
     });
 
     testWidgets('should summarize the backup as off when it cannot be loaded', (tester) async {

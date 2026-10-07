@@ -24,14 +24,22 @@ class RegisterRequested extends AuthEvent {
   /// Language of the 24 recovery words (the language of the app).
   final RecoveryPhraseLanguage language;
 
+  /// The user ticked the acceptance of the terms of use and the privacy policy.
+  final bool acceptedLegalTerms;
+
   RegisterRequested({
     required this.email,
     required this.password,
     required this.name,
     this.surname,
     required this.language,
+    required this.acceptedLegalTerms,
   });
 }
+
+
+/// The user accepted the terms of use and the privacy policy in force after logging in.
+class LegalTermsAccepted extends AuthEvent {}
 
 
 /// The user confirmed that the 24 words of the registration are saved: the session starts.
