@@ -82,6 +82,20 @@ class FailureMessageHelper {
       case 'syncInProgressError':
         return l10n.syncInProgressError;
 
+    // End-to-end encryption
+      case 'errorRecoveryPhraseMismatch':
+        return l10n.errorRecoveryPhraseMismatch;
+      case 'errorInvalidRecoveryPhrase':
+        return l10n.errorInvalidRecoveryPhrase;
+      case 'errorWeakPassword':
+        return l10n.errorWeakPassword(failure.messageParams?['min'] as int? ?? 10);
+      case 'errorMissingDeviceKey':
+        return l10n.errorMissingDeviceKey;
+      case 'errorKeyUnlock':
+        return l10n.errorKeyUnlock;
+      case 'errorDeviceAuthentication':
+        return l10n.errorDeviceAuthentication;
+
     // Generic
       case 'errorUnknown':
       default:

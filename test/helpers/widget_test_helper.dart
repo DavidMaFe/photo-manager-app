@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/config/theme/app_theme.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -69,6 +70,22 @@ Widget makeTestableWidget(
     builder: routes != null || initialRoute != null
         ? (context, widget) => child
         : null,
+  );
+}
+
+/// Same setup as [makeTestableWidget] for pages that navigate with go_router (`context.go`/`context.push`).
+Widget makeTestableRouter({required GoRouter router, Locale locale = const Locale('en')}) {
+  return MaterialApp.router(
+    theme: AppTheme.light(),
+    locale: locale,
+    localizationsDelegates: const [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: AppLocalizations.supportedLocales,
+    routerConfig: router,
   );
 }
 

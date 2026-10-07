@@ -17,10 +17,6 @@ abstract class ProfileRemoteDataSource {
     String? surname,
     String? profileImage,
   });
-  Future<void> changePassword({
-    required String currentPassword,
-    required String newPassword,
-  });
 }
 
 
@@ -81,38 +77,6 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         return UserProfileModel.fromJson(jsonData);
-      } else {
-        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
-        throw ApiException(errorResponse);
-      }
-    } on SocketException {
-      rethrow;
-    } on HttpException {
-      rethrow;
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw Exception('Connection error: $e');
-    }
-  }
-
-  @override
-  Future<void> changePassword({
-    required String currentPassword,
-    required String newPassword,
-  }) async {
-    try {
-      final response = await client.post(
-        Uri.parse('$baseUrl/api/password-change/'),
-        headers: HttpHeadersUtil.getJsonHeaders(),
-        body: jsonEncode({
-          'currentPassword': currentPassword,
-          'newPassword': newPassword,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        return;
       } else {
         final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
         throw ApiException(errorResponse);

@@ -1,3 +1,6 @@
+import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
+
 
 abstract class AuthEvent {}
 
@@ -18,12 +21,32 @@ class RegisterRequested extends AuthEvent {
   final String name;
   final String? surname;
 
+  /// Language of the 24 recovery words (the language of the app).
+  final RecoveryPhraseLanguage language;
+
   RegisterRequested({
     required this.email,
     required this.password,
     required this.name,
-    this.surname
+    this.surname,
+    required this.language,
   });
+}
+
+
+/// The user confirmed that the 24 words of the registration are saved: the session starts.
+class RecoveryPhraseConfirmed extends AuthEvent {
+  final User user;
+
+  RecoveryPhraseConfirmed(this.user);
+}
+
+
+/// A locked account got a usable key again (unlocked or new): the session starts.
+class AccountUnlocked extends AuthEvent {
+  final User user;
+
+  AccountUnlocked(this.user);
 }
 
 
@@ -67,10 +90,14 @@ class NewPasswordSubmitted extends AuthEvent {
   final String code;
   final String newPassword;
 
+  /// The 24 words, or null if the user does not have them (the account becomes locked, nothing is deleted).
+  final List<String>? recoveryWords;
+
   NewPasswordSubmitted({
     required this.email,
     required this.code,
-    required this.newPassword
+    required this.newPassword,
+    this.recoveryWords,
   });
 }
 

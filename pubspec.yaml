@@ -66,6 +66,10 @@ dependencies:
   flutter_secure_storage: ^10.3.4
   unorm_dart: ^0.3.3
   sodium_libs: ^3.4.6+4
+  credential_manager: ^4.3.0
+  local_auth: ^3.0.2
+  pdf: ^3.12.0
+  share_plus: ^12.0.2
 
 dev_dependencies:
   flutter_test:

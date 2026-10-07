@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
@@ -26,17 +27,25 @@ void main() {
     when(() => mockAuthBloc.close()).thenAnswer((_) async {});
   });
 
-  Future<void> pumpPage(WidgetTester tester, {AuthState? state}) async {
+  Future<void> pumpPage(WidgetTester tester, {AuthState? state, Locale locale = const Locale('en')}) async {
     // 390x844 is the design reference size.
     setUpCustomScreenSize(tester, 390, 844);
     if (state != null) when(() => mockAuthBloc.state).thenReturn(state);
     await tester.pumpWidget(makeTestableWidgetWithBloc<AuthBloc>(
       bloc: mockAuthBloc,
+      locale: locale,
       child: const RegisterPage(),
     ));
   }
 
   Finder field(int index) => find.byType(TextFormField).at(index);
+
+  Future<void> fillValidForm(WidgetTester tester) async {
+    await tester.enterText(field(0), 'Ana');
+    await tester.enterText(field(2), 'ana@example.com');
+    await tester.enterText(field(3), 'long secret 1');
+    await tester.enterText(field(4), 'long secret 1');
+  }
 
   group('RegisterPage', () {
     // ==================== HAPPY PATH TESTS ====================
@@ -84,8 +93,8 @@ void main() {
       await tester.enterText(field(0), ' Ana ');
       await tester.enterText(field(1), '   ');
       await tester.enterText(field(2), ' ana@example.com ');
-      await tester.enterText(field(3), 'secret1');
-      await tester.enterText(field(4), 'secret1');
+      await tester.enterText(field(3), 'long secret 1');
+      await tester.enterText(field(4), 'long secret 1');
 
       // Act
       await tester.tap(find.byType(AppButton));
@@ -96,7 +105,22 @@ void main() {
       expect(event.name, 'Ana');
       expect(event.surname, isNull);
       expect(event.email, 'ana@example.com');
-      expect(event.password, 'secret1');
+      expect(event.password, 'long secret 1');
+      expect(event.language, RecoveryPhraseLanguage.english);
+    });
+
+    testWidgets('should ask for the recovery words in Spanish when the app is in Spanish', (tester) async {
+      // Arrange
+      await pumpPage(tester, locale: const Locale('es'));
+      await fillValidForm(tester);
+
+      // Act
+      await tester.tap(find.byType(AppButton));
+      await tester.pump();
+
+      // Assert
+      final event = verify(() => mockAuthBloc.add(captureAny())).captured.single as RegisterRequested;
+      expect(event.language, RecoveryPhraseLanguage.spanish);
     });
 
     // ==================== VALIDATION ERROR TESTS ====================
@@ -120,8 +144,8 @@ void main() {
       await pumpPage(tester);
       await tester.enterText(field(0), 'Ana');
       await tester.enterText(field(2), 'ana@example.com');
-      await tester.enterText(field(3), 'secret1');
-      await tester.enterText(field(4), 'secret2');
+      await tester.enterText(field(3), 'long secret 1');
+      await tester.enterText(field(4), 'long secret 2');
 
       // Act
       await tester.tap(find.byType(AppButton));
@@ -129,6 +153,22 @@ void main() {
 
       // Assert
       expect(find.text('Passwords do not match'), findsOneWidget);
+      verifyNever(() => mockAuthBloc.add(any()));
+    });
+
+    testWidgets('should reject passwords shorter than 10 characters', (tester) async {
+      // Arrange: the server never sees the password, so the app is the only one that can check it
+      await pumpPage(tester);
+      await fillValidForm(tester);
+      await tester.enterText(field(3), 'secret1');
+      await tester.enterText(field(4), 'secret1');
+
+      // Act
+      await tester.tap(find.byType(AppButton));
+      await tester.pump();
+
+      // Assert
+      expect(find.text('The password must have at least 10 characters.'), findsOneWidget);
       verifyNever(() => mockAuthBloc.add(any()));
     });
 

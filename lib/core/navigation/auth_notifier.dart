@@ -20,4 +20,10 @@ class AuthNotifier extends ChangeNotifier {
   }
 
   bool get isLoading => authBloc.state is AuthLoading;
+
+  /// Just registered: the 24 words must be confirmed before the session starts.
+  bool get isRecoveryPhrasePending => authBloc.state is RecoveryPhraseRequired;
+
+  /// Logged in to a locked account: the locked account page comes before the gallery.
+  bool get isAccountLocked => authBloc.state is AuthAccountLocked;
 }

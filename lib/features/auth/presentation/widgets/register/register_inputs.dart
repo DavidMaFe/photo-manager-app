@@ -94,7 +94,7 @@ class RegisterInputs extends StatelessWidget {
             enabled: enabled,
             showTooltip: l10n.showPassword,
             hideTooltip: l10n.hidePassword,
-            validator: (value) => AuthValidators.password(l10n, value),
+            validator: (value) => AuthValidators.newPassword(l10n, value),
           ),
 
           const SizedBox(height: 16),

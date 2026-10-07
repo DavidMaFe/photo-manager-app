@@ -40,21 +40,39 @@ class SodiumCryptoEngine implements CryptoEngine {
   Future<PasswordKeys> deriveFromPassword(String password, KdfParams params) async {
     // NFC: the same password typed on iOS and Android must give the same bytes (decision D8)
     final normalized = unorm.nfc(password);
-    final secret = sodium.crypto.pwhash(
-      outLen: CryptoKey.length,
-      password: normalized.toCharArray(),
-      salt: params.salt,
-      opsLimit: params.ops,
-      memLimit: params.memBytes,
-      alg: CryptoPwhashAlgorithm.argon2id13,
-    );
-    try {
-      return PasswordKeys(
-        authKey: _derive(secret, 1, 'PMauth__'),
-        kek: _derive(secret, 2, 'PMkek___'),
+    final salt = params.salt;
+    final ops = params.ops;
+    final memBytes = params.memBytes;
+
+    // Argon2id takes from tens to hundreds of milliseconds on a phone: it runs in another isolate so the UI keeps
+    // animating. Only sendable values (strings, numbers and bytes) cross the isolate boundary.
+    final derived = await sodium.runIsolated((sodium, _, __) {
+      final secret = sodium.crypto.pwhash(
+        outLen: CryptoKey.length,
+        password: normalized.toCharArray(),
+        salt: salt,
+        opsLimit: ops,
+        memLimit: memBytes,
+        alg: CryptoPwhashAlgorithm.argon2id13,
       );
+      try {
+        return [
+          for (final (id, context) in [(1, 'PMauth__'), (2, 'PMkek___')])
+            _extract(sodium.crypto.kdf.deriveFromKey(
+                masterKey: secret, context: context, subkeyId: BigInt.from(id), subkeyLen: CryptoKey.length)),
+        ];
+      } finally {
+        secret.dispose();
+      }
+    });
+    return PasswordKeys(authKey: CryptoKey(derived[0]), kek: CryptoKey(derived[1]));
+  }
+
+  static Uint8List _extract(SecureKey key) {
+    try {
+      return key.extractBytes();
     } finally {
-      secret.dispose();
+      key.dispose();
     }
   }
 

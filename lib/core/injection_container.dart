@@ -1,4 +1,21 @@
 
+import 'package:photo_manager_app/features/account_security/presentation/bloc/device_reset_password_bloc.dart';
+import 'package:photo_manager_app/features/account_security/presentation/bloc/locked_account_bloc.dart';
+import 'package:photo_manager_app/features/account_security/presentation/bloc/verify_recovery_phrase_bloc.dart';
+import 'package:photo_manager_app/core/crypto/domain/keyring_service.dart';
+import 'package:photo_manager_app/features/account_security/data/data_sources/account_security_remote_data_source.dart';
+import 'package:photo_manager_app/features/account_security/data/repositories/account_security_data_repository.dart';
+import 'package:photo_manager_app/features/account_security/data/repositories/recovery_reminder_data_repository.dart';
+import 'package:photo_manager_app/features/account_security/data/services/local_auth_device_authenticator.dart';
+import 'package:photo_manager_app/features/account_security/data/services/platform_recovery_phrase_exporter.dart';
+import 'package:photo_manager_app/features/account_security/domain/repositories/account_security_repository.dart';
+import 'package:photo_manager_app/features/account_security/domain/repositories/recovery_reminder_repository.dart';
+import 'package:photo_manager_app/features/account_security/domain/services/device_authenticator.dart';
+import 'package:photo_manager_app/features/account_security/domain/services/recovery_phrase_exporter.dart';
+import 'package:photo_manager_app/features/account_security/domain/use_cases/change_password_use_case.dart';
+import 'package:photo_manager_app/features/account_security/domain/use_cases/locked_account_use_cases.dart';
+import 'package:photo_manager_app/features/account_security/domain/use_cases/recovery_phrase_use_cases.dart';
+import 'package:photo_manager_app/features/account_security/domain/use_cases/reset_password_from_device_use_case.dart';
 import 'package:photo_manager_app/core/crypto/data/master_key_local_data_source.dart';
 import 'package:photo_manager_app/core/crypto/data/sodium_crypto_engine.dart';
 import 'package:photo_manager_app/core/crypto/domain/crypto_engine.dart';
@@ -73,7 +90,6 @@ import 'package:photo_manager_app/features/profile/data/repositories/profile_dat
 import 'package:photo_manager_app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/get_user_profile_use_case.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/update_user_profile_use_case.dart';
-import 'package:photo_manager_app/features/profile/domain/use_cases/change_password_use_case.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:photo_manager_app/features/devices/data/data_sources/device_remote_data_source.dart';
 import 'package:photo_manager_app/features/devices/data/repositories/device_data_repository.dart';
@@ -159,6 +175,8 @@ Future<void> init() async {
   sl.registerLazySingleton<CryptoEngine>(() => SodiumCryptoEngine(sodium));
   sl.registerLazySingleton<MasterKeyLocalDataSource>(
       () => MasterKeyLocalDataSourceImpl(secureStore: sl<SecureStore>()));
+  sl.registerLazySingleton(
+      () => KeyringService(engine: sl<CryptoEngine>(), store: sl<MasterKeyLocalDataSource>()));
 
   // Persistent sync log — registered immediately after SharedPreferences so it
   // is available in both the main isolate and the WorkManager background isolate.
@@ -345,7 +363,8 @@ Future<void> init() async {
             remoteDataSource: remoteDataSource,
             localDataSource: localDataSource,
             profileLocalDataSource: profileLocalDataSource,
-            syncDeviceLocalDataSource: syncDeviceLocalDataSource
+            syncDeviceLocalDataSource: syncDeviceLocalDataSource,
+            masterKeyLocalDataSource: sl<MasterKeyLocalDataSource>(),
         );
       }
   );
@@ -475,26 +494,57 @@ Future<void> init() async {
       }
   );
 
+  // account security (end-to-end encryption keys, docs/e2ee-spec.md)
+  sl.registerLazySingleton<AccountSecurityRemoteDataSource>(
+      () => AccountSecurityRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<AccountSecurityRepository>(() => AccountSecurityDataRepository(
+      remoteDataSource: sl<AccountSecurityRemoteDataSource>(), authLocalDataSource: sl<AuthLocalDataSource>()));
+  sl.registerLazySingleton<RecoveryReminderRepository>(
+      () => RecoveryReminderDataRepository(sharedPreferences: sl<SharedPreferences>()));
+  sl.registerLazySingleton<DeviceAuthenticator>(() => LocalAuthDeviceAuthenticator());
+  sl.registerLazySingleton<RecoveryPhraseExporter>(() => PlatformRecoveryPhraseExporter());
+  sl.registerFactory(() => ChangePasswordUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
+  sl.registerFactory(() => ResetPasswordFromDeviceUseCase(
+      sl(), sl<CryptoEngine>(), sl<KeyringService>(), sl<DeviceAuthenticator>()));
+  sl.registerFactory(() => GetLockedAccountStatusUseCase(sl(), sl<KeyringService>()));
+  sl.registerFactory(() => UnlockWithRecoveryPhraseUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
+  sl.registerFactory(() => UnlockWithDeviceKeysUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
+  sl.registerFactory(() => CreateNewKeyVersionUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
+  sl.registerFactory(() => GetRecoveryWordsUseCase(sl<KeyringService>()));
+  sl.registerFactory(() => VerifyRecoveryWordsUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
+  sl.registerFactory(() => RecoveryReminderUseCase(sl<RecoveryReminderRepository>()));
+  sl.registerFactory(() => LockedAccountBloc(
+        getStatusUseCase: sl(),
+        unlockWithRecoveryPhraseUseCase: sl(),
+        unlockWithDeviceKeysUseCase: sl(),
+        createNewKeyVersionUseCase: sl(),
+      ));
+  sl.registerFactory(() => DeviceResetPasswordBloc(resetPasswordFromDeviceUseCase: sl()));
+  sl.registerFactory(() => VerifyRecoveryPhraseBloc(verifyUseCase: sl(), reminderUseCase: sl()));
+
   // USE CASES
   // auth
   sl.registerFactory(
       () {
         final repository = sl<AuthRepository>();
-        return LoginUseCase(repository);
+        return LoginUseCase(repository, sl<CryptoEngine>(), sl<KeyringService>());
       }
   );
 
   sl.registerFactory(
       () {
         final repository = sl<AuthRepository>();
-        return LogoutUseCase(repository);
+        return LogoutUseCase(repository, onLogout: [
+          () => sl<RecoveryReminderRepository>().clear(),
+          () => sl<RecoveryPhraseExporter>().deleteExportedFiles(),
+        ]);
       }
   );
 
   sl.registerFactory(
       () {
         final repository = sl<AuthRepository>();
-        return RegisterUseCase(repository);
+        return RegisterUseCase(repository, sl<CryptoEngine>(), sl<KeyringService>());
       }
   );
 
@@ -515,7 +565,7 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final repository = sl<AuthRepository>();
-        return ResetPasswordUseCase(repository);
+        return ResetPasswordUseCase(repository, sl<CryptoEngine>(), sl<KeyringService>());
       }
   );
 
@@ -538,13 +588,6 @@ Future<void> init() async {
       () {
         final repository = sl<ProfileRepository>();
         return UpdateUserProfileUseCase(repository);
-      }
-  );
-
-  sl.registerFactory(
-      () {
-        final repository = sl<ProfileRepository>();
-        return ChangePasswordUseCase(repository);
       }
   );
 
@@ -772,6 +815,7 @@ Future<void> init() async {
             resetPasswordUseCase: resetPasswordUseCase,
             authRepository: authRepository,
             syncDeviceRepository: syncDeviceRepository,
+            recoveryReminderUseCase: sl<RecoveryReminderUseCase>(),
             eventBus: eventBus,
         );
       }

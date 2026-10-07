@@ -1,18 +1,23 @@
 
+import 'package:photo_manager_app/core/crypto/data/models/key_version_model.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_version.dart';
 import 'package:photo_manager_app/features/auth/data/models/user_model.dart';
 
+/// Login and register response. [keys] are the user's master key versions, wrapped (docs/e2ee-spec.md, section 12).
 class AuthResponseModel {
 
   final String token;
   final String? refreshToken;
   final DateTime? expiresAt;
   final UserModel user;
+  final AccountKeys? keys;
 
   AuthResponseModel({
     required this.token,
     this.refreshToken,
     this.expiresAt,
     required this.user,
+    this.keys,
   });
 
   factory AuthResponseModel.fromJson(Map<String, dynamic> json) {
@@ -35,6 +40,7 @@ class AuthResponseModel {
       refreshToken: refreshToken,
       expiresAt: expiresAt,
       user: user,
+      keys: json['keys'] == null ? null : AccountKeysModel.fromJson(json['keys'] as Map<String, dynamic>),
     );
   }
 

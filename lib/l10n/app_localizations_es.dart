@@ -1632,4 +1632,205 @@ class AppLocalizationsEs extends AppLocalizations {
   String bytesToUpload(String size) {
     return '$size por subir';
   }
+
+  @override
+  String get errorRecoveryPhraseMismatch => 'Estas 24 palabras no corresponden a ninguna clave de tu cuenta.';
+
+  @override
+  String get errorInvalidRecoveryPhrase => 'Revisa las palabras: hay alguna mal escrita o faltan palabras.';
+
+  @override
+  String errorWeakPassword(int min) {
+    return 'La contraseña debe tener al menos $min caracteres.';
+  }
+
+  @override
+  String get errorMissingDeviceKey => 'Este dispositivo no tiene todas las claves de tu cuenta. Inicia sesión de nuevo en él y vuelve a intentarlo.';
+
+  @override
+  String get errorKeyUnlock => 'No se han podido abrir las claves de tu cuenta.';
+
+  @override
+  String get errorDeviceAuthentication => 'No se ha podido verificar tu identidad con el bloqueo del dispositivo. Configura una huella, un PIN o un patrón y vuelve a intentarlo.';
+
+  @override
+  String get recoveryPhraseTitle => 'Tus 24 palabras de recuperación';
+
+  @override
+  String get recoveryPhraseSubtitle => 'Son la única forma de recuperar tus fotos si olvidas la contraseña y no tienes otro dispositivo con la sesión abierta.';
+
+  @override
+  String get recoveryPhraseWarning => 'Nadie, ni siquiera nosotros, puede recuperarlas por ti. Guárdalas en un lugar seguro.';
+
+  @override
+  String get recoveryPhraseSaveToPasswordManager => 'Guardar en el gestor de contraseñas';
+
+  @override
+  String get recoveryPhraseSavedToPasswordManager => 'Guardadas en el gestor de contraseñas';
+
+  @override
+  String get recoveryPhraseSaveToPasswordManagerFailed => 'No se han podido guardar en el gestor de contraseñas. Descarga el PDF o apúntalas.';
+
+  @override
+  String get recoveryPhraseDownloadPdf => 'Descargar PDF';
+
+  @override
+  String get recoveryPhraseContinue => 'Ya las he guardado';
+
+  @override
+  String get recoveryPhraseDone => 'Hecho';
+
+  @override
+  String get recoveryPhraseViewTitle => 'Mis 24 palabras';
+
+  @override
+  String get recoveryPhraseNotOnDevice => 'Este dispositivo no tiene una copia de tus 24 palabras. Si las tienes apuntadas, puedes verificarlas para guardar una copia aquí.';
+
+  @override
+  String recoveryPhrasePasswordManagerAccount(String email) {
+    return 'Clave de recuperación de Photo Manager ($email)';
+  }
+
+  @override
+  String get recoveryPhrasePdfTitle => 'Clave de recuperación de Photo Manager';
+
+  @override
+  String get recoveryPhrasePdfAccount => 'Cuenta';
+
+  @override
+  String get recoveryPhrasePdfWarning => 'Guarda este documento en un lugar seguro. Quien tenga estas palabras y acceso a tu email podría restablecer tu contraseña.';
+
+  @override
+  String get recoveryPhrasePdfInstructions => 'Si olvidas tu contraseña: pulsa \"¿Has olvidado tu contraseña?\", introduce el código que recibirás por email y después estas 24 palabras.';
+
+  @override
+  String get confirmPhraseTitle => 'Comprueba tus palabras';
+
+  @override
+  String get confirmPhraseSubtitle => 'Escribe las palabras que te pedimos para confirmar que las tienes guardadas.';
+
+  @override
+  String confirmPhraseWordLabel(int position) {
+    return 'Palabra número $position';
+  }
+
+  @override
+  String get confirmPhraseCheck => 'Comprobar';
+
+  @override
+  String get confirmPhraseWrong => 'Alguna palabra no coincide. Revisa tu copia.';
+
+  @override
+  String get recoveryWordsInputLabel => 'Tus 24 palabras';
+
+  @override
+  String get recoveryWordsInputHint => 'Escríbelas separadas por espacios';
+
+  @override
+  String get lockedTitle => 'Tus fotos anteriores están bloqueadas';
+
+  @override
+  String get lockedMessage => 'Has restablecido la contraseña sin tus 24 palabras, así que no podemos abrir las claves que protegían tus fotos.';
+
+  @override
+  String get lockedPhotosKept => 'Tus fotos no se han borrado. Las recuperarás todas si encuentras tus 24 palabras o un dispositivo que siga teniendo la sesión abierta.';
+
+  @override
+  String get lockedUseWords => 'Tengo mis 24 palabras';
+
+  @override
+  String get lockedUseDevice => 'Recuperar desde este dispositivo';
+
+  @override
+  String get lockedUseDeviceSubtitle => 'Este dispositivo todavía guarda las claves de algunas fotos bloqueadas.';
+
+  @override
+  String get lockedNewKey => 'Empezar con una clave nueva';
+
+  @override
+  String get lockedNewKeyConfirmTitle => '¿Empezar con una clave nueva?';
+
+  @override
+  String get lockedNewKeyConfirmMessage => 'Podrás seguir subiendo fotos. Las anteriores seguirán bloqueadas, pero no se borran: podrás recuperarlas más adelante.';
+
+  @override
+  String get lockedPasswordPrompt => 'Escribe tu contraseña actual';
+
+  @override
+  String get lockedUnlocked => 'Fotos recuperadas';
+
+  @override
+  String get resetHaveWordsQuestion => '¿Tienes tus 24 palabras de recuperación?';
+
+  @override
+  String get resetHaveWordsYes => 'Sí, las tengo';
+
+  @override
+  String get resetHaveWordsNo => 'No las tengo';
+
+  @override
+  String get resetWithoutWordsTitle => 'Tus fotos quedarán bloqueadas';
+
+  @override
+  String get resetWithoutWordsMessage => 'Sin las 24 palabras no podemos abrir las claves de tus fotos. Podrás entrar con la nueva contraseña, pero tus fotos actuales quedarán bloqueadas. No se borran: las recuperarás si encuentras tus palabras o un dispositivo con la sesión abierta.';
+
+  @override
+  String get resetWithoutWordsConfirm => 'Entendido, continuar';
+
+  @override
+  String get resetAccountLockedNotice => 'Contraseña cambiada. Al entrar verás cómo recuperar tus fotos bloqueadas.';
+
+  @override
+  String get deviceResetTitle => 'He olvidado mi contraseña';
+
+  @override
+  String get deviceResetSubtitle => 'Como este dispositivo tiene la sesión abierta, puedes poner una contraseña nueva sin perder nada. Te pediremos la huella o el PIN del dispositivo.';
+
+  @override
+  String get deviceResetReason => 'Confirma que eres tú para cambiar la contraseña';
+
+  @override
+  String get deviceResetSubmit => 'Cambiar contraseña';
+
+  @override
+  String get deviceResetSuccess => 'Contraseña cambiada';
+
+  @override
+  String get verifyPhraseTitle => 'Verificar mis 24 palabras';
+
+  @override
+  String get verifyPhraseSubtitleFull => 'Escribe tus 24 palabras. Si son correctas, guardaremos una copia en este dispositivo.';
+
+  @override
+  String get verifyPhraseSuccess => 'Tus palabras son correctas';
+
+  @override
+  String get reminderTitle => '¿Sigues teniendo tus 24 palabras?';
+
+  @override
+  String get reminderMessage => 'Son la única forma de recuperar tus fotos si olvidas la contraseña. Comprueba que sigues teniéndolas.';
+
+  @override
+  String get reminderVerifyNow => 'Comprobar ahora';
+
+  @override
+  String get reminderLater => 'Más tarde';
+
+  @override
+  String get profileSecuritySection => 'Seguridad';
+
+  @override
+  String get profileRecoveryWords => 'Mis 24 palabras';
+
+  @override
+  String get profileVerifyWords => 'Verificar mis 24 palabras';
+
+  @override
+  String get profileForgotPassword => 'He olvidado mi contraseña';
+
+  @override
+  String get profileLockedPhotos => 'Recuperar fotos bloqueadas';
+
+  @override
+  String get lockedNone => 'No tienes fotos bloqueadas: todas tus claves están disponibles.';
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/features/account_security/domain/use_cases/recovery_phrase_use_cases.dart';
 import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
@@ -30,6 +31,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ResetPasswordUseCase resetPasswordUseCase;
   final AuthRepository authRepository;
   final SyncDeviceRepository syncDeviceRepository;
+  final RecoveryReminderUseCase? recoveryReminderUseCase;
 
   static const int minimumLoadingDuration = 800;
 
@@ -48,6 +50,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.resetPasswordUseCase,
     required this.authRepository,
     required this.syncDeviceRepository,
+    this.recoveryReminderUseCase,
     required AppEventBus eventBus,
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
@@ -59,6 +62,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<ResetCodeValidationRequested>(_onResetCodeValidationRequested);
     on<PasswordResetCodeResendRequested>(_onPasswordResetCodeResendRequested);
     on<NewPasswordSubmitted>(_onNewPasswordSubmitted);
+    on<RecoveryPhraseConfirmed>(_onRecoveryPhraseConfirmed);
+    on<AccountUnlocked>((event, emit) => emit(AuthSuccessful(event.user)));
 
     // When the HTTP layer cannot refresh the token (session fully expired),
     // trigger a logout so GoRouter redirects back to the login screen.
@@ -82,7 +87,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final stopwatch = Stopwatch()..start();
 
     try {
-      final user = await loginUseCase(
+      final result = await loginUseCase(
         email: event.email,
         password: event.password
       );
@@ -90,7 +95,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _registerDevice();
       await _waitForLoading(stopwatch);
 
-      emit(AuthSuccessful(user));
+      // A locked account goes through the locked account flow before the gallery
+      emit(result.accountLocked ? AuthAccountLocked(result.user) : AuthSuccessful(result.user));
     } catch (e) {
       await _waitForLoading(stopwatch);
       final failure = ErrorHandler.handleError(e);
@@ -105,10 +111,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
 
-      await registerUseCase(email: event.email, password: event.password,
-          name: event.name, surname: event.surname);
+      final result = await registerUseCase(email: event.email, password: event.password,
+          name: event.name, surname: event.surname, language: event.language);
       await _waitForLoading(stopwatch);
-      emit(RegisterSuccessful());
+      emit(RecoveryPhraseRequired(result.user, result.recoveryWords));
 
     } catch (e) {
       await _waitForLoading(stopwatch);
@@ -236,19 +242,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
+  Future<void> _onRecoveryPhraseConfirmed(RecoveryPhraseConfirmed event, Emitter<AuthState> emit) async {
+    await recoveryReminderUseCase?.start();
+    await _registerDevice();
+    emit(AuthSuccessful(event.user));
+  }
+
   Future<void> _onNewPasswordSubmitted(NewPasswordSubmitted event, Emitter<AuthState> emit) async {
 
     emit(AuthLoading());
     final stopwatch = Stopwatch()..start();
 
     try {
-      await resetPasswordUseCase(
+      final accountLocked = await resetPasswordUseCase(
         email: event.email,
         code: event.code,
-        newPassword: event.newPassword
+        newPassword: event.newPassword,
+        recoveryWords: event.recoveryWords,
       );
       await _waitForLoading(stopwatch);
-      emit(PasswordResetSuccessful());
+      emit(PasswordResetSuccessful(accountLocked: accountLocked));
     } catch (e) {
       await _waitForLoading(stopwatch);
       final failure = ErrorHandler.handleError(e);

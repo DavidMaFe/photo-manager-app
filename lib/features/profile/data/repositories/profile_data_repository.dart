@@ -53,14 +53,4 @@ class ProfileDataRepository implements ProfileRepository {
     return profileModel;
   }
 
-  @override
-  Future<void> changePassword({
-    required String currentPassword,
-    required String newPassword,
-  }) async {
-    await profileRemoteDatasource.changePassword(
-      currentPassword: currentPassword,
-      newPassword: newPassword,
-    );
-  }
 }

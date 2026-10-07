@@ -1,485 +1,172 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/crypto/domain/crypto_key.dart';
+import 'package:photo_manager_app/core/crypto/domain/kdf_params.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_material.dart';
+import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/reset_password_use_case.dart';
+
+import '../../../../fixtures/e2ee_test_data.dart';
+import '../../../../helpers/e2ee_test_kit.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
 void main() {
+  late E2eeTestKit kit;
+  late MockAuthRepository repository;
   late ResetPasswordUseCase useCase;
-  late MockAuthRepository mockAuthRepository;
+  late NewKeyMaterial material;
 
-  setUp(() {
-    mockAuthRepository = MockAuthRepository();
-    useCase = ResetPasswordUseCase(mockAuthRepository);
+  const email = 'test@example.com';
+  const code = '123456';
+  const newPassword = 'a brand new password';
+
+  // What the server received in the reset
+  late String receivedAuthKey;
+  late KdfParams receivedParams;
+  late List<RecoveredKey> receivedKeys;
+
+  setUpAll(() {
+    registerFallbackValue(CryptoKey(Uint8List(32)));
+    registerFallbackValue(E2eeTestData.kdfParams());
+    registerFallbackValue(<RecoveredKey>[]);
   });
 
+  setUp(() async {
+    kit = await E2eeTestKit.create();
+    repository = MockAuthRepository();
+    useCase = ResetPasswordUseCase(repository, kit.engine, kit.keyring);
+    material = await kit.material('the forgotten password', E2eeTestKit.cheapParams());
+
+    when(() => repository.getRecoveryWraps(any(), any())).thenAnswer(
+        (_) async => [RecoveryWrap(version: 1, masterKeyByRecovery: material.masterKeyByRecovery)]);
+    when(() => repository.resetPassword(
+          email: any(named: 'email'),
+          code: any(named: 'code'),
+          newAuthKey: any(named: 'newAuthKey'),
+          kdfParams: any(named: 'kdfParams'),
+          recoveredKeys: any(named: 'recoveredKeys'),
+        )).thenAnswer((invocation) async {
+      final args = invocation.namedArguments;
+      receivedAuthKey = base64Encode((args[#newAuthKey] as CryptoKey).bytes);
+      receivedParams = args[#kdfParams] as KdfParams;
+      receivedKeys = args[#recoveredKeys] as List<RecoveredKey>;
+      return receivedKeys.isEmpty;
+    });
+  });
+
+  List<String> wordsOf(CryptoKey recoveryKey) => RecoveryPhrase.encode(recoveryKey.bytes, RecoveryPhraseLanguage.english);
+
+  void verifyNoReset() => verifyNever(() => repository.resetPassword(
+        email: any(named: 'email'),
+        code: any(named: 'code'),
+        newAuthKey: any(named: 'newAuthKey'),
+        kdfParams: any(named: 'kdfParams'),
+        recoveredKeys: any(named: 'recoveredKeys'),
+      ));
+
   group('ResetPasswordUseCase', () {
-    const testEmail = 'test@example.com';
-    const testCode = '123456';
-    const testPassword = 'newPassword123';
+    // ==================== HAPPY PATH TESTS ====================
 
-    group('email validation', () {
-      test('should throw exception when email is empty', () async {
-        // Act & Assert
-        expect(
-          () => useCase(email: '', code: testCode, newPassword: testPassword),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Email is required')),
-          ),
-        );
+    test('should keep the photos with the 24 words: the key is wrapped again with the new password', () async {
+      // Act
+      final locked = await useCase(email: email, code: code, newPassword: newPassword,
+          recoveryWords: wordsOf(material.recoveryKey));
 
-        // Verify repository was never called
-        verifyNever(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            ));
-      });
-
-      test('should throw exception when email contains only whitespace',
-          () async {
-        // Act & Assert
-        expect(
-          () => useCase(email: '   ', code: testCode, newPassword: testPassword),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Email is required')),
-          ),
-        );
-
-        verifyNever(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            ));
-      });
-
-      test('should throw exception when email format is invalid', () async {
-        // Arrange
-        const invalidEmails = [
-          'notanemail',
-          'missing@domain',
-          '@nodomain.com',
-          'no@domain@double.com',
-          'spaces in@email.com',
-          'missing.domain@',
-        ];
-
-        for (final email in invalidEmails) {
-          // Act & Assert
-          expect(
-            () => useCase(email: email, code: testCode, newPassword: testPassword),
-            throwsA(
-              predicate((e) =>
-                  e is Exception && e.toString().contains('Email is not valid')),
-            ),
-            reason: 'Should reject invalid email: $email',
-          );
-        }
-
-        verifyNever(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            ));
-      });
-
-      test('should accept valid email formats', () async {
-        // Arrange
-        const validEmails = [
-          'test@example.com',
-          'user.name@domain.com',
-          'user_name@domain.co.uk',
-          'test123@test.org',
-          'user-name@domain-name.com',
-        ];
-
-        for (final email in validEmails) {
-          when(() => mockAuthRepository.resetPassword(
-                any(),
-                any(),
-                any(),
-              )).thenAnswer((_) async => {});
-
-          // Act
-          await useCase(email: email, code: testCode, newPassword: testPassword);
-
-          // Assert - should not throw
-          verify(() => mockAuthRepository.resetPassword(
-                email,
-                testCode,
-                testPassword,
-              )).called(1);
-        }
-      });
-
-      test('should trim email when sending to repository', () async {
-        // Arrange
-        when(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
-
-        // Act - Note: email validation happens on trimmed email
-        await useCase(
-          email: 'test@example.com',
-          code: testCode,
-          newPassword: testPassword,
-        );
-
-        // Assert - email should be trimmed when sent to repository
-        verify(() => mockAuthRepository.resetPassword(
-              'test@example.com',
-              testCode,
-              testPassword,
-            )).called(1);
-      });
+      // Assert
+      expect(locked, isFalse);
+      final keys = await kit.passwordKeys(newPassword, receivedParams);
+      expect(receivedAuthKey, base64Encode(keys.authKey.bytes));
+      final recovered = receivedKeys.single;
+      expect(recovered.version, 1);
+      expect(recovered.recoveryAuthKey, material.recoveryAuthKey);
+      expect(kit.unwrapWithPassword(keys.kek, recovered.encryptedMasterKey), material.masterKey.bytes);
     });
 
-    group('code validation', () {
-      test('should throw exception when code is empty', () async {
-        // Act & Assert
-        expect(
-          () => useCase(email: testEmail, code: '', newPassword: testPassword),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Code is required')),
-          ),
-        );
+    test('should accept the words in Spanish, without accents and in capitals', () async {
+      final words = RecoveryPhrase.encode(material.recoveryKey.bytes, RecoveryPhraseLanguage.spanish)
+          .map((word) => RecoveryPhrase.normalizeWord(word).toUpperCase())
+          .toList();
 
-        verifyNever(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            ));
-      });
+      final locked = await useCase(email: email, code: code, newPassword: newPassword, recoveryWords: words);
 
-      test('should throw exception when code contains only whitespace',
-          () async {
-        // Act & Assert
-        expect(
-          () => useCase(email: testEmail, code: '    ', newPassword: testPassword),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Code is required')),
-          ),
-        );
-
-        verifyNever(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            ));
-      });
-
-      test('should throw exception when code format is invalid', () async {
-        // Arrange
-        const invalidCodes = [
-          '12345',       // 5 digits
-          '1234567',     // 7 digits
-          '12345a',      // contains letter
-          'abcdef',      // all letters
-          '123 456',     // contains space
-          '123-456',     // contains hyphen
-          '12.345',      // contains dot
-        ];
-
-        for (final code in invalidCodes) {
-          // Act & Assert
-          expect(
-            () => useCase(email: testEmail, code: code, newPassword: testPassword),
-            throwsA(
-              predicate((e) =>
-                  e is Exception &&
-                  e.toString().contains('Code must be 6 digits')),
-            ),
-            reason: 'Should reject invalid code: $code',
-          );
-        }
-
-        verifyNever(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            ));
-      });
-
-      test('should accept valid 6-digit code', () async {
-        // Arrange
-        const validCodes = [
-          '123456',
-          '000000',
-          '999999',
-          '654321',
-        ];
-
-        for (final code in validCodes) {
-          when(() => mockAuthRepository.resetPassword(
-                any(),
-                any(),
-                any(),
-              )).thenAnswer((_) async => {});
-
-          // Act
-          await useCase(email: testEmail, code: code, newPassword: testPassword);
-
-          // Assert - should not throw
-          verify(() => mockAuthRepository.resetPassword(
-                testEmail,
-                code,
-                testPassword,
-              )).called(1);
-        }
-      });
-
-      test('should trim code when sending to repository', () async {
-        // Arrange
-        when(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
-
-        // Act
-        await useCase(
-          email: testEmail,
-          code: '  123456  ',
-          newPassword: testPassword,
-        );
-
-        // Assert - code should be trimmed when sent to repository
-        verify(() => mockAuthRepository.resetPassword(
-              testEmail,
-              '123456',
-              testPassword,
-            )).called(1);
-      });
+      expect(locked, isFalse);
+      expect(receivedKeys.single.version, 1);
     });
 
-    group('password validation', () {
-      test('should throw exception when password is empty', () async {
-        // Act & Assert
-        expect(
-          () => useCase(email: testEmail, code: testCode, newPassword: ''),
-          throwsA(
-            predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Password is required')),
-          ),
-        );
+    test('should lock the account without the 24 words, without asking for the recovery wraps', () async {
+      final locked = await useCase(email: email, code: code, newPassword: newPassword);
 
-        verifyNever(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            ));
-      });
-
-      test('should throw exception when password contains only whitespace',
-          () async {
-        // Act & Assert
-        expect(
-          () => useCase(email: testEmail, code: testCode, newPassword: '    '),
-          throwsA(
-            predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Password is required')),
-          ),
-        );
-
-        verifyNever(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            ));
-      });
-
-      test('should accept non-empty password', () async {
-        // Arrange
-        when(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
-
-        // Act
-        await useCase(
-          email: testEmail,
-          code: testCode,
-          newPassword: 'validPassword123',
-        );
-
-        // Assert
-        verify(() => mockAuthRepository.resetPassword(
-              testEmail,
-              testCode,
-              'validPassword123',
-            )).called(1);
-      });
-
-      test('should NOT trim password when sending to repository', () async {
-        // Arrange
-        when(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
-
-        // Act - password with spaces should be preserved
-        await useCase(
-          email: testEmail,
-          code: testCode,
-          newPassword: '  password with spaces  ',
-        );
-
-        // Assert - password should NOT be trimmed (spaces are valid in passwords)
-        verify(() => mockAuthRepository.resetPassword(
-              testEmail,
-              testCode,
-              '  password with spaces  ',
-            )).called(1);
-      });
+      expect(locked, isTrue);
+      expect(receivedKeys, isEmpty);
+      expect(receivedParams.ops, KdfParams.defaultOps);
+      verifyNever(() => repository.getRecoveryWraps(any(), any()));
     });
 
-    group('validation order', () {
-      test('should validate email before code and password', () async {
-        // Act & Assert - empty email should be caught first
-        expect(
-          () => useCase(email: '', code: '', newPassword: ''),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Email is required')),
-          ),
-        );
-      });
+    test('should send the trimmed email and code', () async {
+      await useCase(email: ' $email ', code: ' $code ', newPassword: newPassword,
+          recoveryWords: wordsOf(material.recoveryKey));
 
-      test('should validate code after email format validation', () async {
-        // Act & Assert - when email is valid but code is empty
-        expect(
-          () => useCase(email: testEmail, code: '', newPassword: testPassword),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Code is required')),
-          ),
-        );
-      });
-
-      test('should validate password after code validation', () async {
-        // Act & Assert - when email and code are valid but password is empty
-        expect(
-          () => useCase(email: testEmail, code: testCode, newPassword: ''),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Password is required')),
-          ),
-        );
-      });
-
-      test('should validate all fields before calling repository', () async {
-        // Arrange
-        when(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
-
-        // Act
-        await useCase(
-          email: testEmail,
-          code: testCode,
-          newPassword: testPassword,
-        );
-
-        // Assert - repository should only be called once all validations pass
-        verify(() => mockAuthRepository.resetPassword(
-              testEmail,
-              testCode,
-              testPassword,
-            )).called(1);
-      });
+      verify(() => repository.getRecoveryWraps(email, code)).called(1);
+      verify(() => repository.resetPassword(
+            email: email,
+            code: code,
+            newAuthKey: any(named: 'newAuthKey'),
+            kdfParams: any(named: 'kdfParams'),
+            recoveredKeys: any(named: 'recoveredKeys'),
+          )).called(1);
     });
 
-    group('successful password reset', () {
-      test('should complete when all parameters are valid', () async {
-        // Arrange
-        when(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
+    // ==================== BUSINESS LOGIC TESTS ====================
 
-        // Act
-        await useCase(
-          email: testEmail,
-          code: testCode,
-          newPassword: testPassword,
-        );
+    test('should throw InvalidRecoveryPhraseFailure on a typo before calling the server', () async {
+      final words = wordsOf(material.recoveryKey);
+      words[5] = 'notaword';
 
-        // Assert
-        verify(() => mockAuthRepository.resetPassword(
-              testEmail,
-              testCode,
-              testPassword,
-            )).called(1);
-      });
-
-      test('should call repository with correct parameters', () async {
-        // Arrange
-        when(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            )).thenAnswer((_) async => {});
-
-        // Act
-        await useCase(
-          email: testEmail,
-          code: testCode,
-          newPassword: testPassword,
-        );
-
-        // Assert
-        verify(() => mockAuthRepository.resetPassword(
-              testEmail,
-              testCode,
-              testPassword,
-            )).called(1);
-        verifyNoMoreInteractions(mockAuthRepository);
-      });
+      await expectLater(useCase(email: email, code: code, newPassword: newPassword, recoveryWords: words),
+          throwsA(isA<InvalidRecoveryPhraseFailure>()));
+      verifyNever(() => repository.getRecoveryWraps(any(), any()));
+      verifyNoReset();
     });
 
-    group('error propagation', () {
-      test('should propagate repository exceptions', () async {
-        // Arrange
-        when(() => mockAuthRepository.resetPassword(
-              any(),
-              any(),
-              any(),
-            )).thenThrow(Exception('Password reset failed'));
+    test('should throw RecoveryPhraseMismatchFailure with the words of another key and not reset', () async {
+      final otherWords = wordsOf(kit.engine.generateKey());
 
-        // Act & Assert
-        expect(
-          () => useCase(
-            email: testEmail,
-            code: testCode,
-            newPassword: testPassword,
-          ),
-          throwsA(
-            predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Password reset failed')),
-          ),
-        );
-
-        verify(() => mockAuthRepository.resetPassword(
-              testEmail,
-              testCode,
-              testPassword,
-            )).called(1);
-      });
+      await expectLater(useCase(email: email, code: code, newPassword: newPassword, recoveryWords: otherWords),
+          throwsA(isA<RecoveryPhraseMismatchFailure>()));
+      verifyNoReset();
     });
+
+    test('should propagate the errors of the server', () async {
+      when(() => repository.getRecoveryWraps(any(), any())).thenThrow(Exception('Invalid code'));
+
+      await expectLater(useCase(email: email, code: code, newPassword: newPassword,
+          recoveryWords: wordsOf(material.recoveryKey)), throwsException);
+      verifyNoReset();
+    });
+
+    // ==================== VALIDATION ERROR TESTS ====================
+
+    test('should throw WeakPasswordFailure with fewer than 10 characters', () async {
+      await expectLater(useCase(email: email, code: code, newPassword: 'short'), throwsA(isA<WeakPasswordFailure>()));
+      verifyNoReset();
+    });
+
+    for (final (description, badEmail, badCode) in [
+      ('the email is empty', ' ', code),
+      ('the email is not valid', 'not-an-email', code),
+      ('the code is empty', email, '  '),
+      ('the code is not 6 digits', email, '12ab56'),
+    ]) {
+      test('should throw without calling the server when $description', () async {
+        await expectLater(useCase(email: badEmail, code: badCode, newPassword: newPassword), throwsException);
+        verifyNoReset();
+      });
+    }
   });
 }

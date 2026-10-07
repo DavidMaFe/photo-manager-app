@@ -1,33 +1,34 @@
-
+import 'package:photo_manager_app/core/crypto/domain/crypto_engine.dart';
+import 'package:photo_manager_app/core/crypto/domain/keyring_service.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_result.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
-import '../entities/user.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/auth_input_validator.dart';
 
 
+/// Login (docs/e2ee-spec.md, section 8.2): derives authKey and KEK from the password, logs in with the authKey and
+/// keeps on this device the master keys it can open with the KEK.
 class LoginUseCase {
 
   final AuthRepository _authRepository;
+  final CryptoEngine _cryptoEngine;
+  final KeyringService _keyringService;
 
-  LoginUseCase(this._authRepository);
+  LoginUseCase(this._authRepository, this._cryptoEngine, this._keyringService);
 
-  Future<User> call({required String email, required String password}) async {
+  Future<LoginResult> call({required String email, required String password}) async {
 
-    if(email.trim().isEmpty) {
-      throw Exception('Email is required');
+    AuthInputValidator.requireEmail(email);
+    AuthInputValidator.requirePassword(password);
+
+    final normalizedEmail = email.trim();
+    final kdfParams = await _authRepository.getKdfParams(normalizedEmail);
+    final passwordKeys = await _cryptoEngine.deriveFromPassword(password, kdfParams);
+    try {
+      final result = await _authRepository.login(email: normalizedEmail, authKey: passwordKeys.authKey);
+      await _keyringService.unlockAndStore(result.keys, passwordKeys.kek);
+      return result;
+    } finally {
+      passwordKeys.dispose();
     }
-
-    if(password.trim().isEmpty) {
-      throw Exception('Password is required');
-    }
-
-    if(!_isValidEmail(email)) {
-      throw Exception('Email is not valid');
-    }
-
-    return await _authRepository.login(email: email.trim(), password: password);
-  }
-
-  bool _isValidEmail(String email) {
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    return emailRegex.hasMatch(email);
   }
 }

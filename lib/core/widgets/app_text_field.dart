@@ -31,6 +31,9 @@ class AppTextField extends StatefulWidget {
   final Iterable<String>? autofillHints;
   final List<TextInputFormatter>? inputFormatters;
   final int? maxLength;
+
+  /// Lines of the field; 1 by default. A multiline field cannot be obscured.
+  final int maxLines;
   final String? Function(String?)? validator;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onFieldSubmitted;
@@ -56,6 +59,7 @@ class AppTextField extends StatefulWidget {
     this.autofillHints,
     this.inputFormatters,
     this.maxLength,
+    this.maxLines = 1,
     this.validator,
     this.onChanged,
     this.onFieldSubmitted,
@@ -124,6 +128,7 @@ class _AppTextFieldState extends State<AppTextField> {
         autofillHints: widget.autofillHints,
         inputFormatters: widget.inputFormatters,
         maxLength: widget.maxLength,
+        maxLines: widget.obscureText ? 1 : widget.maxLines,
         validator: widget.validator,
         onChanged: widget.onChanged,
         onFieldSubmitted: widget.onFieldSubmitted,

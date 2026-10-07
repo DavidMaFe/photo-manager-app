@@ -12,6 +12,7 @@ import 'package:photo_manager_app/core/widgets/app_card.dart';
 import 'package:photo_manager_app/core/widgets/list_row.dart';
 import 'package:photo_manager_app/core/widgets/screen_header.dart';
 import 'package:photo_manager_app/core/widgets/section_label.dart';
+import 'package:photo_manager_app/features/account_security/presentation/widgets/security_section.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
@@ -186,6 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ],
                 ),
+                SecuritySection(email: profile.email),
               ],
             ),
           ),

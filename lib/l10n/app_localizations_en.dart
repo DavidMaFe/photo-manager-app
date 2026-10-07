@@ -1632,4 +1632,205 @@ class AppLocalizationsEn extends AppLocalizations {
   String bytesToUpload(String size) {
     return '$size left to upload';
   }
+
+  @override
+  String get errorRecoveryPhraseMismatch => 'These 24 words do not match any key of your account.';
+
+  @override
+  String get errorInvalidRecoveryPhrase => 'Check the words: one is misspelled or some are missing.';
+
+  @override
+  String errorWeakPassword(int min) {
+    return 'The password must have at least $min characters.';
+  }
+
+  @override
+  String get errorMissingDeviceKey => 'This device does not have every key of your account. Log in again on it and try again.';
+
+  @override
+  String get errorKeyUnlock => 'The keys of your account could not be opened.';
+
+  @override
+  String get errorDeviceAuthentication => 'Your identity could not be verified with the device lock. Set up a fingerprint, PIN or pattern and try again.';
+
+  @override
+  String get recoveryPhraseTitle => 'Your 24 recovery words';
+
+  @override
+  String get recoveryPhraseSubtitle => 'They are the only way to recover your photos if you forget your password and have no other device with an open session.';
+
+  @override
+  String get recoveryPhraseWarning => 'Nobody, not even us, can recover them for you. Keep them somewhere safe.';
+
+  @override
+  String get recoveryPhraseSaveToPasswordManager => 'Save to the password manager';
+
+  @override
+  String get recoveryPhraseSavedToPasswordManager => 'Saved to the password manager';
+
+  @override
+  String get recoveryPhraseSaveToPasswordManagerFailed => 'They could not be saved to the password manager. Download the PDF or write them down.';
+
+  @override
+  String get recoveryPhraseDownloadPdf => 'Download PDF';
+
+  @override
+  String get recoveryPhraseContinue => 'I have saved them';
+
+  @override
+  String get recoveryPhraseDone => 'Done';
+
+  @override
+  String get recoveryPhraseViewTitle => 'My 24 words';
+
+  @override
+  String get recoveryPhraseNotOnDevice => 'This device has no copy of your 24 words. If you have them written down, verify them to keep a copy here.';
+
+  @override
+  String recoveryPhrasePasswordManagerAccount(String email) {
+    return 'Photo Manager recovery key ($email)';
+  }
+
+  @override
+  String get recoveryPhrasePdfTitle => 'Photo Manager recovery key';
+
+  @override
+  String get recoveryPhrasePdfAccount => 'Account';
+
+  @override
+  String get recoveryPhrasePdfWarning => 'Keep this document somewhere safe. Anyone with these words and access to your email could reset your password.';
+
+  @override
+  String get recoveryPhrasePdfInstructions => 'If you forget your password: tap \"Forgot your password?\", enter the code you get by email and then these 24 words.';
+
+  @override
+  String get confirmPhraseTitle => 'Check your words';
+
+  @override
+  String get confirmPhraseSubtitle => 'Type the words we ask for to confirm you have saved them.';
+
+  @override
+  String confirmPhraseWordLabel(int position) {
+    return 'Word number $position';
+  }
+
+  @override
+  String get confirmPhraseCheck => 'Check';
+
+  @override
+  String get confirmPhraseWrong => 'A word does not match. Check your copy.';
+
+  @override
+  String get recoveryWordsInputLabel => 'Your 24 words';
+
+  @override
+  String get recoveryWordsInputHint => 'Type them separated by spaces';
+
+  @override
+  String get lockedTitle => 'Your earlier photos are locked';
+
+  @override
+  String get lockedMessage => 'You reset your password without your 24 words, so the keys that protected your photos cannot be opened.';
+
+  @override
+  String get lockedPhotosKept => 'Your photos have not been deleted. You will recover all of them if you find your 24 words or a device that still has an open session.';
+
+  @override
+  String get lockedUseWords => 'I have my 24 words';
+
+  @override
+  String get lockedUseDevice => 'Recover from this device';
+
+  @override
+  String get lockedUseDeviceSubtitle => 'This device still keeps the keys of some locked photos.';
+
+  @override
+  String get lockedNewKey => 'Start with a new key';
+
+  @override
+  String get lockedNewKeyConfirmTitle => 'Start with a new key?';
+
+  @override
+  String get lockedNewKeyConfirmMessage => 'You can keep uploading photos. The earlier ones stay locked but are not deleted: you can recover them later.';
+
+  @override
+  String get lockedPasswordPrompt => 'Type your current password';
+
+  @override
+  String get lockedUnlocked => 'Photos recovered';
+
+  @override
+  String get resetHaveWordsQuestion => 'Do you have your 24 recovery words?';
+
+  @override
+  String get resetHaveWordsYes => 'Yes, I have them';
+
+  @override
+  String get resetHaveWordsNo => 'I do not have them';
+
+  @override
+  String get resetWithoutWordsTitle => 'Your photos will be locked';
+
+  @override
+  String get resetWithoutWordsMessage => 'Without the 24 words the keys of your photos cannot be opened. You will log in with the new password, but your current photos will be locked. They are not deleted: you will recover them if you find your words or a device with an open session.';
+
+  @override
+  String get resetWithoutWordsConfirm => 'Understood, continue';
+
+  @override
+  String get resetAccountLockedNotice => 'Password changed. When you log in you will see how to recover your locked photos.';
+
+  @override
+  String get deviceResetTitle => 'I forgot my password';
+
+  @override
+  String get deviceResetSubtitle => 'Since this device has an open session, you can set a new password without losing anything. We will ask for the fingerprint or PIN of the device.';
+
+  @override
+  String get deviceResetReason => 'Confirm it is you to change the password';
+
+  @override
+  String get deviceResetSubmit => 'Change password';
+
+  @override
+  String get deviceResetSuccess => 'Password changed';
+
+  @override
+  String get verifyPhraseTitle => 'Verify my 24 words';
+
+  @override
+  String get verifyPhraseSubtitleFull => 'Type your 24 words. If they are right, a copy will be kept on this device.';
+
+  @override
+  String get verifyPhraseSuccess => 'Your words are right';
+
+  @override
+  String get reminderTitle => 'Do you still have your 24 words?';
+
+  @override
+  String get reminderMessage => 'They are the only way to recover your photos if you forget your password. Check that you still have them.';
+
+  @override
+  String get reminderVerifyNow => 'Check now';
+
+  @override
+  String get reminderLater => 'Later';
+
+  @override
+  String get profileSecuritySection => 'Security';
+
+  @override
+  String get profileRecoveryWords => 'My 24 words';
+
+  @override
+  String get profileVerifyWords => 'Verify my 24 words';
+
+  @override
+  String get profileForgotPassword => 'I forgot my password';
+
+  @override
+  String get profileLockedPhotos => 'Recover locked photos';
+
+  @override
+  String get lockedNone => 'You have no locked photos: all your keys are available.';
 }

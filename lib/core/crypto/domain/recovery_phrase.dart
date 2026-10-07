@@ -93,7 +93,10 @@ class RecoveryPhrase {
 
   static final Map<RecoveryPhraseLanguage, Map<String, int>> _lookups = {};
 
-  /// Lowercase, trimmed and without accents ("Ábaco " -> "abaco").
+  /// Lowercase, trimmed and without accents ("Ábaco " -> "abaco"). Two words are the same word if their normalized
+  /// forms are equal.
+  static String normalizeWord(String word) => _normalize(word);
+
   static String _normalize(String word) {
     final decomposed = unorm.nfkd(word.trim().toLowerCase());
     return decomposed.replaceAll(RegExp(r'[̀-ͯ]'), '');

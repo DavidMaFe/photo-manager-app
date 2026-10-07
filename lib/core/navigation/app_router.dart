@@ -1,3 +1,11 @@
+import 'package:photo_manager_app/features/account_security/presentation/bloc/device_reset_password_bloc.dart';
+import 'package:photo_manager_app/features/account_security/presentation/bloc/locked_account_bloc.dart';
+import 'package:photo_manager_app/features/account_security/presentation/bloc/verify_recovery_phrase_bloc.dart';
+import 'package:photo_manager_app/features/account_security/presentation/pages/confirm_recovery_phrase_page.dart';
+import 'package:photo_manager_app/features/account_security/presentation/pages/device_reset_password_page.dart';
+import 'package:photo_manager_app/features/account_security/presentation/pages/locked_account_page.dart';
+import 'package:photo_manager_app/features/account_security/presentation/pages/recovery_phrase_page.dart';
+import 'package:photo_manager_app/features/account_security/presentation/pages/verify_recovery_phrase_page.dart';
 import 'package:photo_manager_app/features/file_management/presentation/models/album_viewer_context.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
@@ -10,6 +18,7 @@ import 'package:photo_manager_app/core/navigation/main_shell.dart';
 import 'package:photo_manager_app/core/navigation/onboarding_notifier.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:photo_manager_app/features/auth/presentation/pages/login_page.dart';
 import 'package:photo_manager_app/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:photo_manager_app/features/onboarding/presentation/pages/onboarding_page.dart';
@@ -69,9 +78,27 @@ class AppRouter {
               state.matchedLocation == RoutePaths.validateResetCode ||
               state.matchedLocation == RoutePaths.resetPassword;
           final isGoingToOnboarding = state.matchedLocation == RoutePaths.onboarding;
+          final isGoingToRecoveryPhrase = state.matchedLocation == RoutePaths.recoveryPhrase ||
+              state.matchedLocation == RoutePaths.confirmRecoveryPhrase;
+          final isGoingToLockedAccount = state.matchedLocation == RoutePaths.lockedAccount;
 
           if (isLoading || isCheckingOnboardingStatus) {
             return null;
+          }
+
+          // Just registered: show and confirm the 24 words before anything else
+          if (authNotifier.isRecoveryPhrasePending) {
+            return isGoingToRecoveryPhrase ? null : RoutePaths.recoveryPhrase;
+          }
+
+          // Locked account: the locked account page (and the words of a new key) before the gallery
+          if (authNotifier.isAccountLocked) {
+            return isGoingToLockedAccount || isGoingToRecoveryPhrase ? null : RoutePaths.lockedAccount;
+          }
+
+          // Those flows are over once the session starts
+          if (isAuthenticated && (isGoingToRecoveryPhrase || isGoingToLockedAccount)) {
+            return isOnboardingRequired ? RoutePaths.onboarding : RoutePaths.home;
           }
 
           if (!isAuthenticated && !isGoingToLogin && !isGoingToRegister && !isGoingToPasswordReset) {
@@ -105,6 +132,28 @@ class AppRouter {
               create: (_) => sl<OnboardingBloc>(),
               child: const OnboardingPage(),
             ),
+          ),
+          GoRoute(
+            path: RoutePaths.recoveryPhrase,
+            name: RouteNames.recoveryPhrase,
+            builder: (context, state) => RecoveryPhrasePage(args: _recoveryPhraseArgs(state, authBloc)),
+          ),
+          GoRoute(
+            path: RoutePaths.confirmRecoveryPhrase,
+            name: RouteNames.confirmRecoveryPhrase,
+            builder: (context, state) => ConfirmRecoveryPhrasePage(args: _recoveryPhraseArgs(state, authBloc)),
+          ),
+          GoRoute(
+            path: RoutePaths.lockedAccount,
+            name: RouteNames.lockedAccount,
+            builder: (context, state) {
+              final authState = authBloc.state;
+              final user = authState is AuthAccountLocked ? authState.user : (authState as AuthSuccessful).user;
+              return BlocProvider(
+                create: (_) => sl<LockedAccountBloc>()..add(LockedAccountStatusRequested()),
+                child: LockedAccountPage(user: user, afterLogin: authState is AuthAccountLocked),
+              );
+            },
           ),
           GoRoute(
               path: RoutePaths.login,
@@ -291,6 +340,36 @@ class AppRouter {
                             ),
                           ),
                           GoRoute(
+                            path: 'recovery-words',
+                            name: RouteNames.recoveryWords,
+                            builder: (context, state) => RecoveryPhrasePage(args: state.extra as RecoveryPhraseArgs),
+                          ),
+                          GoRoute(
+                            path: 'verify-recovery-words',
+                            name: RouteNames.verifyRecoveryWords,
+                            builder: (context, state) => BlocProvider(
+                              create: (_) => sl<VerifyRecoveryPhraseBloc>()..add(VerifyRecoveryPhraseStarted()),
+                              child: const VerifyRecoveryPhrasePage(),
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'forgot-password',
+                            name: RouteNames.forgotPassword,
+                            builder: (context, state) => BlocProvider(
+                              create: (_) => sl<DeviceResetPasswordBloc>(),
+                              child: const DeviceResetPasswordPage(),
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'locked-photos',
+                            name: RouteNames.lockedPhotos,
+                            builder: (context, state) => BlocProvider(
+                              create: (_) => sl<LockedAccountBloc>()..add(LockedAccountStatusRequested()),
+                              child: LockedAccountPage(
+                                  user: (authBloc.state as AuthSuccessful).user, afterLogin: false),
+                            ),
+                          ),
+                          GoRoute(
                             path: 'devices',
                             name: RouteNames.devices,
                             builder: (context, state) => BlocProvider(
@@ -334,6 +413,22 @@ class AppRouter {
               ]
           )
         ]
+    );
+  }
+
+  /// Arguments of the 24 words pages. Without them (the router redirected after registering), they come from the
+  /// registration state of the auth bloc.
+  static RecoveryPhraseArgs _recoveryPhraseArgs(GoRouterState state, AuthBloc authBloc) {
+    final extra = state.extra;
+    if (extra is RecoveryPhraseArgs) {
+      return extra;
+    }
+    final authState = authBloc.state as RecoveryPhraseRequired;
+    return RecoveryPhraseArgs(
+      words: authState.words,
+      email: authState.user.email,
+      flow: RecoveryPhraseFlow.registration,
+      user: authState.user,
     );
   }
 }

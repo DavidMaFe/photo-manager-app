@@ -1,298 +1,139 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/crypto/domain/crypto_key.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_version.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_result.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 
+import '../../../../helpers/e2ee_test_kit.dart';
+
 class MockAuthRepository extends Mock implements AuthRepository {}
 
 void main() {
+  late E2eeTestKit kit;
+  late MockAuthRepository repository;
   late LoginUseCase useCase;
-  late MockAuthRepository mockAuthRepository;
 
-  setUp(() {
-    mockAuthRepository = MockAuthRepository();
-    useCase = LoginUseCase(mockAuthRepository);
+  const email = 'test@example.com';
+  const password = 'correct horse battery';
+  final user = User(id: '1', email: email, name: 'Test User');
+  final params = E2eeTestKit.cheapParams();
+
+  setUpAll(() {
+    registerFallbackValue(CryptoKey(Uint8List(32)));
   });
 
+  setUp(() async {
+    kit = await E2eeTestKit.create();
+    repository = MockAuthRepository();
+    useCase = LoginUseCase(repository, kit.engine, kit.keyring);
+    when(() => repository.getKdfParams(any())).thenAnswer((_) async => params);
+  });
+
+  /// The server answers the login with [keys] and remembers the authKey it received.
+  List<String> serverAnswers(AccountKeys keys) {
+    final receivedAuthKeys = <String>[];
+    when(() => repository.login(email: any(named: 'email'), authKey: any(named: 'authKey'))).thenAnswer((invocation) async {
+      // Copied now: the use case wipes the key once the login is done
+      receivedAuthKeys.add(base64Encode((invocation.namedArguments[#authKey] as CryptoKey).bytes));
+      return LoginResult(user: user, keys: keys);
+    });
+    return receivedAuthKeys;
+  }
+
   group('LoginUseCase', () {
-    const testEmail = 'test@example.com';
-    const testPassword = 'password123';
-    final testUser = User(
-      id: '1',
-      email: testEmail,
-      name: 'Test User',
-    );
+    // ==================== HAPPY PATH TESTS ====================
 
-    group('email validation', () {
-      test('should throw exception when email is empty', () async {
-        // Act & Assert
-        expect(
-          () => useCase(email: '', password: testPassword),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Email is required')),
-          ),
-        );
+    test('should log in with the authKey derived from the password and keep the master key on the device', () async {
+      // Arrange
+      final material = await kit.material(password, params);
+      final received = serverAnswers(AccountKeys(accountLocked: false, versions: [E2eeTestKit.serverVersion(material)]));
 
-        // Verify repository was never called
-        verifyNever(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            ));
-      });
+      // Act
+      final result = await useCase(email: email, password: password);
 
-      test('should throw exception when email contains only whitespace',
-          () async {
-        // Act & Assert
-        expect(
-          () => useCase(email: '   ', password: testPassword),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Email is required')),
-          ),
-        );
-
-        verifyNever(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            ));
-      });
-
-      test('should throw exception when email format is invalid', () async {
-        // Arrange
-        const invalidEmails = [
-          'notanemail',
-          'missing@domain',
-          '@nodomain.com',
-          'no@domain@double.com',
-          'spaces in@email.com',
-          'missing.domain@',
-        ];
-
-        for (final email in invalidEmails) {
-          // Act & Assert
-          expect(
-            () => useCase(email: email, password: testPassword),
-            throwsA(
-              predicate((e) =>
-                  e is Exception && e.toString().contains('Email is not valid')),
-            ),
-            reason: 'Should reject invalid email: $email',
-          );
-        }
-
-        verifyNever(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            ));
-      });
-
-      test('should accept valid email formats', () async {
-        // Arrange
-        const validEmails = [
-          'test@example.com',
-          'user.name@domain.com',
-          'user_name@domain.co.uk',
-          'test123@test.org',
-          'user-name@domain-name.com',
-        ];
-
-        for (final email in validEmails) {
-          when(() => mockAuthRepository.login(
-                email: any(named: 'email'),
-                password: any(named: 'password'),
-              )).thenAnswer((_) async => testUser);
-
-          // Act
-          await useCase(email: email, password: testPassword);
-
-          // Assert - should not throw
-          verify(() => mockAuthRepository.login(
-                email: email,
-                password: testPassword,
-              )).called(1);
-        }
-      });
-
-      test('should trim email when sending to repository',
-          () async {
-        // Arrange
-        when(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            )).thenAnswer((_) async => testUser);
-
-        // Act - Note: email validation happens on untrimmed email
-        // So we use an email without leading/trailing spaces for validation to pass
-        await useCase(email: 'test@example.com', password: testPassword);
-
-        // Assert - email should be trimmed when sent to repository
-        verify(() => mockAuthRepository.login(
-              email: 'test@example.com',
-              password: testPassword,
-            )).called(1);
-      });
+      // Assert
+      final expected = await kit.passwordKeys(password, params);
+      expect(received, [base64Encode(expected.authKey.bytes)]);
+      expect(result.user, user);
+      expect(result.accountLocked, isFalse);
+      expect((await kit.store.getMasterKey(1))!.bytes, material.masterKey.bytes);
+      expect(await kit.store.getCurrentVersion(), 1);
     });
 
-    group('password validation', () {
-      test('should throw exception when password is empty', () async {
-        // Act & Assert
-        expect(
-          () => useCase(email: testEmail, password: ''),
-          throwsA(
-            predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Password is required')),
-          ),
-        );
+    test('should keep every available version and mark the current one', () async {
+      final old = await kit.material(password, params);
+      final current = await kit.material(password, params);
+      serverAnswers(AccountKeys(accountLocked: false, versions: [
+        E2eeTestKit.serverVersion(old, version: 1, state: KeyState.unlocked),
+        E2eeTestKit.serverVersion(current, version: 2),
+      ]));
 
-        verifyNever(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            ));
-      });
+      await useCase(email: email, password: password);
 
-      test('should throw exception when password contains only whitespace',
-          () async {
-        // Act & Assert
-        expect(
-          () => useCase(email: testEmail, password: '    '),
-          throwsA(
-            predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Password is required')),
-          ),
-        );
-
-        verifyNever(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            ));
-      });
-
-      test('should accept non-empty password', () async {
-        // Arrange
-        when(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            )).thenAnswer((_) async => testUser);
-
-        // Act
-        await useCase(email: testEmail, password: 'validPassword123');
-
-        // Assert
-        verify(() => mockAuthRepository.login(
-              email: testEmail,
-              password: 'validPassword123',
-            )).called(1);
-      });
+      expect(await kit.store.getVersions(), unorderedEquals([1, 2]));
+      expect(await kit.store.getCurrentVersion(), 2);
+      expect((await kit.store.getMasterKey(1))!.bytes, old.masterKey.bytes);
     });
 
-    group('successful login', () {
-      test('should return user when credentials are valid', () async {
-        // Arrange
-        when(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            )).thenAnswer((_) async => testUser);
+    test('should ask for the parameters and log in with the trimmed email', () async {
+      final material = await kit.material(password, params);
+      serverAnswers(AccountKeys(accountLocked: false, versions: [E2eeTestKit.serverVersion(material)]));
 
-        // Act
-        final result = await useCase(email: testEmail, password: testPassword);
+      await useCase(email: '  $email  ', password: password);
 
-        // Assert
-        expect(result, equals(testUser));
-        verify(() => mockAuthRepository.login(
-              email: testEmail,
-              password: testPassword,
-            )).called(1);
-      });
-
-      test('should call repository with correct parameters', () async {
-        // Arrange
-        when(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            )).thenAnswer((_) async => testUser);
-
-        // Act
-        await useCase(email: testEmail, password: testPassword);
-
-        // Assert
-        verify(() => mockAuthRepository.login(
-              email: testEmail,
-              password: testPassword,
-            )).called(1);
-        verifyNoMoreInteractions(mockAuthRepository);
-      });
+      verify(() => repository.getKdfParams(email)).called(1);
+      verify(() => repository.login(email: email, authKey: any(named: 'authKey'))).called(1);
     });
 
-    group('validation order', () {
-      test('should validate email before password', () async {
-        // Act & Assert - empty email should be caught first
-        expect(
-          () => useCase(email: '', password: ''),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Email is required')),
-          ),
-        );
-      });
+    // ==================== BUSINESS LOGIC TESTS ====================
 
-      test('should validate password after email emptiness check',
-          () async {
-        // Act & Assert - When email is not empty but invalid, password is checked first
-        // because password validation happens before email format validation
-        expect(
-          () => useCase(email: 'invalid-email', password: ''),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Password is required')),
-          ),
-        );
-      });
+    test('should return a locked account without keeping locked versions', () async {
+      final material = await kit.material('a forgotten password', params);
+      serverAnswers(AccountKeys(accountLocked: true,
+          versions: [E2eeTestKit.serverVersion(material, state: KeyState.locked)]));
 
-      test('should validate all fields before calling repository', () async {
-        // Arrange
-        when(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            )).thenAnswer((_) async => testUser);
+      final result = await useCase(email: email, password: password);
 
-        // Act
-        await useCase(email: testEmail, password: testPassword);
-
-        // Assert - repository should only be called once all validations pass
-        verify(() => mockAuthRepository.login(
-              email: testEmail,
-              password: testPassword,
-            )).called(1);
-      });
+      expect(result.accountLocked, isTrue);
+      expect(await kit.store.getVersions(), isEmpty);
     });
 
-    group('error propagation', () {
-      test('should propagate repository exceptions', () async {
-        // Arrange
-        when(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            )).thenThrow(Exception('Invalid credentials'));
+    test('should throw KeyUnlockFailure when the password does not open the key', () async {
+      final material = await kit.material('another password', params);
+      serverAnswers(AccountKeys(accountLocked: false, versions: [E2eeTestKit.serverVersion(material)]));
 
-        // Act & Assert
-        expect(
-          () => useCase(email: testEmail, password: testPassword),
-          throwsA(
-            predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Invalid credentials')),
-          ),
-        );
-
-        verify(() => mockAuthRepository.login(
-              email: testEmail,
-              password: testPassword,
-            )).called(1);
-      });
+      await expectLater(useCase(email: email, password: password), throwsA(isA<KeyUnlockFailure>()));
+      expect(await kit.store.getVersions(), isEmpty);
     });
+
+    test('should propagate the errors of the server', () async {
+      when(() => repository.login(email: any(named: 'email'), authKey: any(named: 'authKey')))
+          .thenThrow(Exception('Invalid credentials'));
+
+      await expectLater(useCase(email: email, password: password), throwsException);
+      expect(await kit.store.getVersions(), isEmpty);
+    });
+
+    // ==================== VALIDATION ERROR TESTS ====================
+
+    for (final (description, badEmail, badPassword) in [
+      ('the email is empty', '   ', password),
+      ('the email is not valid', 'not-an-email', password),
+      ('the password is empty', email, '   '),
+    ]) {
+      test('should throw without calling the server when $description', () async {
+        await expectLater(useCase(email: badEmail, password: badPassword), throwsException);
+
+        verifyNever(() => repository.getKdfParams(any()));
+        verifyNever(() => repository.login(email: any(named: 'email'), authKey: any(named: 'authKey')));
+      });
+    }
   });
 }

@@ -53,6 +53,23 @@ void main() {
       verify(() => mockAuthRepository.logout()).called(1);
     });
 
+    test('should run every cleanup after logging out, even if one of them fails', () async {
+      // Arrange
+      final calls = <String>[];
+      when(() => mockAuthRepository.logout()).thenAnswer((_) async => calls.add('logout'));
+      useCase = LogoutUseCase(mockAuthRepository, onLogout: [
+        () async => calls.add('reminders'),
+        () async => throw Exception('file system error'),
+        () async => calls.add('exported files'),
+      ]);
+
+      // Act
+      await useCase();
+
+      // Assert
+      expect(calls, ['logout', 'reminders', 'exported files']);
+    });
+
     test('should handle network errors from repository', () async {
       // Arrange
       when(() => mockAuthRepository.logout())
