@@ -60,15 +60,4 @@ class SyncFileModel extends SyncFile {
       durationSeconds: file.durationSeconds
     );
   }
-
-  Map<String, dynamic> get uploadMetadata => {
-    'originalFileName': fileName,
-    'fileHash': hash,
-    'mimeType': mimeType,
-    'fileSizeBytes': sizeBytes,
-    'capturedAt': capturedAt.toIso8601String(),
-    if (width != null) 'width': width,
-    if (height != null) 'height': height,
-    if (durationSeconds != null) 'durationSeconds': durationSeconds
-  };
 }

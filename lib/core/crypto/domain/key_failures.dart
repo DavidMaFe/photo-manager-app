@@ -31,3 +31,8 @@ class KeyUnlockFailure extends Failure {
 class DeviceAuthenticationFailure extends Failure {
   const DeviceAuthenticationFailure({super.messageKey = 'errorDeviceAuthentication', super.code});
 }
+
+/// This device has no current master key (account locked, or the keys were removed), so it cannot encrypt new files.
+class MissingCurrentKeyFailure extends Failure {
+  const MissingCurrentKeyFailure({super.messageKey = 'errorMissingCurrentKey', super.code});
+}

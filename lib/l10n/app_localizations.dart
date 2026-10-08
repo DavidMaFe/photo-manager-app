@@ -3220,6 +3220,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More about the 24 words'**
   String get recoveryPhraseLearnMore;
+
+  /// No description provided for @errorMissingCurrentKey.
+  ///
+  /// In en, this message translates to:
+  /// **'This device has no key to encrypt new photos. Log in again or recover your locked photos.'**
+  String get errorMissingCurrentKey;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

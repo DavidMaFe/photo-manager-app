@@ -1,7 +1,6 @@
 import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_session_remote_data_source.dart';
-import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/duplicate_files_result.dart';
-import 'package:photo_manager_app/features/sync_session/domain/entities/sync_file.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/encrypted_upload.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/sync_result.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/sync_session.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
@@ -24,9 +23,8 @@ class SyncSessionRepositoryImpl implements SyncSessionRepository {
   }
 
   @override
-  Future<String> uploadFile({required String sessionId, required SyncFile file}) async {
-    final fileModel = SyncFileModel.fromEntity(file);
-    final result = await remoteDataSource.uploadFile(sessionId, fileModel);
+  Future<String> uploadFile({required String sessionId, required EncryptedUpload upload}) async {
+    final result = await remoteDataSource.uploadFile(sessionId, upload);
     return result.fileId;
   }
 

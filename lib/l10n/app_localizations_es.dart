@@ -1891,4 +1891,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get recoveryPhraseLearnMore => 'Más sobre las 24 palabras';
+
+  @override
+  String get errorMissingCurrentKey => 'Este dispositivo no tiene la clave para cifrar fotos nuevas. Vuelve a iniciar sesión o recupera tus fotos bloqueadas.';
 }

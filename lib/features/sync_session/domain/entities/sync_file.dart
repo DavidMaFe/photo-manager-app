@@ -1,6 +1,8 @@
 import 'dart:io';
 
 
+/// A photo or video of the device to back up. [hash] is the SHA-256 of its content; it never leaves the device (the
+/// server receives a keyed hash of it).
 class SyncFile {
   final String localId;
   final String devicePath;
@@ -31,17 +33,6 @@ class SyncFile {
   bool get isImage => mimeType.contains("image/");
   bool get isVideo => mimeType.contains("video/");
   double get sizeMB => sizeBytes / (1024 * 1024);
-
-  Map<String, dynamic> get metadata => {
-    'originalFileName': fileName,
-    'fileHash': hash,
-    'mimeType': mimeType,
-    'fileSizeBytes': sizeBytes,
-    'capturedAt': capturedAt,
-    if (width != null) 'width': width,
-    if (height != null) 'height': height,
-    if (durationSeconds != null) 'durationSeconds': durationSeconds
-  };
 
   @override
   bool operator ==(Object other) {

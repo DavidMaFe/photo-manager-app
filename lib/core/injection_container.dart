@@ -151,6 +151,11 @@ import '../features/legal/data/repositories/legal_acceptance_data_repository.dar
 import '../features/legal/domain/repositories/legal_acceptance_repository.dart';
 import '../features/legal/domain/repositories/legal_document_repository.dart';
 import '../features/legal/domain/use_cases/accept_legal_terms_use_case.dart';
+import '../features/sync_session/data/data_sources/local/app_temporary_files.dart';
+import '../features/sync_session/data/data_sources/local/photo_manager_thumbnail_source.dart';
+import '../features/sync_session/domain/services/dedup_hasher.dart';
+import '../features/sync_session/domain/services/media_thumbnail_source.dart';
+import '../features/sync_session/domain/services/temporary_files.dart';
 import 'events/app_event_bus.dart';
 import 'utils/onboarding_preferences.dart';
 
@@ -183,6 +188,10 @@ Future<void> init() async {
       () => MasterKeyLocalDataSourceImpl(secureStore: sl<SecureStore>()));
   sl.registerLazySingleton(
       () => KeyringService(engine: sl<CryptoEngine>(), store: sl<MasterKeyLocalDataSource>()));
+  // Encrypted upload (Phase 5): keyed hashes for duplicates, thumbnails of the gallery and temporary files
+  sl.registerLazySingleton(() => DedupHasher(sl<CryptoEngine>(), sl<MasterKeyLocalDataSource>()));
+  sl.registerLazySingleton<MediaThumbnailSource>(() => const PhotoManagerThumbnailSource());
+  sl.registerLazySingleton<TemporaryFiles>(() => AppTemporaryFiles());
 
   // Persistent sync log — registered immediately after SharedPreferences so it
   // is available in both the main isolate and the WorkManager background isolate.
@@ -652,14 +661,15 @@ Future<void> init() async {
   sl.registerFactory(
           () {
         final syncSessionRepository = sl<SyncSessionRepository>();
-        return CheckDuplicatedFilesUseCase(syncSessionRepository);
+        return CheckDuplicatedFilesUseCase(syncSessionRepository, sl<DedupHasher>());
       }
   );
 
   sl.registerFactory(
           () {
         final syncSessionRepository = sl<SyncSessionRepository>();
-        return UploadFileUseCase(syncSessionRepository);
+        return UploadFileUseCase(syncSessionRepository, sl<CryptoEngine>(), sl<MasterKeyLocalDataSource>(),
+            sl<MediaThumbnailSource>(), sl<TemporaryFiles>());
       }
   );
 

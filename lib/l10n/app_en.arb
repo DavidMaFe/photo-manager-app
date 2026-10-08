@@ -942,5 +942,6 @@
   "recoveryPhraseImportance3": "Save them now in the password manager or as a PDF, and keep a copy somewhere safe.",
   "recoveryPhraseWait": "Read carefully ({seconds})",
   "@recoveryPhraseWait": {"placeholders": {"seconds": {"type": "int"}}},
-  "recoveryPhraseLearnMore": "More about the 24 words"
+  "recoveryPhraseLearnMore": "More about the 24 words",
+  "errorMissingCurrentKey": "This device has no key to encrypt new photos. Log in again or recover your locked photos."
 }

@@ -840,5 +840,6 @@
   "recoveryPhraseImportance2": "Nadie puede recuperarlas por ti, ni siquiera nosotros.",
   "recoveryPhraseImportance3": "Guárdalas ahora en el gestor de contraseñas o en PDF, y conserva una copia en un lugar seguro.",
   "recoveryPhraseWait": "Lee con atención ({seconds})",
-  "recoveryPhraseLearnMore": "Más sobre las 24 palabras"
+  "recoveryPhraseLearnMore": "Más sobre las 24 palabras",
+  "errorMissingCurrentKey": "Este dispositivo no tiene la clave para cifrar fotos nuevas. Vuelve a iniciar sesión o recupera tus fotos bloqueadas."
 }

@@ -1891,4 +1891,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recoveryPhraseLearnMore => 'More about the 24 words';
+
+  @override
+  String get errorMissingCurrentKey => 'This device has no key to encrypt new photos. Log in again or recover your locked photos.';
 }
