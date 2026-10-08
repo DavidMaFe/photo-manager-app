@@ -2,21 +2,27 @@ import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:photo_manager_app/core/injection_container.dart';
+import 'package:photo_manager_app/features/encrypted_media/domain/services/video_stream_server.dart';
+import 'package:photo_manager_app/features/encrypted_media/domain/use_cases/get_file_metadata_use_case.dart';
 import 'package:video_player/video_player.dart';
 
 
 class VideoPlayerWidget extends StatefulWidget {
 
-  final String videoUrl;
+  /// The video is encrypted: it plays through the local proxy, which decrypts the ranges the player asks for.
+  final String fileId;
   final ValueChanged<bool>? onControlsVisibilityChanged;
+  final VideoStreamServer? videoStreamServer;
+  final GetFileMetadataUseCase? getFileMetadata;
 
   const VideoPlayerWidget({
     super.key,
-    required this.videoUrl,
-    required this.onControlsVisibilityChanged
+    required this.fileId,
+    required this.onControlsVisibilityChanged,
+    this.videoStreamServer,
+    this.getFileMetadata,
   });
 
   @override
@@ -27,6 +33,7 @@ class VideoPlayerWidget extends StatefulWidget {
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   late VideoPlayerController _controller;
+  bool _controllerCreated = false;
   bool _isInitialized = false;
   bool _hasError = false;
   String? _errorMessage;
@@ -43,13 +50,16 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
     try {
 
-      final token = _getToken();
-      _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.videoUrl),
-        httpHeaders: {
-          'Authorization': 'Bearer $token'
-        }
-      );
+      // The real MIME type is in the encrypted metadata; without it the proxy announces video/mp4
+      String? mimeType;
+      try {
+        mimeType = (await (widget.getFileMetadata ?? sl<GetFileMetadataUseCase>())(widget.fileId)).mimeType;
+      } catch (_) {
+        mimeType = null;
+      }
+      final url = await (widget.videoStreamServer ?? sl<VideoStreamServer>()).urlFor(widget.fileId, mimeType: mimeType);
+      _controller = VideoPlayerController.networkUrl(url);
+      _controllerCreated = true;
 
       await _controller.initialize();
 
@@ -76,18 +86,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     }
   }
 
-  String _getToken() {
-    try {
-      final prefs = GetIt.instance<SharedPreferences>();
-      return prefs.getString("AUTH_TOKEN") ?? '';
-    } catch(e) {
-      return '';
-    }
-  }
 
   @override
   void dispose() {
-    _controller.dispose();
+    if (_controllerCreated) {
+      _controller.dispose();
+    }
     super.dispose();
   }
 

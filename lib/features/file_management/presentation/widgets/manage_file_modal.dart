@@ -1,7 +1,7 @@
+import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/config/theme/app_radius.dart';
 import 'package:photo_manager_app/core/utils/file_size_formatter.dart';
@@ -10,7 +10,6 @@ import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/core/widgets/app_sheet.dart';
 import 'package:photo_manager_app/core/widgets/app_switch.dart';
 import 'package:photo_manager_app/core/widgets/app_text_field.dart';
-import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
 import 'package:photo_manager_app/core/widgets/dashed_border.dart';
 import 'package:photo_manager_app/core/widgets/filter_pill.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
@@ -364,12 +363,7 @@ class _SheetHeader extends StatelessWidget {
                       border: Border.all(color: p.surface, width: 2),
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: AuthenticatedImage(
-                      imageUrl: '${DataConstants.backendBaseUrl}/api/file/${preview[i]}/thumbnail/',
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => const SizedBox.shrink(),
-                      errorWidget: (_, __, ___) => const SizedBox.shrink(),
-                    ),
+                    child: EncryptedImage(fileId: preview[i], transparentWhileLoading: true, hideErrors: true),
                   ),
                 ),
             ],

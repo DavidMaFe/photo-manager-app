@@ -9,17 +9,20 @@ import 'package:photo_manager_app/features/gallery/data/repositories/gallery_rep
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_page.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
 import 'package:photo_manager_app/features/gallery/data/models/pending_files_model.dart';
+import '../../../../helpers/recording_file_key_repository.dart';
 
 class MockGalleryRemoteDataSource extends Mock
     implements GalleryRemoteDataSource {}
 
 void main() {
   late GalleryRepositoryImpl repository;
+  late RecordingFileKeyRepository fileKeys;
   late MockGalleryRemoteDataSource mockRemoteDataSource;
 
   setUp(() {
     mockRemoteDataSource = MockGalleryRemoteDataSource();
-    repository = GalleryRepositoryImpl(mockRemoteDataSource);
+    fileKeys = RecordingFileKeyRepository();
+    repository = GalleryRepositoryImpl(mockRemoteDataSource, fileKeys);
   });
 
   final testDate = DateTime(2024, 1, 15);
@@ -50,6 +53,23 @@ void main() {
   );
 
   group('GalleryRepositoryImpl - getFiles', () {
+    test('should remember the keys of the files to decrypt their thumbnails', () async {
+      final withKey = GalleryFileModel(id: 'file-3', type: FileType.image, status: FileStatus.managed,
+          capturedAt: testDate, encryptedRef: RecordingFileKeyRepository.ref('file-3'));
+      when(() => mockRemoteDataSource.getFiles(
+            page: any(named: 'page'),
+            pageSize: any(named: 'pageSize'),
+            type: any(named: 'type'),
+            status: any(named: 'status'),
+            favorite: any(named: 'favorite'),
+          )).thenAnswer((_) async => GalleryPageModel(files: [...testFiles, withKey], currentPage: 0, pageSize: 50,
+              hasNext: false, totalFilesCount: 3, totalPendingCount: 0));
+
+      await repository.getFiles(page: 0, pageSize: 50, filter: FileFilter.all);
+
+      expect(fileKeys.remembered.map((ref) => ref.fileId), ['file-3']);
+    });
+
     test('should call remote data source with correct parameters', () async {
       // Arrange
       when(() => mockRemoteDataSource.getFiles(

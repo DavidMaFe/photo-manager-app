@@ -225,6 +225,21 @@ class SodiumCryptoEngine implements CryptoEngine {
   }
 
   @override
+  Future<Uint8List> decryptBytesInBackground(CryptoKey key, Uint8List encrypted) {
+    // Only sendable values cross the isolate boundary: the key goes as a copy of its bytes
+    final keyBytes = Uint8List.fromList(key.bytes);
+    final layout = this.layout;
+    return sodium.runIsolated((sodium, _, __) {
+      final isolateKey = CryptoKey(keyBytes);
+      try {
+        return SodiumCryptoEngine(sodium, layout: layout).decryptBytes(isolateKey, encrypted);
+      } finally {
+        isolateKey.dispose();
+      }
+    });
+  }
+
+  @override
   Future<void> decryptFile(CryptoKey key, File input, File output) async {
     final length = await input.length();
     final chunks = layout.chunkCount(_plainLength(length));

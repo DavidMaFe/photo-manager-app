@@ -1894,4 +1894,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorMissingCurrentKey => 'This device has no key to encrypt new photos. Log in again or recover your locked photos.';
+
+  @override
+  String get mediaLocked => 'Locked: recover it from Profile > Security';
+
+  @override
+  String get mediaLoadError => 'It could not be loaded';
+
+  @override
+  String get errorLockedFile => 'This file is locked. You can recover it from Profile > Security > Recover locked photos.';
+
+  @override
+  String get errorUnencryptedFile => 'This file was uploaded before encryption and cannot be shown.';
 }

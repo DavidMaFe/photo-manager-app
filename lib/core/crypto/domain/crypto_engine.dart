@@ -54,6 +54,9 @@ abstract class CryptoEngine {
 
   Uint8List decryptBytes(CryptoKey key, Uint8List encrypted);
 
+  /// Same as [decryptBytes] in another isolate, for big objects (originals of up to 20 MB).
+  Future<Uint8List> decryptBytesInBackground(CryptoKey key, Uint8List encrypted);
+
   /// PMEF file to file with one chunk in memory at a time.
   Future<void> encryptFile(CryptoKey key, File input, File output);
 

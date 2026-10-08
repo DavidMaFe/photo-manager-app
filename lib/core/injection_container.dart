@@ -1,3 +1,4 @@
+import 'package:flutter/painting.dart';
 
 import 'package:photo_manager_app/features/account_security/presentation/bloc/device_reset_password_bloc.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/locked_account_bloc.dart';
@@ -156,6 +157,19 @@ import '../features/sync_session/data/data_sources/local/photo_manager_thumbnail
 import '../features/sync_session/domain/services/dedup_hasher.dart';
 import '../features/sync_session/domain/services/media_thumbnail_source.dart';
 import '../features/sync_session/domain/services/temporary_files.dart';
+import '../features/encrypted_media/data/data_sources/encrypted_media_remote_data_source.dart';
+import '../features/encrypted_media/data/data_sources/encrypted_object_cache.dart';
+import '../features/encrypted_media/data/repositories/encrypted_media_data_repository.dart';
+import '../features/encrypted_media/data/repositories/file_key_data_repository.dart';
+import '../features/encrypted_media/data/services/local_video_stream_server.dart';
+import '../features/encrypted_media/domain/repositories/encrypted_media_repository.dart';
+import '../features/encrypted_media/domain/repositories/file_key_repository.dart';
+import '../features/encrypted_media/domain/services/decrypted_range_reader.dart';
+import '../features/encrypted_media/domain/services/file_key_unwrapper.dart';
+import '../features/encrypted_media/domain/services/video_stream_server.dart';
+import '../features/encrypted_media/domain/use_cases/clear_media_data_use_case.dart';
+import '../features/encrypted_media/domain/use_cases/get_file_metadata_use_case.dart';
+import '../features/encrypted_media/domain/use_cases/load_media_use_case.dart';
 import 'events/app_event_bus.dart';
 import 'utils/onboarding_preferences.dart';
 
@@ -192,6 +206,24 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DedupHasher(sl<CryptoEngine>(), sl<MasterKeyLocalDataSource>()));
   sl.registerLazySingleton<MediaThumbnailSource>(() => const PhotoManagerThumbnailSource());
   sl.registerLazySingleton<TemporaryFiles>(() => AppTemporaryFiles());
+  // Encrypted viewing (Phase 6): keys of the files, encrypted cache, decryption and the local video proxy
+  sl.registerLazySingleton<EncryptedMediaRemoteDataSource>(
+      () => EncryptedMediaRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<FileKeyRepository>(
+      () => FileKeyDataRepository(remoteDataSource: sl<EncryptedMediaRemoteDataSource>()));
+  sl.registerLazySingleton<EncryptedMediaRepository>(() => EncryptedMediaDataRepository(
+      remoteDataSource: sl<EncryptedMediaRemoteDataSource>(), cache: EncryptedObjectCache()));
+  sl.registerLazySingleton(
+      () => FileKeyUnwrapper(sl<CryptoEngine>(), sl<MasterKeyLocalDataSource>(), sl<FileKeyRepository>()));
+  sl.registerLazySingleton(
+      () => DecryptedRangeReader(sl<EncryptedMediaRepository>(), sl<FileKeyUnwrapper>(), sl<CryptoEngine>()));
+  sl.registerLazySingleton<VideoStreamServer>(() => LocalVideoStreamServer(sl<DecryptedRangeReader>()));
+  sl.registerLazySingleton(
+      () => LoadMediaUseCase(sl<EncryptedMediaRepository>(), sl<FileKeyUnwrapper>(), sl<CryptoEngine>()));
+  sl.registerLazySingleton(
+      () => GetFileMetadataUseCase(sl<FileKeyRepository>(), sl<FileKeyUnwrapper>(), sl<CryptoEngine>()));
+  sl.registerLazySingleton(() => ClearMediaDataUseCase(sl<FileKeyRepository>(), sl<FileKeyUnwrapper>(),
+      sl<DecryptedRangeReader>(), sl<VideoStreamServer>(), sl<EncryptedMediaRepository>()));
 
   // Persistent sync log — registered immediately after SharedPreferences so it
   // is available in both the main isolate and the WorkManager background isolate.
@@ -429,7 +461,7 @@ Future<void> init() async {
   sl.registerLazySingleton<GalleryRepository>(
       () {
         final remoteDataSource = sl<GalleryRemoteDataSource>();
-        return GalleryRepositoryImpl(remoteDataSource);
+        return GalleryRepositoryImpl(remoteDataSource, sl<FileKeyRepository>());
       }
   );
 
@@ -443,7 +475,9 @@ Future<void> init() async {
         return FileManagementRepositoryImpl(
           remoteDataSource: remoteDataSource,
           deletionLocalDataSource: deletionLocalDataSource,
-          database: database
+          database: database,
+          fileKeyRepository: sl<FileKeyRepository>(),
+          getFileMetadata: sl<GetFileMetadataUseCase>(),
         );
       }
   );
@@ -453,7 +487,8 @@ Future<void> init() async {
       () {
         final remoteDataSource = sl<FolderRemoteDataSource>();
         return FolderRepositoryImpl(
-          remoteDataSource: remoteDataSource
+          remoteDataSource: remoteDataSource,
+          fileKeyRepository: sl<FileKeyRepository>(),
         );
       }
   );
@@ -478,7 +513,7 @@ Future<void> init() async {
   sl.registerLazySingleton<TrashRepository>(
       () {
         final remoteDataSource = sl<TrashRemoteDataSource>();
-        return TrashRepositoryImpl(remoteDataSource: remoteDataSource);
+        return TrashRepositoryImpl(remoteDataSource: remoteDataSource, fileKeyRepository: sl<FileKeyRepository>());
       }
   );
 
@@ -560,6 +595,11 @@ Future<void> init() async {
         return LogoutUseCase(repository, onLogout: [
           () => sl<RecoveryReminderRepository>().clear(),
           () => sl<RecoveryPhraseExporter>().deleteExportedFiles(),
+          // Keys of the files, video proxy and encrypted cache; then the decoded images kept in memory
+          () => sl<ClearMediaDataUseCase>()(),
+          () async => PaintingBinding.instance.imageCache
+            ..clear()
+            ..clearLiveImages(),
         ]);
       }
   );

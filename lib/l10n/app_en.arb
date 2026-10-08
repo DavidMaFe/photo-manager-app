@@ -943,5 +943,9 @@
   "recoveryPhraseWait": "Read carefully ({seconds})",
   "@recoveryPhraseWait": {"placeholders": {"seconds": {"type": "int"}}},
   "recoveryPhraseLearnMore": "More about the 24 words",
-  "errorMissingCurrentKey": "This device has no key to encrypt new photos. Log in again or recover your locked photos."
+  "errorMissingCurrentKey": "This device has no key to encrypt new photos. Log in again or recover your locked photos.",
+  "mediaLocked": "Locked: recover it from Profile > Security",
+  "mediaLoadError": "It could not be loaded",
+  "errorLockedFile": "This file is locked. You can recover it from Profile > Security > Recover locked photos.",
+  "errorUnencryptedFile": "This file was uploaded before encryption and cannot be shown."
 }

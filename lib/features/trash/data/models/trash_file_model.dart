@@ -1,9 +1,15 @@
+import 'package:photo_manager_app/features/encrypted_media/data/models/encrypted_file_ref_model.dart';
+import 'package:photo_manager_app/features/encrypted_media/domain/entities/encrypted_file_ref.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
 
 class TrashFileModel extends TrashFile {
+  /// Wrapped key of the file, for the key directory of the app (not part of the entity).
+  final EncryptedFileRef? encryptedRef;
+
   const TrashFileModel({
+    this.encryptedRef,
     required super.id,
     required super.type,
     required super.status,
@@ -31,6 +37,7 @@ class TrashFileModel extends TrashFile {
       durationSeconds: json['durationSeconds'] as int?,
       originalFolderId: json['originalFolderId']?.toString(),
       originalFolderName: json['originalFolderName'] as String?,
+      encryptedRef: EncryptedFileRefModel.fromJson(json),
     );
   }
 

@@ -841,5 +841,9 @@
   "recoveryPhraseImportance3": "Guárdalas ahora en el gestor de contraseñas o en PDF, y conserva una copia en un lugar seguro.",
   "recoveryPhraseWait": "Lee con atención ({seconds})",
   "recoveryPhraseLearnMore": "Más sobre las 24 palabras",
-  "errorMissingCurrentKey": "Este dispositivo no tiene la clave para cifrar fotos nuevas. Vuelve a iniciar sesión o recupera tus fotos bloqueadas."
+  "errorMissingCurrentKey": "Este dispositivo no tiene la clave para cifrar fotos nuevas. Vuelve a iniciar sesión o recupera tus fotos bloqueadas.",
+  "mediaLocked": "Bloqueado: recupéralo desde Perfil > Seguridad",
+  "mediaLoadError": "No se ha podido cargar",
+  "errorLockedFile": "Este archivo está bloqueado. Puedes recuperarlo desde Perfil > Seguridad > Recuperar fotos bloqueadas.",
+  "errorUnencryptedFile": "Este archivo se subió antes del cifrado y no se puede mostrar."
 }

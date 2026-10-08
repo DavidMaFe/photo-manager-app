@@ -1,3 +1,6 @@
+import 'package:photo_manager_app/features/encrypted_media/domain/repositories/file_key_repository.dart';
+import 'package:photo_manager_app/features/encrypted_media/domain/use_cases/get_file_metadata_use_case.dart';
+import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_deletion_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_management_remote_data_source.dart';
@@ -15,11 +18,15 @@ class FileManagementRepositoryImpl implements FileManagementRepository {
   final FileManagementRemoteDataSource remoteDataSource;
   final FileDeletionLocalDataSource deletionLocalDataSource;
   final AppDatabase database;
+  final FileKeyRepository fileKeyRepository;
+  final GetFileMetadataUseCase getFileMetadata;
 
   FileManagementRepositoryImpl({
     required this.remoteDataSource,
     required this.deletionLocalDataSource,
-    required this.database
+    required this.database,
+    required this.fileKeyRepository,
+    required this.getFileMetadata,
   });
 
   @override
@@ -42,7 +49,19 @@ class FileManagementRepositoryImpl implements FileManagementRepository {
 
   @override
   Future<FileInfo> getFileInfo(String fileId) async {
-    return await remoteDataSource.getFileInfo(fileId);
+    final info = await remoteDataSource.getFileInfo(fileId);
+    final ref = info.encryptedRef;
+    if (ref == null) {
+      return info;
+    }
+    // The name and the MIME type are only in the encrypted metadata
+    fileKeyRepository.remember([ref]);
+    try {
+      return info.withMetadata(await getFileMetadata(fileId));
+    } on Failure {
+      // A file of a locked key version: the rest of the info is still shown
+      return info;
+    }
   }
 
   @override

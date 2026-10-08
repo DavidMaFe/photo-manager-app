@@ -95,6 +95,10 @@ class FailureMessageHelper {
         return l10n.errorKeyUnlock;
       case 'errorDeviceAuthentication':
         return l10n.errorDeviceAuthentication;
+      case 'errorLockedFile':
+        return l10n.errorLockedFile;
+      case 'errorUnencryptedFile':
+        return l10n.errorUnencryptedFile;
       case 'errorMissingCurrentKey':
         return l10n.errorMissingCurrentKey;
       case 'errorLegalTermsNotAccepted':

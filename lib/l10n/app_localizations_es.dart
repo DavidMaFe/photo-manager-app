@@ -1894,4 +1894,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorMissingCurrentKey => 'Este dispositivo no tiene la clave para cifrar fotos nuevas. Vuelve a iniciar sesión o recupera tus fotos bloqueadas.';
+
+  @override
+  String get mediaLocked => 'Bloqueado: recupéralo desde Perfil > Seguridad';
+
+  @override
+  String get mediaLoadError => 'No se ha podido cargar';
+
+  @override
+  String get errorLockedFile => 'Este archivo está bloqueado. Puedes recuperarlo desde Perfil > Seguridad > Recuperar fotos bloqueadas.';
+
+  @override
+  String get errorUnencryptedFile => 'Este archivo se subió antes del cifrado y no se puede mostrar.';
 }
