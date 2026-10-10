@@ -12,10 +12,15 @@ import 'package:photo_manager_app/features/file_management/data/models/manage_fo
 import 'package:photo_manager_app/features/file_management/data/repositories/file_management_repository_impl.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
+import '../../../../helpers/recording_file_key_repository.dart';
+import 'package:photo_manager_app/features/encrypted_media/domain/entities/file_metadata.dart';
+import 'package:photo_manager_app/features/encrypted_media/domain/entities/media_failures.dart';
+import 'package:photo_manager_app/features/encrypted_media/domain/use_cases/get_file_metadata_use_case.dart';
 
 class MockFileManagementRemoteDataSource extends Mock implements FileManagementRemoteDataSource {}
 class MockFileDeletionLocalDataSource extends Mock implements FileDeletionLocalDataSource {}
 class MockAppDatabase extends Mock implements AppDatabase {}
+class MockGetFileMetadataUseCase extends Mock implements GetFileMetadataUseCase {}
 
 void main() {
   setUpAll(() {
@@ -29,6 +34,8 @@ void main() {
   });
 
   late FileManagementRepositoryImpl repository;
+  late RecordingFileKeyRepository fileKeys;
+  late MockGetFileMetadataUseCase getFileMetadata;
   late MockFileManagementRemoteDataSource mockRemoteDataSource;
   late MockFileDeletionLocalDataSource mockDeletionDataSource;
   late MockAppDatabase mockDatabase;
@@ -37,10 +44,14 @@ void main() {
     mockRemoteDataSource = MockFileManagementRemoteDataSource();
     mockDeletionDataSource = MockFileDeletionLocalDataSource();
     mockDatabase = MockAppDatabase();
+    fileKeys = RecordingFileKeyRepository();
+    getFileMetadata = MockGetFileMetadataUseCase();
     repository = FileManagementRepositoryImpl(
       remoteDataSource: mockRemoteDataSource,
       deletionLocalDataSource: mockDeletionDataSource,
       database: mockDatabase,
+      fileKeyRepository: fileKeys,
+      getFileMetadata: getFileMetadata,
     );
   });
 
@@ -426,6 +437,34 @@ void main() {
       // Assert
       expect(result, model);
       verify(() => mockRemoteDataSource.getFileInfo('42')).called(1);
+      verifyNever(() => getFileMetadata(any()));
+    });
+
+    test('should decrypt the original name and MIME type of an encrypted file', () async {
+      final model = FileInfoModel(id: '42', type: FileType.image, status: FileStatus.managed, sizeBytes: 99,
+          encryptedRef: RecordingFileKeyRepository.ref('42'));
+      when(() => mockRemoteDataSource.getFileInfo(any())).thenAnswer((_) async => model);
+      when(() => getFileMetadata('42'))
+          .thenAnswer((_) async => const FileMetadata(name: 'IMG_0001.HEIC', mimeType: 'image/heic'));
+
+      final result = await repository.getFileInfo('42');
+
+      expect(result.originalFilename, 'IMG_0001.HEIC');
+      expect(result.mimeType, 'image/heic');
+      expect(result.sizeBytes, 99);
+      expect(fileKeys.remembered.single.fileId, '42');
+    });
+
+    test('should keep the rest of the info when the file is locked', () async {
+      final model = FileInfoModel(id: '42', type: FileType.image, status: FileStatus.managed,
+          encryptedRef: RecordingFileKeyRepository.ref('42'));
+      when(() => mockRemoteDataSource.getFileInfo(any())).thenAnswer((_) async => model);
+      when(() => getFileMetadata('42')).thenThrow(const LockedFileFailure());
+
+      final result = await repository.getFileInfo('42');
+
+      expect(result.id, '42');
+      expect(result.originalFilename, isNull);
     });
   });
 }

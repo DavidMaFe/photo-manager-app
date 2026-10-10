@@ -132,7 +132,7 @@ class MediaLocalDataSource {
       final File? file = await asset.file;
       if(file == null || !await file.exists()) return null;
 
-      final String hash = await _calculateFileHash(file);
+      final String hash = await contentHash(file);
 
       final String path = file.path;
       final String fileName = path.split('/').last;
@@ -169,10 +169,11 @@ class MediaLocalDataSource {
     }
   }
 
-  Future<String> _calculateFileHash(File file) async {
+  /// SHA-256 of the content, read in chunks: a 100 MB video is never loaded in memory (docs/e2ee-spec.md, 11).
+  /// It stays on the device; the server receives a keyed hash of it.
+  static Future<String> contentHash(File file) async {
     try {
-      final bytes = await file.readAsBytes();
-      final digest = sha256.convert(bytes);
+      final digest = await sha256.bind(file.openRead()).first;
       return digest.toString();
     } catch(e) {
       throw Exception("Error calculating file hash");

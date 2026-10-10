@@ -4,8 +4,12 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_material.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_version.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
+
+import '../../../../fixtures/e2ee_test_data.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
 
@@ -14,1121 +18,236 @@ class FakeUri extends Fake implements Uri {}
 void main() {
   late AuthRemoteDataSourceImpl dataSource;
   late MockHttpClient mockHttpClient;
+  const baseUrl = 'http://10.0.2.2:8080';
 
-  setUpAll(() {
-    registerFallbackValue(FakeUri());
-  });
+  setUpAll(() => registerFallbackValue(FakeUri()));
 
   setUp(() {
     mockHttpClient = MockHttpClient();
-    dataSource = AuthRemoteDataSourceImpl(
-      client: mockHttpClient,
-      baseUrl: 'http://10.0.2.2:8080',
-    );
+    dataSource = AuthRemoteDataSourceImpl(client: mockHttpClient, baseUrl: baseUrl);
   });
 
+  void stubPost(Object? body, {int status = 200}) {
+    when(() => mockHttpClient.post(any(), headers: any(named: 'headers'), body: any(named: 'body')))
+        .thenAnswer((_) async => http.Response(body == null ? '' : jsonEncode(body), status));
+  }
+
+  ({Uri uri, Map<String, dynamic> body}) capturedPost() {
+    final captured = verify(() => mockHttpClient.post(captureAny(), headers: any(named: 'headers'),
+        body: captureAny(named: 'body'))).captured;
+    return (uri: captured[0] as Uri, body: jsonDecode(captured[1] as String) as Map<String, dynamic>);
+  }
+
+  final errorBody = {'code': 'INVALID_RECOVERY_KEY', 'message': 'The recovery key does not match', 'timestamp': 'now'};
+
   group('AuthRemoteDataSource', () {
-    const testEmail = 'test@example.com';
-    const testPassword = 'password123';
-    const testToken = 'test_token_123';
-    const testRefreshToken = 'refresh_token_123';
-    const testDeviceUuid = 'uuid_123';
-    const baseUrl = 'http://10.0.2.2:8080';
+    group('getKdfParams', () {
+      test('should GET the public kdf-params endpoint with the email and parse the parameters', () async {
+        // Arrange
+        when(() => mockHttpClient.get(any(), headers: any(named: 'headers')))
+            .thenAnswer((_) async => http.Response(jsonEncode(E2eeTestData.kdfParamsJson()), 200));
+
+        // Act
+        final params = await dataSource.getKdfParams('test@example.com');
+
+        // Assert
+        final uri = verify(() => mockHttpClient.get(captureAny(), headers: any(named: 'headers'))).captured.single as Uri;
+        expect(uri.path, '/api/auth/kdf-params/');
+        expect(uri.queryParameters['email'], 'test@example.com');
+        expect(params.salt, E2eeTestData.bytes(16, 1));
+        expect(params.ops, 2);
+        expect(params.memBytes, 32 * 1024 * 1024);
+      });
+    });
 
     group('login', () {
-      final successResponse = {
-        'token': testToken,
-        'refreshToken': testRefreshToken,
-        'id': '1',
-        'email': testEmail,
-        'name': 'John',
-        'surname': 'Doe',
-      };
-
-      test('should perform POST request to correct endpoint', () async {
+      test('should send the authKey (never a password) and parse tokens and keys', () async {
         // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(successResponse), 200),
-        );
+        stubPost(E2eeTestData.authResponseJson());
 
         // Act
-        await dataSource.login(testEmail, testPassword, testDeviceUuid);
+        final response = await dataSource.login('test@example.com', 'YXV0aEtleQ==', 'uuid_123');
 
         // Assert
-        final captured = verify(() => mockHttpClient.post(
-              Uri.parse('$baseUrl/api/login/'),
-              headers: captureAny(named: 'headers'),
-              body: jsonEncode({
-                'email': testEmail,
-                'password': testPassword,
-                'deviceUuid': testDeviceUuid
-              }),
-            ));
-        captured.called(1);
-
-        final headers = captured.captured.last as Map<String, String>;
-        expect(headers['Content-Type'], 'application/json');
-        expect(headers.containsKey('Accept-Language'), true);
+        final request = capturedPost();
+        expect(request.uri.toString(), '$baseUrl/api/login/');
+        expect(request.body, {'email': 'test@example.com', 'authKey': 'YXV0aEtleQ==', 'deviceUuid': 'uuid_123'});
+        expect(request.body.containsKey('password'), isFalse);
+        expect(response.token, 'access_token');
+        expect(response.refreshToken, 'refresh_token');
+        expect(response.keys!.accountLocked, isFalse);
+        expect(response.keys!.versions.single.state, KeyState.current);
+        expect(response.keys!.versions.single.encryptedMasterKey, E2eeTestData.bytes(72, 1));
+        expect(response.legalAcceptanceRequired, isFalse);
       });
 
-      test('should return AuthResponseModel on successful login (200)',
-          () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(successResponse), 200),
-        );
+      test('should parse a locked account', () async {
+        stubPost(E2eeTestData.authResponseJson(accountLocked: true));
 
-        // Act
-        final result = await dataSource.login(testEmail, testPassword,
-            testDeviceUuid);
+        final response = await dataSource.login('test@example.com', 'a', 'uuid');
 
-        // Assert
-        expect(result.token, testToken);
-        expect(result.user.id, '1');
-        expect(result.user.email, testEmail);
-        expect(result.user.name, 'John');
+        expect(response.keys!.accountLocked, isTrue);
+        expect(response.keys!.versions.single.state, KeyState.locked);
       });
 
-      test('should send correct JSON body in request', () async {
-        // Arrange
-        String? capturedBody;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedBody = invocation.namedArguments[#body] as String;
-          return http.Response(jsonEncode(successResponse), 200);
-        });
+      test('should throw ApiException with the backend error on a non-2xx response', () async {
+        stubPost({'code': 'INVALID_CREDENTIALS', 'message': 'Bad credentials', 'timestamp': 'now'}, status: 401);
 
-        // Act
-        await dataSource.login(testEmail, testPassword, testDeviceUuid);
-
-        // Assert
-        final decodedBody = jsonDecode(capturedBody!);
-        expect(decodedBody['email'], testEmail);
-        expect(decodedBody['password'], testPassword);
-        expect(decodedBody['deviceUuid'], testDeviceUuid);
+        expect(() => dataSource.login('test@example.com', 'a', 'uuid'), throwsA(isA<ApiException>()));
       });
 
-      test('should set correct Content-Type header', () async {
-        // Arrange
-        Map<String, String>? capturedHeaders;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedHeaders =
-              invocation.namedArguments[#headers] as Map<String, String>;
-          return http.Response(jsonEncode(successResponse), 200);
-        });
-
-        // Act
-        await dataSource.login(testEmail, testPassword, testDeviceUuid);
-
-        // Assert
-        expect(capturedHeaders!['Content-Type'], 'application/json');
-      });
-
-      test('should throw ApiException on non-200 response', () async {
-        // Arrange
-        final errorResponse = {
-          'code': 'INVALID_CREDENTIALS',
-          'message': 'Invalid email or password',
-          'timestamp': '2025-01-26T10:30:45.123456',
-          'path': '/api/login/',
-        };
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(errorResponse), 401),
-        );
-
-        // Act & Assert
-        expect(
-          () => dataSource.login(testEmail, testPassword, testDeviceUuid),
-          throwsA(
-            predicate((e) =>
-                e is ApiException &&
-                e.code == 'INVALID_CREDENTIALS' &&
-                e.message == 'Invalid email or password'),
-          ),
-        );
-      });
-
-      test('should wrap network errors in connection error exception',
-          () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow('Network error');
-
-        // Act & Assert
-        expect(
-          () => dataSource.login(testEmail, testPassword, testDeviceUuid),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Connection error')),
-          ),
-        );
-      });
-
-      test('should parse valid JSON response correctly', () async {
-        // Arrange
-        final responseWithAllFields = {
-          'token': testToken,
-          'id': '123',
-          'email': 'user@test.com',
-          'name': 'Jane',
-          'surname': 'Smith',
-          'refreshToken': 'refresh_token_456',
-        };
-
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(responseWithAllFields), 200),
-        );
-
-        // Act
-        final result = await dataSource.login(testEmail, testPassword,
-            testDeviceUuid);
-
-        // Assert
-        expect(result.token, testToken);
-        expect(result.user.id, '123');
-        expect(result.user.email, 'user@test.com');
-        expect(result.user.name, 'Jane');
-        expect(result.user.surname, 'Smith');
-        expect(result.refreshToken, 'refresh_token_456');
-      });
-
-      test('should wrap Exception types in connection error', () async {
-        // Arrange
-        final testException = Exception('Custom error');
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow(testException);
-
-        // Act & Assert
-        expect(
-          () => dataSource.login(testEmail, testPassword, testDeviceUuid),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Connection error')),
-          ),
-        );
-      });
-    });
-
-    group('logout', () {
-      test('should perform POST request to logout endpoint', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-            )).thenAnswer(
-          (_) async => http.Response('', 200),
-        );
-
-        // Act
-        await dataSource.logout(testToken);
-
-        // Assert
-        final captured = verify(() => mockHttpClient.post(
-              Uri.parse('$baseUrl/api/logout/'),
-              headers: captureAny(named: 'headers'),
-            ));
-        captured.called(1);
-
-        final headers = captured.captured.last as Map<String, String>;
-        expect(headers['Content-Type'], 'application/json');
-        expect(headers['Authorization'], 'Bearer $testToken');
-        expect(headers.containsKey('Accept-Language'), true);
-      });
-
-      test('should include Bearer token in Authorization header', () async {
-        // Arrange
-        Map<String, String>? capturedHeaders;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-            )).thenAnswer((invocation) async {
-          capturedHeaders =
-              invocation.namedArguments[#headers] as Map<String, String>;
-          return http.Response('', 200);
-        });
-
-        // Act
-        await dataSource.logout(testToken);
-
-        // Assert
-        expect(capturedHeaders!['Authorization'], 'Bearer $testToken');
-      });
-
-      test('should complete successfully on 200 response', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-            )).thenAnswer(
-          (_) async => http.Response('Success', 200),
-        );
-
-        // Act & Assert - should not throw
-        await expectLater(dataSource.logout(testToken), completes);
-      });
-
-      test('should silently ignore errors (no exception thrown)', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-            )).thenThrow(Exception('Network error'));
-
-        // Act & Assert - should not throw
-        await expectLater(dataSource.logout(testToken), completes);
-      });
-
-      test('should silently ignore 401 Unauthorized errors', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-            )).thenAnswer(
-          (_) async => http.Response('Unauthorized', 401),
-        );
-
-        // Act & Assert - should not throw
-        await expectLater(dataSource.logout(testToken), completes);
-      });
-
-      test('should silently ignore server errors (500)', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-            )).thenAnswer(
-          (_) async => http.Response('Internal Server Error', 500),
-        );
-
-        // Act & Assert - should not throw
-        await expectLater(dataSource.logout(testToken), completes);
-      });
-
-      test('should silently ignore network connection errors', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-            )).thenThrow('Connection refused');
-
-        // Act & Assert - should not throw
-        await expectLater(dataSource.logout(testToken), completes);
-      });
-    });
-
-    group('requestPasswordReset', () {
-      test('should perform POST request to correct endpoint', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response('', 200),
-        );
-
-        // Act
-        await dataSource.requestPasswordReset(testEmail);
-
-        // Assert
-        final captured = verify(() => mockHttpClient.post(
-              Uri.parse('$baseUrl/api/password-reset/request/'),
-              headers: captureAny(named: 'headers'),
-              body: jsonEncode({'email': testEmail}),
-            ));
-        captured.called(1);
-
-        final headers = captured.captured.last as Map<String, String>;
-        expect(headers['Content-Type'], 'application/json');
-        expect(headers.containsKey('Accept-Language'), true);
-      });
-
-      test('should complete successfully on 200 response', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response('', 200),
-        );
-
-        // Act & Assert - should not throw
-        await expectLater(dataSource.requestPasswordReset(testEmail), completes);
-      });
-
-      test('should send correct JSON body in request', () async {
-        // Arrange
-        String? capturedBody;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedBody = invocation.namedArguments[#body] as String;
-          return http.Response('', 200);
-        });
-
-        // Act
-        await dataSource.requestPasswordReset(testEmail);
-
-        // Assert
-        final decodedBody = jsonDecode(capturedBody!);
-        expect(decodedBody['email'], testEmail);
-      });
-
-      test('should set correct Content-Type header', () async {
-        // Arrange
-        Map<String, String>? capturedHeaders;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedHeaders =
-              invocation.namedArguments[#headers] as Map<String, String>;
-          return http.Response('', 200);
-        });
-
-        // Act
-        await dataSource.requestPasswordReset(testEmail);
-
-        // Assert
-        expect(capturedHeaders!['Content-Type'], 'application/json');
-      });
-
-      test('should throw ApiException with error code on non-200 response',
-          () async {
-        // Arrange
-        final errorResponse = {
-          'code': 'EMAIL_NOT_FOUND',
-          'message': 'Email not found',
-          'timestamp': '2025-01-26T10:30:45.123456',
-          'path': '/api/password-reset/request/',
-        };
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(errorResponse), 404),
-        );
-
-        // Act & Assert
-        expect(
-          () => dataSource.requestPasswordReset(testEmail),
-          throwsA(
-            predicate((e) =>
-                e is ApiException &&
-                e.code == 'EMAIL_NOT_FOUND' &&
-                e.message == 'Email not found'),
-          ),
-        );
-      });
-
-      test('should wrap network errors in connection error exception',
-          () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow('Network error');
-
-        // Act & Assert
-        expect(
-          () => dataSource.requestPasswordReset(testEmail),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Connection error')),
-          ),
-        );
-      });
-
-      test('should wrap Exception types in connection error', () async {
-        // Arrange
-        final testException = Exception('Custom error');
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow(testException);
-
-        // Act & Assert
-        expect(
-          () => dataSource.requestPasswordReset(testEmail),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Connection error')),
-          ),
-        );
-      });
-    });
-
-    group('validateResetCode', () {
-      const testCode = '123456';
-
-      test('should perform POST request to correct endpoint', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response('', 200),
-        );
-
-        // Act
-        await dataSource.validateResetCode(testEmail, testCode);
-
-        // Assert
-        final captured = verify(() => mockHttpClient.post(
-              Uri.parse('$baseUrl/api/password-reset/validate/'),
-              headers: captureAny(named: 'headers'),
-              body: jsonEncode({'email': testEmail, 'code': testCode}),
-            ));
-        captured.called(1);
-
-        final headers = captured.captured.last as Map<String, String>;
-        expect(headers['Content-Type'], 'application/json');
-        expect(headers.containsKey('Accept-Language'), true);
-      });
-
-      test('should complete successfully on 200 response', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response('', 200),
-        );
-
-        // Act & Assert - should not throw
-        await expectLater(
-            dataSource.validateResetCode(testEmail, testCode), completes);
-      });
-
-      test('should send correct JSON body in request', () async {
-        // Arrange
-        String? capturedBody;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedBody = invocation.namedArguments[#body] as String;
-          return http.Response('', 200);
-        });
-
-        // Act
-        await dataSource.validateResetCode(testEmail, testCode);
-
-        // Assert
-        final decodedBody = jsonDecode(capturedBody!);
-        expect(decodedBody['email'], testEmail);
-        expect(decodedBody['code'], testCode);
-      });
-
-      test('should set correct Content-Type header', () async {
-        // Arrange
-        Map<String, String>? capturedHeaders;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedHeaders =
-              invocation.namedArguments[#headers] as Map<String, String>;
-          return http.Response('', 200);
-        });
-
-        // Act
-        await dataSource.validateResetCode(testEmail, testCode);
-
-        // Assert
-        expect(capturedHeaders!['Content-Type'], 'application/json');
-      });
-
-      test('should throw ApiException with error code on non-200 response',
-          () async {
-        // Arrange
-        final errorResponse = {
-          'code': 'INVALID_CODE',
-          'message': 'Invalid or expired code',
-          'timestamp': '2025-01-26T10:30:45.123456',
-          'path': '/api/password-reset/validate/',
-        };
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(errorResponse), 400),
-        );
-
-        // Act & Assert
-        expect(
-          () => dataSource.validateResetCode(testEmail, testCode),
-          throwsA(
-            predicate((e) =>
-                e is ApiException &&
-                e.code == 'INVALID_CODE' &&
-                e.message == 'Invalid or expired code'),
-          ),
-        );
-      });
-
-      test('should wrap network errors in connection error exception',
-          () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow('Network error');
-
-        // Act & Assert
-        expect(
-          () => dataSource.validateResetCode(testEmail, testCode),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Connection error')),
-          ),
-        );
-      });
-
-      test('should wrap Exception types in connection error', () async {
-        // Arrange
-        final testException = Exception('Custom error');
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow(testException);
-
-        // Act & Assert
-        expect(
-          () => dataSource.validateResetCode(testEmail, testCode),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Connection error')),
-          ),
-        );
-      });
-    });
-
-    group('resetPassword', () {
-      const testCode = '123456';
-      const testNewPassword = 'newPassword123';
-
-      test('should perform POST request to correct endpoint', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response('', 200),
-        );
-
-        // Act
-        await dataSource.resetPassword(testEmail, testCode, testNewPassword);
-
-        // Assert
-        final captured = verify(() => mockHttpClient.post(
-              Uri.parse('$baseUrl/api/password-reset/reset/'),
-              headers: captureAny(named: 'headers'),
-              body: jsonEncode({
-                'email': testEmail,
-                'code': testCode,
-                'newPassword': testNewPassword
-              }),
-            ));
-        captured.called(1);
-
-        final headers = captured.captured.last as Map<String, String>;
-        expect(headers['Content-Type'], 'application/json');
-        expect(headers.containsKey('Accept-Language'), true);
-      });
-
-      test('should complete successfully on 200 response', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response('', 200),
-        );
-
-        // Act & Assert - should not throw
-        await expectLater(
-            dataSource.resetPassword(testEmail, testCode, testNewPassword),
-            completes);
-      });
-
-      test('should send correct JSON body in request', () async {
-        // Arrange
-        String? capturedBody;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedBody = invocation.namedArguments[#body] as String;
-          return http.Response('', 200);
-        });
-
-        // Act
-        await dataSource.resetPassword(testEmail, testCode, testNewPassword);
-
-        // Assert
-        final decodedBody = jsonDecode(capturedBody!);
-        expect(decodedBody['email'], testEmail);
-        expect(decodedBody['code'], testCode);
-        expect(decodedBody['newPassword'], testNewPassword);
-      });
-
-      test('should set correct Content-Type header', () async {
-        // Arrange
-        Map<String, String>? capturedHeaders;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedHeaders =
-              invocation.namedArguments[#headers] as Map<String, String>;
-          return http.Response('', 200);
-        });
-
-        // Act
-        await dataSource.resetPassword(testEmail, testCode, testNewPassword);
-
-        // Assert
-        expect(capturedHeaders!['Content-Type'], 'application/json');
-      });
-
-      test('should throw ApiException with error code on non-200 response',
-          () async {
-        // Arrange
-        final errorResponse = {
-          'code': 'CODE_EXPIRED',
-          'message': 'Reset code has expired',
-          'timestamp': '2025-01-26T10:30:45.123456',
-          'path': '/api/password-reset/reset/',
-        };
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(errorResponse), 400),
-        );
-
-        // Act & Assert
-        expect(
-          () => dataSource.resetPassword(testEmail, testCode, testNewPassword),
-          throwsA(
-            predicate((e) =>
-                e is ApiException &&
-                e.code == 'CODE_EXPIRED' &&
-                e.message == 'Reset code has expired'),
-          ),
-        );
-      });
-
-      test('should wrap network errors in connection error exception',
-          () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow('Network error');
-
-        // Act & Assert
-        expect(
-          () => dataSource.resetPassword(testEmail, testCode, testNewPassword),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Connection error')),
-          ),
-        );
-      });
-
-      test('should wrap Exception types in connection error', () async {
-        // Arrange
-        final testException = Exception('Custom error');
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow(testException);
-
-        // Act & Assert
-        expect(
-          () => dataSource.resetPassword(testEmail, testCode, testNewPassword),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Connection error')),
-          ),
-        );
+      test('should rethrow socket errors and wrap other errors', () async {
+        when(() => mockHttpClient.post(any(), headers: any(named: 'headers'), body: any(named: 'body')))
+            .thenThrow(const SocketException('offline'));
+        expect(() => dataSource.login('e', 'a', 'u'), throwsA(isA<SocketException>()));
+
+        when(() => mockHttpClient.post(any(), headers: any(named: 'headers'), body: any(named: 'body')))
+            .thenThrow(StateError('boom'));
+        expect(() => dataSource.login('e', 'a', 'u'),
+            throwsA(isA<Exception>().having((e) => e.toString(), 'message', contains('Connection error'))));
       });
     });
 
     group('register', () {
-      const testName = 'John';
-      const testSurname = 'Doe';
-
-      final registerSuccessResponse = {
-        'token': testToken,
-        'refreshToken': testRefreshToken,
-        'id': '1',
-        'email': testEmail,
-        'name': testName,
-        'surname': testSurname,
-      };
-
-      test('should perform POST request to correct endpoint', () async {
+      test('should send the authKey, the KDF parameters and the wrapped key material', () async {
         // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(registerSuccessResponse), 200),
-        );
+        stubPost(E2eeTestData.authResponseJson());
+        final key = E2eeTestData.newKeyMaterial();
 
         // Act
-        await dataSource.register(testEmail, testPassword, testName,
-            testSurname, testDeviceUuid);
+        await dataSource.register(
+          email: 'test@example.com',
+          authKey: 'YXV0aEtleQ==',
+          name: 'John',
+          surname: null,
+          deviceUuid: 'uuid_123',
+          kdfParams: E2eeTestData.kdfParams(),
+          key: key,
+          acceptedTermsVersion: '1.0',
+          acceptedPrivacyVersion: '1.1',
+        );
 
         // Assert
-        final captured = verify(() => mockHttpClient.post(
-              Uri.parse('$baseUrl/api/register/'),
-              headers: captureAny(named: 'headers'),
-              body: jsonEncode({
-                'email': testEmail,
-                'password': testPassword,
-                'name': testName,
-                'deviceUuid': testDeviceUuid,
-                'surname': testSurname,
-              }),
-            ));
-        captured.called(1);
-
-        final headers = captured.captured.last as Map<String, String>;
-        expect(headers['Content-Type'], 'application/json');
-        expect(headers.containsKey('Accept-Language'), true);
+        final body = capturedPost().body;
+        expect(body['authKey'], 'YXV0aEtleQ==');
+        expect(body['acceptedTermsVersion'], '1.0');
+        expect(body['acceptedPrivacyVersion'], '1.1');
+        expect(body.containsKey('surname'), isFalse);
+        expect(body['kdfSalt'], base64Encode(E2eeTestData.bytes(16, 1)));
+        expect(body['kdfParams'], {'algorithm': 'argon2id13', 'ops': 2, 'memBytes': 32 * 1024 * 1024});
+        final sentKey = body['key'] as Map<String, dynamic>;
+        expect(sentKey['encryptedMasterKey'], base64Encode(key.encryptedMasterKey));
+        expect(sentKey['recoveryAuthKey'], base64Encode(key.recoveryAuthKey));
+        expect(sentKey['masterKeyAuth'], base64Encode(key.masterKeyAuth));
+        // The master key and the recovery key themselves never leave the device
+        expect(jsonEncode(body).contains(base64Encode(key.masterKey.bytes)), isFalse);
+        expect(jsonEncode(body).contains(base64Encode(key.recoveryKey.bytes)), isFalse);
       });
 
-      test('should complete successfully on 200 response', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(registerSuccessResponse), 200),
-        );
+      test('should include the surname when there is one', () async {
+        stubPost(E2eeTestData.authResponseJson());
 
-        // Act & Assert - should not throw
-        await expectLater(
-            dataSource.register(testEmail, testPassword, testName, testSurname,
-                testDeviceUuid),
-            completes);
-      });
+        await dataSource.register(email: 'e@example.com', authKey: 'a', name: 'John', surname: 'Doe',
+            deviceUuid: 'u', kdfParams: E2eeTestData.kdfParams(), key: E2eeTestData.newKeyMaterial(),
+            acceptedTermsVersion: '1.0', acceptedPrivacyVersion: '1.0');
 
-      test('should send correct JSON body in request with surname', () async {
-        // Arrange
-        String? capturedBody;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedBody = invocation.namedArguments[#body] as String;
-          return http.Response(jsonEncode(registerSuccessResponse), 200);
-        });
-
-        // Act
-        await dataSource.register(testEmail, testPassword, testName,
-            testSurname, testDeviceUuid);
-
-        // Assert
-        final decodedBody = jsonDecode(capturedBody!);
-        expect(decodedBody['email'], testEmail);
-        expect(decodedBody['password'], testPassword);
-        expect(decodedBody['name'], testName);
-        expect(decodedBody['surname'], testSurname);
-        expect(decodedBody['deviceUuid'], testDeviceUuid);
-      });
-
-      test('should send correct JSON body in request without surname', () async {
-        // Arrange
-        String? capturedBody;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedBody = invocation.namedArguments[#body] as String;
-          return http.Response(jsonEncode(registerSuccessResponse), 200);
-        });
-
-        // Act
-        await dataSource.register(testEmail, testPassword, testName, null,
-            testDeviceUuid);
-
-        // Assert
-        final decodedBody = jsonDecode(capturedBody!);
-        expect(decodedBody['email'], testEmail);
-        expect(decodedBody['password'], testPassword);
-        expect(decodedBody['name'], testName);
-        expect(decodedBody.containsKey('surname'), isFalse);
-        expect(decodedBody['deviceUuid'], testDeviceUuid);
-      });
-
-      test('should set correct Content-Type header', () async {
-        // Arrange
-        Map<String, String>? capturedHeaders;
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer((invocation) async {
-          capturedHeaders =
-              invocation.namedArguments[#headers] as Map<String, String>;
-          return http.Response(jsonEncode(registerSuccessResponse), 200);
-        });
-
-        // Act
-        await dataSource.register(testEmail, testPassword, testName,
-            testSurname, testDeviceUuid);
-
-        // Assert
-        expect(capturedHeaders!['Content-Type'], 'application/json');
-      });
-
-      test('should throw ApiException with error message on non-200 response',
-          () async {
-        // Arrange
-        final errorResponse = {
-          'code': 'EMAIL_ALREADY_USED',
-          'message': 'Email already registered',
-          'timestamp': '2025-01-26T10:30:45.123456',
-          'path': '/api/register/',
-        };
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(errorResponse), 400),
-        );
-
-        // Act & Assert
-        expect(
-          () => dataSource.register(testEmail, testPassword, testName,
-              testSurname, testDeviceUuid),
-          throwsA(
-            predicate((e) =>
-                e is ApiException &&
-                e.code == 'EMAIL_ALREADY_USED' &&
-                e.message == 'Email already registered'),
-          ),
-        );
-      });
-
-      test('should throw ApiException on 500 server error', () async {
-        // Arrange
-        final errorResponse = {
-          'code': 'INTERNAL_SERVER_ERROR',
-          'message': 'Internal server error',
-          'timestamp': '2025-01-26T10:30:45.123456',
-          'path': '/api/register/',
-        };
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(errorResponse), 500),
-        );
-
-        // Act & Assert
-        expect(
-          () => dataSource.register(testEmail, testPassword, testName,
-              testSurname, testDeviceUuid),
-          throwsA(
-            predicate((e) =>
-                e is ApiException &&
-                e.code == 'INTERNAL_SERVER_ERROR' &&
-                e.message == 'Internal server error'),
-          ),
-        );
-      });
-
-      test('should wrap network errors in connection error exception', () async {
-        // Arrange
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow('Network error');
-
-        // Act & Assert
-        expect(
-          () => dataSource.register(testEmail, testPassword, testName,
-              testSurname, testDeviceUuid),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Connection error')),
-          ),
-        );
-      });
-
-      test('should wrap Exception types in connection error', () async {
-        // Arrange
-        final testException = Exception('Custom error');
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow(testException);
-
-        // Act & Assert
-        expect(
-          () => dataSource.register(testEmail, testPassword, testName,
-              testSurname, testDeviceUuid),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Connection error')),
-          ),
-        );
-      });
-
-      test('should rethrow HttpException types directly', () async {
-        // Arrange
-        const testException = HttpException('Email already exists');
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenThrow(testException);
-
-        // Act & Assert
-        expect(
-          () => dataSource.register(testEmail, testPassword, testName,
-              testSurname, testDeviceUuid),
-          throwsA(testException),
-        );
+        expect(capturedPost().body['surname'], 'Doe');
       });
     });
 
-    group('custom base URL', () {
-      test('should use custom baseUrl when provided', () async {
-        // Arrange
-        const customBaseUrl = 'https://api.example.com';
-        final customDataSource = AuthRemoteDataSourceImpl(
-          client: mockHttpClient,
-          baseUrl: customBaseUrl,
-        );
+    group('password reset', () {
+      test('should request and validate the emailed code', () async {
+        stubPost(null);
 
-        final successResponse = {
-          'token': testToken,
-          'refreshToken': testRefreshToken,
-          'id': '1',
-          'email': testEmail,
-          'name': 'John',
-          'surname': 'Doe',
-        };
+        await dataSource.requestPasswordReset('test@example.com');
+        expect(capturedPost().uri.path, '/api/password-reset/request/');
 
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(successResponse), 200),
-        );
-
-        // Act
-        await customDataSource.login(testEmail, testPassword, testDeviceUuid);
-
-        // Assert
-        verify(() => mockHttpClient.post(
-              Uri.parse('$customBaseUrl/api/login/'),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).called(1);
+        await dataSource.validateResetCode('test@example.com', '123456');
+        final request = capturedPost();
+        expect(request.uri.path, '/api/password-reset/validate/');
+        expect(request.body, {'email': 'test@example.com', 'code': '123456'});
       });
 
-      test('should use custom baseUrl for register endpoint', () async {
-        // Arrange
-        const customBaseUrl = 'https://api.example.com';
-        final customDataSource = AuthRemoteDataSourceImpl(
-          client: mockHttpClient,
-          baseUrl: customBaseUrl,
-        );
+      test('should get the recovery wraps with the emailed code', () async {
+        stubPost({
+          'keys': [
+            {'version': 1, 'state': 'LOCKED', 'masterKeyByRecovery': base64Encode(E2eeTestData.bytes(72, 9))},
+          ],
+        });
 
-        final registerSuccessResponse = {
-          'token': testToken,
-          'refreshToken': testRefreshToken,
-          'id': '1',
-          'email': testEmail,
-          'name': 'John',
-          'surname': 'Doe',
-        };
+        final wraps = await dataSource.getRecoveryWraps('test@example.com', '123456');
 
-        when(() => mockHttpClient.post(
-              any(),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).thenAnswer(
-          (_) async => http.Response(jsonEncode(registerSuccessResponse), 200),
-        );
+        expect(capturedPost().uri.path, '/api/password-reset/recovery-keys/');
+        expect(wraps.single.version, 1);
+        expect(wraps.single.masterKeyByRecovery, E2eeTestData.bytes(72, 9));
+      });
 
-        // Act
-        await customDataSource.register(testEmail, testPassword, 'John', 'Doe',
-            testDeviceUuid);
+      test('should reset with the new authKey and the recovered keys, and return accountLocked', () async {
+        stubPost({'accountLocked': false});
+        final recovered = RecoveredKey(version: 1, recoveryAuthKey: E2eeTestData.bytes(32, 3),
+            encryptedMasterKey: E2eeTestData.bytes(72, 4), masterKey: E2eeTestData.key(5));
 
-        // Assert
-        verify(() => mockHttpClient.post(
-              Uri.parse('$customBaseUrl/api/register/'),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            )).called(1);
+        final accountLocked = await dataSource.resetPassword(email: 'test@example.com', code: '123456',
+            newAuthKey: 'bmV3', kdfParams: E2eeTestData.kdfParams(), recoveredKeys: [recovered]);
+
+        final body = capturedPost().body;
+        expect(accountLocked, isFalse);
+        expect(body['newAuthKey'], 'bmV3');
+        expect(body.containsKey('newPassword'), isFalse);
+        expect(body['recoveredKeys'], [
+          {'version': 1, 'recoveryAuthKey': base64Encode(E2eeTestData.bytes(32, 3)),
+            'encryptedMasterKey': base64Encode(E2eeTestData.bytes(72, 4))},
+        ]);
+      });
+
+      test('should send an empty list without the 24 words and report the locked account', () async {
+        stubPost({'accountLocked': true});
+
+        final accountLocked = await dataSource.resetPassword(email: 'e@example.com', code: '123456',
+            newAuthKey: 'bmV3', kdfParams: E2eeTestData.kdfParams(), recoveredKeys: const []);
+
+        expect(accountLocked, isTrue);
+        expect(capturedPost().body['recoveredKeys'], isEmpty);
+      });
+
+      test('should throw ApiException when the recovery key is wrong', () async {
+        stubPost(errorBody, status: 400);
+
+        expect(() => dataSource.resetPassword(email: 'e@example.com', code: '1', newAuthKey: 'a',
+            kdfParams: E2eeTestData.kdfParams(), recoveredKeys: const []), throwsA(isA<ApiException>()));
+      });
+    });
+
+    group('refreshToken', () {
+      test('should POST the refresh token and the device', () async {
+        stubPost({'accessToken': 'new_access', 'refreshToken': 'new_refresh'});
+
+        final response = await dataSource.refreshToken('refresh_token', 'uuid_123');
+
+        final request = capturedPost();
+        expect(request.uri.path, '/api/auth/refresh/');
+        expect(request.body, {'refreshToken': 'refresh_token', 'deviceUuid': 'uuid_123'});
+        expect(response.accessToken, 'new_access');
+      });
+    });
+
+    group('logout', () {
+      test('should POST with the bearer token', () async {
+        when(() => mockHttpClient.post(any(), headers: any(named: 'headers')))
+            .thenAnswer((_) async => http.Response('', 200));
+
+        await dataSource.logout('token_123');
+
+        final headers = verify(() => mockHttpClient.post(any(), headers: captureAny(named: 'headers')))
+            .captured.single as Map<String, String>;
+        expect(headers['Authorization'], 'Bearer token_123');
+      });
+
+      test('should silently ignore errors (the local session is cleared anyway)', () async {
+        when(() => mockHttpClient.post(any(), headers: any(named: 'headers')))
+            .thenThrow(const SocketException('offline'));
+
+        await expectLater(dataSource.logout('token_123'), completes);
       });
     });
   });

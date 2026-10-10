@@ -1,3 +1,6 @@
+import 'package:photo_manager_app/core/enums/file_status.dart';
+import 'package:photo_manager_app/core/enums/file_type.dart';
+import 'package:photo_manager_app/features/gallery/data/models/gallery_file_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/features/folders/data/data_sources/folder_remote_data_source.dart';
@@ -7,16 +10,19 @@ import 'package:photo_manager_app/features/folders/data/repositories/folder_repo
 import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder_content.dart';
 import 'package:photo_manager_app/features/gallery/domain/enums/file_filter.dart';
+import '../../../../helpers/recording_file_key_repository.dart';
 
 class MockFolderRemoteDataSource extends Mock implements FolderRemoteDataSource {}
 
 void main() {
   late FolderRepositoryImpl repository;
+  late RecordingFileKeyRepository fileKeys;
   late MockFolderRemoteDataSource mockRemoteDataSource;
 
   setUp(() {
     mockRemoteDataSource = MockFolderRemoteDataSource();
-    repository = FolderRepositoryImpl(remoteDataSource: mockRemoteDataSource);
+    fileKeys = RecordingFileKeyRepository();
+    repository = FolderRepositoryImpl(remoteDataSource: mockRemoteDataSource, fileKeyRepository: fileKeys);
   });
 
   group('FolderRepositoryImpl', () {
@@ -116,6 +122,31 @@ void main() {
     });
 
     group('getFolderContent', () {
+      test('should remember the keys of the files of the album', () async {
+        final contentModel = FolderContentModel(
+          folder: FolderModel(id: 'f', name: 'Album', parentFolderId: null, path: '/f', createdAt: testDate,
+              fileCount: 1, subfolderCount: 0),
+          subfolders: const [],
+          files: [
+            GalleryFileModel(id: 'file-9', type: FileType.image, status: FileStatus.managed, capturedAt: testDate,
+                encryptedRef: RecordingFileKeyRepository.ref('file-9')),
+          ],
+          hasMoreFiles: false,
+          totalFilesCount: 1,
+        );
+        when(() => mockRemoteDataSource.getFolderContent(
+              folderId: any(named: 'folderId'),
+              page: any(named: 'page'),
+              pageSize: any(named: 'pageSize'),
+              fileType: any(named: 'fileType'),
+              status: any(named: 'status'),
+            )).thenAnswer((_) async => contentModel);
+
+        await repository.getFolderContent(folderId: 'f');
+
+        expect(fileKeys.remembered.map((ref) => ref.fileId), ['file-9']);
+      });
+
       test('should delegate to remote data source with default parameters', () async {
         // Arrange
         const folderId = 'folder-1';

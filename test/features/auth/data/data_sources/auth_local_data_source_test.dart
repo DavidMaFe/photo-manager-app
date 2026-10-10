@@ -6,16 +6,20 @@ import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_dat
 import 'package:photo_manager_app/features/auth/data/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../helpers/in_memory_secure_store.dart';
+
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
   late AuthLocalDataSourceImpl dataSource;
   late MockSharedPreferences mockSharedPreferences;
+  late InMemorySecureStore secureStore;
 
   setUp(() {
     mockSharedPreferences = MockSharedPreferences();
-    dataSource =
-        AuthLocalDataSourceImpl(sharedPreferences: mockSharedPreferences);
+    secureStore = InMemorySecureStore();
+    when(() => mockSharedPreferences.remove(any())).thenAnswer((_) async => true);
+    dataSource = AuthLocalDataSourceImpl(sharedPreferences: mockSharedPreferences, secureStore: secureStore);
   });
 
   group('AuthLocalDataSource', () {
@@ -29,6 +33,7 @@ void main() {
     const testToken = 'test_token_123';
     const cachedUserKey = 'CACHED_USER';
     const authTokenKey = 'AUTH_TOKEN';
+    const refreshTokenKey = 'REFRESH_TOKEN';
 
     group('cacheUser', () {
       test('should cache user as JSON string in SharedPreferences', () async {
@@ -140,38 +145,40 @@ void main() {
     });
 
     group('cacheToken', () {
-      test('should cache token in SharedPreferences', () async {
-        // Arrange
-        when(() => mockSharedPreferences.setString(any(), any()))
-            .thenAnswer((_) async => true);
-
+      test('should store the token in the secure storage, not in SharedPreferences', () async {
         // Act
         await dataSource.cacheToken(testToken);
 
         // Assert
-        verify(() => mockSharedPreferences.setString(authTokenKey, testToken))
-            .called(1);
+        expect(secureStore.values[authTokenKey], testToken);
+        verifyNever(() => mockSharedPreferences.setString(authTokenKey, any()));
       });
 
-      test('should cache empty token', () async {
-        // Arrange
-        when(() => mockSharedPreferences.setString(any(), any()))
-            .thenAnswer((_) async => true);
-
+      test('should remove the legacy unencrypted tokens from SharedPreferences', () async {
         // Act
-        await dataSource.cacheToken('');
+        await dataSource.cacheToken(testToken);
 
         // Assert
-        verify(() => mockSharedPreferences.setString(authTokenKey, ''))
-            .called(1);
+        verify(() => mockSharedPreferences.remove(authTokenKey)).called(1);
+        verify(() => mockSharedPreferences.remove(refreshTokenKey)).called(1);
+      });
+    });
+
+    group('cacheRefreshToken', () {
+      test('should store the refresh token in the secure storage', () async {
+        // Act
+        await dataSource.cacheRefreshToken('refresh_123');
+
+        // Assert
+        expect(secureStore.values[refreshTokenKey], 'refresh_123');
+        expect(await dataSource.getRefreshToken(), 'refresh_123');
       });
     });
 
     group('getToken', () {
-      test('should return cached token when exists', () async {
+      test('should return the token from the secure storage', () async {
         // Arrange
-        when(() => mockSharedPreferences.getString(authTokenKey))
-            .thenReturn(testToken);
+        await secureStore.write(authTokenKey, testToken);
 
         // Act
         final result = await dataSource.getToken();
@@ -181,100 +188,55 @@ void main() {
       });
 
       test('should return null when no token exists', () async {
-        // Arrange
-        when(() => mockSharedPreferences.getString(authTokenKey))
-            .thenReturn(null);
-
-        // Act
-        final result = await dataSource.getToken();
-
-        // Assert
-        expect(result, isNull);
+        expect(await dataSource.getToken(), isNull);
       });
 
-      test('should return empty string if cached', () async {
-        // Arrange
-        when(() => mockSharedPreferences.getString(authTokenKey))
-            .thenReturn('');
+      test('should ignore a legacy token left in SharedPreferences', () async {
+        // Arrange: a token stored by a version before the end-to-end encryption
+        when(() => mockSharedPreferences.getString(authTokenKey)).thenReturn('legacy');
 
-        // Act
-        final result = await dataSource.getToken();
-
-        // Assert
-        expect(result, '');
+        // Act & Assert
+        expect(await dataSource.getToken(), isNull);
       });
     });
 
     group('hasValidToken', () {
       test('should return true when token exists and is not empty', () async {
-        // Arrange
-        when(() => mockSharedPreferences.getString(authTokenKey))
-            .thenReturn(testToken);
+        await secureStore.write(authTokenKey, testToken);
 
-        // Act
-        final result = await dataSource.hasValidToken();
-
-        // Assert
-        expect(result, isTrue);
+        expect(await dataSource.hasValidToken(), isTrue);
       });
 
       test('should return false when token is null', () async {
-        // Arrange
-        when(() => mockSharedPreferences.getString(authTokenKey))
-            .thenReturn(null);
-
-        // Act
-        final result = await dataSource.hasValidToken();
-
-        // Assert
-        expect(result, isFalse);
+        expect(await dataSource.hasValidToken(), isFalse);
       });
 
       test('should return false when token is empty string', () async {
-        // Arrange
-        when(() => mockSharedPreferences.getString(authTokenKey))
-            .thenReturn('');
+        await secureStore.write(authTokenKey, '');
 
-        // Act
-        final result = await dataSource.hasValidToken();
-
-        // Assert
-        expect(result, isFalse);
-      });
-
-      test('should return true for any non-empty token', () async {
-        // Arrange
-        when(() => mockSharedPreferences.getString(authTokenKey))
-            .thenReturn('any_token');
-
-        // Act
-        final result = await dataSource.hasValidToken();
-
-        // Assert
-        expect(result, isTrue);
+        expect(await dataSource.hasValidToken(), isFalse);
       });
     });
 
     group('clearCache', () {
-      test('should remove both user and token from cache', () async {
+      test('should remove the tokens from the secure storage and the user from SharedPreferences', () async {
         // Arrange
-        when(() => mockSharedPreferences.remove(any()))
-            .thenAnswer((_) async => true);
+        await secureStore.write(authTokenKey, testToken);
+        await secureStore.write(refreshTokenKey, 'refresh_123');
+        await secureStore.write('E2EE_MASTER_KEY_V1', 'kept by its own data source');
 
         // Act
         await dataSource.clearCache();
 
         // Assert
+        expect(secureStore.values.keys, ['E2EE_MASTER_KEY_V1']);
         verify(() => mockSharedPreferences.remove(cachedUserKey)).called(1);
         verify(() => mockSharedPreferences.remove(authTokenKey)).called(1);
       });
 
       test('should complete even if keys do not exist', () async {
-        // Arrange
-        when(() => mockSharedPreferences.remove(any()))
-            .thenAnswer((_) async => false);
+        when(() => mockSharedPreferences.remove(any())).thenAnswer((_) async => false);
 
-        // Act & Assert - should not throw
         await expectLater(dataSource.clearCache(), completes);
       });
     });
@@ -304,16 +266,6 @@ void main() {
       });
 
       test('should retrieve same token after caching', () async {
-        // Arrange
-        String? cachedToken;
-        when(() => mockSharedPreferences.setString(any(), any()))
-            .thenAnswer((invocation) async {
-          cachedToken = invocation.positionalArguments[1] as String;
-          return true;
-        });
-        when(() => mockSharedPreferences.getString(authTokenKey))
-            .thenAnswer((_) => cachedToken);
-
         // Act
         await dataSource.cacheToken(testToken);
         final result = await dataSource.getToken();

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/otp_field.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
@@ -170,58 +173,166 @@ void main() {
   });
 
   group('ResetPasswordPage', () {
-    testWidgets('should show step 3 with both password fields', (tester) async {
+    const page = ResetPasswordPage(email: email, code: '123456');
+    const newPassword = 'new password 1';
+    final words = List.generate(24, (i) => 'word$i');
+
+    Finder saveButton() => find.widgetWithText(AppButton, 'Save password');
+    Finder passwordField(int index) => find.byType(TextFormField).at(index);
+
+    Future<void> answer(WidgetTester tester, {required bool hasWords}) async {
+      await tester.tap(find.byKey(ValueKey(hasWords ? 'reset-has-words-yes' : 'reset-has-words-no')));
+      await tester.pump();
+    }
+
+    /// The two password fields are the last ones: the words field goes before them.
+    Future<void> enterPasswords(WidgetTester tester, String password, [String? confirmation]) async {
+      final fields = find.byType(TextFormField).evaluate().length;
+      await tester.enterText(passwordField(fields - 2), password);
+      await tester.enterText(passwordField(fields - 1), confirmation ?? password);
+    }
+
+    Future<void> save(WidgetTester tester) async {
+      await tester.ensureVisible(saveButton());
+      await tester.tap(saveButton());
+      await tester.pumpAndSettle();
+    }
+
+    // ==================== HAPPY PATH TESTS ====================
+
+    testWidgets('should show step 3 with the words question and both password fields', (tester) async {
       // Arrange
-      await pump(tester, const ResetPasswordPage(email: email, code: '123456'));
+      await pump(tester, page);
 
       // Assert
       expect(find.text('Step 3 of 3'), findsOneWidget);
       expect(find.text('Create a new password'), findsOneWidget);
+      expect(find.text('Do you have your 24 recovery words?'), findsOneWidget);
       expect(find.byType(TextFormField), findsNWidgets(2));
-      expect(find.text('Save password'), findsOneWidget);
+      expect(saveButton(), findsOneWidget);
     });
 
-    testWidgets('should reject mismatching passwords', (tester) async {
+    testWidgets('should submit the 24 words with the new password', (tester) async {
       // Arrange
-      await pump(tester, const ResetPasswordPage(email: email, code: '123456'));
-      await tester.enterText(find.byType(TextFormField).first, 'newpass1');
-      await tester.enterText(find.byType(TextFormField).last, 'newpass2');
+      await pump(tester, page);
+      await answer(tester, hasWords: true);
+      await tester.enterText(passwordField(0), words.indexed.map((e) => '${e.$1 + 1}. ${e.$2}').join('\n'));
+      await enterPasswords(tester, newPassword);
 
       // Act
-      await tester.tap(find.byType(AppButton));
-      await tester.pump();
+      await save(tester);
 
-      // Assert
-      expect(find.text('Passwords do not match'), findsOneWidget);
-      verifyNever(() => mockAuthBloc.add(any()));
-    });
-
-    testWidgets('should submit the new password with email and code', (tester) async {
-      // Arrange
-      await pump(tester, const ResetPasswordPage(email: email, code: '123456'));
-      await tester.enterText(find.byType(TextFormField).first, 'newpass1');
-      await tester.enterText(find.byType(TextFormField).last, 'newpass1');
-
-      // Act
-      await tester.tap(find.byType(AppButton));
-      await tester.pump();
-
-      // Assert
+      // Assert: the numbers of a pasted list are ignored
       final event = verify(() => mockAuthBloc.add(captureAny())).captured.single;
       expect(
         event,
         isA<NewPasswordSubmitted>()
-            .having((e) => e.newPassword, 'password', 'newpass1')
-            .having((e) => e.code, 'code', '123456'),
+            .having((e) => e.email, 'email', email)
+            .having((e) => e.code, 'code', '123456')
+            .having((e) => e.newPassword, 'password', newPassword)
+            .having((e) => e.recoveryWords, 'words', words),
       );
     });
 
-    testWidgets('should show loading on the primary button', (tester) async {
+    testWidgets('should warn that the photos get locked and submit without words once accepted', (tester) async {
       // Arrange
-      await pump(tester, const ResetPasswordPage(email: email, code: '123456'), state: AuthLoading());
+      await pump(tester, page);
+      await answer(tester, hasWords: false);
+      await enterPasswords(tester, newPassword);
+
+      // Act
+      await save(tester);
+
+      // Assert: the warning is shown on the page and in the dialog
+      expect(find.text('Your photos will be locked'), findsOneWidget);
+      verifyNever(() => mockAuthBloc.add(any()));
+
+      await tester.tap(find.text('Understood, continue'));
+      await tester.pumpAndSettle();
+
+      final event = verify(() => mockAuthBloc.add(captureAny())).captured.single;
+      expect(event, isA<NewPasswordSubmitted>().having((e) => e.recoveryWords, 'words', isNull));
+    });
+
+    // ==================== BUSINESS LOGIC TESTS ====================
+
+    testWidgets('should not submit without words when the warning is cancelled', (tester) async {
+      await pump(tester, page);
+      await answer(tester, hasWords: false);
+      await enterPasswords(tester, newPassword);
+
+      await save(tester);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      verifyNever(() => mockAuthBloc.add(any()));
+    });
+
+    testWidgets('should ask the words question before submitting', (tester) async {
+      await pump(tester, page);
+      await enterPasswords(tester, newPassword);
+
+      await save(tester);
+
+      // On the page and in the snackbar
+      expect(find.text('Do you have your 24 recovery words?'), findsNWidgets(2));
+      verifyNever(() => mockAuthBloc.add(any()));
+    });
+
+    testWidgets('should tell how to recover the photos when the account ends up locked', (tester) async {
+      // Arrange: a router, because the page goes back to the login after the reset
+      when(() => mockAuthBloc.stream)
+          .thenAnswer((_) => Stream.value(PasswordResetSuccessful(accountLocked: true)));
+      setUpCustomScreenSize(tester, 390, 844);
+      final router = GoRouter(routes: [
+        GoRoute(path: '/', builder: (_, __) => BlocProvider<AuthBloc>.value(value: mockAuthBloc, child: page)),
+        GoRoute(path: RoutePaths.login, builder: (_, __) => const Text('login page')),
+      ]);
+      await tester.pumpWidget(makeTestableRouter(router: router));
+
+      // Act
+      await tester.pump();
 
       // Assert
-      expect(primaryButton(tester).loading, isTrue);
+      expect(find.text('Password changed. When you log in you will see how to recover your locked photos.'),
+          findsOneWidget);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      expect(find.text('login page'), findsOneWidget);
+    });
+
+    // ==================== VALIDATION ERROR TESTS ====================
+
+    testWidgets('should reject mismatching passwords', (tester) async {
+      await pump(tester, page);
+      await answer(tester, hasWords: true);
+      await tester.enterText(passwordField(0), words.join(' '));
+      await enterPasswords(tester, newPassword, 'new password 2');
+
+      await save(tester);
+
+      expect(find.text('Passwords do not match'), findsOneWidget);
+      verifyNever(() => mockAuthBloc.add(any()));
+    });
+
+    testWidgets('should reject passwords shorter than 10 characters', (tester) async {
+      await pump(tester, page);
+      await answer(tester, hasWords: false);
+      await enterPasswords(tester, 'short');
+
+      await save(tester);
+
+      expect(find.text('The password must have at least 10 characters.'), findsOneWidget);
+      verifyNever(() => mockAuthBloc.add(any()));
+    });
+
+    // ==================== LOADING STATE TESTS ====================
+
+    testWidgets('should show loading on the primary button', (tester) async {
+      // Arrange
+      await pump(tester, page, state: AuthLoading());
+
+      // Assert: the primary button of the layout goes after the answer buttons
+      expect(tester.widget<AppButton>(find.byType(AppButton).last).loading, isTrue);
     });
   });
 }

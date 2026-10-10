@@ -209,12 +209,6 @@ abstract class AppLocalizations {
   /// **'Sign in'**
   String get signIn;
 
-  /// No description provided for @registerTermsDisclaimer.
-  ///
-  /// In en, this message translates to:
-  /// **'By signing up, you agree to our Terms and Conditions'**
-  String get registerTermsDisclaimer;
-
   /// No description provided for @gallery.
   ///
   /// In en, this message translates to:
@@ -2722,6 +2716,564 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{size} left to upload'**
   String bytesToUpload(String size);
+
+  /// No description provided for @errorRecoveryPhraseMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'These 24 words do not match any key of your account.'**
+  String get errorRecoveryPhraseMismatch;
+
+  /// No description provided for @errorInvalidRecoveryPhrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the words: one is misspelled or some are missing.'**
+  String get errorInvalidRecoveryPhrase;
+
+  /// No description provided for @errorWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password must have at least {min} characters.'**
+  String errorWeakPassword(int min);
+
+  /// No description provided for @errorMissingDeviceKey.
+  ///
+  /// In en, this message translates to:
+  /// **'This device does not have every key of your account. Log in again on it and try again.'**
+  String get errorMissingDeviceKey;
+
+  /// No description provided for @errorKeyUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'The keys of your account could not be opened.'**
+  String get errorKeyUnlock;
+
+  /// No description provided for @errorDeviceAuthentication.
+  ///
+  /// In en, this message translates to:
+  /// **'Your identity could not be verified with the device lock. Set up a fingerprint, PIN or pattern and try again.'**
+  String get errorDeviceAuthentication;
+
+  /// No description provided for @recoveryPhraseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your 24 recovery words'**
+  String get recoveryPhraseTitle;
+
+  /// No description provided for @recoveryPhraseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'They are the only way to recover your photos if you forget your password and have no other device with an open session.'**
+  String get recoveryPhraseSubtitle;
+
+  /// No description provided for @recoveryPhraseWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody, not even us, can recover them for you. Keep them somewhere safe.'**
+  String get recoveryPhraseWarning;
+
+  /// No description provided for @recoveryPhraseSaveToPasswordManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to the password manager'**
+  String get recoveryPhraseSaveToPasswordManager;
+
+  /// No description provided for @recoveryPhraseSavedToPasswordManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to the password manager'**
+  String get recoveryPhraseSavedToPasswordManager;
+
+  /// No description provided for @recoveryPhraseSaveToPasswordManagerFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'They could not be saved to the password manager. Download the PDF or write them down.'**
+  String get recoveryPhraseSaveToPasswordManagerFailed;
+
+  /// No description provided for @recoveryPhraseDownloadPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Download PDF'**
+  String get recoveryPhraseDownloadPdf;
+
+  /// No description provided for @recoveryPhraseContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'I have saved them'**
+  String get recoveryPhraseContinue;
+
+  /// No description provided for @recoveryPhraseDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get recoveryPhraseDone;
+
+  /// No description provided for @recoveryPhraseViewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My 24 words'**
+  String get recoveryPhraseViewTitle;
+
+  /// No description provided for @recoveryPhraseNotOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This device has no copy of your 24 words. If you have them written down, verify them to keep a copy here.'**
+  String get recoveryPhraseNotOnDevice;
+
+  /// No description provided for @recoveryPhrasePasswordManagerAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo Manager recovery key ({email})'**
+  String recoveryPhrasePasswordManagerAccount(String email);
+
+  /// No description provided for @recoveryPhrasePdfTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo Manager recovery key'**
+  String get recoveryPhrasePdfTitle;
+
+  /// No description provided for @recoveryPhrasePdfAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get recoveryPhrasePdfAccount;
+
+  /// No description provided for @recoveryPhrasePdfWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep this document somewhere safe. Anyone with these words and access to your email could reset your password.'**
+  String get recoveryPhrasePdfWarning;
+
+  /// No description provided for @recoveryPhrasePdfInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'If you forget your password: tap \"Forgot your password?\", enter the code you get by email and then these 24 words.'**
+  String get recoveryPhrasePdfInstructions;
+
+  /// No description provided for @confirmPhraseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your words'**
+  String get confirmPhraseTitle;
+
+  /// No description provided for @confirmPhraseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the words we ask for to confirm you have saved them.'**
+  String get confirmPhraseSubtitle;
+
+  /// No description provided for @confirmPhraseWordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Word number {position}'**
+  String confirmPhraseWordLabel(int position);
+
+  /// No description provided for @confirmPhraseCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get confirmPhraseCheck;
+
+  /// No description provided for @confirmPhraseWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'A word does not match. Check your copy.'**
+  String get confirmPhraseWrong;
+
+  /// No description provided for @recoveryWordsInputLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your 24 words'**
+  String get recoveryWordsInputLabel;
+
+  /// No description provided for @recoveryWordsInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type them separated by spaces'**
+  String get recoveryWordsInputHint;
+
+  /// No description provided for @lockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your earlier photos are locked'**
+  String get lockedTitle;
+
+  /// No description provided for @lockedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You reset your password without your 24 words, so the keys that protected your photos cannot be opened.'**
+  String get lockedMessage;
+
+  /// No description provided for @lockedPhotosKept.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photos have not been deleted. You will recover all of them if you find your 24 words or a device that still has an open session.'**
+  String get lockedPhotosKept;
+
+  /// No description provided for @lockedUseWords.
+  ///
+  /// In en, this message translates to:
+  /// **'I have my 24 words'**
+  String get lockedUseWords;
+
+  /// No description provided for @lockedUseDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover from this device'**
+  String get lockedUseDevice;
+
+  /// No description provided for @lockedUseDeviceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This device still keeps the keys of some locked photos.'**
+  String get lockedUseDeviceSubtitle;
+
+  /// No description provided for @lockedNewKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with a new key'**
+  String get lockedNewKey;
+
+  /// No description provided for @lockedNewKeyConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with a new key?'**
+  String get lockedNewKeyConfirmTitle;
+
+  /// No description provided for @lockedNewKeyConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You can keep uploading photos. The earlier ones stay locked but are not deleted: you can recover them later.'**
+  String get lockedNewKeyConfirmMessage;
+
+  /// No description provided for @lockedPasswordPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your current password'**
+  String get lockedPasswordPrompt;
+
+  /// No description provided for @lockedUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos recovered'**
+  String get lockedUnlocked;
+
+  /// No description provided for @resetHaveWordsQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you have your 24 recovery words?'**
+  String get resetHaveWordsQuestion;
+
+  /// No description provided for @resetHaveWordsYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, I have them'**
+  String get resetHaveWordsYes;
+
+  /// No description provided for @resetHaveWordsNo.
+  ///
+  /// In en, this message translates to:
+  /// **'I do not have them'**
+  String get resetHaveWordsNo;
+
+  /// No description provided for @resetWithoutWordsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photos will be locked'**
+  String get resetWithoutWordsTitle;
+
+  /// No description provided for @resetWithoutWordsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Without the 24 words the keys of your photos cannot be opened. You will log in with the new password, but your current photos will be locked. They are not deleted: you will recover them if you find your words or a device with an open session.'**
+  String get resetWithoutWordsMessage;
+
+  /// No description provided for @resetWithoutWordsConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Understood, continue'**
+  String get resetWithoutWordsConfirm;
+
+  /// No description provided for @resetAccountLockedNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. When you log in you will see how to recover your locked photos.'**
+  String get resetAccountLockedNotice;
+
+  /// No description provided for @deviceResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'I forgot my password'**
+  String get deviceResetTitle;
+
+  /// No description provided for @deviceResetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Since this device has an open session, you can set a new password without losing anything. We will ask for the fingerprint or PIN of the device.'**
+  String get deviceResetSubtitle;
+
+  /// No description provided for @deviceResetReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it is you to change the password'**
+  String get deviceResetReason;
+
+  /// No description provided for @deviceResetSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get deviceResetSubmit;
+
+  /// No description provided for @deviceResetSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed'**
+  String get deviceResetSuccess;
+
+  /// No description provided for @verifyPhraseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify my 24 words'**
+  String get verifyPhraseTitle;
+
+  /// No description provided for @verifyPhraseSubtitleFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your 24 words. If they are right, a copy will be kept on this device.'**
+  String get verifyPhraseSubtitleFull;
+
+  /// No description provided for @verifyPhraseSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Your words are right'**
+  String get verifyPhraseSuccess;
+
+  /// No description provided for @reminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you still have your 24 words?'**
+  String get reminderTitle;
+
+  /// No description provided for @reminderMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They are the only way to recover your photos if you forget your password. Check that you still have them.'**
+  String get reminderMessage;
+
+  /// No description provided for @reminderVerifyNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Check now'**
+  String get reminderVerifyNow;
+
+  /// No description provided for @reminderLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get reminderLater;
+
+  /// No description provided for @profileSecuritySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get profileSecuritySection;
+
+  /// No description provided for @profileRecoveryWords.
+  ///
+  /// In en, this message translates to:
+  /// **'My 24 words'**
+  String get profileRecoveryWords;
+
+  /// No description provided for @profileVerifyWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify my 24 words'**
+  String get profileVerifyWords;
+
+  /// No description provided for @profileForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'I forgot my password'**
+  String get profileForgotPassword;
+
+  /// No description provided for @profileLockedPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover locked photos'**
+  String get profileLockedPhotos;
+
+  /// No description provided for @lockedNone.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no locked photos: all your keys are available.'**
+  String get lockedNone;
+
+  /// No description provided for @legalInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Information and legal'**
+  String get legalInfoTitle;
+
+  /// No description provided for @legalInfoLink.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works, terms and privacy'**
+  String get legalInfoLink;
+
+  /// No description provided for @legalInfoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How your photos are protected and the rules of the service. You can read them without an account.'**
+  String get legalInfoSubtitle;
+
+  /// No description provided for @legalVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} · in force since {date}'**
+  String legalVersionLabel(String version, String date);
+
+  /// No description provided for @legalAcceptPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'I have read and accept the'**
+  String get legalAcceptPrefix;
+
+  /// No description provided for @legalTermsLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get legalTermsLink;
+
+  /// No description provided for @legalAcceptMiddle.
+  ///
+  /// In en, this message translates to:
+  /// **'and the'**
+  String get legalAcceptMiddle;
+
+  /// No description provided for @legalPrivacyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get legalPrivacyLink;
+
+  /// No description provided for @legalAcceptRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'You must accept the terms of use and the privacy policy'**
+  String get legalAcceptRequired;
+
+  /// No description provided for @legalAcceptanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use and privacy'**
+  String get legalAcceptanceTitle;
+
+  /// No description provided for @legalAcceptanceMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'To keep using Photo Manager, read and accept the terms of use and the privacy policy. They explain how your photos are protected and what happens if you lose access to them.'**
+  String get legalAcceptanceMessage;
+
+  /// No description provided for @legalAcceptanceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept and continue'**
+  String get legalAcceptanceButton;
+
+  /// No description provided for @errorLegalTermsNotAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'You must accept the terms of use and the privacy policy'**
+  String get errorLegalTermsNotAccepted;
+
+  /// No description provided for @recoveryPhraseImportanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read this before you continue'**
+  String get recoveryPhraseImportanceTitle;
+
+  /// No description provided for @recoveryPhraseImportance1.
+  ///
+  /// In en, this message translates to:
+  /// **'If you forget your password, these 24 words are the only way to recover your photos.'**
+  String get recoveryPhraseImportance1;
+
+  /// No description provided for @recoveryPhraseImportance2.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody can recover them for you, not even us.'**
+  String get recoveryPhraseImportance2;
+
+  /// No description provided for @recoveryPhraseImportance3.
+  ///
+  /// In en, this message translates to:
+  /// **'Save them now in the password manager or as a PDF, and keep a copy somewhere safe.'**
+  String get recoveryPhraseImportance3;
+
+  /// No description provided for @recoveryPhraseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Read carefully ({seconds})'**
+  String recoveryPhraseWait(int seconds);
+
+  /// No description provided for @recoveryPhraseLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More about the 24 words'**
+  String get recoveryPhraseLearnMore;
+
+  /// No description provided for @errorMissingCurrentKey.
+  ///
+  /// In en, this message translates to:
+  /// **'This device has no key to encrypt new photos. Log in again or recover your locked photos.'**
+  String get errorMissingCurrentKey;
+
+  /// No description provided for @mediaLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked: recover it from Profile > Security'**
+  String get mediaLocked;
+
+  /// No description provided for @mediaLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'It could not be loaded'**
+  String get mediaLoadError;
+
+  /// No description provided for @errorLockedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is locked. You can recover it from Profile > Security > Recover locked photos.'**
+  String get errorLockedFile;
+
+  /// No description provided for @errorUnencryptedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'This file was uploaded before encryption and cannot be shown.'**
+  String get errorUnencryptedFile;
+
+  /// No description provided for @keySyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your keys changed on another device'**
+  String get keySyncTitle;
+
+  /// No description provided for @keySyncMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The password or the keys of your account were changed on another device. Type your current password to keep seeing and uploading your photos on this one.'**
+  String get keySyncMessage;
+
+  /// No description provided for @keySyncDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Keys updated'**
+  String get keySyncDone;
+
+  /// No description provided for @errorOutdatedKeys.
+  ///
+  /// In en, this message translates to:
+  /// **'The keys of your account changed on another device. Open the app and type your current password.'**
+  String get errorOutdatedKeys;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

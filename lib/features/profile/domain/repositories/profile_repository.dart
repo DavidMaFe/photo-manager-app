@@ -9,8 +9,4 @@ abstract class ProfileRepository {
     String? surname,
     String? profileImage,
   });
-  Future<void> changePassword({
-    required String currentPassword,
-    required String newPassword,
-  });
 }

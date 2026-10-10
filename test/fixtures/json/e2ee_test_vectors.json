@@ -1,0 +1,71 @@
+{
+  "_comment": "E2EE test vectors (docs/e2ee-spec.md, section 13). Fixed test-only keys, salts and nonces. Generated with libsodium 1.0.20 on Android (emulator) by the Phase 0 proof of concept.",
+  "formatVersion": 1,
+  "kdf": {
+    "password": "correct horse battery staple ñ",
+    "saltHex": "000102030405060708090a0b0c0d0e0f",
+    "ops": 2,
+    "memBytes": 67108864,
+    "passwordSecretHex": "6542cba994c28670f3b9d4bfeb9eef0e224a5c1425eaa41398d1d84c7a5fbe0a",
+    "authKeyHex": "790576fd64a241e99c603556c2a86ab7e63e604ab4a85db762cd415904abcc99",
+    "kekHex": "b0a7eae7834bba2b9b32a3ae14d70c4e7fe4935487eba6f18ea4ddc9cda7aeb5"
+  },
+  "subkeys": {
+    "masterKeyHex": "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+    "recoveryKeyHex": "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+    "recoveryWrapKeyHex": "420a55bebcf72e382d4ea6fde6a85018ce19fc0632036429ca4fb0f9fd458202",
+    "recoveryAuthKeyHex": "f64135c9f77706535c6ee3127a88eaec29812bf2b258b7480cda16b5d832ad71",
+    "dedupKeyHex": "5d81b33e7a95c5fd5ad0c9418ae944fc0b64fd3cdd91c0df17b72fce665272f4",
+    "masterKeyAuthHex": "9ffb3fd68d6cee9b3f7dc17baf627007ed3332192fe965699073c00126d1ccfa"
+  },
+  "wrap": {
+    "mkByPasswordHex": "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b787db56172524ead8086f0a9c76ca8809aee9d16f247e6e1c480ca9747b878fe1415ac8058aea6ad38621ab2d60a72fdf",
+    "mkByRecoveryHex": "a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b825217a2c037ca69665f0ba47258012872b7a9b843eb27f73d88ff149fb42c76e6fa97e934338e1acf90a20abddef4c2b",
+    "identitySkHex": "a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9c033d796bc56487ac0b911bde6b714ee19ed7e2ad4830fa36245c4ec0c4401442d448877444fce17e7c3abd0e46d9338",
+    "fileKeyHex": "a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9baf0fa1e11c2c98e0c0b0dd48858f83ab698e1a9358dc35c822d11898ac5eb28bffe1b46c64c28a373eff9d48bd322b2f8"
+  },
+  "identity": {
+    "seedHex": "d0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeef",
+    "publicKeyHex": "ea831a2f8791781cc3cabafbe15ae5dc6c5f9d8023c0f4df9094ecffe0981132"
+  },
+  "metadata": {
+    "json": "{\"v\":1,\"name\":\"IMG_0001.HEIC\",\"mime\":\"image/heic\"}",
+    "encryptedHex": "c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d0992257b11e947bf2e88b0b6dbf9974cfbd093b0f7d7be9b1a2403daa64ad45f6c8b80e67cc5a52644a43c0d2be2d706259594dd8aa96f982eea8dd120b65e1efd1"
+  },
+  "dedup": {
+    "contentSha256Hex": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+    "dedupHex": "c1a67f21b037cdc2d6ea4cd3f10d5dc7318ee538e77c0f2802744a269c4ca2f7"
+  },
+  "pmef": [
+    {
+      "name": "empty",
+      "plainLength": 0,
+      "plainSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encryptedLength": 48,
+      "encryptedSha256": "55e275439c4c7fa9df0ad2a24a6358a9fa20e451e01333043d0e69b673107509",
+      "encryptedHex": "504d454601140000b0b1b2b3b4b5b6b7b8b9babbbcbdbebf0000000000000000b90ad3a15b7f67c4706bed670c850120"
+    },
+    {
+      "name": "one-byte",
+      "plainLength": 1,
+      "plainSha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+      "encryptedLength": 49,
+      "encryptedSha256": "85a6e37ee861a20936572b4846a084a35e2c2efa151777b0115b527410924278",
+      "encryptedHex": "504d454601140000b0b1b2b3b4b5b6b7b8b9babbbcbdbebf00000000000000008fd52e8bcc21ef2bbfce5ef6234e89ed06"
+    },
+    {
+      "name": "exactly-one-chunk",
+      "plainLength": 1048576,
+      "plainSha256": "631b84027d6b9e52b539c4e8373622d23032dfadc64d60af87339c9037e4f769",
+      "encryptedLength": 1048624,
+      "encryptedSha256": "4ef3263c02e0531b520b64cb15a0e263a54cad26c660f946a788ade572019310"
+    },
+    {
+      "name": "one-chunk-plus-one-byte",
+      "plainLength": 1048577,
+      "plainSha256": "5769f52bc3eef28afa39c6fc68cadb7d0bd69812ae3a3d71452f519ec3c7aa56",
+      "encryptedLength": 1048641,
+      "encryptedSha256": "600d24e2e6b9e78e22c7322bb2e99381a15036f52ae08025eecdb008263a6abb"
+    }
+  ]
+}

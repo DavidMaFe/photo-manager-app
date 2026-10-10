@@ -1,9 +1,8 @@
+import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_image.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/constants/app_constants.dart';
-import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
 
 
 /// Cover of an album, adapted to how many photos it has:
@@ -77,12 +76,7 @@ class AlbumMosaic extends StatelessWidget {
   }
 
   static Widget _thumbnail(BuildContext context, String fileId) {
-    return AuthenticatedImage(
-      imageUrl: '${DataConstants.backendBaseUrl}/api/file/$fileId/thumbnail/',
-      fit: BoxFit.cover,
-      // The tile paints the surface2 placeholder behind the image.
-      placeholder: (_, __) => const SizedBox.shrink(),
-      errorWidget: (_, __, ___) => const SizedBox.shrink(),
-    );
+    // The tile paints the surface2 placeholder behind the image.
+    return EncryptedImage(fileId: fileId, transparentWhileLoading: true, hideErrors: true);
   }
 }

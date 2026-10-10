@@ -1,3 +1,5 @@
+import 'package:photo_manager_app/features/encrypted_media/data/models/encrypted_file_ref_model.dart';
+import 'package:photo_manager_app/features/encrypted_media/domain/entities/encrypted_file_ref.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
 
@@ -6,7 +8,11 @@ import '../../domain/entities/gallery_file.dart';
 
 class GalleryFileModel extends GalleryFile {
 
+  /// Wrapped key of the file, for the key directory of the app (not part of the entity).
+  final EncryptedFileRef? encryptedRef;
+
   const GalleryFileModel({
+    this.encryptedRef,
     required super.id,
     required super.type,
     required super.status,
@@ -27,7 +33,8 @@ class GalleryFileModel extends GalleryFile {
       capturedAt: capturedAt != null ? DateTime.parse(capturedAt) : null,
       sizeBytes: json['sizeBytes'] as int? ?? 0,
       isFavorite: json['isFavorite'] as bool? ?? false,
-      coverOf: (json['coverOf'] as List<dynamic>? ?? const []).map((id) => id.toString()).toList()
+      coverOf: (json['coverOf'] as List<dynamic>? ?? const []).map((id) => id.toString()).toList(),
+      encryptedRef: EncryptedFileRefModel.fromJson(json)
     );
   }
 

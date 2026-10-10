@@ -1,655 +1,229 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/crypto/domain/crypto_key.dart';
+import 'package:photo_manager_app/core/crypto/domain/kdf_params.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_material.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_version.dart';
+import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_result.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:photo_manager_app/features/legal/domain/entities/legal_failures.dart';
+import 'package:photo_manager_app/features/legal/domain/entities/legal_versions.dart';
+
+import '../../../../fixtures/e2ee_test_data.dart';
+import '../../../../helpers/e2ee_test_kit.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
-void main() {
-  late RegisterUseCase useCase;
-  late MockAuthRepository mockRepository;
+/// What the server received in the registration.
+class _Received {
+  late String authKey;
+  late KdfParams kdfParams;
+  late NewKeyMaterial key;
+  late String name;
+  String? surname;
+  late String termsVersion;
+  late String privacyVersion;
+}
 
-  setUp(() {
-    mockRepository = MockAuthRepository();
-    useCase = RegisterUseCase(mockRepository);
+void main() {
+  late E2eeTestKit kit;
+  late MockAuthRepository repository;
+  late RegisterUseCase useCase;
+  late _Received received;
+
+  const email = 'test@example.com';
+  const password = 'correct horse battery';
+  final user = User(id: '1', email: email, name: 'John');
+
+  setUpAll(() {
+    registerFallbackValue(CryptoKey(Uint8List(32)));
+    registerFallbackValue(E2eeTestData.kdfParams());
+    registerFallbackValue(E2eeTestData.newKeyMaterial());
   });
 
-  const tEmail = 'test@example.com';
-  const tPassword = 'password123';
-  const tName = 'John';
-  const tSurname = 'Doe';
+  setUp(() async {
+    kit = await E2eeTestKit.create();
+    repository = MockAuthRepository();
+    useCase = RegisterUseCase(repository, kit.engine, kit.keyring);
+    received = _Received();
+
+    when(() => repository.register(
+          email: any(named: 'email'),
+          authKey: any(named: 'authKey'),
+          name: any(named: 'name'),
+          surname: any(named: 'surname'),
+          kdfParams: any(named: 'kdfParams'),
+          key: any(named: 'key'),
+          acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+          acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+        )).thenAnswer((invocation) async {
+      final args = invocation.namedArguments;
+      received
+        ..authKey = base64Encode((args[#authKey] as CryptoKey).bytes)
+        ..kdfParams = args[#kdfParams] as KdfParams
+        ..key = args[#key] as NewKeyMaterial
+        ..name = args[#name] as String
+        ..surname = args[#surname] as String?
+        ..termsVersion = args[#acceptedTermsVersion] as String
+        ..privacyVersion = args[#acceptedPrivacyVersion] as String;
+      return LoginResult(user: user,
+          keys: AccountKeys(accountLocked: false, versions: [E2eeTestKit.serverVersion(received.key)]));
+    });
+  });
+
+  Future<void> register({String name = 'John', String? surname, String userEmail = email,
+      RecoveryPhraseLanguage language = RecoveryPhraseLanguage.english}) {
+    return useCase(email: userEmail, password: password, name: name, surname: surname, language: language,
+        acceptedLegalTerms: true);
+  }
 
   group('RegisterUseCase', () {
-    group('email validation', () {
-      test('should throw Exception when email is empty', () async {
-        // act & assert
-        expect(
-          () => useCase(
-            email: '',
-            password: tPassword,
-            name: tName,
-            surname: tSurname,
-          ),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Email is required')),
-          ),
-        );
-        verifyNever(() => mockRepository.register(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              name: any(named: 'name'),
-              surname: any(named: 'surname'),
-            ));
-      });
+    // ==================== HAPPY PATH TESTS ====================
 
-      test('should throw Exception when email is only whitespace', () async {
-        // act & assert
-        expect(
-          () => useCase(
-            email: '   ',
-            password: tPassword,
-            name: tName,
-            surname: tSurname,
-          ),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Email is required')),
-          ),
-        );
-        verifyNever(() => mockRepository.register(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              name: any(named: 'name'),
-              surname: any(named: 'surname'),
-            ));
-      });
+    test('should return the 24 words of the recovery key that keep the account', () async {
+      // Act
+      final result = await useCase(email: email, password: password, name: 'John',
+          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true);
 
-      test('should throw Exception when email format is invalid', () async {
-        // arrange
-        final invalidEmails = [
-          'notanemail',
-          '@example.com',
-          'test@',
-          'test@example',
-          'test @example.com',
-        ];
+      // Assert
+      expect(result.user, user);
+      expect(result.recoveryWords, hasLength(RecoveryPhrase.wordCount));
+      expect(RecoveryPhrase.decode(result.recoveryWords), received.key.recoveryKey.bytes);
+      expect(result.recoveryWords.every(RecoveryPhraseLanguage.english.words.contains), isTrue);
+    });
 
-        // act & assert
-        for (final email in invalidEmails) {
-          expect(
-            () => useCase(
-              email: email,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            ),
-            throwsA(
-              predicate((e) =>
-                  e is Exception && e.toString().contains('Email is not valid')),
-            ),
-            reason: 'Email "$email" should be invalid',
-          );
-        }
-        verifyNever(() => mockRepository.register(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              name: any(named: 'name'),
-              surname: any(named: 'surname'),
-            ));
-      });
+    test('should give the words in Spanish when asked', () async {
+      final result = await useCase(email: email, password: password, name: 'John',
+          language: RecoveryPhraseLanguage.spanish, acceptedLegalTerms: true);
 
-      test('should accept valid email formats', () async {
-        // arrange
-        final validEmails = [
-          'test@example.com',
-          'user.name@example.com',
-          'user-name@example.com',
-          'user_name@example.com',
-          'test@sub.example.com',
-          'a@b.co',
-        ];
+      final spanish = RecoveryPhraseLanguage.spanish.words.map(RecoveryPhrase.normalizeWord).toSet();
+      expect(result.recoveryWords.map(RecoveryPhrase.normalizeWord).every(spanish.contains), isTrue);
+      expect(RecoveryPhrase.decode(result.recoveryWords), received.key.recoveryKey.bytes);
+    });
 
-        when(() => mockRepository.register(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              name: any(named: 'name'),
-              surname: any(named: 'surname'),
-            )).thenAnswer((_) async => Future.value());
+    test('should send the authKey and a master key that only the password opens', () async {
+      await register();
 
-        // act & assert
-        for (final email in validEmails) {
-          await useCase(
+      // A new random salt with the default parameters of new passwords
+      expect(received.kdfParams.salt, hasLength(KdfParams.saltLength));
+      expect(received.kdfParams.ops, KdfParams.defaultOps);
+      expect(received.kdfParams.memBytes, KdfParams.defaultMemBytes);
+
+      final keys = await kit.passwordKeys(password, received.kdfParams);
+      expect(received.authKey, base64Encode(keys.authKey.bytes));
+      expect(kit.unwrapWithPassword(keys.kek, received.key.encryptedMasterKey), received.key.masterKey.bytes);
+    });
+
+    test('should keep the master key and the recovery key on the device as the current version', () async {
+      await register();
+
+      expect(await kit.store.getCurrentVersion(), 1);
+      expect((await kit.store.getMasterKey(1))!.bytes, received.key.masterKey.bytes);
+      expect((await kit.store.getRecoveryKey(1))!.bytes, received.key.recoveryKey.bytes);
+    });
+
+    test('should trim the name and the surname and drop a blank surname', () async {
+      await register(name: '  John  ', surname: '  Doe ');
+      expect(received.name, 'John');
+      expect(received.surname, 'Doe');
+
+      await register(surname: '   ');
+      expect(received.surname, isNull);
+    });
+
+    test('should send the versions of the terms and the privacy policy shown by the app', () async {
+      await register();
+
+      expect(received.termsVersion, LegalVersions.terms);
+      expect(received.privacyVersion, LegalVersions.privacy);
+    });
+
+    test('should throw LegalTermsNotAcceptedFailure without calling the server when the terms are not accepted',
+        () async {
+      await expectLater(useCase(email: email, password: password, name: 'John',
+          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: false),
+          throwsA(isA<LegalTermsNotAcceptedFailure>()));
+
+      expect(await kit.store.getVersions(), isEmpty);
+      verifyNever(() => repository.register(
+            email: any(named: 'email'),
+            authKey: any(named: 'authKey'),
+            name: any(named: 'name'),
+            surname: any(named: 'surname'),
+            kdfParams: any(named: 'kdfParams'),
+            key: any(named: 'key'),
+            acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+            acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+          ));
+    });
+
+    test('should register with the trimmed email', () async {
+      await register(userEmail: '  $email ');
+
+      verify(() => repository.register(
             email: email,
-            password: tPassword,
-            name: tName,
-            surname: tSurname,
-          );
-        }
-      });
-
-      test('should trim email when passing to repository', () async {
-        // arrange
-        // Note: The use case validates the untrimmed email with regex,
-        // so we need an email that's valid even with spaces (which the regex doesn't allow)
-        // This test actually should focus on trimming AFTER validation passes
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).thenAnswer((_) async => Future.value());
-
-        // act
-        await useCase(
-          email: tEmail,  // Use untrimmed valid email
-          password: tPassword,
-          name: tName,
-          surname: tSurname,
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).called(1);
-      });
+            authKey: any(named: 'authKey'),
+            name: any(named: 'name'),
+            surname: any(named: 'surname'),
+            kdfParams: any(named: 'kdfParams'),
+            key: any(named: 'key'),
+            acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+            acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+          )).called(1);
     });
 
-    group('password validation', () {
-      test('should throw Exception when password is empty', () async {
-        // act & assert
-        expect(
-          () => useCase(
-            email: tEmail,
-            password: '',
-            name: tName,
-            surname: tSurname,
-          ),
-          throwsA(
-            predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Password is required')),
-          ),
-        );
-        verifyNever(() => mockRepository.register(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              name: any(named: 'name'),
-              surname: any(named: 'surname'),
-            ));
-      });
+    // ==================== BUSINESS LOGIC TESTS ====================
 
-      test('should throw Exception when password is only whitespace',
-          () async {
-        // act & assert
-        expect(
-          () => useCase(
-            email: tEmail,
-            password: '   ',
-            name: tName,
-            surname: tSurname,
-          ),
-          throwsA(
-            predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Password is required')),
-          ),
-        );
-        verifyNever(() => mockRepository.register(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              name: any(named: 'name'),
-              surname: any(named: 'surname'),
-            ));
-      });
+    test('should not keep any key when the server rejects the registration', () async {
+      when(() => repository.register(
+            email: any(named: 'email'),
+            authKey: any(named: 'authKey'),
+            name: any(named: 'name'),
+            surname: any(named: 'surname'),
+            kdfParams: any(named: 'kdfParams'),
+            key: any(named: 'key'),
+            acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+            acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+          )).thenThrow(Exception('Email already exists'));
 
-      test('should accept valid password', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).thenAnswer((_) async => Future.value());
-
-        // act
-        await useCase(
-          email: tEmail,
-          password: tPassword,
-          name: tName,
-          surname: tSurname,
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).called(1);
-      });
+      await expectLater(register(), throwsException);
+      expect(await kit.store.getVersions(), isEmpty);
     });
 
-    group('name validation', () {
-      test('should throw Exception when name is empty', () async {
-        // act & assert
-        expect(
-          () => useCase(
-            email: tEmail,
-            password: tPassword,
-            name: '',
-            surname: tSurname,
-          ),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Name is required')),
-          ),
-        );
-        verifyNever(() => mockRepository.register(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              name: any(named: 'name'),
-              surname: any(named: 'surname'),
-            ));
-      });
+    // ==================== VALIDATION ERROR TESTS ====================
 
-      test('should throw Exception when name is only whitespace', () async {
-        // act & assert
-        expect(
-          () => useCase(
-            email: tEmail,
-            password: tPassword,
-            name: '   ',
-            surname: tSurname,
-          ),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Name is required')),
-          ),
-        );
-        verifyNever(() => mockRepository.register(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              name: any(named: 'name'),
-              surname: any(named: 'surname'),
-            ));
-      });
-
-      test('should trim name before validation', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).thenAnswer((_) async => Future.value());
-
-        // act
-        await useCase(
-          email: tEmail,
-          password: tPassword,
-          name: '  $tName  ',
-          surname: tSurname,
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).called(1);
-      });
-
-      test('should accept valid name', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).thenAnswer((_) async => Future.value());
-
-        // act
-        await useCase(
-          email: tEmail,
-          password: tPassword,
-          name: tName,
-          surname: tSurname,
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).called(1);
-      });
+    test('should throw WeakPasswordFailure with fewer than 10 characters', () async {
+      await expectLater(useCase(email: email, password: 'short', name: 'John',
+          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true), throwsA(isA<WeakPasswordFailure>()));
     });
 
-    group('surname handling', () {
-      test('should convert null surname to null', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: null,
-            )).thenAnswer((_) async => Future.value());
+    for (final (description, badEmail, badName) in [
+      ('the email is empty', ' ', 'John'),
+      ('the email is not valid', 'not-an-email', 'John'),
+      ('the name is empty', email, '   '),
+    ]) {
+      test('should throw without calling the server when $description', () async {
+        await expectLater(useCase(email: badEmail, password: password, name: badName,
+            language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true), throwsException);
 
-        // act
-        await useCase(
-          email: tEmail,
-          password: tPassword,
-          name: tName,
-          surname: null,
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: null,
-            )).called(1);
-      });
-
-      test('should convert empty surname to null', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: null,
-            )).thenAnswer((_) async => Future.value());
-
-        // act
-        await useCase(
-          email: tEmail,
-          password: tPassword,
-          name: tName,
-          surname: '',
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: null,
-            )).called(1);
-      });
-
-      test('should convert whitespace-only surname to null', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: null,
-            )).thenAnswer((_) async => Future.value());
-
-        // act
-        await useCase(
-          email: tEmail,
-          password: tPassword,
-          name: tName,
-          surname: '   ',
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: null,
-            )).called(1);
-      });
-
-      test('should trim valid surname', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).thenAnswer((_) async => Future.value());
-
-        // act
-        await useCase(
-          email: tEmail,
-          password: tPassword,
-          name: tName,
-          surname: '  $tSurname  ',
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).called(1);
-      });
-
-      test('should accept valid surname', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).thenAnswer((_) async => Future.value());
-
-        // act
-        await useCase(
-          email: tEmail,
-          password: tPassword,
-          name: tName,
-          surname: tSurname,
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).called(1);
-      });
-    });
-
-    group('successful registration', () {
-      test('should complete successfully when repository succeeds', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).thenAnswer((_) async => Future.value());
-
-        // act
-        await useCase(
-          email: tEmail,
-          password: tPassword,
-          name: tName,
-          surname: tSurname,
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).called(1);
-      });
-
-      test('should complete successfully with null surname', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: null,
-            )).thenAnswer((_) async => Future.value());
-
-        // act
-        await useCase(
-          email: tEmail,
-          password: tPassword,
-          name: tName,
-          surname: null,
-        );
-
-        // assert
-        verify(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: null,
-            )).called(1);
-      });
-    });
-
-    group('error propagation', () {
-      test('should propagate Exception from repository', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).thenThrow(Exception('Network error'));
-
-        // act & assert
-        expect(
-          () => useCase(
-            email: tEmail,
-            password: tPassword,
-            name: tName,
-            surname: tSurname,
-          ),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Network error')),
-          ),
-        );
-      });
-
-      test('should propagate server error from repository', () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).thenThrow(Exception('Server error'));
-
-        // act & assert
-        expect(
-          () => useCase(
-            email: tEmail,
-            password: tPassword,
-            name: tName,
-            surname: tSurname,
-          ),
-          throwsA(
-            predicate((e) =>
-                e is Exception && e.toString().contains('Server error')),
-          ),
-        );
-      });
-
-      test('should propagate email already exists error from repository',
-          () async {
-        // arrange
-        when(() => mockRepository.register(
-              email: tEmail,
-              password: tPassword,
-              name: tName,
-              surname: tSurname,
-            )).thenThrow(Exception('Email already registered'));
-
-        // act & assert
-        expect(
-          () => useCase(
-            email: tEmail,
-            password: tPassword,
-            name: tName,
-            surname: tSurname,
-          ),
-          throwsA(
-            predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Email already registered')),
-          ),
-        );
-      });
-    });
-
-    group('validation order', () {
-      test('should validate email before calling repository', () async {
-        // act & assert
-        expect(
-          () => useCase(
-            email: 'invalid',
-            password: tPassword,
-            name: tName,
-            surname: tSurname,
-          ),
-          throwsException,
-        );
-        verifyNever(() => mockRepository.register(
+        verifyNever(() => repository.register(
               email: any(named: 'email'),
-              password: any(named: 'password'),
+              authKey: any(named: 'authKey'),
               name: any(named: 'name'),
               surname: any(named: 'surname'),
+              kdfParams: any(named: 'kdfParams'),
+              key: any(named: 'key'),
+              acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+              acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
             ));
       });
-
-      test('should validate password before calling repository', () async {
-        // act & assert
-        expect(
-          () => useCase(
-            email: tEmail,
-            password: '',
-            name: tName,
-            surname: tSurname,
-          ),
-          throwsException,
-        );
-        verifyNever(() => mockRepository.register(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              name: any(named: 'name'),
-              surname: any(named: 'surname'),
-            ));
-      });
-
-      test('should validate name before calling repository', () async {
-        // act & assert
-        expect(
-          () => useCase(
-            email: tEmail,
-            password: tPassword,
-            name: '',
-            surname: tSurname,
-          ),
-          throwsException,
-        );
-        verifyNever(() => mockRepository.register(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              name: any(named: 'name'),
-              surname: any(named: 'surname'),
-            ));
-      });
-    });
+    }
   });
 }

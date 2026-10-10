@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
@@ -208,6 +209,11 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
           final failure = ErrorHandler.handleError(cancelError);
           emit(SyncSessionError(failure));
         }
+      }
+
+      // The keys changed on another device: the key sync listener asks for the current password
+      if (e is OutdatedKeysFailure || e is MissingCurrentKeyFailure) {
+        eventBus.fire(const KeysOutdatedEvent());
       }
 
       final failure = ErrorHandler.handleError(e);

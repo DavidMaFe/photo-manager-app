@@ -39,7 +39,7 @@ class ResetPasswordInputs extends StatelessWidget {
               if (value == null || value.trim().isEmpty) {
                 return l10n.errorNewPasswordRequired;
               }
-              return null;
+              return AuthValidators.newPassword(l10n, value);
             },
           ),
 

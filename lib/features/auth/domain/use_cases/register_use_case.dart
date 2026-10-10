@@ -1,28 +1,40 @@
+import 'package:photo_manager_app/core/crypto/domain/crypto_engine.dart';
+import 'package:photo_manager_app/core/crypto/domain/kdf_params.dart';
+import 'package:photo_manager_app/core/crypto/domain/keyring_service.dart';
+import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/registration_result.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/auth_input_validator.dart';
+import 'package:photo_manager_app/features/legal/domain/entities/legal_failures.dart';
+import 'package:photo_manager_app/features/legal/domain/entities/legal_versions.dart';
 
 
+/// Registration (docs/e2ee-spec.md, section 8.1): the device generates the master key, the recovery key and the
+/// identity key pair; the server only receives them wrapped. Returns the 24 words to show to the user.
+///
+/// The user must accept the terms of use and the privacy policy: the versions bundled in the app are sent.
 class RegisterUseCase {
 
   final AuthRepository _repository;
-  const RegisterUseCase(this._repository);
+  final CryptoEngine _cryptoEngine;
+  final KeyringService _keyringService;
 
-  Future<void> call({
+  const RegisterUseCase(this._repository, this._cryptoEngine, this._keyringService);
+
+  Future<RegistrationResult> call({
     required String email,
     required String password,
-    required String name, String? surname
+    required String name,
+    String? surname,
+    required RecoveryPhraseLanguage language,
+    required bool acceptedLegalTerms,
   }) async {
 
-    if(email.trim().isEmpty) {
-      throw Exception('Email is required');
+    if (!acceptedLegalTerms) {
+      throw const LegalTermsNotAcceptedFailure();
     }
-
-    if(password.trim().isEmpty) {
-      throw Exception('Password is required');
-    }
-
-    if(!_isValidEmail(email)) {
-      throw Exception('Email is not valid');
-    }
+    AuthInputValidator.requireEmail(email);
+    AuthInputValidator.requireStrongPassword(password);
 
     if (name.trim().isEmpty) {
       throw Exception('Name is required');
@@ -32,16 +44,30 @@ class RegisterUseCase {
       surname = null;
     }
 
-    await _repository.register(
-        email: email.trim(),
-        password: password,
-        name: name.trim(),
-        surname: surname?.trim()
-    );
-  }
+    final kdfParams = KdfParams(salt: _cryptoEngine.randomBytes(KdfParams.saltLength));
+    final passwordKeys = await _cryptoEngine.deriveFromPassword(password, kdfParams);
+    try {
+      final material = _keyringService.createKeyMaterial(passwordKeys.kek);
+      final result = await _repository.register(
+          email: email.trim(),
+          authKey: passwordKeys.authKey,
+          name: name.trim(),
+          surname: surname?.trim(),
+          kdfParams: kdfParams,
+          key: material,
+          acceptedTermsVersion: LegalVersions.terms,
+          acceptedPrivacyVersion: LegalVersions.privacy,
+      );
 
-  bool _isValidEmail(String email) {
-    final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
-    return emailRegex.hasMatch(email);
+      final version = result.keys.versions.single.version;
+      await _keyringService.storeNewKey(version, material);
+
+      return RegistrationResult(
+        user: result.user,
+        recoveryWords: RecoveryPhrase.encode(material.recoveryKey.bytes, language),
+      );
+    } finally {
+      passwordKeys.dispose();
+    }
   }
 }

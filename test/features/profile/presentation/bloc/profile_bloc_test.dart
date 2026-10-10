@@ -7,7 +7,7 @@ import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/get_user_profile_use_case.dart';
 import 'package:photo_manager_app/features/profile/domain/use_cases/update_user_profile_use_case.dart';
-import 'package:photo_manager_app/features/profile/domain/use_cases/change_password_use_case.dart';
+import 'package:photo_manager_app/features/account_security/domain/use_cases/change_password_use_case.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_event.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_state.dart';

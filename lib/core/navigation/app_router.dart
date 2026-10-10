@@ -1,15 +1,29 @@
+import 'package:photo_manager_app/features/account_security/presentation/bloc/device_reset_password_bloc.dart';
+import 'package:photo_manager_app/features/account_security/presentation/bloc/locked_account_bloc.dart';
+import 'package:photo_manager_app/features/account_security/presentation/bloc/verify_recovery_phrase_bloc.dart';
+import 'package:photo_manager_app/features/account_security/presentation/pages/confirm_recovery_phrase_page.dart';
+import 'package:photo_manager_app/features/account_security/presentation/pages/device_reset_password_page.dart';
+import 'package:photo_manager_app/features/account_security/presentation/pages/locked_account_page.dart';
+import 'package:photo_manager_app/features/account_security/presentation/pages/recovery_phrase_page.dart';
+import 'package:photo_manager_app/features/account_security/presentation/pages/verify_recovery_phrase_page.dart';
 import 'package:photo_manager_app/features/file_management/presentation/models/album_viewer_context.dart';
+import 'package:photo_manager_app/features/legal/domain/entities/legal_document.dart';
+import 'package:photo_manager_app/features/legal/presentation/pages/legal_acceptance_page.dart';
+import 'package:photo_manager_app/features/legal/presentation/pages/legal_document_page.dart';
+import 'package:photo_manager_app/features/legal/presentation/pages/legal_index_page.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:photo_manager_app/core/navigation/app_redirect.dart';
 import 'package:photo_manager_app/core/navigation/auth_notifier.dart';
 import 'package:photo_manager_app/core/navigation/main_shell.dart';
 import 'package:photo_manager_app/core/navigation/onboarding_notifier.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:photo_manager_app/features/auth/presentation/pages/login_page.dart';
 import 'package:photo_manager_app/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:photo_manager_app/features/onboarding/presentation/pages/onboarding_page.dart';
@@ -58,44 +72,18 @@ class AppRouter {
     return GoRouter(
         initialLocation: RoutePaths.login,
         refreshListenable: Listenable.merge([authNotifier, onboardingNotifier]),
-        redirect: (context, state) {
-          final isAuthenticated = authNotifier.isAuthenticated;
-          final isLoading = authNotifier.isLoading;
-          final isCheckingOnboardingStatus = onboardingNotifier.isCheckingStatus;
-          final isOnboardingRequired = onboardingNotifier.isOnboardingRequired;
-          final isGoingToLogin = state.matchedLocation == RoutePaths.login;
-          final isGoingToRegister = state.matchedLocation == RoutePaths.register;
-          final isGoingToPasswordReset = state.matchedLocation == RoutePaths.requestPasswordReset ||
-              state.matchedLocation == RoutePaths.validateResetCode ||
-              state.matchedLocation == RoutePaths.resetPassword;
-          final isGoingToOnboarding = state.matchedLocation == RoutePaths.onboarding;
-
-          if (isLoading || isCheckingOnboardingStatus) {
-            return null;
-          }
-
-          if (!isAuthenticated && !isGoingToLogin && !isGoingToRegister && !isGoingToPasswordReset) {
-            return RoutePaths.login;
-          }
-
-          // Authenticated user trying to access auth pages: redirect appropriately
-          if (isAuthenticated && (isGoingToLogin || isGoingToRegister || isGoingToPasswordReset)) {
-            // If onboarding is required, redirect to onboarding instead of home
-            return isOnboardingRequired ? RoutePaths.onboarding : RoutePaths.home;
-          }
-
-          // Authenticated user who needs onboarding but is not going there
-          if (isAuthenticated && isOnboardingRequired && !isGoingToOnboarding) {
-            return RoutePaths.onboarding;
-          }
-
-          // Authenticated user who completed onboarding but is on onboarding page
-          if (isAuthenticated && !isOnboardingRequired && isGoingToOnboarding) {
-            return RoutePaths.home;
-          }
-
-          return null;
-        },
+        redirect: (context, state) => AppRedirect.resolve(
+          AppRedirectStatus(
+            isLoading: authNotifier.isLoading,
+            isCheckingOnboarding: onboardingNotifier.isCheckingStatus,
+            isOnboardingRequired: onboardingNotifier.isOnboardingRequired,
+            isAuthenticated: authNotifier.isAuthenticated,
+            isRecoveryPhrasePending: authNotifier.isRecoveryPhrasePending,
+            isLegalAcceptancePending: authNotifier.isLegalAcceptancePending,
+            isAccountLocked: authNotifier.isAccountLocked,
+          ),
+          state.matchedLocation,
+        ),
 
         routes: [
           GoRoute(
@@ -105,6 +93,47 @@ class AppRouter {
               create: (_) => sl<OnboardingBloc>(),
               child: const OnboardingPage(),
             ),
+          ),
+          GoRoute(
+            path: RoutePaths.recoveryPhrase,
+            name: RouteNames.recoveryPhrase,
+            builder: (context, state) => RecoveryPhrasePage(args: _recoveryPhraseArgs(state, authBloc)),
+          ),
+          GoRoute(
+            path: RoutePaths.confirmRecoveryPhrase,
+            name: RouteNames.confirmRecoveryPhrase,
+            builder: (context, state) => ConfirmRecoveryPhrasePage(args: _recoveryPhraseArgs(state, authBloc)),
+          ),
+          GoRoute(
+            path: RoutePaths.legal,
+            name: RouteNames.legal,
+            builder: (context, state) => const LegalIndexPage(),
+            routes: [
+              GoRoute(
+                path: ':document',
+                name: RouteNames.legalDocument,
+                builder: (context, state) => LegalDocumentPage(
+                  type: LegalDocumentType.fromSlug(state.pathParameters['document']) ?? LegalDocumentType.protection,
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: RoutePaths.legalAcceptance,
+            name: RouteNames.legalAcceptance,
+            builder: (context, state) => const LegalAcceptancePage(),
+          ),
+          GoRoute(
+            path: RoutePaths.lockedAccount,
+            name: RouteNames.lockedAccount,
+            builder: (context, state) {
+              final authState = authBloc.state;
+              final user = authState is AuthAccountLocked ? authState.user : (authState as AuthSuccessful).user;
+              return BlocProvider(
+                create: (_) => sl<LockedAccountBloc>()..add(LockedAccountStatusRequested()),
+                child: LockedAccountPage(user: user, afterLogin: authState is AuthAccountLocked),
+              );
+            },
           ),
           GoRoute(
               path: RoutePaths.login,
@@ -291,6 +320,36 @@ class AppRouter {
                             ),
                           ),
                           GoRoute(
+                            path: 'recovery-words',
+                            name: RouteNames.recoveryWords,
+                            builder: (context, state) => RecoveryPhrasePage(args: state.extra as RecoveryPhraseArgs),
+                          ),
+                          GoRoute(
+                            path: 'verify-recovery-words',
+                            name: RouteNames.verifyRecoveryWords,
+                            builder: (context, state) => BlocProvider(
+                              create: (_) => sl<VerifyRecoveryPhraseBloc>()..add(VerifyRecoveryPhraseStarted()),
+                              child: const VerifyRecoveryPhrasePage(),
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'forgot-password',
+                            name: RouteNames.forgotPassword,
+                            builder: (context, state) => BlocProvider(
+                              create: (_) => sl<DeviceResetPasswordBloc>(),
+                              child: const DeviceResetPasswordPage(),
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'locked-photos',
+                            name: RouteNames.lockedPhotos,
+                            builder: (context, state) => BlocProvider(
+                              create: (_) => sl<LockedAccountBloc>()..add(LockedAccountStatusRequested()),
+                              child: LockedAccountPage(
+                                  user: (authBloc.state as AuthSuccessful).user, afterLogin: false),
+                            ),
+                          ),
+                          GoRoute(
                             path: 'devices',
                             name: RouteNames.devices,
                             builder: (context, state) => BlocProvider(
@@ -334,6 +393,22 @@ class AppRouter {
               ]
           )
         ]
+    );
+  }
+
+  /// Arguments of the 24 words pages. Without them (the router redirected after registering), they come from the
+  /// registration state of the auth bloc.
+  static RecoveryPhraseArgs _recoveryPhraseArgs(GoRouterState state, AuthBloc authBloc) {
+    final extra = state.extra;
+    if (extra is RecoveryPhraseArgs) {
+      return extra;
+    }
+    final authState = authBloc.state as RecoveryPhraseRequired;
+    return RecoveryPhraseArgs(
+      words: authState.words,
+      email: authState.user.email,
+      flow: RecoveryPhraseFlow.registration,
+      user: authState.user,
     );
   }
 }

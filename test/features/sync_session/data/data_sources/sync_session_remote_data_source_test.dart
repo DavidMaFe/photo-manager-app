@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -8,7 +9,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_session_remote_data_source.dart';
-import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/encrypted_upload.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
 class FakeUri extends Fake implements Uri {}
@@ -289,59 +290,110 @@ void main() {
 
   group('uploadFile', () {
     const sessionId = 'session-123';
-    final testFilePath = '${Directory.current.path}/test/fixtures/sync_session/photo.jpg';
-    final file = SyncFileModel(
-      localId: 'local-123',
-      devicePath: testFilePath,
-      hash: 'abc123',
-      fileName: 'photo.jpg',
-      sizeBytes: 1048576,
-      capturedAt: DateTime(2024, 1, 15),
-      mimeType: 'image/jpeg',
-    );
+    late Directory tempDir;
+    late EncryptedUpload upload;
 
-    test('should return UploadResultModel on success', () async {
+    setUp(() async {
+      tempDir = await Directory.systemTemp.createTemp('upload_test');
+      final encrypted = File('${tempDir.path}/1.pmef')..writeAsBytesSync(List.generate(100, (i) => i));
+      upload = EncryptedUpload(
+        encryptedFile: encrypted,
+        encryptedThumbnail: Uint8List.fromList([9, 8, 7]),
+        dedupHash: 'a' * 64,
+        isVideo: true,
+        capturedAt: DateTime(2024, 1, 15, 10, 30),
+        width: 1920,
+        height: 1080,
+        durationSeconds: 12,
+        keyVersion: 2,
+        encryptedFileKey: Uint8List(72),
+        encryptedMetadata: Uint8List.fromList(List.filled(50, 1)),
+      );
+    });
+
+    tearDown(() => tempDir.delete(recursive: true));
+
+    /// The body of the multipart request, as text (the binary parts are small).
+    Future<String> sentBody(http.BaseRequest request) async =>
+        latin1.decode(await request.finalize().expand((chunk) => chunk).toList());
+
+    test('should send the encrypted file, the encrypted thumbnail and the metadata', () async {
       // Arrange
-      final responseBody = jsonEncode({'fileId': 'server-file-456'});
-      final stream = Stream.fromIterable([utf8.encode(responseBody)]);
-      final streamedResponse = http.StreamedResponse(stream, 200);
-
-      when(() => mockClient.send(any())).thenAnswer((_) async => streamedResponse);
+      late http.BaseRequest sent;
+      late String body;
+      when(() => mockClient.send(any())).thenAnswer((invocation) async {
+        sent = invocation.positionalArguments.first as http.BaseRequest;
+        body = await sentBody(sent);
+        return http.StreamedResponse(Stream.value(utf8.encode(jsonEncode({'fileId': 456}))), 200);
+      });
 
       // Act
-      final result = await dataSource.uploadFile(sessionId, file);
+      final result = await dataSource.uploadFile(sessionId, upload);
 
       // Assert
-      expect(result.fileId, 'server-file-456');
-    }, skip: 'Cannot be tested as a unit test: http.MultipartFile.fromPath() performs real file I/O that blocks in test environment. The implementation uses MultipartFile.fromPath() which reads the file from disk and auto-detects MIME types - these operations cannot be mocked without violating the "Don\'t Mock What You Don\'t Own" principle. This functionality is adequately covered by repository-level tests where the data source is mocked. To properly test this, consider: (1) refactoring to use a file upload abstraction, or (2) creating integration tests with a real HTTP mock server.');
+      expect(result.fileId, '456');
+      expect(sent.url.toString(), '$baseUrl/api/sync_session/upload/');
+      final request = sent as http.MultipartRequest;
+      expect(request.fields['sessionId'], sessionId);
+      final metadata = jsonDecode(request.fields['metadata']!) as Map<String, dynamic>;
+      expect(metadata, {
+        'fileHash': 'a' * 64,
+        'fileType': 'VIDEO',
+        'capturedAt': '2024-01-15T10:30:00.000',
+        'width': 1920,
+        'height': 1080,
+        'durationSeconds': 12,
+        'keyVersion': 2,
+        'encryptedFileKey': base64Encode(Uint8List(72)),
+        'encryptedMetadata': base64Encode(List.filled(50, 1)),
+      });
+      expect(request.files.map((f) => f.field), ['file', 'thumbnail']);
+      expect(request.files.map((f) => f.filename), ['file', 'thumbnail']);
+      expect(request.files.first.length, 100);
+      expect(body, contains('name="thumbnail"'));
+    });
+
+    test('should send no thumbnail part when there is none', () async {
+      late http.MultipartRequest sent;
+      when(() => mockClient.send(any())).thenAnswer((invocation) async {
+        sent = invocation.positionalArguments.first as http.MultipartRequest;
+        await sentBody(sent);
+        return http.StreamedResponse(Stream.value(utf8.encode(jsonEncode({'fileId': 1}))), 200);
+      });
+
+      await dataSource.uploadFile(sessionId, EncryptedUpload(
+        encryptedFile: upload.encryptedFile,
+        encryptedThumbnail: null,
+        dedupHash: upload.dedupHash,
+        isVideo: false,
+        capturedAt: upload.capturedAt,
+        keyVersion: 1,
+        encryptedFileKey: upload.encryptedFileKey,
+        encryptedMetadata: upload.encryptedMetadata,
+      ));
+
+      expect(sent.files.map((f) => f.field), ['file']);
+      final metadata = jsonDecode(sent.fields['metadata']!) as Map<String, dynamic>;
+      expect(metadata['fileType'], 'IMAGE');
+      expect(metadata.containsKey('durationSeconds'), isFalse);
+    });
 
     test('should throw ApiException on upload failure', () async {
-      // Arrange
       final errorBody = jsonEncode({
-        'code': 'UPLOAD_FAILED',
-        'message': 'Upload failed',
+        'code': 'INVALID_ENCRYPTED_FILE',
+        'message': 'Not encrypted',
         'timestamp': '2025-01-26T10:30:45.123456',
         'path': '/api/sync_session/upload/',
       });
-      final controller = StreamController<List<int>>();
-      final streamedResponse = http.StreamedResponse(controller.stream, 500);
-
-      when(() => mockClient.send(any())).thenAnswer((_) async {
-        controller.add(utf8.encode(errorBody));
-        controller.close();
-        return streamedResponse;
+      when(() => mockClient.send(any())).thenAnswer((invocation) async {
+        await sentBody(invocation.positionalArguments.first as http.BaseRequest);
+        return http.StreamedResponse(Stream.value(utf8.encode(errorBody)), 400);
       });
 
-      // Act & Assert
       await expectLater(
-        () => dataSource.uploadFile(sessionId, file),
-        throwsA(
-          predicate((e) =>
-              e is ApiException &&
-              e.code == 'UPLOAD_FAILED' &&
-              e.message == 'Upload failed'),
-        ),
+        () => dataSource.uploadFile(sessionId, upload),
+        throwsA(predicate((e) => e is ApiException && e.code == 'INVALID_ENCRYPTED_FILE')),
       );
-    }, skip: 'Cannot be tested as a unit test: http.MultipartFile.fromPath() performs real file I/O that blocks in test environment. See the skip message on the success test for full explanation.');
+    });
   });
 }

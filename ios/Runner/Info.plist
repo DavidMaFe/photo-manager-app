@@ -56,6 +56,14 @@
 			<string>processing</string>
 		</array>
 		<!-- Photo Library Usage Description -->
+		<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Local video proxy on 127.0.0.1 that decrypts the videos (docs/e2ee-spec.md, section 11) -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSFaceIDUsageDescription</key>
+		<string>Face ID confirms it is you before changing your password from this device.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>This app needs access to your photo library to sync your photos and videos.</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>

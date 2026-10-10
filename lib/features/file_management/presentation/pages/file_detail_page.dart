@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/app_config.dart';
-import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/utils/date_formatter.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
-import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
+import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_image.dart';
+import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_photo_viewer.dart';
 import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_action_bar.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_thumbnail_strip.dart';
@@ -221,9 +221,6 @@ class _FileDetailPageState extends State<FileDetailPage> {
 
   Widget _buildMediaViewer(GalleryFile file, AppLocalizations l10n) {
 
-    const baseUrl = DataConstants.backendBaseUrl;
-    final fullUrl = '$baseUrl/api/file/${file.id}/';
-
     if (file.isImage) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -232,10 +229,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
           minScale: 1,
           maxScale: 4.0,
           child: Center(
-            child: AuthenticatedImage(
-              imageUrl: fullUrl,
-              fit: BoxFit.contain,
-            ),
+            child: EncryptedPhotoViewer(fileId: file.id),
           ),
         ),
       );
@@ -246,7 +240,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
       return Padding(
         padding: EdgeInsets.only(top: insets.top + 64, bottom: insets.bottom + _bottomChromeHeight),
         child: VideoPlayerWidget(
-          videoUrl: fullUrl,
+          fileId: file.id,
           key: ValueKey(file.id),
           onControlsVisibilityChanged: (visible) {
             if (mounted) setState(() => _chromeVisible = visible);
@@ -259,11 +253,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
   }
 
   Widget _thumbnail(GalleryFile file) {
-    return AuthenticatedImage(
-      imageUrl: '${DataConstants.backendBaseUrl}/api/file/${file.id}/thumbnail/',
-      fit: BoxFit.cover,
-      placeholder: (_, __) => const SizedBox.shrink(),
-    );
+    return EncryptedImage(fileId: file.id, transparentWhileLoading: true);
   }
 
   Widget _buildUnsupportedFileType(AppLocalizations l10n) {

@@ -2,6 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:photo_manager_app/core/crypto/data/models/kdf_params_model.dart';
+import 'package:photo_manager_app/core/crypto/data/models/key_version_model.dart';
+import 'package:photo_manager_app/core/crypto/domain/kdf_params.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_material.dart';
 import 'package:photo_manager_app/core/errors/utils/error_logger.dart';
 import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
@@ -12,14 +16,36 @@ import '../models/auth_response_model.dart';
 import '../models/refresh_token_response_model.dart';
 
 
+/// Public authentication endpoints. The password never travels: only the authKey derived from it on the device, as
+/// Base64 (docs/e2ee-spec.md, section 12).
 abstract class AuthRemoteDataSource {
-  Future<AuthResponseModel> login(String email, String password, String deviceUuid);
+  Future<KdfParams> getKdfParams(String email);
+  Future<AuthResponseModel> login(String email, String authKey, String deviceUuid);
   Future<void> logout(String token);
-  Future<AuthResponseModel> register(String email, String password, String name, String? surname, String deviceUuid);
+  Future<AuthResponseModel> register({
+    required String email,
+    required String authKey,
+    required String name,
+    String? surname,
+    required String deviceUuid,
+    required KdfParams kdfParams,
+    required NewKeyMaterial key,
+    required String acceptedTermsVersion,
+    required String acceptedPrivacyVersion,
+  });
   Future<RefreshTokenResponseModel> refreshToken(String refreshToken, String deviceUuid);
   Future<void> requestPasswordReset(String email);
   Future<void> validateResetCode(String email, String code);
-  Future<void> resetPassword(String email, String code, String newPassword);
+  Future<List<RecoveryWrap>> getRecoveryWraps(String email, String code);
+
+  /// Returns whether the account is locked after the reset (no recovered key).
+  Future<bool> resetPassword({
+    required String email,
+    required String code,
+    required String newAuthKey,
+    required KdfParams kdfParams,
+    required List<RecoveredKey> recoveredKeys,
+  });
 }
 
 
@@ -34,36 +60,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   });
 
   @override
-  Future<AuthResponseModel> login(String email, String password, String deviceUuid) async {
-    final url = Uri.parse('$baseUrl/api/login/');
+  Future<KdfParams> getKdfParams(String email) async {
+    final uri = Uri.parse('$baseUrl/api/auth/kdf-params/').replace(queryParameters: {'email': email});
+    final json = await _send(() => client.get(uri, headers: HttpHeadersUtil.getJsonHeaders()));
+    return KdfParamsModel.fromJson(json as Map<String, dynamic>);
+  }
 
-    try {
-      final response = await client.post(
-        url,
-        headers: HttpHeadersUtil.getJsonHeaders(),
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'deviceUuid': deviceUuid,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        return AuthResponseModel.fromJson(jsonData);
-      } else {
-        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
-        throw ApiException(errorResponse);
-      }
-    } on SocketException {
-      rethrow;
-    } on HttpException {
-      rethrow;
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw Exception('Connection error: $e');
-    }
+  @override
+  Future<AuthResponseModel> login(String email, String authKey, String deviceUuid) async {
+    final json = await _post('/api/login/', {
+      'email': email,
+      'authKey': authKey,
+      'deviceUuid': deviceUuid,
+    });
+    return AuthResponseModel.fromJson(json as Map<String, dynamic>);
   }
 
   @override
@@ -92,145 +102,91 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<RefreshTokenResponseModel> refreshToken(String refreshToken, String deviceUuid) async {
-    final url = Uri.parse('$baseUrl/api/auth/refresh/');
-
-    try {
-      final response = await client.post(
-        url,
-        headers: HttpHeadersUtil.getJsonHeaders(),
-        body: jsonEncode({
-          'refreshToken': refreshToken,
-          'deviceUuid': deviceUuid,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        return RefreshTokenResponseModel.fromJson(jsonData);
-      } else {
-        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
-        throw ApiException(errorResponse);
-      }
-    } on SocketException {
-      rethrow;
-    } on HttpException {
-      rethrow;
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw Exception('Connection error: $e');
-    }
+    final json = await _post('/api/auth/refresh/', {
+      'refreshToken': refreshToken,
+      'deviceUuid': deviceUuid,
+    });
+    return RefreshTokenResponseModel.fromJson(json as Map<String, dynamic>);
   }
-  
+
   @override
-  Future<AuthResponseModel> register(String email, String password, String name, String? surname, String deviceUuid) async {
-    final url = Uri.parse('$baseUrl/api/register/');
-
-    try {
-      final Map<String, dynamic> body = {
-        'email': email,
-        'password': password,
-        'name': name,
-        'deviceUuid': deviceUuid,
-      };
-
-      if (surname != null) {
-        body['surname'] = surname;
-      }
-
-      final response = await client.post(
-        url,
-        headers: HttpHeadersUtil.getJsonHeaders(),
-        body: jsonEncode(body),
-      );
-
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        return AuthResponseModel.fromJson(jsonData);
-      } else {
-        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
-        throw ApiException(errorResponse);
-      }
-    } on SocketException {
-      rethrow;
-    } on HttpException {
-      rethrow;
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw Exception('Connection error: $e');
-    }
+  Future<AuthResponseModel> register({
+    required String email,
+    required String authKey,
+    required String name,
+    String? surname,
+    required String deviceUuid,
+    required KdfParams kdfParams,
+    required NewKeyMaterial key,
+    required String acceptedTermsVersion,
+    required String acceptedPrivacyVersion,
+  }) async {
+    final json = await _post('/api/register/', {
+      'email': email,
+      'authKey': authKey,
+      'name': name,
+      if (surname != null) 'surname': surname,
+      'deviceUuid': deviceUuid,
+      'kdfSalt': KdfParamsModel.saltToJson(kdfParams),
+      'kdfParams': KdfParamsModel.paramsToJson(kdfParams),
+      'key': KeyRequestModel.newKey(key),
+      'acceptedTermsVersion': acceptedTermsVersion,
+      'acceptedPrivacyVersion': acceptedPrivacyVersion,
+    });
+    return AuthResponseModel.fromJson(json as Map<String, dynamic>);
   }
 
   @override
   Future<void> requestPasswordReset(String email) async {
-    final url = Uri.parse('$baseUrl/api/password-reset/request/');
-
-    try {
-      final response = await client.post(
-        url,
-        headers: HttpHeadersUtil.getJsonHeaders(),
-        body: jsonEncode({'email': email}),
-      );
-
-      if (response.statusCode == 200) {
-        return;
-      } else {
-        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
-        throw ApiException(errorResponse);
-      }
-    } on SocketException {
-      rethrow;
-    } on HttpException {
-      rethrow;
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw Exception('Connection error: $e');
-    }
+    await _post('/api/password-reset/request/', {'email': email});
   }
 
   @override
   Future<void> validateResetCode(String email, String code) async {
-    final url = Uri.parse('$baseUrl/api/password-reset/validate/');
-
-    try {
-      final response = await client.post(
-        url,
-        headers: HttpHeadersUtil.getJsonHeaders(),
-        body: jsonEncode({'email': email, 'code': code}),
-      );
-
-      if (response.statusCode == 200) {
-        return;
-      } else {
-        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
-        throw ApiException(errorResponse);
-      }
-    } on SocketException {
-      rethrow;
-    } on HttpException {
-      rethrow;
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw Exception('Connection error: $e');
-    }
+    await _post('/api/password-reset/validate/', {'email': email, 'code': code});
   }
 
   @override
-  Future<void> resetPassword(String email, String code, String newPassword) async {
-    final url = Uri.parse('$baseUrl/api/password-reset/reset/');
+  Future<List<RecoveryWrap>> getRecoveryWraps(String email, String code) async {
+    final json = await _post('/api/password-reset/recovery-keys/', {'email': email, 'code': code});
+    return KeyRequestModel.recoveryWrapsFromJson(json as Map<String, dynamic>);
+  }
 
+  @override
+  Future<bool> resetPassword({
+    required String email,
+    required String code,
+    required String newAuthKey,
+    required KdfParams kdfParams,
+    required List<RecoveredKey> recoveredKeys,
+  }) async {
+    final json = await _post('/api/password-reset/reset/', {
+      'email': email,
+      'code': code,
+      'newAuthKey': newAuthKey,
+      'kdfSalt': KdfParamsModel.saltToJson(kdfParams),
+      'kdfParams': KdfParamsModel.paramsToJson(kdfParams),
+      'recoveredKeys': recoveredKeys.map(KeyRequestModel.recovered).toList(),
+    });
+    return (json as Map<String, dynamic>)['accountLocked'] as bool;
+  }
+
+  Future<dynamic> _post(String path, Map<String, dynamic> body) {
+    return _send(() => client.post(
+          Uri.parse('$baseUrl$path'),
+          headers: HttpHeadersUtil.getJsonHeaders(),
+          body: jsonEncode(body),
+        ));
+  }
+
+  /// Sends the request and returns the decoded JSON body (null if empty), or throws [ApiException] with the error of
+  /// the backend.
+  Future<dynamic> _send(Future<http.Response> Function() request) async {
     try {
-      final response = await client.post(
-        url,
-        headers: HttpHeadersUtil.getJsonHeaders(),
-        body: jsonEncode({'email': email, 'code': code, 'newPassword': newPassword}),
-      );
+      final response = await request();
 
-      if (response.statusCode == 200) {
-        return;
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return response.body.isEmpty ? null : jsonDecode(response.body);
       } else {
         final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
         throw ApiException(errorResponse);

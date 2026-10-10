@@ -1,8 +1,7 @@
+import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_image.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/config/theme/app_radius.dart';
-import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
 import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_file.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -28,15 +27,12 @@ class TrashFileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const baseUrl = DataConstants.backendBaseUrl;
-    final thumbnailUrl = '$baseUrl/api/file/${file.id}/thumbnail/';
 
     return MediaThumbnail(
-      image: AuthenticatedImage(
-        imageUrl: thumbnailUrl,
-        fit: BoxFit.cover,
+      image: EncryptedImage(
+        fileId: file.id,
         // MediaThumbnail paints the surface2 placeholder behind the image.
-        placeholder: (_, __) => const SizedBox.shrink(),
+        transparentWhileLoading: true,
       ),
       isVideo: file.isVideo,
       selectable: isSelectionMode,

@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
 import 'dart:async';
 import 'dart:developer' as developer;
 
@@ -343,7 +344,13 @@ class BackgroundSyncService {
             syncLogService.write('⬆ Subidos $uploadedCount/${filesToUpload.length}');
           }
         } catch (e) {
-          syncLogService.write('⚠ Error subiendo ${file.fileName}: $e');
+          // Every file would fail the same way: the keys are refreshed the next time the app is opened
+          if (e is OutdatedKeysFailure || e is MissingCurrentKeyFailure) {
+            syncLogService.write('✗ Las claves cambiaron en otro dispositivo: abre la app para actualizarlas');
+            rethrow;
+          }
+          // Never the name of the file: it is metadata that the server only receives encrypted
+          syncLogService.write('⚠ Error subiendo el archivo ${filesToUpload.indexOf(file) + 1}/${filesToUpload.length}: $e');
         }
       }
 

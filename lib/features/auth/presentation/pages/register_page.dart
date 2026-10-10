@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
 
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _confirmPasswordInputController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  bool _acceptedLegalTerms = false;
 
   @override
   void dispose() {
@@ -57,6 +59,11 @@ class _RegisterPageState extends State<RegisterPage> {
           password: password,
           name: name,
           surname: surname.isEmpty ? null : surname,
+          // The 24 recovery words are generated in the language of the app
+          language: Localizations.localeOf(context).languageCode == 'es'
+              ? RecoveryPhraseLanguage.spanish
+              : RecoveryPhraseLanguage.english,
+          acceptedLegalTerms: _acceptedLegalTerms,
         ),
       );
     }
@@ -83,20 +90,8 @@ class _RegisterPageState extends State<RegisterPage> {
               config: ErrorDisplayConfig.snackBar,
               onRetry: () => _handleRegister()
             );
-          } else if (state is RegisterSuccessful) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.accountCreated),
-                duration: const Duration(seconds: 3),
-              )
-            );
-
-            Future.delayed(const Duration(milliseconds: 500), () {
-              if (context.mounted) {
-                context.go(RoutePaths.login);
-              }
-            });
           }
+          // RecoveryPhraseRequired: the router opens the page of the 24 words
         },
         builder: (context, state) {
           final isLoading = state is AuthLoading;
@@ -122,8 +117,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   RegisterActions(
                     onRegister: _handleRegister,
                     onGoToLogin: _handleGoToLogin,
+                    onLegalTermsChanged: (accepted) => _acceptedLegalTerms = accepted,
                     isLoading: isLoading,
-                  )
+                  ),
                 ],
               ),
             ),

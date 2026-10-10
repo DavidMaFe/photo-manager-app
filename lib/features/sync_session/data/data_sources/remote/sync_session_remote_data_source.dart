@@ -6,10 +6,11 @@ import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/duplicate_files_result_model.dart';
-import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
+import 'package:photo_manager_app/features/sync_session/data/models/encrypted_upload_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_result_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_session_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/upload_result_model.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/encrypted_upload.dart';
 
 import '../../../../../config/data_constants.dart';
 
@@ -17,7 +18,8 @@ import '../../../../../config/data_constants.dart';
 abstract class SyncSessionRemoteDataSource {
   Future<SyncSessionModel> startSyncSession(String deviceUuid);
   Future<DuplicateFilesResultModel> checkDuplicates(String sessionId, List<String> fileHashes);
-  Future<UploadResultModel> uploadFile(String sessionId, SyncFileModel file);
+  /// Multipart with the encrypted file, the encrypted thumbnail (if any) and the metadata.
+  Future<UploadResultModel> uploadFile(String sessionId, EncryptedUpload upload);
   Future<SyncResultModel> completeSyncSession(String sessionId);
   Future<void> cancelSyncSession(String sessionId);
 }
@@ -96,14 +98,19 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
   }
   
   @override
-  Future<UploadResultModel> uploadFile(String sessionId, SyncFileModel file) async {
+  Future<UploadResultModel> uploadFile(String sessionId, EncryptedUpload upload) async {
     try {
       final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/api/sync_session/upload/'));
       request.headers.addAll(HttpHeadersUtil.getMultipartHeaders());
 
       request.fields['sessionId'] = sessionId;
-      request.fields['metadata'] = jsonEncode(file.uploadMetadata);
-      request.files.add(await http.MultipartFile.fromPath('file', file.devicePath, filename: file.fileName));
+      request.fields['metadata'] = jsonEncode(EncryptedUploadModel.metadataToJson(upload));
+      // The part names say nothing about the file: the original name is in the encrypted metadata
+      request.files.add(await http.MultipartFile.fromPath('file', upload.encryptedFile.path, filename: 'file'));
+      final thumbnail = upload.encryptedThumbnail;
+      if (thumbnail != null) {
+        request.files.add(http.MultipartFile.fromBytes('thumbnail', thumbnail, filename: 'thumbnail'));
+      }
 
       final streamedResponse = await client.send(request).timeout(_uploadTimeout);
       final response = await http.Response.fromStream(streamedResponse);

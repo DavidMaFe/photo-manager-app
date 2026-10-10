@@ -1,23 +1,28 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
+import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_session_remote_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/duplicate_files_result_model.dart';
-import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_result_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_session_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/upload_result_model.dart';
 import 'package:photo_manager_app/features/sync_session/data/repositories/sync_session_repository_impl.dart';
-import 'package:photo_manager_app/features/sync_session/domain/entities/sync_file.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/encrypted_upload.dart';
 
 class MockSyncSessionRemoteDataSource extends Mock implements SyncSessionRemoteDataSource {}
-class FakeSyncFileModel extends Fake implements SyncFileModel {}
+class FakeEncryptedUpload extends Fake implements EncryptedUpload {}
 
 void main() {
   late SyncSessionRepositoryImpl repository;
   late MockSyncSessionRemoteDataSource mockRemoteDataSource;
 
   setUpAll(() {
-    registerFallbackValue(FakeSyncFileModel());
+    registerFallbackValue(FakeEncryptedUpload());
   });
 
   setUp(() {
@@ -123,54 +128,46 @@ void main() {
 
   group('uploadFile', () {
     const sessionId = 'session-123';
-    final syncFile = SyncFile(
-      localId: 'local-123',
-      devicePath: '/storage/photo.jpg',
-      hash: 'abc123',
-      fileName: 'photo.jpg',
-      sizeBytes: 1048576,
+    final upload = EncryptedUpload(
+      encryptedFile: File('/tmp/1.pmef'),
+      encryptedThumbnail: null,
+      dedupHash: 'a' * 64,
+      isVideo: false,
       capturedAt: DateTime(2024, 1, 15),
-      mimeType: 'image/jpeg',
+      keyVersion: 1,
+      encryptedFileKey: Uint8List(72),
+      encryptedMetadata: Uint8List(50),
     );
     const uploadResult = UploadResultModel(fileId: 'server-file-456');
 
-    test('should convert entity to model and call remote data source', () async {
-      // Arrange
-      when(() => mockRemoteDataSource.uploadFile(any(), any()))
-          .thenAnswer((_) async => uploadResult);
+    test('should send the encrypted upload and return the server file ID', () async {
+      when(() => mockRemoteDataSource.uploadFile(any(), any())).thenAnswer((_) async => uploadResult);
 
-      // Act
-      await repository.uploadFile(sessionId: sessionId, file: syncFile);
+      final result = await repository.uploadFile(sessionId: sessionId, upload: upload);
 
-      // Assert
-      verify(() => mockRemoteDataSource.uploadFile(
-        sessionId,
-        any(that: isA<SyncFileModel>()),
-      )).called(1);
+      expect(result, 'server-file-456');
+      verify(() => mockRemoteDataSource.uploadFile(sessionId, upload)).called(1);
     });
 
-    test('should return server file ID from upload result', () async {
-      // Arrange
-      when(() => mockRemoteDataSource.uploadFile(any(), any()))
-          .thenAnswer((_) async => uploadResult);
+    test('should tell that the keys changed on another device when the key version is rejected', () async {
+      when(() => mockRemoteDataSource.uploadFile(any(), any())).thenThrow(ApiException(ErrorResponseModel(
+          code: 'INVALID_FILE_KEY_VERSION', message: 'Not the current key', timestamp: 'now')));
 
-      // Act
-      final result = await repository.uploadFile(sessionId: sessionId, file: syncFile);
+      await expectLater(repository.uploadFile(sessionId: sessionId, upload: upload),
+          throwsA(isA<OutdatedKeysFailure>()));
+    });
 
-      // Assert
-      expect(result, uploadResult.fileId);
+    test('should keep the other errors of the backend', () async {
+      when(() => mockRemoteDataSource.uploadFile(any(), any())).thenThrow(ApiException(ErrorResponseModel(
+          code: 'INVALID_ENCRYPTED_FILE', message: 'Not encrypted', timestamp: 'now')));
+
+      await expectLater(repository.uploadFile(sessionId: sessionId, upload: upload), throwsA(isA<ApiException>()));
     });
 
     test('should propagate exception from remote data source', () async {
-      // Arrange
-      when(() => mockRemoteDataSource.uploadFile(any(), any()))
-          .thenThrow(Exception('Upload failed'));
+      when(() => mockRemoteDataSource.uploadFile(any(), any())).thenThrow(Exception('Upload failed'));
 
-      // Act & Assert
-      expect(
-        () => repository.uploadFile(sessionId: sessionId, file: syncFile),
-        throwsA(isA<Exception>()),
-      );
+      expect(() => repository.uploadFile(sessionId: sessionId, upload: upload), throwsA(isA<Exception>()));
     });
   });
 

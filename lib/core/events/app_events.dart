@@ -116,3 +116,8 @@ enum CacheInvalidationType {
   syncHistory,
   all,
 }
+/// An upload was rejected because this device uses keys that are no longer the current ones of the account (they
+/// changed on another device). The key sync listener asks for the current password.
+class KeysOutdatedEvent extends AppEvent {
+  const KeysOutdatedEvent();
+}

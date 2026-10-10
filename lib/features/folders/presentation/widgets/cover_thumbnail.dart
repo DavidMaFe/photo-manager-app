@@ -1,7 +1,6 @@
+import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_image.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager_app/config/data_constants.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
-import 'package:photo_manager_app/core/widgets/authenticated_image.dart';
 
 
 /// Rounded thumbnail of a photo for the cover sheets and cards.
@@ -20,12 +19,7 @@ class CoverThumbnail extends StatelessWidget {
         color: context.palette.surface2,
         child: SizedBox.square(
           dimension: size,
-          child: AuthenticatedImage(
-            imageUrl: '${DataConstants.backendBaseUrl}/api/file/$fileId/thumbnail/',
-            fit: BoxFit.cover,
-            placeholder: (_, __) => const SizedBox.shrink(),
-            errorWidget: (_, __, ___) => const SizedBox.shrink(),
-          ),
+          child: EncryptedImage(fileId: fileId, transparentWhileLoading: true, hideErrors: true),
         ),
       ),
     );

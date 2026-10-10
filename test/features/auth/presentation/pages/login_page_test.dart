@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/features/legal/presentation/widgets/legal_info_link.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
@@ -34,6 +35,15 @@ void main() {
   }
 
   group('LoginPage', () {
+    testWidgets('should link to the information and the legal texts without a session', (tester) async {
+      setUpScreenSize(tester);
+
+      await tester.pumpWidget(makeLoginPage());
+
+      expect(find.byType(LegalInfoLink), findsOneWidget);
+      expect(find.text('How it works, terms and privacy'), findsOneWidget);
+    });
+
     testWidgets('should validate empty email', (tester) async {
       setUpScreenSize(tester);
       // Arrange

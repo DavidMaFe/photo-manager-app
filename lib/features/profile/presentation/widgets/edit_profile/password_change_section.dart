@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/features/auth/presentation/utils/auth_validators.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/widgets/app_password_field.dart';
@@ -63,6 +64,7 @@ class PasswordChangeSection extends StatelessWidget {
               if (value == null || value.isEmpty) {
                 return l10n.errorNewPasswordRequired;
               }
+              return AuthValidators.newPassword(l10n, value);
             }
             return null;
           },

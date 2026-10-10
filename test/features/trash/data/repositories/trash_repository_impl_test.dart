@@ -7,6 +7,7 @@ import 'package:photo_manager_app/features/trash/data/models/trash_file_model.da
 import 'package:photo_manager_app/features/trash/data/models/trash_page_model.dart';
 import 'package:photo_manager_app/features/trash/data/repositories/trash_repository_impl.dart';
 import 'package:photo_manager_app/features/trash/domain/entities/trash_page.dart';
+import '../../../../helpers/recording_file_key_repository.dart';
 
 class MockTrashRemoteDataSource extends Mock
     implements TrashRemoteDataSource {}
@@ -14,10 +15,12 @@ class MockTrashRemoteDataSource extends Mock
 void main() {
   late TrashRepositoryImpl repository;
   late MockTrashRemoteDataSource mockRemoteDataSource;
+  late RecordingFileKeyRepository fileKeys;
 
   setUp(() {
     mockRemoteDataSource = MockTrashRemoteDataSource();
-    repository = TrashRepositoryImpl(remoteDataSource: mockRemoteDataSource);
+    fileKeys = RecordingFileKeyRepository();
+    repository = TrashRepositoryImpl(remoteDataSource: mockRemoteDataSource, fileKeyRepository: fileKeys);
   });
 
   final testCapturedDate = DateTime(2024, 1, 15);
@@ -51,6 +54,25 @@ void main() {
   );
 
   group('TrashRepositoryImpl - getTrashFiles', () {
+    test('should remember the keys of the trashed files to decrypt their thumbnails', () async {
+      final withKey = TrashFileModel(
+        id: 'file-3',
+        type: FileType.image,
+        status: FileStatus.managed,
+        capturedAt: testCapturedDate,
+        deletedAt: testDeletedDate,
+        sizeBytes: 10,
+        encryptedRef: RecordingFileKeyRepository.ref('file-3'),
+      );
+      when(() => mockRemoteDataSource.getTrashFiles(page: any(named: 'page'), pageSize: any(named: 'pageSize')))
+          .thenAnswer((_) async => TrashPageModel(files: [...testFiles, withKey], currentPage: 0, pageSize: 50,
+              hasNext: false));
+
+      await repository.getTrashFiles(page: 0, pageSize: 50);
+
+      expect(fileKeys.remembered.map((ref) => ref.fileId), ['file-3']);
+    });
+
     test('should call remote data source with correct parameters', () async {
       // Arrange
       when(() => mockRemoteDataSource.getTrashFiles(

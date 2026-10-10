@@ -82,6 +82,30 @@ class FailureMessageHelper {
       case 'syncInProgressError':
         return l10n.syncInProgressError;
 
+    // End-to-end encryption
+      case 'errorRecoveryPhraseMismatch':
+        return l10n.errorRecoveryPhraseMismatch;
+      case 'errorInvalidRecoveryPhrase':
+        return l10n.errorInvalidRecoveryPhrase;
+      case 'errorWeakPassword':
+        return l10n.errorWeakPassword(failure.messageParams?['min'] as int? ?? 10);
+      case 'errorMissingDeviceKey':
+        return l10n.errorMissingDeviceKey;
+      case 'errorKeyUnlock':
+        return l10n.errorKeyUnlock;
+      case 'errorDeviceAuthentication':
+        return l10n.errorDeviceAuthentication;
+      case 'errorLockedFile':
+        return l10n.errorLockedFile;
+      case 'errorUnencryptedFile':
+        return l10n.errorUnencryptedFile;
+      case 'errorOutdatedKeys':
+        return l10n.errorOutdatedKeys;
+      case 'errorMissingCurrentKey':
+        return l10n.errorMissingCurrentKey;
+      case 'errorLegalTermsNotAccepted':
+        return l10n.errorLegalTermsNotAccepted;
+
     // Generic
       case 'errorUnknown':
       default:

@@ -8,6 +8,16 @@ class RouteNames {
   static const String validateResetCode = 'validate_reset_code';
   static const String resetPassword = 'reset_password';
   static const String onboarding = 'onboarding';
+  static const String recoveryPhrase = 'recovery_phrase';
+  static const String confirmRecoveryPhrase = 'confirm_recovery_phrase';
+  static const String lockedAccount = 'locked_account';
+  static const String recoveryWords = 'recovery_words';
+  static const String verifyRecoveryWords = 'verify_recovery_words';
+  static const String forgotPassword = 'forgot_password';
+  static const String lockedPhotos = 'locked_photos';
+  static const String legal = 'legal';
+  static const String legalDocument = 'legal_document';
+  static const String legalAcceptance = 'legal_acceptance';
 
   // Main
   static const String shell = 'shell';
@@ -45,4 +55,22 @@ class RoutePaths {
   static const String syncConfiguration = '/profile/sync-configuration';
   static const String trash = '/profile/trash';
   static const String trashFileDetail = '/profile/trash/file/:fileId';
+
+  // End-to-end encryption: registration and locked account flows (outside the shell)
+  static const String recoveryPhrase = '/recovery-phrase';
+  static const String confirmRecoveryPhrase = '/recovery-phrase/confirm';
+  static const String lockedAccount = '/locked-account';
+
+  // Information and legal texts, readable without a session (/legal/{document slug})
+  static const String legal = '/legal';
+  static const String legalDocument = '/legal/:document';
+  static const String legalAcceptance = '/legal-acceptance';
+
+  static String legalDocumentOf(String slug) => '$legal/$slug';
+
+  // End-to-end encryption: security options of the profile
+  static const String recoveryWords = '/profile/recovery-words';
+  static const String verifyRecoveryWords = '/profile/verify-recovery-words';
+  static const String forgotPassword = '/profile/forgot-password';
+  static const String lockedPhotos = '/profile/locked-photos';
 }

@@ -1,3 +1,5 @@
+import 'package:photo_manager_app/features/encrypted_media/domain/repositories/file_key_repository.dart';
+import 'package:photo_manager_app/features/gallery/data/models/gallery_file_model.dart';
 import 'package:photo_manager_app/features/folders/data/data_sources/folder_remote_data_source.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder_content.dart';
 import 'package:photo_manager_app/features/folders/domain/repositories/folder_repository.dart';
@@ -9,7 +11,8 @@ import '../../domain/entities/folder.dart';
 class FolderRepositoryImpl implements FolderRepository {
 
   final FolderRemoteDataSource remoteDataSource;
-  const FolderRepositoryImpl({required this.remoteDataSource});
+  final FileKeyRepository fileKeyRepository;
+  const FolderRepositoryImpl({required this.remoteDataSource, required this.fileKeyRepository});
 
   @override
   Future<List<Folder>> getFolders({String? parentFolderId}) async {
@@ -23,13 +26,15 @@ class FolderRepositoryImpl implements FolderRepository {
     int pageSize = 50,
     FileFilter filter = FileFilter.all
   }) async {
-    return await remoteDataSource.getFolderContent(
+    final content = await remoteDataSource.getFolderContent(
       folderId: folderId,
       page: page,
       pageSize: pageSize,
       fileType: _getTypeParam(filter),
       status: _getStatusParam(filter)
     );
+    fileKeyRepository.remember(content.files.whereType<GalleryFileModel>().map((file) => file.encryptedRef).nonNulls);
+    return content;
   }
 
   @override
