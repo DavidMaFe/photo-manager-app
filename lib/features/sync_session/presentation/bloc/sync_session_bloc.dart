@@ -58,20 +58,30 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     _isCancelled = false;
     _currentSessionId = null;
 
-    try {
-      // Check if background sync is in progress (the lock may have been taken
-      // or released by the WorkManager isolate, so it is read from disk)
-      final lockCheck = await syncLock.check();
-      if (lockCheck.isHeld) {
-        emit(const SyncSessionError(
-          ConcurrencyFailure(
-            messageKey: 'syncInProgressError',
-            code: FailureCodes.syncSessionAlreadyInProgress,
-          ),
-        ));
-        return;
-      }
+    // Check if background sync is in progress (the lock may have been taken
+    // or released by the WorkManager isolate, so it is read from disk)
+    final lockCheck = await syncLock.check();
+    if (lockCheck.isHeld) {
+      emit(const SyncSessionError(
+        ConcurrencyFailure(
+          messageKey: 'syncInProgressError',
+          code: FailureCodes.syncSessionAlreadyInProgress,
+        ),
+      ));
+      return;
+    }
 
+    // Held until the sync ends however it ends, so the background sync does not start meanwhile
+    await syncLock.acquire();
+    try {
+      await _runSync(event, emit);
+    } finally {
+      await syncLock.release();
+    }
+  }
+
+  Future<void> _runSync(SyncSessionStarted event, Emitter<SyncSessionState> emit) async {
+    try {
       emit(const SyncSessionStarting());
       final startStopwatch = Stopwatch()..start();
 

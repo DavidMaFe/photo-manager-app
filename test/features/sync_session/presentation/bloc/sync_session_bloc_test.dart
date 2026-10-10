@@ -7,6 +7,7 @@ import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/sync_session.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
@@ -68,6 +69,8 @@ void main() {
 
     // No sync in progress by default
     when(() => mockSyncLock.check()).thenAnswer((_) async => const SyncLockCheck(SyncLockStatus.free));
+    when(() => mockSyncLock.acquire()).thenAnswer((_) async {});
+    when(() => mockSyncLock.release()).thenAnswer((_) async {});
 
     bloc = SyncSessionBloc(
       startSyncSessionUseCase: mockStartUseCase,
@@ -183,6 +186,52 @@ void main() {
         ],
         verify: (_) {
           verifyNever(() => mockStartUseCase(deviceUuid: any(named: 'deviceUuid')));
+          verifyNever(() => mockSyncLock.acquire());
+          verifyNever(() => mockSyncLock.release());
+        },
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should take the lock before starting the session and release it when the sync fails',
+        setUp: () {
+          when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => 'device-uuid-123');
+          when(() => mockStartUseCase(deviceUuid: 'device-uuid-123')).thenThrow(Exception('Network error'));
+        },
+        build: () => bloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        expect: () => [
+          const SyncSessionStarting(),
+          isA<SyncSessionError>(),
+        ],
+        verify: (_) {
+          verifyInOrder([
+            () => mockSyncLock.check(),
+            () => mockSyncLock.acquire(),
+            () => mockStartUseCase(deviceUuid: 'device-uuid-123'),
+            () => mockSyncLock.release(),
+          ]);
+        },
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should release the lock when the context is no longer mounted',
+        setUp: () {
+          when(() => mockContext.mounted).thenReturn(false);
+          when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => 'device-uuid-123');
+          when(() => mockStartUseCase(deviceUuid: 'device-uuid-123'))
+              .thenAnswer((_) async => SyncSession(id: 'session-123', lastCompletedAt: null));
+        },
+        build: () => bloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        wait: const Duration(milliseconds: 2500),
+        expect: () => [
+          const SyncSessionStarting(),
+          const SyncSessionFetchingFiles(),
+          isA<SyncSessionError>(),
+        ],
+        verify: (_) {
+          verify(() => mockSyncLock.acquire()).called(1);
+          verify(() => mockSyncLock.release()).called(1);
         },
       );
 
@@ -202,6 +251,8 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockStartUseCase(deviceUuid: 'device-uuid-123')).called(1);
+          verify(() => mockSyncLock.acquire()).called(1);
+          verify(() => mockSyncLock.release()).called(1);
         },
       );
 

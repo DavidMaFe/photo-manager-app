@@ -5,10 +5,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   final now = DateTime(2026, 10, 4, 17, 30);
 
-  Future<SyncLock> buildLock(Map<String, Object> values) async {
+  Future<SyncLock> buildLock(Map<String, Object> values,
+      {DateTime Function()? clock, Duration heartbeatInterval = SyncLock.defaultHeartbeatInterval}) async {
     SharedPreferences.setMockInitialValues(values);
     final sharedPreferences = await SharedPreferences.getInstance();
-    return SyncLock(sharedPreferences: sharedPreferences, clock: () => now);
+    final lock = SyncLock(sharedPreferences: sharedPreferences, clock: clock ?? () => now,
+        heartbeatInterval: heartbeatInterval);
+    addTearDown(lock.release);
+    return lock;
   }
 
   /// Simulates the other isolate writing the values on disk: the in-memory
@@ -31,11 +35,11 @@ void main() {
         expect(result.isHeld, isFalse);
       });
 
-      test('should be held when the lock is recent', () async {
+      test('should be held when the last sign of life is recent', () async {
         // Arrange
         final lock = await buildLock({
           SyncLock.lockKey: true,
-          SyncLock.acquiredAtKey: now.subtract(const Duration(minutes: 5)).toIso8601String(),
+          SyncLock.acquiredAtKey: now.subtract(const Duration(minutes: 4)).toIso8601String(),
         });
 
         // Act
@@ -44,7 +48,7 @@ void main() {
         // Assert
         expect(result.status, SyncLockStatus.held);
         expect(result.isHeld, isTrue);
-        expect(result.age, const Duration(minutes: 5));
+        expect(result.age, const Duration(minutes: 4));
       });
 
       test('should be free when another isolate released the lock after it was cached', () async {
@@ -78,11 +82,11 @@ void main() {
         expect(result.status, SyncLockStatus.held);
       });
 
-      test('should release the lock when it is older than the maximum duration', () async {
-        // Arrange
+      test('should release the lock when there is no sign of life for the maximum duration', () async {
+        // Arrange: the app was frozen or killed mid-sync, so the heartbeat stopped
         final lock = await buildLock({
           SyncLock.lockKey: true,
-          SyncLock.acquiredAtKey: now.subtract(const Duration(minutes: 31)).toIso8601String(),
+          SyncLock.acquiredAtKey: now.subtract(const Duration(minutes: 6)).toIso8601String(),
         });
 
         // Act
@@ -90,7 +94,7 @@ void main() {
 
         // Assert
         expect(result.status, SyncLockStatus.releasedStale);
-        expect(result.age, const Duration(minutes: 31));
+        expect(result.age, const Duration(minutes: 6));
         expect(lock.sharedPreferences.getBool(SyncLock.lockKey), isFalse);
         expect(lock.sharedPreferences.getString(SyncLock.acquiredAtKey), isNull);
         expect((await lock.check()).status, SyncLockStatus.free);
@@ -145,6 +149,54 @@ void main() {
 
         // Assert
         expect(lock.sharedPreferences.getBool(SyncLock.lockKey), isFalse);
+        expect(lock.sharedPreferences.getString(SyncLock.acquiredAtKey), isNull);
+        expect((await lock.check()).status, SyncLockStatus.free);
+      });
+    });
+
+    group('heartbeat', () {
+      test('should renew the timestamp of the lock', () async {
+        // Arrange
+        var time = now;
+        final lock = await buildLock({}, clock: () => time);
+        await lock.acquire();
+        time = now.add(const Duration(minutes: 40));
+
+        // Act
+        await lock.heartbeat();
+
+        // Assert: a sync that is still alive keeps the lock however long it takes
+        expect(lock.sharedPreferences.getString(SyncLock.acquiredAtKey), time.toIso8601String());
+        final result = await lock.check();
+        expect(result.status, SyncLockStatus.held);
+        expect(result.age, Duration.zero);
+      });
+
+      test('should renew the lock periodically while it is held', () async {
+        // Arrange
+        var time = now;
+        final lock = await buildLock({}, clock: () => time, heartbeatInterval: const Duration(milliseconds: 20));
+        await lock.acquire();
+        time = now.add(const Duration(minutes: 10));
+
+        // Act
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+
+        // Assert
+        expect(lock.sharedPreferences.getString(SyncLock.acquiredAtKey), time.toIso8601String());
+        expect((await lock.check()).status, SyncLockStatus.held);
+      });
+
+      test('should stop renewing the lock when it is released', () async {
+        // Arrange
+        final lock = await buildLock({}, heartbeatInterval: const Duration(milliseconds: 20));
+        await lock.acquire();
+
+        // Act
+        await lock.release();
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+
+        // Assert
         expect(lock.sharedPreferences.getString(SyncLock.acquiredAtKey), isNull);
         expect((await lock.check()).status, SyncLockStatus.free);
       });

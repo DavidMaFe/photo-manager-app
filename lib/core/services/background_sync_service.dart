@@ -212,11 +212,11 @@ class BackgroundSyncService {
       case SyncLockStatus.releasedStale:
         syncLogService.write(ageMinutes == null
             ? '⚠ Lock sin timestamp válido detectado — liberando lock obsoleto'
-            : '⚠ Lock obsoleto ($ageMinutes min > ${SyncLock.maxDuration.inMinutes} min) — '
+            : '⚠ Lock obsoleto ($ageMinutes min sin señal > ${SyncLock.maxDuration.inMinutes} min) — '
                 'liberando y continuando con la ejecución');
         return false;
       case SyncLockStatus.held:
-        syncLogService.write('⚠ Sync ya en progreso (lock adquirido hace $ageMinutes min)');
+        syncLogService.write('⚠ Sync ya en progreso (última señal hace $ageMinutes min)');
         return true;
     }
   }
