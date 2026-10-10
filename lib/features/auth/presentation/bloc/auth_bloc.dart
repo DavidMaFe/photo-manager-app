@@ -68,6 +68,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RecoveryPhraseConfirmed>(_onRecoveryPhraseConfirmed);
     on<AccountUnlocked>((event, emit) => emit(AuthSuccessful(event.user)));
     on<LegalTermsAccepted>(_onLegalTermsAccepted);
+    on<AccountLockDetected>((event, emit) {
+      final current = state;
+      if (current is AuthSuccessful) {
+        emit(AuthAccountLocked(current.user));
+      }
+    });
 
     // When the HTTP layer cannot refresh the token (session fully expired),
     // trigger a logout so GoRouter redirects back to the login screen.

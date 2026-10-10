@@ -2,6 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
+import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_session_remote_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/duplicate_files_result_model.dart';
@@ -144,6 +147,21 @@ void main() {
 
       expect(result, 'server-file-456');
       verify(() => mockRemoteDataSource.uploadFile(sessionId, upload)).called(1);
+    });
+
+    test('should tell that the keys changed on another device when the key version is rejected', () async {
+      when(() => mockRemoteDataSource.uploadFile(any(), any())).thenThrow(ApiException(ErrorResponseModel(
+          code: 'INVALID_FILE_KEY_VERSION', message: 'Not the current key', timestamp: 'now')));
+
+      await expectLater(repository.uploadFile(sessionId: sessionId, upload: upload),
+          throwsA(isA<OutdatedKeysFailure>()));
+    });
+
+    test('should keep the other errors of the backend', () async {
+      when(() => mockRemoteDataSource.uploadFile(any(), any())).thenThrow(ApiException(ErrorResponseModel(
+          code: 'INVALID_ENCRYPTED_FILE', message: 'Not encrypted', timestamp: 'now')));
+
+      await expectLater(repository.uploadFile(sessionId: sessionId, upload: upload), throwsA(isA<ApiException>()));
     });
 
     test('should propagate exception from remote data source', () async {

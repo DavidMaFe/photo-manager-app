@@ -58,6 +58,11 @@ class AccountUnlocked extends AuthEvent {
 }
 
 
+/// With a session open, the account turned out to be locked (the password was reset without the 24 words on another
+/// device): the locked account flow starts, as after a login.
+class AccountLockDetected extends AuthEvent {}
+
+
 class LogoutRequested extends AuthEvent {}
 
 

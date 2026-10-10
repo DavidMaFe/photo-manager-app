@@ -170,6 +170,7 @@ import '../features/encrypted_media/domain/services/video_stream_server.dart';
 import '../features/encrypted_media/domain/use_cases/clear_media_data_use_case.dart';
 import '../features/encrypted_media/domain/use_cases/get_file_metadata_use_case.dart';
 import '../features/encrypted_media/domain/use_cases/load_media_use_case.dart';
+import '../features/account_security/domain/use_cases/key_sync_use_cases.dart';
 import 'events/app_event_bus.dart';
 import 'utils/onboarding_preferences.dart';
 
@@ -563,6 +564,9 @@ Future<void> init() async {
   sl.registerFactory(() => GetRecoveryWordsUseCase(sl<KeyringService>()));
   sl.registerFactory(() => VerifyRecoveryWordsUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
   sl.registerFactory(() => RecoveryReminderUseCase(sl<RecoveryReminderRepository>()));
+  sl.registerFactory(() => CheckKeysUpToDateUseCase(sl<AccountSecurityRepository>(), sl<MasterKeyLocalDataSource>()));
+  sl.registerFactory(
+      () => RefreshKeysWithPasswordUseCase(sl<AccountSecurityRepository>(), sl<CryptoEngine>(), sl<KeyringService>()));
 
   // Legal texts and their acceptance (Phase 4)
   sl.registerLazySingleton<LegalDocumentRepository>(() => const BundledLegalDocumentRepository());

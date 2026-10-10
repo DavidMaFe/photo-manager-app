@@ -947,5 +947,9 @@
   "mediaLocked": "Locked: recover it from Profile > Security",
   "mediaLoadError": "It could not be loaded",
   "errorLockedFile": "This file is locked. You can recover it from Profile > Security > Recover locked photos.",
-  "errorUnencryptedFile": "This file was uploaded before encryption and cannot be shown."
+  "errorUnencryptedFile": "This file was uploaded before encryption and cannot be shown.",
+  "keySyncTitle": "Your keys changed on another device",
+  "keySyncMessage": "The password or the keys of your account were changed on another device. Type your current password to keep seeing and uploading your photos on this one.",
+  "keySyncDone": "Keys updated",
+  "errorOutdatedKeys": "The keys of your account changed on another device. Open the app and type your current password."
 }

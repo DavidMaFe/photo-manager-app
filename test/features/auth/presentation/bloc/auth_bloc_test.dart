@@ -481,6 +481,23 @@ void main() {
       );
     });
 
+    group('AccountLockDetected', () {
+      blocTest<AuthBloc, AuthState>(
+        'should start the locked account flow when the account turns out to be locked',
+        build: () => authBloc,
+        seed: () => AuthSuccessful(testUser),
+        act: (bloc) => bloc.add(AccountLockDetected()),
+        expect: () => [isA<AuthAccountLocked>().having((state) => state.user, 'user', testUser)],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should ignore it without a session',
+        build: () => authBloc,
+        act: (bloc) => bloc.add(AccountLockDetected()),
+        expect: () => <AuthState>[],
+      );
+    });
+
     group('AccountUnlocked', () {
       blocTest<AuthBloc, AuthState>(
         'should start the session when a locked account gets a usable key',

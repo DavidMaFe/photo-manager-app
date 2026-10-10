@@ -59,7 +59,7 @@ flutter clean && flutter pub get
 
 ### Testing
 ```bash
-# Run all tests (note: test directory currently empty)
+# Run all tests (libsodium must be installed on the host: brew install libsodium)
 flutter test
 
 # Run specific test file
@@ -325,9 +325,8 @@ class YourModel extends YourEntity {
 ## Project Configuration
 
 ### Backend API
-Base URL for Android emulator: `http://10.0.2.2:8080`
-- Located in remote data source implementations
-- Change for production/different environments
+- Selected at build time with `--dart-define-from-file=config/dev.json` (emulator: `http://10.0.2.2:8080`) or `config/prod.json` (`AppConfig.backendBaseUrl`).
+- Android allows plain HTTP only in the debug build (`android/app/src/debug/res/xml/network_security_config.xml`). Release builds only allow HTTPS, plus `127.0.0.1` for the video proxy.
 
 ### Theme Colors
 Primary color: `#5D5BE9` (purple)
@@ -337,25 +336,56 @@ Primary color: `#5D5BE9` (purple)
 - SDK: 3.10.1+
 - Dart: 3.10.1
 
-## Current Implementation Status
+## End-to-End Encryption
 
-**Completed features:**
-- Authentication (login, logout, token management)
-- Profile (view profile, storage stats, device management)
-- Localization (English/Spanish)
-- Error handling infrastructure
-- Navigation with bottom nav bar
+Nobody but the user can see the photos, not even the server administrator. Specification: `docs/e2ee-spec.md` in the backend repository.
 
-**Incomplete/TODO:**
-- Error handler implementation (`ErrorHandler.handleError()` method)
-- Home, Folders, Sync, and Notifications pages (placeholder routes exist)
-- Test coverage (test directory is empty)
-- Standardize error states (ProfileBloc uses String, should use Failure like AuthBloc)
+### Where it lives
+
+- **`core/crypto/`:**
+  - `CryptoEngine` (libsodium through `sodium_libs`): Argon2id in an isolate, XChaCha20-Poly1305, PMEF v1 files in 1 MiB chunks
+  - `KeyringService`: creates, unlocks, rewraps and recovers master keys
+  - `RecoveryPhrase`: the 24 BIP39 words (English and Spanish, accents ignored)
+  - `MasterKeyLocalDataSource`: master keys and recovery keys in `flutter_secure_storage` (iOS `first_unlock_this_device`, so background sync works with the phone locked)
+- **`features/auth/`:** registration, login and password reset derive the `authKey` and the KEK on the device. The password never leaves it.
+- **`features/account_security/`:**
+  - password change, and reset from this device with fingerprint or PIN
+  - locked account (old words, device keys or a new key)
+  - view and verify the 24 words, and the reminders
+  - export to the password manager or PDF
+- **`features/sync_session/`:** each upload is encrypted with its own `FileKey`:
+  - the content is encrypted to a private temporary file
+  - the 512 px thumbnail and the metadata (name and MIME type) are encrypted as well
+  - the key travels wrapped with the current master key
+  - duplicates are checked with a keyed hash (`DedupHasher`); the SHA-256 of the content never leaves the device
+- **`features/encrypted_media/`:**
+  - key directory filled by the file lists (`POST /api/file/keys/` for the covers)
+  - encrypted disk cache (500 MB, least recently used out first)
+  - `EncryptedImage` and `EncryptedPhotoViewer`
+  - `LocalVideoStreamServer`: video proxy on 127.0.0.1 that decrypts only the chunks of each `Range`
+- **Several devices:** every device that logs in opens the same master key, so they all see every file. Each device only refreshes its keys when it logs in. `KeySyncListener` (around the shell) catches the changes made on another device:
+  - It runs once per app session, and when an upload is rejected with `INVALID_FILE_KEY_VERSION` (`OutdatedKeysFailure` → `KeysOutdatedEvent`).
+  - If there is a new current key, it asks for the current password (`RefreshKeysWithPasswordUseCase`).
+  - If the account is locked, it starts the locked account flow (`AccountLockDetected`).
+  - Background sync stops at the first outdated key and leaves the prompt for the next time the app is opened.
+- **`features/legal/`:** information pages, terms of use and privacy policy, readable without a session (`LegalVersions` must match `app.legal.*` in the backend).
+
+### Rules
+
+- Nothing decrypted is written to disk: the cache stores PMEF objects and the decoded images live in memory only.
+- Logout clears the master keys, the recovery keys, the keys of the files, the encrypted cache, the image cache, the video proxy, the exported PDF and the reminders.
+- Never log passwords, `authKey`, keys, recovery words, file names or decrypted content. `ErrorLogger` only prints in debug builds.
+- New screens that show a file use `EncryptedImage(fileId: ...)`. The file only needs to come from a list that registers its key, or be resolved by the batch endpoint.
+
+### Tests
+
+- The crypto tests use the real libsodium of the host (`test/helpers/sodium_test_helper.dart`, `E2eeTestKit`) with cheap Argon2id parameters.
+- `test/flutter_test_config.dart` registers an offline `LoadMediaUseCase` and an offline `AuthenticatedHttpClient` for every widget test: images show their error placeholder instead of a spinner that never settles.
 
 ## Important Notes
 
 - **Android Emulator:** Use `10.0.2.2` to access localhost on host machine
-- **Token Management:** Tokens stored via AuthLocalDataSource, accessed by ProfileRemoteDataSource
+- **Token Management:** Tokens stored in `flutter_secure_storage` via AuthLocalDataSource; HTTP calls with a session go through `AuthenticatedHttpClient`, which adds the token and refreshes it on 401
 - **Logout Cleanup:** Always clears both auth and profile caches
 - **Route Protection:** AuthNotifier listens to AuthBloc and triggers redirects automatically
 - **Loading States:** Use minimum 800ms duration pattern from AuthBloc for consistent UX

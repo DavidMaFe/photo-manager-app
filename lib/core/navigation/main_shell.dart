@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/features/account_security/presentation/widgets/key_sync_listener.dart';
 import 'package:photo_manager_app/features/account_security/presentation/widgets/recovery_reminder_listener.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -77,7 +78,7 @@ class _MainShellState extends State<MainShell> {
             // The floating bar overlays the content; pages read the bottom
             // inset to keep their last items visible.
             extendBody: true,
-            body: RecoveryReminderListener(child: child ?? const SizedBox.shrink()),
+            body: KeySyncListener(child: RecoveryReminderListener(child: child ?? const SizedBox.shrink())),
             bottomNavigationBar: isFileDetailPage || isSelecting
                 ? null
                 : AppNavBar(

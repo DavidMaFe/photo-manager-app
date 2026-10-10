@@ -36,3 +36,9 @@ class DeviceAuthenticationFailure extends Failure {
 class MissingCurrentKeyFailure extends Failure {
   const MissingCurrentKeyFailure({super.messageKey = 'errorMissingCurrentKey', super.code});
 }
+
+/// The keys of the account changed on another device (password reset or a new key version): this device must
+/// refresh them, with the current password, before uploading again.
+class OutdatedKeysFailure extends Failure {
+  const OutdatedKeysFailure({super.messageKey = 'errorOutdatedKeys', super.code});
+}

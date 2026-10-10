@@ -3250,6 +3250,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This file was uploaded before encryption and cannot be shown.'**
   String get errorUnencryptedFile;
+
+  /// No description provided for @keySyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your keys changed on another device'**
+  String get keySyncTitle;
+
+  /// No description provided for @keySyncMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The password or the keys of your account were changed on another device. Type your current password to keep seeing and uploading your photos on this one.'**
+  String get keySyncMessage;
+
+  /// No description provided for @keySyncDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Keys updated'**
+  String get keySyncDone;
+
+  /// No description provided for @errorOutdatedKeys.
+  ///
+  /// In en, this message translates to:
+  /// **'The keys of your account changed on another device. Open the app and type your current password.'**
+  String get errorOutdatedKeys;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -16,6 +16,7 @@ abstract class SyncSessionRepository {
   });
 
   /// Uploads a file encrypted on this device. Returns the id of the file on the server.
+  /// Throws OutdatedKeysFailure if the key of this device is no longer the current one of the account.
   Future<String> uploadFile({
     required String sessionId,
     required EncryptedUpload upload

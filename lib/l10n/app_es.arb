@@ -845,5 +845,9 @@
   "mediaLocked": "Bloqueado: recupéralo desde Perfil > Seguridad",
   "mediaLoadError": "No se ha podido cargar",
   "errorLockedFile": "Este archivo está bloqueado. Puedes recuperarlo desde Perfil > Seguridad > Recuperar fotos bloqueadas.",
-  "errorUnencryptedFile": "Este archivo se subió antes del cifrado y no se puede mostrar."
+  "errorUnencryptedFile": "Este archivo se subió antes del cifrado y no se puede mostrar.",
+  "keySyncTitle": "Tus claves han cambiado en otro dispositivo",
+  "keySyncMessage": "La contraseña o las claves de tu cuenta se han cambiado en otro dispositivo. Escribe tu contraseña actual para seguir viendo y subiendo tus fotos en este.",
+  "keySyncDone": "Claves actualizadas",
+  "errorOutdatedKeys": "Las claves de tu cuenta han cambiado en otro dispositivo. Abre la app y escribe tu contraseña actual."
 }

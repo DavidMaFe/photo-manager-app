@@ -70,7 +70,7 @@ class ErrorLogger {
     }
 
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    debugPrint(buffer.toString());
+    _emit(buffer);
   }
 
   /// Log a raw Exception with stack trace
@@ -109,7 +109,7 @@ class ErrorLogger {
     }
 
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    debugPrint(buffer.toString());
+    _emit(buffer);
   }
 
   /// Log an ApiException with full backend error details
@@ -138,7 +138,7 @@ class ErrorLogger {
     }
 
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    debugPrint(buffer.toString());
+    _emit(buffer);
   }
 
   /// Log a network/connectivity error
@@ -163,7 +163,7 @@ class ErrorLogger {
     buffer.writeln('║ Type: ${exception.runtimeType}');
     buffer.writeln('║ Message: ${exception.toString()}');
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    debugPrint(buffer.toString());
+    _emit(buffer);
   }
 
   /// Helper method to log ErrorResponseModel details
@@ -197,7 +197,7 @@ class ErrorLogger {
 
     buffer.writeln('║ Message: $message');
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    debugPrint(buffer.toString());
+    _emit(buffer);
   }
 
   /// Log warning (for recoverable issues)
@@ -213,6 +213,14 @@ class ErrorLogger {
 
     buffer.writeln('║ Message: $message');
     buffer.writeln('╚═══════════════════════════════════════════════════════════════');
-    debugPrint(buffer.toString());
+    _emit(buffer);
+  }
+
+  /// Only in debug builds: in release, logcat can be read from outside the app and the errors may carry data of the
+  /// user (docs/e2ee-spec.md, section 11).
+  static void _emit(StringBuffer buffer) {
+    if (kDebugMode) {
+      debugPrint(buffer.toString());
+    }
   }
 }

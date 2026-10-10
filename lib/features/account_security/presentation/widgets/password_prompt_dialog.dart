@@ -17,20 +17,22 @@ class PasswordPromptResult {
 class PasswordPromptDialog {
   const PasswordPromptDialog._();
 
-  static Future<PasswordPromptResult?> show(BuildContext context, {bool askRecoveryWords = false}) async {
+  static Future<PasswordPromptResult?> show(BuildContext context,
+      {bool askRecoveryWords = false, String? title, String? message, String? cancelLabel}) async {
     final l10n = AppLocalizations.of(context)!;
     var password = '';
     var wordsText = '';
     final confirmed = await AppDialog.show(
       context: context,
-      title: l10n.lockedPasswordPrompt,
+      title: title ?? l10n.lockedPasswordPrompt,
+      message: message,
       content: _PasswordPromptFields(
         askRecoveryWords: askRecoveryWords,
         onPasswordChanged: (value) => password = value,
         onWordsChanged: (value) => wordsText = value,
       ),
       primaryLabel: l10n.continueLabel,
-      secondaryLabel: l10n.cancel,
+      secondaryLabel: cancelLabel ?? l10n.cancel,
     );
     if (confirmed != true || password.isEmpty) {
       return null;

@@ -99,6 +99,8 @@ class FailureMessageHelper {
         return l10n.errorLockedFile;
       case 'errorUnencryptedFile':
         return l10n.errorUnencryptedFile;
+      case 'errorOutdatedKeys':
+        return l10n.errorOutdatedKeys;
       case 'errorMissingCurrentKey':
         return l10n.errorMissingCurrentKey;
       case 'errorLegalTermsNotAccepted':

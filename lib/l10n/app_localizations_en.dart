@@ -1906,4 +1906,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUnencryptedFile => 'This file was uploaded before encryption and cannot be shown.';
+
+  @override
+  String get keySyncTitle => 'Your keys changed on another device';
+
+  @override
+  String get keySyncMessage => 'The password or the keys of your account were changed on another device. Type your current password to keep seeing and uploading your photos on this one.';
+
+  @override
+  String get keySyncDone => 'Keys updated';
+
+  @override
+  String get errorOutdatedKeys => 'The keys of your account changed on another device. Open the app and type your current password.';
 }

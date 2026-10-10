@@ -1,3 +1,5 @@
+import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_session_remote_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/duplicate_files_result.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/encrypted_upload.dart';
@@ -24,8 +26,16 @@ class SyncSessionRepositoryImpl implements SyncSessionRepository {
 
   @override
   Future<String> uploadFile({required String sessionId, required EncryptedUpload upload}) async {
-    final result = await remoteDataSource.uploadFile(sessionId, upload);
-    return result.fileId;
+    try {
+      final result = await remoteDataSource.uploadFile(sessionId, upload);
+      return result.fileId;
+    } on ApiException catch (e) {
+      // The current key of the account is not the one of this device: it changed on another device
+      if (e.code == 'INVALID_FILE_KEY_VERSION') {
+        throw const OutdatedKeysFailure();
+      }
+      rethrow;
+    }
   }
 
   @override
