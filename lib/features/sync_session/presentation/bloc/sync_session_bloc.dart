@@ -9,6 +9,7 @@ import 'package:photo_manager_app/core/widgets/permission/permission_helper.dart
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/sync_keep_alive.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_sync_session_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_sync_session_use_case.dart';
@@ -32,6 +33,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
   final MediaLocalDataSource mediaLocalDataSource;
   final AppEventBus eventBus;
   final SyncLock syncLock;
+  final SyncKeepAlive syncKeepAlive;
 
   String? _currentSessionId;
   bool _isCancelled = false;
@@ -46,6 +48,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     required this.mediaLocalDataSource,
     required this.eventBus,
     required this.syncLock,
+    required this.syncKeepAlive,
   }) : super(const SyncSessionInitial()) {
     on<SyncSessionStarted>(_onSyncSessionStarted);
     on<SyncSessionCancelled>(_onSyncSessionCancelled);
@@ -58,20 +61,33 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     _isCancelled = false;
     _currentSessionId = null;
 
-    try {
-      // Check if background sync is in progress (the lock may have been taken
-      // or released by the WorkManager isolate, so it is read from disk)
-      final lockCheck = await syncLock.check();
-      if (lockCheck.isHeld) {
-        emit(const SyncSessionError(
-          ConcurrencyFailure(
-            messageKey: 'syncInProgressError',
-            code: FailureCodes.syncSessionAlreadyInProgress,
-          ),
-        ));
-        return;
-      }
+    // Check if background sync is in progress (the lock may have been taken
+    // or released by the WorkManager isolate, so it is read from disk)
+    final lockCheck = await syncLock.check();
+    if (lockCheck.isHeld) {
+      emit(const SyncSessionError(
+        ConcurrencyFailure(
+          messageKey: 'syncInProgressError',
+          code: FailureCodes.syncSessionAlreadyInProgress,
+        ),
+      ));
+      return;
+    }
 
+    // Held until the sync ends however it ends, so the background sync does not start meanwhile
+    await syncLock.acquire();
+    // Keeps the app running with the screen off: otherwise the OS freezes it and the session is left half done
+    await syncKeepAlive.start();
+    try {
+      await _runSync(event, emit);
+    } finally {
+      await syncKeepAlive.stop();
+      await syncLock.release();
+    }
+  }
+
+  Future<void> _runSync(SyncSessionStarted event, Emitter<SyncSessionState> emit) async {
+    try {
       emit(const SyncSessionStarting());
       final startStopwatch = Stopwatch()..start();
 
@@ -158,6 +174,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
       }
 
       int uploadedCount = 0;
+      int processedCount = 0;
       int totalCount = duplicateCheckResult.totalFiles;
       int remainingBytes = filesToUpload.fold(0, (total, file) => total + file.sizeBytes);
 
@@ -184,6 +201,8 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
         }
         // Sent or failed, the file is no longer pending in this session.
         remainingBytes -= file.sizeBytes;
+        processedCount++;
+        await syncKeepAlive.update(current: processedCount, total: filesToUpload.length);
 
         emit(SyncSessionUploading(uploadCount: uploadedCount,
             totalCount: totalCount, currentFileName: file.fileName, remainingBytes: remainingBytes));

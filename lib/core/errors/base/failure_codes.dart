@@ -29,9 +29,9 @@ class FailureCodes {
   static const String deleteFileError = "DELETE_FILE_ERROR";
 
   // ==================== Sync Session Domain Errors ====================
-  static const String syncSessionNotFound = "SYNC_SESSION_NOT_FOUND";
-  static const String syncSessionAlreadyInProgress = "SYNC_SESSION_ALREADY_IN_PROGRESS";
-  static const String syncSessionNotInProgress = "SYNC_SESSION_NOT_IN_PROGRESS";
+  static const String syncSessionNotFound = "SESSION_NOT_FOUND";
+  static const String syncSessionAlreadyInProgress = "SESSION_ALREADY_IN_PROGRESS";
+  static const String syncSessionNotInProgress = "SESSION_NOT_IN_PROGRESS";
   static const String uploadFileError = "UPLOAD_FILE_ERROR";
 
   // ==================== Folder Domain Errors ====================

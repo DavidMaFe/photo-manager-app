@@ -32,6 +32,8 @@ import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/network/authenticated_http_client.dart';
 import 'package:photo_manager_app/core/services/background_sync_service.dart';
+import 'package:photo_manager_app/features/sync_session/data/data_sources/local/android_sync_keep_alive.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/sync_keep_alive.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/services/sync_log_service.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
@@ -242,6 +244,9 @@ Future<void> init() async {
     () => SyncNotificationService(sl<FlutterLocalNotificationsPlugin>()),
   );
 
+  // Keeps the manual and the background sync alive with the screen off
+  sl.registerLazySingleton<SyncKeepAlive>(() => AndroidSyncKeepAlive(sl<SyncNotificationService>()));
+
   // Sync scheduler service
   sl.registerLazySingleton(
     () => SyncSchedulerService(),
@@ -262,6 +267,7 @@ Future<void> init() async {
       notificationService: sl<SyncNotificationService>(),
       syncLogService: sl<SyncLogService>(),
       syncLock: sl<SyncLock>(),
+      syncKeepAlive: sl<SyncKeepAlive>(),
     ),
   );
 
@@ -940,6 +946,7 @@ Future<void> init() async {
         final mediaLocalDataSource = sl<MediaLocalDataSource>();
         final eventBus = sl<AppEventBus>();
         final syncLock = sl<SyncLock>();
+        final syncKeepAlive = sl<SyncKeepAlive>();
 
         return SyncSessionBloc(
           startSyncSessionUseCase: startSyncSessionUseCase,
@@ -951,6 +958,7 @@ Future<void> init() async {
           mediaLocalDataSource: mediaLocalDataSource,
           eventBus: eventBus,
           syncLock: syncLock,
+          syncKeepAlive: syncKeepAlive,
         );
       }
   );
