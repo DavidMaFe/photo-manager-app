@@ -10,6 +10,7 @@ import 'package:photo_manager_app/features/sync_session/data/data_sources/local/
 import 'package:photo_manager_app/features/sync_session/domain/entities/sync_session.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/sync_keep_alive.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_sync_session_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_sync_session_use_case.dart';
@@ -28,6 +29,7 @@ class MockMediaLocalDataSource extends Mock implements MediaLocalDataSource {}
 class MockAppEventBus extends Mock implements AppEventBus {}
 class MockBuildContext extends Mock implements BuildContext {}
 class MockSyncLock extends Mock implements SyncLock {}
+class MockSyncKeepAlive extends Mock implements SyncKeepAlive {}
 
 class FakeAppEvent extends Fake implements AppEvent {}
 
@@ -43,6 +45,7 @@ void main() {
   late MockAppEventBus mockEventBus;
   late MockBuildContext mockContext;
   late MockSyncLock mockSyncLock;
+  late MockSyncKeepAlive mockKeepAlive;
 
   setUpAll(() {
     registerFallbackValue(FakeAppEvent());
@@ -59,6 +62,7 @@ void main() {
     mockEventBus = MockAppEventBus();
     mockContext = MockBuildContext();
     mockSyncLock = MockSyncLock();
+    mockKeepAlive = MockSyncKeepAlive();
 
     // Mock context.mounted to return true
     when(() => mockContext.mounted).thenReturn(true);
@@ -71,6 +75,8 @@ void main() {
     when(() => mockSyncLock.check()).thenAnswer((_) async => const SyncLockCheck(SyncLockStatus.free));
     when(() => mockSyncLock.acquire()).thenAnswer((_) async {});
     when(() => mockSyncLock.release()).thenAnswer((_) async {});
+    when(() => mockKeepAlive.start()).thenAnswer((_) async {});
+    when(() => mockKeepAlive.stop()).thenAnswer((_) async {});
 
     bloc = SyncSessionBloc(
       startSyncSessionUseCase: mockStartUseCase,
@@ -82,6 +88,7 @@ void main() {
       mediaLocalDataSource: mockMediaDataSource,
       eventBus: mockEventBus,
       syncLock: mockSyncLock,
+      syncKeepAlive: mockKeepAlive,
     );
   });
 
@@ -188,6 +195,7 @@ void main() {
           verifyNever(() => mockStartUseCase(deviceUuid: any(named: 'deviceUuid')));
           verifyNever(() => mockSyncLock.acquire());
           verifyNever(() => mockSyncLock.release());
+          verifyNever(() => mockKeepAlive.start());
         },
       );
 
@@ -270,6 +278,48 @@ void main() {
         },
         verify: (_) {
           verify(() => mockSyncLock.check()).called(2);
+        },
+      );
+    });
+
+    group('SyncKeepAlive', () {
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should keep the app alive from the start and stop it after the lock is no longer needed when the sync fails',
+        setUp: () {
+          when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => 'device-uuid-123');
+          when(() => mockStartUseCase(deviceUuid: 'device-uuid-123')).thenThrow(Exception('Network error'));
+        },
+        build: () => bloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        expect: () => [
+          const SyncSessionStarting(),
+          isA<SyncSessionError>(),
+        ],
+        verify: (_) {
+          verifyInOrder([
+            () => mockSyncLock.acquire(),
+            () => mockKeepAlive.start(),
+            () => mockStartUseCase(deviceUuid: 'device-uuid-123'),
+            () => mockKeepAlive.stop(),
+            () => mockSyncLock.release(),
+          ]);
+        },
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should stop keeping the app alive when the context is no longer mounted',
+        setUp: () {
+          when(() => mockContext.mounted).thenReturn(false);
+          when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => 'device-uuid-123');
+          when(() => mockStartUseCase(deviceUuid: 'device-uuid-123'))
+              .thenAnswer((_) async => SyncSession(id: 'session-123', lastCompletedAt: null));
+        },
+        build: () => bloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        wait: const Duration(milliseconds: 2500),
+        verify: (_) {
+          verify(() => mockKeepAlive.start()).called(1);
+          verify(() => mockKeepAlive.stop()).called(1);
         },
       );
     });

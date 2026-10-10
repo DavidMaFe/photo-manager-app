@@ -155,7 +155,7 @@ class SyncNotificationService {
           ?.startForegroundService(
             _notificationIdProgress,
             'Syncing photos',
-            'Background sync in progress...',
+            'Sync in progress...',
             notificationDetails: androidDetails,
             foregroundServiceTypes: {
               AndroidServiceForegroundType.foregroundServiceTypeDataSync,

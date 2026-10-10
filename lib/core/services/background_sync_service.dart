@@ -14,6 +14,7 @@ import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/sync_keep_alive.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_sync_session_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_sync_session_use_case.dart';
@@ -69,6 +70,7 @@ class BackgroundSyncService {
   final SyncNotificationService notificationService;
   final SyncLogService syncLogService;
   final SyncLock syncLock;
+  final SyncKeepAlive syncKeepAlive;
 
   static const String _lastSyncAttemptKey = 'LAST_SYNC_ATTEMPT';
   static const String _lastSyncAuthFailureKey = 'SYNC_LAST_FAILURE_IS_AUTH';
@@ -87,6 +89,7 @@ class BackgroundSyncService {
     required this.notificationService,
     required this.syncLogService,
     required this.syncLock,
+    required this.syncKeepAlive,
   });
 
   /// Execute background sync.
@@ -138,7 +141,7 @@ class BackgroundSyncService {
       try {
         // 7. Start foreground service (Android 12+)
         try {
-          await notificationService.showForegroundNotification();
+          await syncKeepAlive.start();
           syncLogService.write('✓ Servicio en primer plano iniciado');
         } catch (e) {
           syncLogService.write('⚠ Servicio en primer plano falló ($e) — continúa');
@@ -148,7 +151,7 @@ class BackgroundSyncService {
         final result = await _performSync(syncConfig);
 
         // 9. Stop foreground service
-        await notificationService.hideForegroundNotification();
+        await syncKeepAlive.stop();
 
         if (result.success) {
           _recordSuccessfulSync();
@@ -179,7 +182,7 @@ class BackgroundSyncService {
         return result.success;
       } finally {
         await syncLock.release();
-        await notificationService.hideForegroundNotification();
+        await syncKeepAlive.stop();
       }
     } catch (e, stackTrace) {
       developer.log(
@@ -352,6 +355,7 @@ class BackgroundSyncService {
           // Never the name of the file: it is metadata that the server only receives encrypted
           syncLogService.write('⚠ Error subiendo el archivo ${filesToUpload.indexOf(file) + 1}/${filesToUpload.length}: $e');
         }
+        await syncKeepAlive.update(current: filesToUpload.indexOf(file) + 1, total: filesToUpload.length);
       }
 
       await completeSyncSessionUseCase(sessionId: sessionId);
