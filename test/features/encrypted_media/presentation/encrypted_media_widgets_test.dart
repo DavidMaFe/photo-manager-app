@@ -13,8 +13,10 @@ import 'package:photo_manager_app/features/encrypted_media/domain/entities/media
 import 'package:photo_manager_app/features/encrypted_media/domain/services/video_stream_server.dart';
 import 'package:photo_manager_app/features/encrypted_media/domain/use_cases/get_file_metadata_use_case.dart';
 import 'package:photo_manager_app/features/encrypted_media/domain/use_cases/load_media_use_case.dart';
+import 'package:photo_manager_app/features/encrypted_media/presentation/encrypted_image_provider.dart';
 import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_image.dart';
 import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_photo_viewer.dart';
+import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/zoomable_encrypted_photo.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/video_player_widget.dart';
 
 import '../../../helpers/widget_test_helper.dart';
@@ -130,6 +132,95 @@ void main() {
       await tester.pump();
 
       expect(find.byKey(const ValueKey('encrypted-image-1-thumbnail')), findsOneWidget);
+    });
+  });
+
+  group('EncryptedPhotoViewer with a 2048 px version', () {
+    testWidgets('should open the 2048 px version and not download the original', (tester) async {
+      when(() => loadMedia('1', MediaVariant.preview)).thenAnswer((_) => Completer<Uint8List>().future);
+      when(() => loadMedia('1', MediaVariant.thumbnail)).thenAnswer((_) => Completer<Uint8List>().future);
+
+      await pump(tester, EncryptedPhotoViewer(fileId: '1', hasPreview: true, loadMedia: loadMedia));
+      await tester.pump();
+
+      // The thumbnail is on screen while the 2048 px version is decrypted
+      expect(find.byKey(const ValueKey('encrypted-image-1-thumbnail')), findsOneWidget);
+      verify(() => loadMedia('1', MediaVariant.preview)).called(1);
+      verifyNever(() => loadMedia('1', MediaVariant.original));
+    });
+
+    testWidgets('should keep the 2048 px version on screen while the original is decrypted', (tester) async {
+      when(() => loadMedia('1', MediaVariant.preview)).thenAnswer((_) async => onePixelPng);
+      when(() => loadMedia('1', MediaVariant.original)).thenAnswer((_) => Completer<Uint8List>().future);
+      when(() => loadMedia('1', MediaVariant.thumbnail)).thenAnswer((_) => Completer<Uint8List>().future);
+
+      await tester.runAsync(() async {
+        await pump(tester, EncryptedPhotoViewer(fileId: '1', hasPreview: true, showOriginal: true, loadMedia: loadMedia));
+        await precacheImage(
+            EncryptedImageProvider(fileId: '1', variant: MediaVariant.preview, loadMedia: loadMedia),
+            tester.element(find.byType(EncryptedPhotoViewer)));
+      });
+      await tester.pump();
+
+      expect(find.byKey(const ValueKey('encrypted-photo-1-preview')), findsOneWidget);
+      verify(() => loadMedia('1', MediaVariant.original)).called(1);
+    });
+
+    testWidgets('should keep the 2048 px version when the original fails', (tester) async {
+      when(() => loadMedia('1', MediaVariant.preview)).thenAnswer((_) => Completer<Uint8List>().future);
+      when(() => loadMedia('1', MediaVariant.original)).thenAnswer((_) => Future.error(Exception('network')));
+      when(() => loadMedia('1', MediaVariant.thumbnail)).thenAnswer((_) => Completer<Uint8List>().future);
+
+      await pump(tester, EncryptedPhotoViewer(fileId: '1', hasPreview: true, showOriginal: true, loadMedia: loadMedia));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byKey(const ValueKey('encrypted-photo-1-preview')), findsOneWidget);
+    });
+  });
+
+  group('ZoomableEncryptedPhoto', () {
+    void setScale(WidgetTester tester, double scale) {
+      tester.widget<InteractiveViewer>(find.byType(InteractiveViewer)).transformationController!.value =
+          Matrix4.diagonal3Values(scale, scale, 1);
+    }
+
+    setUp(() {
+      when(() => loadMedia(any(), any())).thenAnswer((_) => Completer<Uint8List>().future);
+    });
+
+    testWidgets('should download the original only when the zoom goes past the threshold', (tester) async {
+      await pump(tester, ZoomableEncryptedPhoto(fileId: '1', hasPreview: true, loadMedia: loadMedia));
+      await tester.pump();
+      verifyNever(() => loadMedia('1', MediaVariant.original));
+
+      // A small zoom keeps the 2048 px version
+      setScale(tester, ZoomableEncryptedPhoto.originalZoomThreshold - 0.2);
+      await tester.pump();
+      verifyNever(() => loadMedia('1', MediaVariant.original));
+
+      setScale(tester, 2);
+      await tester.pump();
+      verify(() => loadMedia('1', MediaVariant.original)).called(1);
+    });
+
+    testWidgets('should keep the original after zooming out', (tester) async {
+      await pump(tester, ZoomableEncryptedPhoto(fileId: '1', hasPreview: true, loadMedia: loadMedia));
+      setScale(tester, 3);
+      await tester.pump();
+
+      setScale(tester, 1);
+      await tester.pump();
+
+      expect(tester.widget<EncryptedPhotoViewer>(find.byType(EncryptedPhotoViewer)).showOriginal, isTrue);
+    });
+
+    testWidgets('should open the original directly when the file has no 2048 px version', (tester) async {
+      await pump(tester, ZoomableEncryptedPhoto(fileId: '1', loadMedia: loadMedia));
+      await tester.pump();
+
+      verify(() => loadMedia('1', MediaVariant.original)).called(1);
+      verifyNever(() => loadMedia('1', MediaVariant.preview));
     });
   });
 

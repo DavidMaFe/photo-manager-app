@@ -33,7 +33,11 @@ class EncryptedMediaRemoteDataSourceImpl implements EncryptedMediaRemoteDataSour
 
   @override
   Future<Uint8List> getObject(String fileId, MediaVariant variant) async {
-    final suffix = variant == MediaVariant.thumbnail ? 'thumbnail/' : '';
+    final suffix = switch (variant) {
+      MediaVariant.thumbnail => 'thumbnail/',
+      MediaVariant.preview => 'preview/',
+      MediaVariant.original => '',
+    };
     final response = await _send(() => client.get(Uri.parse('$baseUrl/api/file/$fileId/$suffix')));
     _check(response, 200);
     return response.bodyBytes;

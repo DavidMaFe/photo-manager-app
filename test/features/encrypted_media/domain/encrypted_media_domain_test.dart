@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_manager_app/core/crypto/data/sodium_crypto_engine.dart';
 import 'package:photo_manager_app/core/crypto/domain/key_material.dart';
+import 'package:photo_manager_app/core/jpeg_xl/domain/jpeg_xl_codec.dart';
 import 'package:photo_manager_app/features/encrypted_media/domain/entities/media_failures.dart';
 import 'package:photo_manager_app/features/encrypted_media/domain/entities/media_variant.dart';
 import 'package:photo_manager_app/features/encrypted_media/domain/services/decrypted_range_reader.dart';
@@ -11,6 +14,7 @@ import 'package:photo_manager_app/features/encrypted_media/domain/use_cases/get_
 import 'package:photo_manager_app/features/encrypted_media/domain/use_cases/load_media_use_case.dart';
 
 import '../../../helpers/e2ee_test_kit.dart';
+import '../../../helpers/fake_jpeg_xl_codec.dart';
 import '../../../helpers/recording_file_key_repository.dart';
 import '../helpers/encrypted_media_fixtures.dart';
 
@@ -32,6 +36,7 @@ void main() {
   late RecordingFileKeyRepository fileKeys;
   late FakeEncryptedMediaRepository media;
   late FileKeyUnwrapper unwrapper;
+  late FakeJpegXlCodec jpegXl;
 
   setUp(() async {
     kit = await E2eeTestKit.create();
@@ -43,6 +48,7 @@ void main() {
     fileKeys = keysOf([video]);
     media = FakeEncryptedMediaRepository({video.fileId: video});
     unwrapper = FileKeyUnwrapper(engine, kit.store, fileKeys);
+    jpegXl = FakeJpegXlCodec();
   });
 
   group('FileKeyUnwrapper', () {
@@ -78,22 +84,60 @@ void main() {
 
   group('LoadMediaUseCase', () {
     test('should decrypt the thumbnail', () async {
-      final bytes = await LoadMediaUseCase(media, unwrapper, engine)(video.fileId, MediaVariant.thumbnail);
+      final bytes = await LoadMediaUseCase(media, unwrapper, engine, jpegXl)(video.fileId, MediaVariant.thumbnail);
 
       expect(bytes, video.thumbnail);
     });
 
+    test('should decrypt the 2048 px version of several chunks', () async {
+      final bytes = await LoadMediaUseCase(media, unwrapper, engine, jpegXl)(video.fileId, MediaVariant.preview);
+
+      expect(bytes, video.preview);
+    });
+
     test('should decrypt the original in another isolate', () async {
-      final bytes = await LoadMediaUseCase(media, unwrapper, engine)(video.fileId, MediaVariant.original);
+      final bytes = await LoadMediaUseCase(media, unwrapper, engine, jpegXl)(video.fileId, MediaVariant.original);
 
       expect(bytes, video.plain);
+    });
+
+    test('should give back the exact JPEG of an original stored in JPEG XL', () async {
+      // Given: A photo whose original was uploaded in JPEG XL
+      final jpeg = Uint8List.fromList(List.generate(3000, (i) => (i * 5) & 0xff));
+      final jxl = Uint8List.fromList([...FakeJpegXlCodec.signature, ...List.filled(2000, 1)]);
+      jpegXl.remember(jxl, jpeg);
+      final photo = await EncryptedTestFile.create(engine, account.masterKey, fileId: '9', plain: jxl);
+      fileKeys.remember([photo.ref]);
+      media.files['9'] = photo;
+
+      final bytes = await LoadMediaUseCase(media, unwrapper, engine, jpegXl)('9', MediaVariant.original);
+
+      expect(bytes, jpeg);
+    });
+
+    test('should not touch originals that are not JPEG XL, nor the other versions', () async {
+      await LoadMediaUseCase(media, unwrapper, engine, jpegXl)(video.fileId, MediaVariant.original);
+      await LoadMediaUseCase(media, unwrapper, engine, jpegXl)(video.fileId, MediaVariant.preview);
+
+      expect(jpegXl.reconstructions, 0);
+    });
+
+    test('should throw JpegXlUnavailableFailure when this device cannot rebuild the JPEG', () async {
+      jpegXl.unavailable = true;
+      final jxl = Uint8List.fromList([...FakeJpegXlCodec.signature, ...List.filled(2000, 1)]);
+      final photo = await EncryptedTestFile.create(engine, account.masterKey, fileId: '9', plain: jxl);
+      fileKeys.remember([photo.ref]);
+      media.files['9'] = photo;
+
+      await expectLater(LoadMediaUseCase(media, unwrapper, engine, jpegXl)('9', MediaVariant.original),
+          throwsA(isA<JpegXlUnavailableFailure>()));
     });
 
     test('should not download anything for a locked file', () async {
       final locked = await EncryptedTestFile.create(engine, account.masterKey, fileId: '8', keyVersion: 4);
       fileKeys.remember([locked.ref]);
 
-      await expectLater(LoadMediaUseCase(media, unwrapper, engine)('8', MediaVariant.thumbnail),
+      await expectLater(LoadMediaUseCase(media, unwrapper, engine, jpegXl)('8', MediaVariant.thumbnail),
           throwsA(isA<LockedFileFailure>()));
       expect(media.objectRequests, 0);
     });

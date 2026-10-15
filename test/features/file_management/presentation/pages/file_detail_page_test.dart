@@ -11,6 +11,7 @@ import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_thumbnail_strip.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_top_bar.dart';
+import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/zoomable_encrypted_photo.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_event.dart';
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_state.dart';
@@ -133,6 +134,24 @@ void main() {
       final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
       expect(scaffold.backgroundColor, AppPalette.light.media);
       expect(find.byType(PageView), findsOneWidget);
+    });
+
+    testWidgets('should open the photos with their 2048 px version when they have one', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(createWidgetUnderTest(files: [
+        GalleryFile(id: 'new', type: FileType.image, status: FileStatus.managed, capturedAt: now, hasPreview: true),
+      ]));
+
+      // Assert
+      final photo = tester.widget<ZoomableEncryptedPhoto>(find.byType(ZoomableEncryptedPhoto));
+      expect(photo.fileId, 'new');
+      expect(photo.hasPreview, isTrue);
+    });
+
+    testWidgets('should open the original of the photos uploaded before the 2048 px version', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest(files: testFiles));
+
+      expect(tester.widget<ZoomableEncryptedPhoto>(find.byType(ZoomableEncryptedPhoto)).hasPreview, isFalse);
     });
 
     testWidgets('should show the capture day and time in the top bar', (tester) async {

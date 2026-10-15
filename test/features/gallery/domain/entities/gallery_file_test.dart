@@ -278,8 +278,16 @@ void main() {
       // Assert
       expect(
         galleryFile.props,
-        equals(['file-1', FileType.video, FileStatus.pending, 120, testDate, 0, false, const <String>[]]),
+        // sizeBytes, isFavorite, hasPreview and coverOf take their defaults
+        equals(['file-1', FileType.video, FileStatus.pending, 120, testDate, 0, false, false, const <String>[]]),
       );
+    });
+
+    test('should not have a 2048 px version by default', () {
+      final galleryFile = GalleryFile(id: 'file-1', type: FileType.image, status: FileStatus.managed, capturedAt: testDate);
+
+      expect(galleryFile.hasPreview, isFalse);
+      expect(galleryFile.copyWith(hasPreview: true).hasPreview, isTrue);
     });
 
     test('should default sizeBytes to 0', () {

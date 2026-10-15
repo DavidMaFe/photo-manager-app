@@ -31,6 +31,12 @@ void main() {
     test('should not give a side of 0 for very long panoramas', () {
       expect(PhotoManagerThumbnailSource.sizeFor(40000, 10), (512, 1));
     });
+
+    test('should fit the 2048 px version of the viewer in its own long side', () {
+      expect(PhotoManagerThumbnailSource.sizeFor(4080, 3060, longSide: 2048), (2048, 1536));
+      expect(PhotoManagerThumbnailSource.sizeFor(3060, 4080, longSide: 2048), (1536, 2048));
+      expect(PhotoManagerThumbnailSource.sizeFor(1080, 1920, longSide: 2048), (1080, 1920));
+    });
   });
 
   group('AppTemporaryFiles', () {

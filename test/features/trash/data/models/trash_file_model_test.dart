@@ -52,6 +52,21 @@ void main() {
         expect(model.originalFolderName, 'Vacations');
       });
 
+      test('should know whether the file has a 2048 px version', () {
+        final json = {
+          'id': 1,
+          'type': 'IMAGE',
+          'status': 'DELETED',
+          'capturedAt': null,
+          'deletedAt': '2024-01-20T15:45:00.000Z',
+          'sizeBytes': 1024,
+        };
+
+        expect(TrashFileModel.fromJson({...json, 'hasPreview': true}).hasPreview, isTrue);
+        expect(TrashFileModel.fromJson(json).hasPreview, isFalse);
+        expect(TrashFileModel.fromJson({...json, 'hasPreview': true}).copyWith(sizeBytes: 1).hasPreview, isTrue);
+      });
+
       test('should parse JSON with video file and duration', () {
         // Arrange
         final json = {

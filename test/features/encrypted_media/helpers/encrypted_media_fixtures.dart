@@ -18,17 +18,24 @@ class EncryptedTestFile {
   final String fileId;
   final Uint8List plain;
   final Uint8List thumbnail;
+
+  /// The 2048 px version: 2500 bytes, so it has several chunks of 1 KiB with [smallChunkEngine].
+  final Uint8List preview;
   final Map<String, Object?> metadata;
   late final EncryptedFileRef ref;
   late final Uint8List encryptedOriginal;
   late final Uint8List encryptedThumbnail;
+  late final Uint8List encryptedPreview;
 
-  EncryptedTestFile._(this.fileId, this.plain, this.thumbnail, this.metadata);
+  EncryptedTestFile._(this.fileId, this.plain, this.thumbnail, this.preview, this.metadata);
 
   static Future<EncryptedTestFile> create(SodiumCryptoEngine engine, CryptoKey masterKey,
-      {String fileId = '7', int plainLength = 5000, int keyVersion = 1, String mime = 'video/mp4'}) async {
-    final file = EncryptedTestFile._(fileId, Uint8List.fromList(List.generate(plainLength, (i) => (i * 7 + 3) & 0xff)),
-        Uint8List.fromList(List.filled(300, 9)), {'v': 1, 'name': 'VID_$fileId.mp4', 'mime': mime});
+      {String fileId = '7', int plainLength = 5000, int keyVersion = 1, String mime = 'video/mp4',
+      Uint8List? plain}) async {
+    final file = EncryptedTestFile._(fileId,
+        plain ?? Uint8List.fromList(List.generate(plainLength, (i) => (i * 7 + 3) & 0xff)),
+        Uint8List.fromList(List.filled(300, 9)), Uint8List.fromList(List.generate(2500, (i) => (i * 3) & 0xff)),
+        {'v': 1, 'name': 'VID_$fileId.mp4', 'mime': mime});
     final fileKey = engine.generateKey();
     final dir = await Directory.systemTemp.createTemp('encrypted_test_file');
     try {
@@ -40,6 +47,7 @@ class EncryptedTestFile {
       await dir.delete(recursive: true);
     }
     file.encryptedThumbnail = engine.encryptBytes(fileKey, file.thumbnail);
+    file.encryptedPreview = engine.encryptBytes(fileKey, file.preview);
     file.ref = EncryptedFileRef(
       fileId: fileId,
       keyVersion: keyVersion,
@@ -69,7 +77,11 @@ class FakeEncryptedMediaRepository implements EncryptedMediaRepository {
   Future<Uint8List> object(String fileId, MediaVariant variant) async {
     objectRequests++;
     final file = files[fileId]!;
-    return variant == MediaVariant.thumbnail ? file.encryptedThumbnail : file.encryptedOriginal;
+    return switch (variant) {
+      MediaVariant.thumbnail => file.encryptedThumbnail,
+      MediaVariant.preview => file.encryptedPreview,
+      MediaVariant.original => file.encryptedOriginal,
+    };
   }
 
   @override

@@ -20,6 +20,7 @@ class GalleryFileModel extends GalleryFile {
     required super.capturedAt,
     super.sizeBytes,
     super.isFavorite,
+    super.hasPreview,
     super.coverOf
   });
 
@@ -33,6 +34,7 @@ class GalleryFileModel extends GalleryFile {
       capturedAt: capturedAt != null ? DateTime.parse(capturedAt) : null,
       sizeBytes: json['sizeBytes'] as int? ?? 0,
       isFavorite: json['isFavorite'] as bool? ?? false,
+      hasPreview: json['hasPreview'] as bool? ?? false,
       coverOf: (json['coverOf'] as List<dynamic>? ?? const []).map((id) => id.toString()).toList(),
       encryptedRef: EncryptedFileRefModel.fromJson(json)
     );
@@ -47,6 +49,7 @@ class GalleryFileModel extends GalleryFile {
       'capturedAt': capturedAt?.toIso8601String(),
       'sizeBytes': sizeBytes,
       'isFavorite': isFavorite,
+      'hasPreview': hasPreview,
       'coverOf': coverOf
     };
   }
@@ -60,6 +63,7 @@ class GalleryFileModel extends GalleryFile {
       capturedAt: file.capturedAt,
       sizeBytes: file.sizeBytes,
       isFavorite: file.isFavorite,
+      hasPreview: file.hasPreview,
       coverOf: file.coverOf
     );
   }

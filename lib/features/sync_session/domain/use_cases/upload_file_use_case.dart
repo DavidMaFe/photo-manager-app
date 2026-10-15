@@ -7,24 +7,31 @@ import 'package:photo_manager_app/features/sync_session/domain/entities/sync_fil
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/dedup_hasher.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/media_thumbnail_source.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/original_recompressor.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/temporary_files.dart';
 
 import '../entities/upload_result.dart';
 
 
 /// Encrypts a file of the device and uploads it (docs/e2ee-spec.md, sections 6 and 7):
-/// a new key for the file encrypts the content (to a temporary file, chunk by chunk), the thumbnail and the metadata;
-/// the key travels wrapped with the current master key.
+/// a new key for the file encrypts the content (to a temporary file, chunk by chunk), the thumbnail, the 2048 px
+/// version of images bigger than that (ROADMAP-media-compression.md) and the metadata; the key travels wrapped with
+/// the current master key. A JPEG is uploaded recompressed into JPEG XL without loss when it can be (`enc: jxl` in the
+/// metadata, docs/e2ee-spec.md section 7.1); the duplicate hash is still the one of the JPEG of the device.
 class UploadFileUseCase {
+
+  /// The server rejects a bigger 2048 px version (INVALID_FILE_PREVIEW): the file is uploaded without it.
+  static const int maxEncryptedPreviewBytes = 4 * 1024 * 1024;
 
   final SyncSessionRepository _syncSessionRepository;
   final CryptoEngine _cryptoEngine;
   final MasterKeyStore _masterKeyStore;
   final MediaThumbnailSource _thumbnailSource;
   final TemporaryFiles _temporaryFiles;
+  final OriginalRecompressor _recompressor;
 
   UploadFileUseCase(this._syncSessionRepository, this._cryptoEngine, this._masterKeyStore, this._thumbnailSource,
-      this._temporaryFiles);
+      this._temporaryFiles, this._recompressor);
 
   /// Throws MissingCurrentKeyFailure if this device has no current master key.
   Future<UploadResult> call({required String sessionId, required SyncFile file}) async {
@@ -37,12 +44,22 @@ class UploadFileUseCase {
     final dedupKey = _cryptoEngine.dedupKey(masterKey.key);
     final encryptedFile = await _temporaryFiles.create('.pmef');
     try {
-      await _cryptoEngine.encryptFile(fileKey, file.file, encryptedFile);
+      final jpegXl = await _recompressor.jpegXlOf(file);
+      if (jpegXl != null) {
+        await encryptedFile.writeAsBytes(_cryptoEngine.encryptBytes(fileKey, jpegXl), flush: true);
+      } else {
+        await _cryptoEngine.encryptFile(fileKey, file.file, encryptedFile);
+      }
       final thumbnail = await _thumbnailSource.thumbnail(file);
+      final preview = file.isImage ? await _thumbnailSource.preview(file) : null;
+      final encryptedPreview = preview == null ? null : _cryptoEngine.encryptBytes(fileKey, preview);
 
       final upload = EncryptedUpload(
         encryptedFile: encryptedFile,
         encryptedThumbnail: thumbnail == null ? null : _cryptoEngine.encryptBytes(fileKey, thumbnail),
+        encryptedPreview: encryptedPreview != null && encryptedPreview.length <= maxEncryptedPreviewBytes
+            ? encryptedPreview
+            : null,
         dedupHash: _cryptoEngine.dedupHash(dedupKey, DedupHasher.hexToBytes(file.hash)),
         isVideo: file.isVideo,
         capturedAt: file.capturedAt,
@@ -51,7 +68,12 @@ class UploadFileUseCase {
         durationSeconds: file.durationSeconds,
         keyVersion: masterKey.version,
         encryptedFileKey: _cryptoEngine.wrapKey(masterKey.key, fileKey.bytes, WrapPurpose.fileKey),
-        encryptedMetadata: _cryptoEngine.encryptMetadata(fileKey, {'v': 1, 'name': file.fileName, 'mime': file.mimeType}),
+        encryptedMetadata: _cryptoEngine.encryptMetadata(fileKey, {
+          'v': jpegXl != null ? 2 : 1,
+          'name': file.fileName,
+          'mime': file.mimeType,
+          if (jpegXl != null) 'enc': 'jxl',
+        }),
       );
 
       final serverId = await _syncSessionRepository.uploadFile(sessionId: sessionId, upload: upload);

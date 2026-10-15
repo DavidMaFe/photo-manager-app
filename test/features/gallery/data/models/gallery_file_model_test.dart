@@ -41,6 +41,20 @@ void main() {
       expect(model.capturedAt, DateTime.parse('2024-01-15T10:30:00.000Z'));
     });
 
+    test('should know whether the file has a 2048 px version', () {
+      final withPreview = GalleryFileModel.fromJson(
+          const {'id': 1, 'type': 'IMAGE', 'status': 'MANAGED', 'capturedAt': null, 'hasPreview': true});
+      final olderServer =
+          GalleryFileModel.fromJson(const {'id': 2, 'type': 'IMAGE', 'status': 'MANAGED', 'capturedAt': null});
+
+      expect(withPreview.hasPreview, isTrue);
+      expect(olderServer.hasPreview, isFalse);
+      expect(withPreview.toJson()['hasPreview'], isTrue);
+      expect(GalleryFileModel.fromEntity(withPreview).hasPreview, isTrue);
+      expect(withPreview.copyWith(isFavorite: true).hasPreview, isTrue);
+      expect(withPreview, isNot(equals(withPreview.copyWith(hasPreview: false))));
+    });
+
     test('should parse JSON with video file and duration', () {
       // Arrange
       final json = {

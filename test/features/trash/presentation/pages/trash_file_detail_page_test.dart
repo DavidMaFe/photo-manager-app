@@ -7,6 +7,7 @@ import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_top_bar.dart';
+import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/zoomable_encrypted_photo.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_info/file_info_bloc.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_info/file_info_event.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_info/file_info_state.dart';
@@ -79,6 +80,22 @@ void main() {
       expect(find.text('Deleted in 12 days'), findsOneWidget);
       expect(find.text('Restore'), findsOneWidget);
       expect(find.text('Delete forever'), findsOneWidget);
+    });
+
+    testWidgets('should open a photo of the trash with its 2048 px version', (tester) async {
+      await pump(tester, [
+        TrashFile(
+          id: 'new',
+          type: FileType.image,
+          status: FileStatus.managed,
+          capturedAt: null,
+          deletedAt: DateTime.now(),
+          sizeBytes: 10,
+          hasPreview: true,
+        ),
+      ]);
+
+      expect(tester.widget<ZoomableEncryptedPhoto>(find.byType(ZoomableEncryptedPhoto)).hasPreview, isTrue);
     });
 
     testWidgets('should show "No date" in the top bar when the file has no capture date', (tester) async {

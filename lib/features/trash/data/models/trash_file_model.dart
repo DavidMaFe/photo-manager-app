@@ -17,6 +17,7 @@ class TrashFileModel extends TrashFile {
     required super.deletedAt,
     required super.sizeBytes,
     super.durationSeconds,
+    super.hasPreview,
     super.originalFolderId,
     super.originalFolderName,
   });
@@ -35,6 +36,7 @@ class TrashFileModel extends TrashFile {
       deletedAt: DateTime.parse(json['deletedAt'] as String),
       sizeBytes: json['sizeBytes'] as int,
       durationSeconds: json['durationSeconds'] as int?,
+      hasPreview: json['hasPreview'] as bool? ?? false,
       originalFolderId: json['originalFolderId']?.toString(),
       originalFolderName: json['originalFolderName'] as String?,
       encryptedRef: EncryptedFileRefModel.fromJson(json),
@@ -50,6 +52,7 @@ class TrashFileModel extends TrashFile {
       'deletedAt': deletedAt.toIso8601String(),
       'sizeBytes': sizeBytes,
       'durationSeconds': durationSeconds,
+      'hasPreview': hasPreview,
       'originalFolderId': originalFolderId,
       'originalFolderName': originalFolderName,
     };
@@ -64,6 +67,7 @@ class TrashFileModel extends TrashFile {
       deletedAt: file.deletedAt,
       sizeBytes: file.sizeBytes,
       durationSeconds: file.durationSeconds,
+      hasPreview: file.hasPreview,
       originalFolderId: file.originalFolderId,
       originalFolderName: file.originalFolderName,
     );
