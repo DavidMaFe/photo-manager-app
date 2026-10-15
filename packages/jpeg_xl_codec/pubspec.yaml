@@ -1,0 +1,22 @@
+name: jpeg_xl_codec
+description: "Lossless JPEG <-> JPEG XL recompression for Photo Manager (Android, jxl-coder 2.6.1 / libjxl 0.10.1)."
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ^3.10.1
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.photomanagerpro.jpeg_xl_codec
+        pluginClass: JpegXlCodecPlugin

@@ -1,5 +1,7 @@
 import 'package:flutter/painting.dart';
 
+import 'package:photo_manager_app/core/jpeg_xl/data/platform_jpeg_xl_codec.dart';
+import 'package:photo_manager_app/core/jpeg_xl/domain/jpeg_xl_codec.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/device_reset_password_bloc.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/locked_account_bloc.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/verify_recovery_phrase_bloc.dart';
@@ -33,6 +35,7 @@ import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/network/authenticated_http_client.dart';
 import 'package:photo_manager_app/core/services/background_sync_service.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/android_sync_keep_alive.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/original_recompressor.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/sync_keep_alive.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/services/sync_log_service.dart';
@@ -208,6 +211,8 @@ Future<void> init() async {
   // Encrypted upload (Phase 5): keyed hashes for duplicates, thumbnails of the gallery and temporary files
   sl.registerLazySingleton(() => DedupHasher(sl<CryptoEngine>(), sl<MasterKeyLocalDataSource>()));
   sl.registerLazySingleton<MediaThumbnailSource>(() => const PhotoManagerThumbnailSource());
+  sl.registerLazySingleton<JpegXlCodec>(() => const PlatformJpegXlCodec());
+  sl.registerLazySingleton(() => OriginalRecompressor(sl<JpegXlCodec>()));
   sl.registerLazySingleton<TemporaryFiles>(() => AppTemporaryFiles());
   // Encrypted viewing (Phase 6): keys of the files, encrypted cache, decryption and the local video proxy
   sl.registerLazySingleton<EncryptedMediaRemoteDataSource>(
@@ -222,7 +227,8 @@ Future<void> init() async {
       () => DecryptedRangeReader(sl<EncryptedMediaRepository>(), sl<FileKeyUnwrapper>(), sl<CryptoEngine>()));
   sl.registerLazySingleton<VideoStreamServer>(() => LocalVideoStreamServer(sl<DecryptedRangeReader>()));
   sl.registerLazySingleton(
-      () => LoadMediaUseCase(sl<EncryptedMediaRepository>(), sl<FileKeyUnwrapper>(), sl<CryptoEngine>()));
+      () => LoadMediaUseCase(sl<EncryptedMediaRepository>(), sl<FileKeyUnwrapper>(), sl<CryptoEngine>(),
+          sl<JpegXlCodec>()));
   sl.registerLazySingleton(
       () => GetFileMetadataUseCase(sl<FileKeyRepository>(), sl<FileKeyUnwrapper>(), sl<CryptoEngine>()));
   sl.registerLazySingleton(() => ClearMediaDataUseCase(sl<FileKeyRepository>(), sl<FileKeyUnwrapper>(),
@@ -719,7 +725,7 @@ Future<void> init() async {
           () {
         final syncSessionRepository = sl<SyncSessionRepository>();
         return UploadFileUseCase(syncSessionRepository, sl<CryptoEngine>(), sl<MasterKeyLocalDataSource>(),
-            sl<MediaThumbnailSource>(), sl<TemporaryFiles>());
+            sl<MediaThumbnailSource>(), sl<TemporaryFiles>(), sl<OriginalRecompressor>());
       }
   );
 

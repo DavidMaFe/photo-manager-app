@@ -14,9 +14,12 @@ import 'package:photo_manager_app/features/sync_session/domain/entities/encrypte
 import 'package:photo_manager_app/features/sync_session/domain/entities/sync_file.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/media_thumbnail_source.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/original_recompressor.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
 
 import '../../../../helpers/e2ee_test_kit.dart';
+import '../../../../helpers/fake_jpeg_xl_codec.dart';
+import '../../../../helpers/jpeg_test_bytes.dart';
 
 class MockSyncSessionRepository extends Mock implements SyncSessionRepository {}
 
@@ -51,6 +54,7 @@ void main() {
   late UploadFileUseCase useCase;
   late NewKeyMaterial account;
   late List<_Sent> sent;
+  late FakeJpegXlCodec jpegXl;
 
   const sessionId = 'session_123';
   final content = Uint8List.fromList(List.generate(3 * 1024 * 1024 + 123, (i) => (i * 31) & 0xff));
@@ -66,8 +70,9 @@ void main() {
       ..thumbnailBytes = Uint8List.fromList(List.filled(20000, 7))
       ..previewBytes = Uint8List.fromList(List.filled(600000, 9));
     tempDir = await Directory.systemTemp.createTemp('upload_use_case');
+    jpegXl = FakeJpegXlCodec();
     useCase = UploadFileUseCase(repository, kit.engine, kit.store, thumbnails,
-        AppTemporaryFiles(baseDirectory: () async => tempDir));
+        AppTemporaryFiles(baseDirectory: () async => tempDir), OriginalRecompressor(jpegXl));
     sent = [];
 
     when(() => repository.uploadFile(sessionId: any(named: 'sessionId'), upload: any(named: 'upload')))
@@ -98,9 +103,32 @@ void main() {
     );
   }
 
+  /// A JPEG of the camera, which is recompressed into JPEG XL.
+  Future<SyncFile> jpeg(Uint8List bytes) async {
+    final file = File('${tempDir.path}/IMG_0002.jpg')..writeAsBytesSync(bytes);
+    return SyncFile(
+      localId: 'local-2',
+      devicePath: file.path,
+      hash: sha256.convert(bytes).toString(),
+      fileName: 'IMG_0002.jpg',
+      sizeBytes: bytes.length,
+      capturedAt: DateTime(2024, 8, 15, 18, 30),
+      mimeType: 'image/jpeg',
+      width: 4080,
+      height: 3060,
+    );
+  }
+
   /// The key of the file, unwrapped with the master key as the viewing device will do.
   CryptoKey fileKeyOf(EncryptedUpload upload) =>
       CryptoKey(kit.engine.unwrapKey(account.masterKey, upload.encryptedFileKey, WrapPurpose.fileKey));
+
+  Future<Uint8List> decryptedOriginal(_Sent sent) async {
+    final encrypted = File('${tempDir.path}/check.pmef')..writeAsBytesSync(sent.encryptedFile);
+    final decrypted = File('${tempDir.path}/check.out');
+    await kit.engine.decryptFile(fileKeyOf(sent.upload), encrypted, decrypted);
+    return decrypted.readAsBytes();
+  }
 
   Directory uploadsDir() => Directory('${tempDir.path}/uploads');
 
@@ -152,6 +180,39 @@ void main() {
 
       final upload = sent.single.upload;
       expect(kit.engine.decryptBytes(fileKeyOf(upload), upload.encryptedPreview!), thumbnails.previewBytes);
+    });
+
+    test('should upload a JPEG recompressed into JPEG XL and say so in the encrypted metadata', () async {
+      final bytes = JpegTestBytes.baseline(tail: List.filled(5000, 3));
+
+      await useCase(sessionId: sessionId, file: await jpeg(bytes));
+
+      final original = await decryptedOriginal(sent.single);
+      expect(original.sublist(0, FakeJpegXlCodec.signature.length), FakeJpegXlCodec.signature);
+      expect(original.length, lessThan(bytes.length));
+      expect(await jpegXl.jxlToJpeg(original), bytes);
+      expect(kit.engine.decryptMetadata(fileKeyOf(sent.single.upload), sent.single.upload.encryptedMetadata),
+          {'v': 2, 'name': 'IMG_0002.jpg', 'mime': 'image/jpeg', 'enc': 'jxl'});
+    });
+
+    test('should keep the duplicate hash of the JPEG of the device', () async {
+      final bytes = JpegTestBytes.baseline(tail: List.filled(5000, 3));
+
+      await useCase(sessionId: sessionId, file: await jpeg(bytes));
+
+      final dedupKey = kit.engine.dedupKey(account.masterKey);
+      expect(sent.single.upload.dedupHash,
+          kit.engine.dedupHash(dedupKey, Uint8List.fromList(sha256.convert(bytes).bytes)));
+    });
+
+    test('should upload a JPEG as it is when it cannot be recompressed', () async {
+      final bytes = JpegTestBytes.progressiveWithEmptyDht();
+
+      await useCase(sessionId: sessionId, file: await jpeg(bytes));
+
+      expect(await decryptedOriginal(sent.single), bytes);
+      expect(kit.engine.decryptMetadata(fileKeyOf(sent.single.upload), sent.single.upload.encryptedMetadata),
+          {'v': 1, 'name': 'IMG_0002.jpg', 'mime': 'image/jpeg'});
     });
 
     test('should send the keyed hash of the content instead of its SHA-256', () async {

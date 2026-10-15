@@ -30,8 +30,10 @@ class EncryptedTestFile {
   EncryptedTestFile._(this.fileId, this.plain, this.thumbnail, this.preview, this.metadata);
 
   static Future<EncryptedTestFile> create(SodiumCryptoEngine engine, CryptoKey masterKey,
-      {String fileId = '7', int plainLength = 5000, int keyVersion = 1, String mime = 'video/mp4'}) async {
-    final file = EncryptedTestFile._(fileId, Uint8List.fromList(List.generate(plainLength, (i) => (i * 7 + 3) & 0xff)),
+      {String fileId = '7', int plainLength = 5000, int keyVersion = 1, String mime = 'video/mp4',
+      Uint8List? plain}) async {
+    final file = EncryptedTestFile._(fileId,
+        plain ?? Uint8List.fromList(List.generate(plainLength, (i) => (i * 7 + 3) & 0xff)),
         Uint8List.fromList(List.filled(300, 9)), Uint8List.fromList(List.generate(2500, (i) => (i * 3) & 0xff)),
         {'v': 1, 'name': 'VID_$fileId.mp4', 'mime': mime});
     final fileKey = engine.generateKey();
