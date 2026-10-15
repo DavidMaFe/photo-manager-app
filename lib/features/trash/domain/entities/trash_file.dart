@@ -16,6 +16,7 @@ class TrashFile extends GalleryFile {
     required super.sizeBytes,
     super.durationSeconds,
     super.isFavorite,
+    super.hasPreview,
     this.originalFolderId,
     this.originalFolderName,
   });
@@ -70,6 +71,7 @@ class TrashFile extends GalleryFile {
     String? originalFolderName,
     int? sizeBytes,
     bool? isFavorite,
+    bool? hasPreview,
     // Trashed files are never album covers: accepted only to match GalleryFile.copyWith.
     List<String>? coverOf,
   }) {
@@ -84,6 +86,7 @@ class TrashFile extends GalleryFile {
       originalFolderName: originalFolderName ?? this.originalFolderName,
       sizeBytes: sizeBytes ?? this.sizeBytes,
       isFavorite: isFavorite ?? this.isFavorite,
+      hasPreview: hasPreview ?? this.hasPreview,
     );
   }
 }

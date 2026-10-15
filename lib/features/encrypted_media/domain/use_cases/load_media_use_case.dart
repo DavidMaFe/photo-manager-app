@@ -5,8 +5,8 @@ import 'package:photo_manager_app/features/encrypted_media/domain/entities/media
 import 'package:photo_manager_app/features/encrypted_media/domain/repositories/encrypted_media_repository.dart';
 import 'package:photo_manager_app/features/encrypted_media/domain/services/file_key_unwrapper.dart';
 
-/// The decrypted thumbnail or original of a file, in memory only. Originals are decrypted in another isolate so the
-/// interface keeps animating.
+/// The decrypted thumbnail, 2048 px version or original of a file, in memory only. The 2048 px version and the
+/// original are decrypted in another isolate so the interface keeps animating.
 class LoadMediaUseCase {
   final EncryptedMediaRepository _repository;
   final FileKeyUnwrapper _keyUnwrapper;

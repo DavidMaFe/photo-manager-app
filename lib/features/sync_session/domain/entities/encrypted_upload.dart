@@ -11,6 +11,9 @@ class EncryptedUpload {
   /// PMEF thumbnail (512 px on the long side), or null if it could not be generated.
   final Uint8List? encryptedThumbnail;
 
+  /// PMEF 2048 px version for the viewer, or null (videos, images that are not bigger than 2048 px).
+  final Uint8List? encryptedPreview;
+
   /// Keyed hash of the content, to detect duplicates without revealing it.
   final String dedupHash;
   final bool isVideo;
@@ -27,6 +30,7 @@ class EncryptedUpload {
   const EncryptedUpload({
     required this.encryptedFile,
     required this.encryptedThumbnail,
+    this.encryptedPreview,
     required this.dedupHash,
     required this.isVideo,
     required this.capturedAt,

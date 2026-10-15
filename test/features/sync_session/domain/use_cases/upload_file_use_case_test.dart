@@ -24,9 +24,17 @@ class FakeEncryptedUpload extends Fake implements EncryptedUpload {}
 
 class FakeThumbnailSource implements MediaThumbnailSource {
   Uint8List? thumbnailBytes;
+  Uint8List? previewBytes;
+  final List<SyncFile> previewRequests = [];
 
   @override
   Future<Uint8List?> thumbnail(SyncFile file) async => thumbnailBytes;
+
+  @override
+  Future<Uint8List?> preview(SyncFile file) async {
+    previewRequests.add(file);
+    return previewBytes;
+  }
 }
 
 /// What the server received: the upload and the bytes of the encrypted file, read before the use case deletes it.
@@ -54,7 +62,9 @@ void main() {
     account = await kit.material('the password', E2eeTestKit.cheapParams());
     await kit.keyring.storeNewKey(3, account);
     repository = MockSyncSessionRepository();
-    thumbnails = FakeThumbnailSource()..thumbnailBytes = Uint8List.fromList(List.filled(20000, 7));
+    thumbnails = FakeThumbnailSource()
+      ..thumbnailBytes = Uint8List.fromList(List.filled(20000, 7))
+      ..previewBytes = Uint8List.fromList(List.filled(600000, 9));
     tempDir = await Directory.systemTemp.createTemp('upload_use_case');
     useCase = UploadFileUseCase(repository, kit.engine, kit.store, thumbnails,
         AppTemporaryFiles(baseDirectory: () async => tempDir));
@@ -126,6 +136,24 @@ void main() {
           {'v': 1, 'name': 'IMG_0001.HEIC', 'mime': 'image/heic'});
     });
 
+    test('should encrypt the 2048 px version of an image with the key of the file', () async {
+      await useCase(sessionId: sessionId, file: await photo());
+
+      final upload = sent.single.upload;
+      expect(utf8.decode(upload.encryptedPreview!.sublist(0, 4)), 'PMEF');
+      expect(kit.engine.decryptBytes(fileKeyOf(upload), upload.encryptedPreview!), thumbnails.previewBytes);
+    });
+
+    test('should encrypt a 2048 px version of more than one chunk', () async {
+      // Given: A detailed photo whose 2048 px version is over 1 MiB, the size of a PMEF chunk
+      thumbnails.previewBytes = Uint8List.fromList(List.generate(1500000, (i) => i & 0xff));
+
+      await useCase(sessionId: sessionId, file: await photo());
+
+      final upload = sent.single.upload;
+      expect(kit.engine.decryptBytes(fileKeyOf(upload), upload.encryptedPreview!), thumbnails.previewBytes);
+    });
+
     test('should send the keyed hash of the content instead of its SHA-256', () async {
       final file = await photo();
 
@@ -166,6 +194,33 @@ void main() {
       await useCase(sessionId: sessionId, file: await photo());
 
       expect(sent.single.upload.encryptedThumbnail, isNull);
+    });
+
+    test('should not ask for a 2048 px version of a video', () async {
+      await useCase(sessionId: sessionId, file: await photo(name: 'VID.mp4', mime: 'video/mp4', duration: 12));
+
+      expect(thumbnails.previewRequests, isEmpty);
+      expect(sent.single.upload.encryptedPreview, isNull);
+    });
+
+    test('should upload without a 2048 px version when the image is not bigger than that', () async {
+      // Given: The source has none (small image, or the device could not generate it)
+      thumbnails.previewBytes = null;
+
+      await useCase(sessionId: sessionId, file: await photo());
+
+      expect(sent.single.upload.encryptedPreview, isNull);
+      expect(sent.single.upload.encryptedThumbnail, isNotNull);
+    });
+
+    test('should upload without the 2048 px version when the server would reject it for its size', () async {
+      // Given: Over 4 MiB once encrypted
+      thumbnails.previewBytes = Uint8List(UploadFileUseCase.maxEncryptedPreviewBytes);
+
+      await useCase(sessionId: sessionId, file: await photo());
+
+      expect(sent.single.upload.encryptedPreview, isNull);
+      expect(sent, hasLength(1));
     });
 
     test('should delete the encrypted copy after the upload', () async {

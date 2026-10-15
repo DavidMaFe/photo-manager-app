@@ -15,6 +15,9 @@ class GalleryFile extends Equatable {
   final int sizeBytes;
   final bool isFavorite;
 
+  /// The server has its 2048 px version (`MediaVariant.preview`): the viewer opens it instead of the original.
+  final bool hasPreview;
+
   /// Albums of which this file is a cover, from the root down. Only sent inside an album.
   final List<String> coverOf;
 
@@ -26,6 +29,7 @@ class GalleryFile extends Equatable {
     required this.capturedAt,
     this.sizeBytes = 0,
     this.isFavorite = false,
+    this.hasPreview = false,
     this.coverOf = const []
   });
 
@@ -45,6 +49,7 @@ class GalleryFile extends Equatable {
     DateTime? capturedAt,
     int? sizeBytes,
     bool? isFavorite,
+    bool? hasPreview,
     List<String>? coverOf
   }) {
     return GalleryFile(
@@ -55,10 +60,12 @@ class GalleryFile extends Equatable {
       capturedAt: capturedAt ?? this.capturedAt,
       sizeBytes: sizeBytes ?? this.sizeBytes,
       isFavorite: isFavorite ?? this.isFavorite,
+      hasPreview: hasPreview ?? this.hasPreview,
       coverOf: coverOf ?? this.coverOf
     );
   }
 
   @override
-  List<Object?> get props => [id, type, status, durationSeconds, capturedAt, sizeBytes, isFavorite, coverOf];
+  List<Object?> get props =>
+      [id, type, status, durationSeconds, capturedAt, sizeBytes, isFavorite, hasPreview, coverOf];
 }

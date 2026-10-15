@@ -4,7 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/utils/date_formatter.dart';
 import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_image.dart';
-import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_photo_viewer.dart';
+import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/zoomable_encrypted_photo.dart';
 import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_action_bar.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_thumbnail_strip.dart';
@@ -201,11 +201,7 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => setState(() => _chromeVisible = !_chromeVisible),
-        child: InteractiveViewer(
-          minScale: 1,
-          maxScale: 4.0,
-          child: Center(child: EncryptedPhotoViewer(fileId: file.id)),
-        ),
+        child: ZoomableEncryptedPhoto(fileId: file.id, hasPreview: file.hasPreview),
       );
     }
 

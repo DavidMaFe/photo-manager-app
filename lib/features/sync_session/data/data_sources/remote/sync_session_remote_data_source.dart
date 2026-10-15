@@ -18,7 +18,7 @@ import '../../../../../config/data_constants.dart';
 abstract class SyncSessionRemoteDataSource {
   Future<SyncSessionModel> startSyncSession(String deviceUuid);
   Future<DuplicateFilesResultModel> checkDuplicates(String sessionId, List<String> fileHashes);
-  /// Multipart with the encrypted file, the encrypted thumbnail (if any) and the metadata.
+  /// Multipart with the encrypted file, the encrypted thumbnail and 2048 px version (if any) and the metadata.
   Future<UploadResultModel> uploadFile(String sessionId, EncryptedUpload upload);
   Future<SyncResultModel> completeSyncSession(String sessionId);
   Future<void> cancelSyncSession(String sessionId);
@@ -110,6 +110,10 @@ class SyncSessionRemoteDatasourceImpl implements SyncSessionRemoteDataSource {
       final thumbnail = upload.encryptedThumbnail;
       if (thumbnail != null) {
         request.files.add(http.MultipartFile.fromBytes('thumbnail', thumbnail, filename: 'thumbnail'));
+      }
+      final preview = upload.encryptedPreview;
+      if (preview != null) {
+        request.files.add(http.MultipartFile.fromBytes('preview', preview, filename: 'preview'));
       }
 
       final streamedResponse = await client.send(request).timeout(_uploadTimeout);

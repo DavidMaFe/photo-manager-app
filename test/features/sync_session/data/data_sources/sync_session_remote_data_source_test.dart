@@ -378,6 +378,32 @@ void main() {
       expect(metadata.containsKey('durationSeconds'), isFalse);
     });
 
+    test('should send the encrypted 2048 px version of an image in its own part', () async {
+      late http.MultipartRequest sent;
+      when(() => mockClient.send(any())).thenAnswer((invocation) async {
+        sent = invocation.positionalArguments.first as http.MultipartRequest;
+        await sentBody(sent);
+        return http.StreamedResponse(Stream.value(utf8.encode(jsonEncode({'fileId': 1}))), 200);
+      });
+
+      await dataSource.uploadFile(sessionId, EncryptedUpload(
+        encryptedFile: upload.encryptedFile,
+        encryptedThumbnail: upload.encryptedThumbnail,
+        encryptedPreview: Uint8List.fromList(List.filled(300, 5)),
+        dedupHash: upload.dedupHash,
+        isVideo: false,
+        capturedAt: upload.capturedAt,
+        keyVersion: 1,
+        encryptedFileKey: upload.encryptedFileKey,
+        encryptedMetadata: upload.encryptedMetadata,
+      ));
+
+      // The part names say nothing about the file
+      expect(sent.files.map((f) => f.field), ['file', 'thumbnail', 'preview']);
+      expect(sent.files.map((f) => f.filename), ['file', 'thumbnail', 'preview']);
+      expect(sent.files.last.length, 300);
+    });
+
     test('should throw ApiException on upload failure', () async {
       final errorBody = jsonEncode({
         'code': 'INVALID_ENCRYPTED_FILE',

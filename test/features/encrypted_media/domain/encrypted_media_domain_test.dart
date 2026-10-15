@@ -83,6 +83,12 @@ void main() {
       expect(bytes, video.thumbnail);
     });
 
+    test('should decrypt the 2048 px version of several chunks', () async {
+      final bytes = await LoadMediaUseCase(media, unwrapper, engine)(video.fileId, MediaVariant.preview);
+
+      expect(bytes, video.preview);
+    });
+
     test('should decrypt the original in another isolate', () async {
       final bytes = await LoadMediaUseCase(media, unwrapper, engine)(video.fileId, MediaVariant.original);
 

@@ -13,9 +13,13 @@ import '../entities/upload_result.dart';
 
 
 /// Encrypts a file of the device and uploads it (docs/e2ee-spec.md, sections 6 and 7):
-/// a new key for the file encrypts the content (to a temporary file, chunk by chunk), the thumbnail and the metadata;
-/// the key travels wrapped with the current master key.
+/// a new key for the file encrypts the content (to a temporary file, chunk by chunk), the thumbnail, the 2048 px
+/// version of images bigger than that (ROADMAP-media-compression.md) and the metadata; the key travels wrapped with
+/// the current master key.
 class UploadFileUseCase {
+
+  /// The server rejects a bigger 2048 px version (INVALID_FILE_PREVIEW): the file is uploaded without it.
+  static const int maxEncryptedPreviewBytes = 4 * 1024 * 1024;
 
   final SyncSessionRepository _syncSessionRepository;
   final CryptoEngine _cryptoEngine;
@@ -39,10 +43,15 @@ class UploadFileUseCase {
     try {
       await _cryptoEngine.encryptFile(fileKey, file.file, encryptedFile);
       final thumbnail = await _thumbnailSource.thumbnail(file);
+      final preview = file.isImage ? await _thumbnailSource.preview(file) : null;
+      final encryptedPreview = preview == null ? null : _cryptoEngine.encryptBytes(fileKey, preview);
 
       final upload = EncryptedUpload(
         encryptedFile: encryptedFile,
         encryptedThumbnail: thumbnail == null ? null : _cryptoEngine.encryptBytes(fileKey, thumbnail),
+        encryptedPreview: encryptedPreview != null && encryptedPreview.length <= maxEncryptedPreviewBytes
+            ? encryptedPreview
+            : null,
         dedupHash: _cryptoEngine.dedupHash(dedupKey, DedupHasher.hexToBytes(file.hash)),
         isVideo: file.isVideo,
         capturedAt: file.capturedAt,

@@ -64,15 +64,20 @@ void main() {
       remote = EncryptedMediaRemoteDataSourceImpl(client: client, baseUrl: 'http://server');
     });
 
-    test('should download the thumbnail and the original from their endpoints', () async {
+    test('should download the thumbnail, the 2048 px version and the original from their endpoints', () async {
       when(() => client.get(any(), headers: any(named: 'headers')))
           .thenAnswer((_) async => http.Response.bytes([1, 2, 3], 200));
 
       expect(await remote.getObject('5', MediaVariant.thumbnail), [1, 2, 3]);
+      await remote.getObject('5', MediaVariant.preview);
       await remote.getObject('5', MediaVariant.original);
 
       final urls = verify(() => client.get(captureAny(), headers: any(named: 'headers'))).captured;
-      expect(urls.map((url) => url.toString()), ['http://server/api/file/5/thumbnail/', 'http://server/api/file/5/']);
+      expect(urls.map((url) => url.toString()), [
+        'http://server/api/file/5/thumbnail/',
+        'http://server/api/file/5/preview/',
+        'http://server/api/file/5/',
+      ]);
     });
 
     test('should ask for a range and read the total size from Content-Range', () async {
@@ -131,6 +136,17 @@ void main() {
       expect(await cache.read('5', MediaVariant.thumbnail), [1, 2]);
       expect(await cache.read('5', MediaVariant.original), isNull);
       expect(File('${dir.path}/encrypted_media/thumbnail/5.pmef').existsSync(), isTrue);
+    });
+
+    test('should keep the 2048 px version apart from the thumbnail and the original', () async {
+      final cache = EncryptedObjectCache(baseDirectory: () async => dir);
+
+      await cache.write('5', MediaVariant.preview, Uint8List.fromList([3, 4]));
+
+      expect(await cache.read('5', MediaVariant.preview), [3, 4]);
+      expect(await cache.read('5', MediaVariant.thumbnail), isNull);
+      expect(await cache.read('5', MediaVariant.original), isNull);
+      expect(File('${dir.path}/encrypted_media/preview/5.pmef').existsSync(), isTrue);
     });
 
     test('should remove the least recently used objects over the limit', () async {
