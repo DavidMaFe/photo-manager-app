@@ -3,6 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../config/theme/app_palette.dart';
 import '../../../config/theme/app_radius.dart';
+import '../app_context_menu.dart';
 
 /// Floating dark action bar at the bottom of the viewer.
 class MediaViewerActionBar extends StatelessWidget {
@@ -59,41 +60,92 @@ class MediaViewerAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final foreground = highlighted ? p.onAccent : (color ?? p.onMedia);
+    final foreground = color ?? p.onMedia;
     final radius = BorderRadius.circular(AppRadius.button);
 
-    return Material(
-      color: highlighted ? p.accent : p.accent.withValues(alpha: 0),
-      borderRadius: radius,
-      child: InkWell(
-        onTap: onPressed,
+    return Opacity(
+      // Disabled actions stay visible but dimmed (e.g. «On phone» when the file is already here)
+      opacity: onPressed == null ? 0.45 : 1,
+      child: Material(
+        color: p.accent.withValues(alpha: 0),
         borderRadius: radius,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 56, minWidth: 64),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Transform.scale(
-                  scale: iconScale,
-                  child: Icon(icon, size: 22, color: iconColor ?? foreground, fill: iconFill),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 11, fontWeight: labelWeight, color: foreground),
-                ),
-              ],
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: radius,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 56, minWidth: 56),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 52,
+                    height: 30,
+                    decoration: highlighted
+                        ? BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(AppRadius.pill))
+                        : null,
+                    child: Transform.scale(
+                      scale: iconScale,
+                      child: Icon(icon,
+                          size: 22, color: highlighted ? p.onAccent : (iconColor ?? foreground), fill: iconFill),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11, fontWeight: labelWeight, color: foreground),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+/// «More» action of [MediaViewerActionBar]: opens a menu above it with [items].
+class MediaViewerMoreAction extends StatelessWidget {
+  final String label;
+  final List<MediaViewerMenuItem> items;
+
+  const MediaViewerMoreAction({super.key, required this.label, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return MediaViewerAction(
+      icon: Symbols.more_horiz_rounded,
+      label: label,
+      onPressed: () async {
+        final box = context.findRenderObject() as RenderBox;
+        final selected = await showAppContextMenu<MediaViewerMenuItem>(
+          context,
+          position: box.localToGlobal(box.size.topRight(Offset.zero)),
+          items: [
+            for (final item in items)
+              AppMenuItem(value: item, label: item.label, icon: item.icon, destructive: item.destructive),
+          ],
+        );
+        selected?.onSelected();
+      },
+    );
+  }
+}
+
+/// Option of [MediaViewerMoreAction].
+class MediaViewerMenuItem {
+  final IconData icon;
+  final String label;
+  final VoidCallback onSelected;
+  final bool destructive;
+
+  const MediaViewerMenuItem({required this.icon, required this.label, required this.onSelected,
+    this.destructive = false});
 }
 
 

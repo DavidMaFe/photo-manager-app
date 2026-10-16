@@ -835,5 +835,69 @@ void main() {
         expect((listening.state as GalleryLoaded).files.single.isFavorite, isTrue);
       });
     });
+
+    group('Not on phone filter', () {
+      GalleryPage page(List<String> ids) => GalleryPage(
+            files: [
+              for (final id in ids)
+                GalleryFile(id: id, type: FileType.image, status: FileStatus.managed, capturedAt: testDate),
+            ],
+            currentPage: 0,
+            pageSize: 50,
+            hasNext: false,
+            totalFilesCount: ids.length,
+            totalPendingCount: 0,
+          );
+
+      test('should reload the filter when what this phone has changes', () async {
+        // Arrange
+        final changes = StreamController<void>.broadcast();
+        addTearDown(changes.close);
+        when(() => mockGetFilesUseCase(page: 0, pageSize: 50, filter: FileFilter.notOnDevice))
+            .thenAnswer((_) async => page(['b']));
+        final listening = GalleryBloc(
+          getFilesUseCase: mockGetFilesUseCase,
+          getPendingFileIdsUseCase: mockGetPendingFileIdsUseCase,
+          eventBus: mockEventBus,
+          onDevicePresenceChanges: changes.stream,
+        );
+        addTearDown(listening.close);
+        listening.add(const LoadGallery(filter: FileFilter.notOnDevice));
+        await Future<void>.delayed(const Duration(milliseconds: 1200));
+        when(() => mockGetFilesUseCase(page: 0, pageSize: 50, filter: FileFilter.notOnDevice))
+            .thenAnswer((_) async => page([]));
+
+        // Act: the file was saved to this phone
+        changes.add(null);
+        await Future<void>.delayed(const Duration(milliseconds: 1200));
+
+        // Assert
+        expect((listening.state as GalleryLoaded).files, isEmpty);
+      });
+
+      test('should not reload other filters when what this phone has changes', () async {
+        // Arrange
+        final changes = StreamController<void>.broadcast();
+        addTearDown(changes.close);
+        when(() => mockGetFilesUseCase(page: 0, pageSize: 50, filter: FileFilter.all))
+            .thenAnswer((_) async => page(['a']));
+        final listening = GalleryBloc(
+          getFilesUseCase: mockGetFilesUseCase,
+          getPendingFileIdsUseCase: mockGetPendingFileIdsUseCase,
+          eventBus: mockEventBus,
+          onDevicePresenceChanges: changes.stream,
+        );
+        addTearDown(listening.close);
+        listening.add(const LoadGallery());
+        await Future<void>.delayed(const Duration(milliseconds: 1200));
+
+        // Act
+        changes.add(null);
+        await Future<void>.delayed(const Duration(milliseconds: 1200));
+
+        // Assert
+        verify(() => mockGetFilesUseCase(page: 0, pageSize: 50, filter: FileFilter.all)).called(1);
+      });
+    });
 });
 }

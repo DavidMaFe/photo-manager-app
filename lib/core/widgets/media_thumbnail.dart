@@ -30,6 +30,9 @@ class MediaThumbnail extends StatelessWidget {
   /// Texto de la etiqueta «Portada» (arriba a la izquierda); sin etiqueta si es `null`.
   final String? coverLabel;
   final Widget? bottomLeftBadge;
+
+  /// The file is in the gallery of this phone: ✓ at the top right (outside selection, after the pending dot).
+  final bool onDevice;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
@@ -47,6 +50,7 @@ class MediaThumbnail extends StatelessWidget {
     this.isFavorite = false,
     this.large = false,
     this.coverLabel,
+    this.onDevice = false,
     this.bottomLeftBadge,
     this.onTap,
     this.onLongPress,
@@ -121,7 +125,9 @@ class MediaThumbnail extends StatelessWidget {
                 child: isSelected ? _SelectedMark(palette: p) : _SelectableMark(palette: p),
               )
             else if (isPending)
-              Positioned(top: 6, right: 6, child: _PendingDot(palette: p)),
+              Positioned(top: 6, right: 6, child: _PendingDot(palette: p))
+            else if (onDevice)
+              Positioned(top: 5, right: 5, child: _OnDeviceMark(palette: p)),
           ],
         ),
       ),
@@ -270,6 +276,22 @@ class _SelectedMark extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(color: palette.onMedia, shape: BoxShape.circle),
       child: Icon(Symbols.check_circle_rounded, size: 24, color: palette.accent, fill: 1),
+    );
+  }
+}
+
+class _OnDeviceMark extends StatelessWidget {
+  final AppPalette palette;
+
+  const _OnDeviceMark({required this.palette});
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Symbols.download_done_rounded,
+      size: 18,
+      color: palette.onMedia,
+      shadows: [Shadow(color: palette.scrim.withValues(alpha: 0.6), blurRadius: 4)],
     );
   }
 }

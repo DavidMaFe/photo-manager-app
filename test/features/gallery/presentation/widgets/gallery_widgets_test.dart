@@ -145,9 +145,10 @@ void main() {
   group('FileFilterLabel', () {
     test('should localize every filter', () {
       final es = AppLocalizationsEs();
-      expect(FileFilter.values.map((f) => f.label(es)), ['Todo', 'Favoritas', 'Fotos', 'Vídeos', 'Por revisar']);
+      expect(FileFilter.values.map((f) => f.label(es)),
+          ['Todo', 'Favoritas', 'Fotos', 'Vídeos', 'Por revisar', 'No están en el móvil']);
       final en = AppLocalizationsEn();
-      expect(FileFilter.values.map((f) => f.label(en)), ['All', 'Favorites', 'Photos', 'Videos', 'To review']);
+      expect(FileFilter.values.map((f) => f.label(en)), ['All', 'Favorites', 'Photos', 'Videos', 'To review', 'Not on phone']);
     });
   });
 }

@@ -6,6 +6,7 @@ import 'package:photo_manager_app/features/downloads/domain/entities/download_pl
 import 'package:photo_manager_app/features/downloads/domain/entities/download_progress.dart';
 import 'package:photo_manager_app/features/downloads/domain/services/on_device_presence.dart';
 import 'package:photo_manager_app/features/downloads/domain/use_cases/cancel_download_use_case.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/plan_download_use_case.dart';
 import 'package:photo_manager_app/features/downloads/domain/use_cases/start_download_use_case.dart';
 import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_bloc.dart';
 import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_event.dart';
@@ -19,11 +20,14 @@ class MockCancelDownloadUseCase extends Mock implements CancelDownloadUseCase {}
 
 class MockOnDevicePresence extends Mock implements OnDevicePresence {}
 
+class MockPlanDownloadUseCase extends Mock implements PlanDownloadUseCase {}
+
 void main() {
   late MockDownloadQueueRepository queue;
   late MockStartDownloadUseCase startDownload;
   late MockCancelDownloadUseCase cancelDownload;
   late MockOnDevicePresence presence;
+  late MockPlanDownloadUseCase planDownload;
   late DateTime now;
 
   const running = DownloadProgress(total: 4, saved: 1, failed: 0, bytesTotal: 100, bytesSaved: 0, currentAlbum: 'Trip');
@@ -34,6 +38,7 @@ void main() {
         queue: queue,
         startDownload: startDownload,
         cancelDownload: cancelDownload,
+        planDownload: planDownload,
         presence: presence,
         clock: () => now,
       );
@@ -45,6 +50,7 @@ void main() {
     startDownload = MockStartDownloadUseCase();
     cancelDownload = MockCancelDownloadUseCase();
     presence = MockOnDevicePresence();
+    planDownload = MockPlanDownloadUseCase();
     now = DateTime(2026, 10, 17, 10);
     when(() => queue.progress()).thenAnswer((_) async => DownloadProgress.empty);
     when(() => queue.savedIds()).thenAnswer((_) async => []);
@@ -120,8 +126,37 @@ void main() {
       setUp: () => when(() => queue.progress()).thenAnswer((_) async => running),
       build: build,
       act: (bloc) => bloc.add(DownloadRequested(plan, album: 'Trip')),
-      expect: () => [const DownloadProgressState(progress: running)],
+      expect: () => [
+        const DownloadProgressState(outcome: DownloadOutcome(started: 1, requested: 1), outcomeSerial: 1),
+        const DownloadProgressState(
+            progress: running, outcome: DownloadOutcome(started: 1, requested: 1), outcomeSerial: 1),
+      ],
       verify: (_) => verify(() => startDownload(plan, album: 'Trip')).called(1),
+    );
+
+    blocTest<DownloadProgressBloc, DownloadProgressState>(
+      'should download the chosen files that this phone is missing',
+      setUp: () {
+        when(() => planDownload(fileIds: {'1', '9'})).thenAnswer((_) async => plan);
+        when(() => queue.progress()).thenAnswer((_) async => running);
+      },
+      build: build,
+      act: (bloc) => bloc.add(const DownloadFilesRequested({'1', '9'})),
+      skip: 1,
+      expect: () => [
+        const DownloadProgressState(
+            progress: running, outcome: DownloadOutcome(started: 1, requested: 1), outcomeSerial: 1),
+      ],
+      verify: (_) => verify(() => startDownload(plan, album: null)).called(1),
+    );
+
+    blocTest<DownloadProgressBloc, DownloadProgressState>(
+      'should say the chosen files are already on this phone',
+      setUp: () => when(() => planDownload(fileIds: {'1'})).thenAnswer((_) async => DownloadsTestData.plan([], onDevice: 1)),
+      build: build,
+      act: (bloc) => bloc.add(const DownloadFilesRequested({'1'})),
+      expect: () => [const DownloadProgressState(outcome: DownloadOutcome(started: 0, requested: 1), outcomeSerial: 1)],
+      verify: (_) => verifyNever(() => startDownload(any(), album: any(named: 'album'))),
     );
 
     blocTest<DownloadProgressBloc, DownloadProgressState>(

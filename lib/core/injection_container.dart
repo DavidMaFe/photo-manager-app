@@ -132,7 +132,10 @@ import 'package:photo_manager_app/features/downloads/domain/use_cases/process_do
 import 'package:photo_manager_app/features/downloads/domain/use_cases/save_original_to_gallery_use_case.dart';
 import 'package:photo_manager_app/features/downloads/domain/use_cases/share_files_use_case.dart';
 import 'package:photo_manager_app/features/downloads/domain/use_cases/start_download_use_case.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_plan_cubit.dart';
 import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_bloc.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/on_device_presence_cubit.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/share_cubit.dart';
 import 'package:photo_manager_app/features/downloads/presentation/services/on_device_presence_updater.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/sync_device_local_data_source.dart';
@@ -312,7 +315,12 @@ Future<void> init() async {
       queue: sl<DownloadQueueRepository>(),
       startDownload: sl<StartDownloadUseCase>(),
       cancelDownload: sl<CancelDownloadUseCase>(),
+      planDownload: sl<PlanDownloadUseCase>(),
       presence: sl<OnDevicePresence>()));
+  sl.registerFactory(() => OnDevicePresenceCubit(sl<OnDevicePresence>()));
+  sl.registerFactory(() => ShareCubit(sl<ShareFilesUseCase>()));
+  sl.registerFactoryParam<DownloadPlanCubit, String?, void>(
+      (folderId, _) => DownloadPlanCubit(sl<PlanDownloadUseCase>(), folderId: folderId));
 
   // Persistent sync log — registered immediately after SharedPreferences so it
   // is available in both the main isolate and the WorkManager background isolate.
@@ -825,7 +833,7 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final repository = sl<GalleryRepository>();
-        return GetFilesUseCase(repository);
+        return GetFilesUseCase(repository, sl<OnDevicePresence>());
       }
   );
   sl.registerFactory(
@@ -1064,6 +1072,7 @@ Future<void> init() async {
           getFilesUseCase: getFileUseCase,
           getPendingFileIdsUseCase: getPendingFileIdsUseCase,
           eventBus: eventBus,
+          onDevicePresenceChanges: sl<OnDevicePresence>().changes,
         );
       }
   );

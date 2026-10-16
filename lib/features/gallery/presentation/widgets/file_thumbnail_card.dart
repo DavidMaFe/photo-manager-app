@@ -1,3 +1,5 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/on_device_presence_cubit.dart';
 import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
@@ -60,6 +62,7 @@ class FileThumbnailCard extends StatelessWidget {
       isFavorite: isFavorite,
       large: large,
       coverLabel: isCover ? l10n.coverBadge : null,
+      onDevice: _isOnDevice(context),
       semanticLabel: [
         file.isVideo ? l10n.filePropertyTypeVideo : l10n.filePropertyTypeImage,
         if (isFavorite) l10n.favorite,
@@ -80,5 +83,14 @@ class FileThumbnailCard extends StatelessWidget {
         child: IgnorePointer(ignoring: leaving, child: thumbnail),
       ),
     );
+  }
+
+  /// Whether this phone has the file; false where the presence is not provided (e.g. tests of the grid alone).
+  bool _isOnDevice(BuildContext context) {
+    try {
+      return context.select<OnDevicePresenceCubit, bool?>((cubit) => cubit.state.isOnDevice(file.id)) ?? false;
+    } on ProviderNotFoundException {
+      return false;
+    }
   }
 }

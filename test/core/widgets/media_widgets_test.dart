@@ -17,6 +17,20 @@ void main() {
       );
 
   group('MediaThumbnail', () {
+    testWidgets('should mark the files that are on this phone', (tester) async {
+      await tester.pumpWidget(thumb(const MediaThumbnail(image: image, onDevice: true)));
+
+      expect(find.byIcon(Symbols.download_done_rounded), findsOneWidget);
+    });
+
+    testWidgets('should not mark them in selection mode or while pending', (tester) async {
+      await tester.pumpWidget(thumb(const MediaThumbnail(image: image, onDevice: true, selectable: true)));
+      expect(find.byIcon(Symbols.download_done_rounded), findsNothing);
+
+      await tester.pumpWidget(thumb(const MediaThumbnail(image: image, onDevice: true, isPending: true)));
+      expect(find.byIcon(Symbols.download_done_rounded), findsNothing);
+    });
+
     testWidgets('should show the review dot when pending', (tester) async {
       // Arrange
       await tester.pumpWidget(thumb(const MediaThumbnail(image: image, isPending: true)));

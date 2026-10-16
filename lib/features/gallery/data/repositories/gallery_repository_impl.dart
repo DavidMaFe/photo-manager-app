@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/features/encrypted_media/domain/repositories/file_key_repository.dart';
 import 'package:photo_manager_app/features/gallery/data/models/gallery_file_model.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
@@ -36,6 +37,13 @@ class GalleryRepositoryImpl implements GalleryRepository {
   @override
   Future<PendingFiles> getPendingFileIds({FileType? type, String? folderId}) async {
     return await remoteDataSource.getPendingFileIds(type: type?.toApiString(), folderId: folderId);
+  }
+
+  @override
+  Future<List<GalleryFile>> getFilesByIds(List<String> fileIds) async {
+    final files = await remoteDataSource.getFilesByIds(fileIds);
+    fileKeyRepository.remember(files.map((file) => file.encryptedRef).nonNulls);
+    return files;
   }
 
   String? _getTypeParam(FileFilter filter) {

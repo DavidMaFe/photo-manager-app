@@ -72,8 +72,10 @@ class TrashFile extends GalleryFile {
     int? sizeBytes,
     bool? isFavorite,
     bool? hasPreview,
-    // Trashed files are never album covers: accepted only to match GalleryFile.copyWith.
+    // Trashed files are never album covers and the trash does not show the device: accepted only to match
+    // GalleryFile.copyWith.
     List<String>? coverOf,
+    String? deviceName,
   }) {
     return TrashFile(
       id: id ?? this.id,

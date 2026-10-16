@@ -99,6 +99,14 @@ class FailureMessageHelper {
         return l10n.errorLockedFile;
       case 'errorUnencryptedFile':
         return l10n.errorUnencryptedFile;
+
+    // Downloads and sharing
+      case 'errorNotEnoughSpace':
+        return l10n.errorNotEnoughSpace;
+      case 'errorDeviceMediaUnsupported':
+        return l10n.errorDeviceMediaUnsupported;
+      case 'errorTooManyFilesToShare':
+        return l10n.errorTooManyFilesToShare(failure.messageParams?['max'] as int? ?? 50);
       case 'errorOutdatedKeys':
         return l10n.errorOutdatedKeys;
       case 'errorMissingCurrentKey':

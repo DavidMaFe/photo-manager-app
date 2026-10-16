@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
+import 'package:photo_manager_app/features/downloads/domain/entities/download_plan.dart';
 import 'package:photo_manager_app/features/downloads/domain/repositories/download_queue_repository.dart';
 import 'package:photo_manager_app/features/downloads/domain/services/on_device_presence.dart';
 import 'package:photo_manager_app/features/downloads/domain/use_cases/cancel_download_use_case.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/plan_download_use_case.dart';
 import 'package:photo_manager_app/features/downloads/domain/use_cases/start_download_use_case.dart';
 import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_event.dart';
 import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_state.dart';
@@ -18,6 +20,7 @@ class DownloadProgressBloc extends Bloc<DownloadProgressEvent, DownloadProgressS
   final DownloadQueueRepository _queue;
   final StartDownloadUseCase _startDownload;
   final CancelDownloadUseCase _cancelDownload;
+  final PlanDownloadUseCase _planDownload;
   final OnDevicePresence _presence;
   final DateTime Function() _clock;
 
@@ -29,29 +32,51 @@ class DownloadProgressBloc extends Bloc<DownloadProgressEvent, DownloadProgressS
     required DownloadQueueRepository queue,
     required StartDownloadUseCase startDownload,
     required CancelDownloadUseCase cancelDownload,
+    required PlanDownloadUseCase planDownload,
     required OnDevicePresence presence,
     DateTime Function()? clock,
   })  : _queue = queue,
         _startDownload = startDownload,
         _cancelDownload = cancelDownload,
+        _planDownload = planDownload,
         _presence = presence,
         _clock = clock ?? DateTime.now,
         super(const DownloadProgressState()) {
     on<DownloadProgressWatchRequested>((event, emit) => _poll(emit));
     on<DownloadProgressPolled>((event, emit) => _poll(emit));
     on<DownloadRequested>(_onRequested);
+    on<DownloadFilesRequested>(_onFilesRequested);
     on<DownloadCancelRequested>(_onCancelRequested);
     on<DownloadProgressDismissed>((event, emit) => emit(state.copyWith(dismissed: true)));
   }
 
-  Future<void> _onRequested(DownloadRequested event, Emitter<DownloadProgressState> emit) async {
+  Future<void> _onRequested(DownloadRequested event, Emitter<DownloadProgressState> emit) =>
+      _start(event.plan, event.album, emit);
+
+  Future<void> _onFilesRequested(DownloadFilesRequested event, Emitter<DownloadProgressState> emit) async {
+    try {
+      final plan = await _planDownload(fileIds: event.fileIds);
+      if (plan.isEmpty) {
+        emit(state.copyWith(outcome: DownloadOutcome(started: 0, requested: event.fileIds.length)));
+        return;
+      }
+      await _start(plan, null, emit);
+    } catch (e) {
+      emit(state.copyWith(failure: () => ErrorHandler.handleError(e)));
+    }
+  }
+
+  Future<void> _start(DownloadPlan plan, String? album, Emitter<DownloadProgressState> emit) async {
     try {
       final wasRunning = state.isRunning;
-      await _startDownload(event.plan, album: event.album);
+      await _startDownload(plan, album: album);
       if (!wasRunning) {
         _firstSample = null;
         _markedOnDevice.clear();
       }
+      emit(state.copyWith(
+          outcome: DownloadOutcome(started: plan.toDownload.length,
+              requested: plan.toDownload.length + plan.alreadyOnDevice)));
       await _poll(emit, restart: true);
     } catch (e) {
       emit(state.copyWith(failure: () => ErrorHandler.handleError(e)));

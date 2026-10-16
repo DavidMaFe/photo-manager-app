@@ -533,4 +533,36 @@ void main() {
       expect(uri.queryParameters.containsKey('favorite'), isFalse);
     });
   });
+
+  group('GalleryRemoteDataSource - getFilesByIds', () {
+    test('should post the ids and parse the files', () async {
+      // Arrange
+      when(() => mockHttpClient.post(any(), headers: any(named: 'headers'), body: any(named: 'body'))).thenAnswer(
+          (_) async => http.Response(jsonEncode({
+                'files': [
+                  {'id': 7, 'type': 'VIDEO', 'status': 'MANAGED', 'deviceName': 'Galaxy S23'},
+                ],
+              }), 200));
+
+      // Act
+      final files = await dataSource.getFilesByIds(['7', '8']);
+
+      // Assert
+      final captured = verify(() => mockHttpClient.post(captureAny(), headers: any(named: 'headers'),
+          body: captureAny(named: 'body'))).captured;
+      expect(captured[0], Uri.parse('$baseUrl/api/file/list/by-ids/'));
+      expect(jsonDecode(captured[1] as String), {'fileIds': [7, 8]});
+      expect(files.single.id, '7');
+      expect(files.single.deviceName, 'Galaxy S23');
+    });
+
+    test('should throw ApiException with the error of the server', () async {
+      // Arrange
+      when(() => mockHttpClient.post(any(), headers: any(named: 'headers'), body: any(named: 'body'))).thenAnswer(
+          (_) async => http.Response(jsonEncode({'code': 'X', 'message': 'm', 'timestamp': 't'}), 400));
+
+      // Act & Assert
+      expect(dataSource.getFilesByIds(['7']), throwsA(isA<ApiException>()));
+    });
+  });
 }

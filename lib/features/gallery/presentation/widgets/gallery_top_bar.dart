@@ -8,6 +8,9 @@ class GalleryTopBar extends StatelessWidget {
 
   final bool isSelectionMode;
   final int selectedCount;
+
+  /// Second line of the selection header (size and how many are on this phone).
+  final String? selectionSubtitle;
   final bool areAllFilesSelected;
   final List<Widget> actions;
   final VoidCallback? onCancelSelection;
@@ -18,6 +21,7 @@ class GalleryTopBar extends StatelessWidget {
     super.key,
     this.isSelectionMode = false,
     this.selectedCount = 0,
+    this.selectionSubtitle,
     this.areAllFilesSelected = false,
     this.actions = const [],
     this.onCancelSelection,
@@ -35,6 +39,7 @@ class GalleryTopBar extends StatelessWidget {
           ? SelectionHeader(
               key: const ValueKey('selection'),
               title: l10n.selectedCount(selectedCount),
+              subtitle: selectionSubtitle,
               closeTooltip: l10n.closeSelection,
               onClose: onCancelSelection,
               toggleLabel: areAllFilesSelected ? l10n.selectNone : l10n.selectAllShort,

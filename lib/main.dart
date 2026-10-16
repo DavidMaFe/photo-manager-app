@@ -17,6 +17,8 @@ import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dar
 import 'package:photo_manager_app/features/downloads/domain/use_cases/clear_shared_files_use_case.dart';
 import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_bloc.dart';
 import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_event.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/on_device_presence_cubit.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/share_cubit.dart';
 import 'package:photo_manager_app/features/downloads/presentation/services/on_device_presence_updater.dart';
 import 'package:photo_manager_app/features/onboarding/domain/use_cases/check_onboarding_status_use_case.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
@@ -147,6 +149,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: widget.authBloc),
+        // Downloads to the gallery and sharing, from any page (ROADMAP-downloads-and-account-deletion.md)
+        BlocProvider.value(value: di.sl<DownloadProgressBloc>()),
+        BlocProvider(create: (_) => di.sl<OnDevicePresenceCubit>()),
+        BlocProvider(create: (_) => di.sl<ShareCubit>()),
       ],
       child: ValueListenableBuilder<ThemeMode>(
         valueListenable: widget.uiPreferencesService.themeMode,

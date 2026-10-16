@@ -24,6 +24,16 @@ class DownloadRequested extends DownloadProgressEvent {
   List<Object?> get props => [plan, album];
 }
 
+/// Downloads the chosen files that this device is missing (from the selection or the viewer), without a sheet.
+class DownloadFilesRequested extends DownloadProgressEvent {
+  final Set<String> fileIds;
+
+  const DownloadFilesRequested(this.fileIds);
+
+  @override
+  List<Object?> get props => [fileIds];
+}
+
 class DownloadCancelRequested extends DownloadProgressEvent {
   const DownloadCancelRequested();
 }

@@ -1918,4 +1918,217 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorOutdatedKeys => 'The keys of your account changed on another device. Open the app and type your current password.';
+
+  @override
+  String get actionDownload => 'Download';
+
+  @override
+  String get actionShare => 'Share';
+
+  @override
+  String get actionMore => 'More';
+
+  @override
+  String get actionOnDevice => 'On phone';
+
+  @override
+  String selectionSizeOnDevice(String size, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count on this phone',
+      one: '1 on this phone',
+      zero: 'none on this phone',
+    );
+    return '$size · $_temp0';
+  }
+
+  @override
+  String get downloadAlbum => 'Download album';
+
+  @override
+  String get downloadSheetTitle => 'Save to this phone';
+
+  @override
+  String downloadSheetSubtitle(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$name · $_temp0';
+  }
+
+  @override
+  String get downloadSheetAllTitle => 'What is not on this phone';
+
+  @override
+  String downloadToDownload(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count to download',
+      one: '1 to download',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String downloadApproxSize(String size) {
+    return 'About $size';
+  }
+
+  @override
+  String downloadAlreadyOnDevice(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count already on this phone',
+      one: '1 already on this phone',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadSkipped => 'Skipped';
+
+  @override
+  String get downloadIncludeSubalbums => 'Include subalbums';
+
+  @override
+  String get downloadFreeSpace => 'Free space on this phone';
+
+  @override
+  String downloadFreeOfTotal(String free, String total) {
+    return '$free of $total';
+  }
+
+  @override
+  String downloadDestinationNote(String album) {
+    return 'They are saved in the phone gallery, in the album «$album». Use Wi-Fi if you can.';
+  }
+
+  @override
+  String downloadButton(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Download $count items',
+      one: 'Download 1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadNothingMissing => 'Everything is already on this phone';
+
+  @override
+  String downloadNotEnoughSpaceNote(String size) {
+    return 'It does not fit: you need $size free on this phone';
+  }
+
+  @override
+  String downloadProgressTitle(int saved, int total) {
+    return 'Saving to this phone · $saved of $total';
+  }
+
+  @override
+  String downloadProgressRemaining(String time) {
+    return 'about $time left';
+  }
+
+  @override
+  String downloadProgressFinished(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count saved to this phone',
+      one: '1 saved to this phone',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String downloadProgressFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count could not be saved',
+      one: '1 could not be saved',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadProgressMainAlbum => 'Phone gallery';
+
+  @override
+  String downloadStarted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Downloading $count items',
+      one: 'Downloading 1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String downloadAllOnDevice(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'They are all on this phone already',
+      one: 'It is already on this phone',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String get durationLessThanMinute => 'less than 1 min';
+
+  @override
+  String get filterNotOnDevice => 'Not on phone';
+
+  @override
+  String notOnDeviceSummary(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0 · $size';
+  }
+
+  @override
+  String get downloadAll => 'Download all';
+
+  @override
+  String get emptyNotOnDeviceTitle => 'Everything is on this phone';
+
+  @override
+  String get emptyNotOnDeviceBody => 'Photos and videos that are only in the cloud show up here.';
+
+  @override
+  String sharePreparing(int prepared, int total) {
+    return 'Preparing $prepared of $total…';
+  }
+
+  @override
+  String get errorNotEnoughSpace => 'There is not enough space on this phone for these files.';
+
+  @override
+  String get errorDeviceMediaUnsupported => 'This phone does not let the app save photos into its gallery.';
+
+  @override
+  String errorTooManyFilesToShare(int max) {
+    return 'You can share up to $max files at once.';
+  }
 }
