@@ -72,6 +72,9 @@ dependencies:
   # Lossless JPEG <-> JPEG XL (ROADMAP-media-compression.md, Phase 3)
   jpeg_xl_codec:
     path: packages/jpeg_xl_codec
+  # MediaStore ids, free space and saving into the gallery in chunks (ROADMAP-downloads-and-account-deletion.md)
+  device_media:
+    path: packages/device_media
 
 dev_dependencies:
   flutter_test:
@@ -90,6 +93,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
   sodium: ^3.4.6
+  sqflite_common_ffi: ^2.4.0+3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

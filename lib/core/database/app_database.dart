@@ -24,7 +24,7 @@ class AppDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'photo_manager_db');
 
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(path, version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -40,6 +40,28 @@ class AppDatabase {
 
     await db.execute('''
       CREATE INDEX idx_hash ON file_mapping(hash)
+    ''');
+
+    await createDownloadQueue(db);
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await createDownloadQueue(db);
+    }
+  }
+
+  /// Files waiting to be saved into the gallery (ROADMAP-downloads-and-account-deletion.md). Shared by the UI
+  /// isolate, which adds them, and the WorkManager isolate, which saves them.
+  static Future<void> createDownloadQueue(DatabaseExecutor db) async {
+    await db.execute('''
+      CREATE TABLE download_queue (
+        file_id TEXT PRIMARY KEY,
+        album TEXT,
+        size_bytes INTEGER NOT NULL,
+        state TEXT NOT NULL,
+        position INTEGER NOT NULL
+      )
     ''');
   }
 
@@ -62,6 +84,14 @@ class AppDatabase {
       },
       conflictAlgorithm: ConflictAlgorithm.replace
     );
+  }
+
+  /// Every mapping, as server id → local id.
+  Future<Map<String, String>> getAllMappings() async {
+
+    final db = await database;
+    final rows = await db.query('file_mapping', columns: ['server_id', 'local_id']);
+    return {for (final row in rows) row['server_id'] as String: row['local_id'] as String};
   }
 
   Future<Map<String, dynamic>?> getFileMapping(String serverId) async {

@@ -7,6 +7,8 @@ import 'package:photo_manager_app/core/services/background_sync_service.dart';
 import 'package:photo_manager_app/core/services/sync_log_service.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
+import 'package:photo_manager_app/features/downloads/data/services/background_download_service.dart';
+import 'package:photo_manager_app/features/downloads/data/services/work_manager_download_scheduler.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -45,6 +47,13 @@ void backgroundTaskHandler() {
         log.write('✓ Servicio de notificaciones listo');
       } catch (e) {
         log.write('⚠ Notificaciones: error de inicio ($e) — continúa sin notificación');
+      }
+
+      // ── Step 5a: Download to the gallery (its own task, ROADMAP-downloads-and-account-deletion.md) ──
+      if (task == WorkManagerDownloadScheduler.taskName) {
+        final saved = await di.sl<BackgroundDownloadService>().execute();
+        log.write('■ WorkManager descarga terminada (retorna $saved)');
+        return Future.value(saved);
       }
 
       // ── Step 5: Execute sync ─────────────────────────────────────────────
@@ -107,6 +116,11 @@ void backgroundTaskHandler() {
       );
 
       log?.write('💥 EXCEPCIÓN NO CAPTURADA: $e');
+
+      // A download that failed is tried again by WorkManager; the sync schedule is not touched
+      if (task == WorkManagerDownloadScheduler.taskName) {
+        return Future.value(false);
+      }
 
       // Scheduling after uncaught exception — re-use the already-initialised
       // DI container. For auth errors, schedule the next recurrence instead

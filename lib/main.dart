@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +13,11 @@ import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/clear_shared_files_use_case.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_bloc.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_event.dart';
+import 'package:photo_manager_app/features/downloads/presentation/services/on_device_presence_updater.dart';
 import 'package:photo_manager_app/features/onboarding/domain/use_cases/check_onboarding_status_use_case.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
@@ -92,15 +99,30 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
+  StreamSubscription<AuthState>? _authSubscription;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    di.sl<ClearSharedFilesUseCase>()();
+    _onAuthState(widget.authBloc.state);
+    _authSubscription = widget.authBloc.stream.listen(_onAuthState);
+  }
+
+  /// With a session: what this device is missing and a download that may be running in the background
+  /// (ROADMAP-downloads-and-account-deletion.md).
+  void _onAuthState(AuthState state) {
+    if (state is AuthSuccessful) {
+      di.sl<OnDevicePresenceUpdater>().start();
+      di.sl<DownloadProgressBloc>().add(const DownloadProgressWatchRequested());
+    }
   }
 
   @override
   void dispose() {
   WidgetsBinding.instance.removeObserver(this);
+    _authSubscription?.cancel();
     super.dispose();
   }
 
@@ -109,6 +131,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       // Android resets system UI on resume — reapply immersive mode.
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      // Back from the share sheet: the other app already copied the shared files
+      di.sl<ClearSharedFilesUseCase>()();
+      if (widget.authBloc.state is AuthSuccessful) {
+        // Photos deleted from the gallery meanwhile, and the progress of a download
+        di.sl<OnDevicePresenceUpdater>().refresh();
+        di.sl<DownloadProgressBloc>().add(const DownloadProgressWatchRequested());
+      }
     }
   }
 
