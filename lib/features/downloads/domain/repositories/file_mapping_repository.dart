@@ -4,4 +4,7 @@ abstract class FileMappingRepository {
   Future<Map<String, String>> all();
 
   Future<void> save({required String serverId, required String localId, required String localPath});
+
+  /// Forgets every mapping (the account was deleted).
+  Future<void> clear();
 }

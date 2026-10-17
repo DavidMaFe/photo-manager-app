@@ -93,6 +93,17 @@ void main() {
       expect(progress.isRunning, isFalse);
     });
 
+    test('should remove every file, saved or not, when cleared', () async {
+      await dataSource.enqueue([trip1, trip2]);
+      await dataSource.setState('1', DownloadQueueLocalDataSourceImpl.stateSaved);
+
+      await dataSource.deleteAll();
+
+      expect(await dataSource.pending(10), isEmpty);
+      expect(await dataSource.savedIds(), isEmpty);
+      expect((await dataSource.progress()).isEmpty, isTrue);
+    });
+
     test('should report an empty progress with nothing queued', () async {
       expect((await dataSource.progress()).isEmpty, isTrue);
     });

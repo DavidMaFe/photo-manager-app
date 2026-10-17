@@ -2131,4 +2131,149 @@ class AppLocalizationsEn extends AppLocalizations {
   String errorTooManyFilesToShare(int max) {
     return 'You can share up to $max files at once.';
   }
+
+  @override
+  String get deleteAccountAction => 'Delete account';
+
+  @override
+  String deleteAccountStep(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get deleteAccountTitle => 'Before you delete your account';
+
+  @override
+  String get deleteAccountSubtitle => 'This is what will happen and how to take your photos with you first.';
+
+  @override
+  String get deleteAccountWhatIsDeleted => 'What is deleted';
+
+  @override
+  String deleteAccountFiles(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString photos and videos',
+      one: '1 photo or video',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deleteAccountFilesDetail(String size) {
+    return '$size stored in the cloud';
+  }
+
+  @override
+  String deleteAccountAlbums(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString albums',
+      one: '1 album',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteAccountAlbumsDetail => 'With their subalbums, covers and favorites';
+
+  @override
+  String deleteAccountDevices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices are unlinked',
+      one: '1 device is unlinked',
+      zero: 'No linked devices',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteAccountDevicesDetail => 'Automatic backup stops on all of them';
+
+  @override
+  String get deleteAccountPhoneSafe => 'The photos on your phone are not touched';
+
+  @override
+  String get deleteAccountPhoneSafeDetail => 'Only what is in the cloud is deleted';
+
+  @override
+  String get deleteAccountTakePhotos => 'Take your photos with you';
+
+  @override
+  String get deleteAccountSaveAll => 'Save everything on this phone';
+
+  @override
+  String deleteAccountSaveAllDetail(int count, String size) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString to download',
+      one: '1 to download',
+    );
+    return '$_temp0 · $size';
+  }
+
+  @override
+  String deleteAccountSaveAllFree(int count, String free) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString to download',
+      one: '1 to download',
+    );
+    return '$_temp0 · you have $free free';
+  }
+
+  @override
+  String get deleteAccountSaveAllDone => 'Everything is already on this phone';
+
+  @override
+  String get deleteAccountContinue => 'Continue';
+
+  @override
+  String get deleteAccountKeep => 'Keep my account';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Confirm it\'s you';
+
+  @override
+  String deleteAccountConfirmSubtitle(String word) {
+    return 'For your security, enter your password and the word $word.';
+  }
+
+  @override
+  String get deleteAccountConfirmWord => 'DELETE';
+
+  @override
+  String deleteAccountTypeWord(String word) {
+    return 'Type $word';
+  }
+
+  @override
+  String get deleteAccountFinalNote => 'You will be signed out on every device and everything will be deleted right away. This cannot be undone.';
+
+  @override
+  String get deleteAccountSubmit => 'Delete my account';
+
+  @override
+  String get deleteAccountWrongPassword => 'The password is not correct';
+
+  @override
+  String get deleteAccountDone => 'Your account has been deleted';
 }

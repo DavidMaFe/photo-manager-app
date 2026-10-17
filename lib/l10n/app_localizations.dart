@@ -3502,6 +3502,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can share up to {max} files at once.'**
   String errorTooManyFilesToShare(int max);
+
+  /// No description provided for @deleteAccountAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccountAction;
+
+  /// No description provided for @deleteAccountStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String deleteAccountStep(int current, int total);
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you delete your account'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This is what will happen and how to take your photos with you first.'**
+  String get deleteAccountSubtitle;
+
+  /// No description provided for @deleteAccountWhatIsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'What is deleted'**
+  String get deleteAccountWhatIsDeleted;
+
+  /// No description provided for @deleteAccountFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo or video} other{{count} photos and videos}}'**
+  String deleteAccountFiles(int count);
+
+  /// No description provided for @deleteAccountFilesDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} stored in the cloud'**
+  String deleteAccountFilesDetail(String size);
+
+  /// No description provided for @deleteAccountAlbums.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 album} other{{count} albums}}'**
+  String deleteAccountAlbums(int count);
+
+  /// No description provided for @deleteAccountAlbumsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'With their subalbums, covers and favorites'**
+  String get deleteAccountAlbumsDetail;
+
+  /// No description provided for @deleteAccountDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No linked devices} =1{1 device is unlinked} other{{count} devices are unlinked}}'**
+  String deleteAccountDevices(int count);
+
+  /// No description provided for @deleteAccountDevicesDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic backup stops on all of them'**
+  String get deleteAccountDevicesDetail;
+
+  /// No description provided for @deleteAccountPhoneSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'The photos on your phone are not touched'**
+  String get deleteAccountPhoneSafe;
+
+  /// No description provided for @deleteAccountPhoneSafeDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Only what is in the cloud is deleted'**
+  String get deleteAccountPhoneSafeDetail;
+
+  /// No description provided for @deleteAccountTakePhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Take your photos with you'**
+  String get deleteAccountTakePhotos;
+
+  /// No description provided for @deleteAccountSaveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save everything on this phone'**
+  String get deleteAccountSaveAll;
+
+  /// No description provided for @deleteAccountSaveAllDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 to download} other{{count} to download}} · {size}'**
+  String deleteAccountSaveAllDetail(int count, String size);
+
+  /// No description provided for @deleteAccountSaveAllFree.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 to download} other{{count} to download}} · you have {free} free'**
+  String deleteAccountSaveAllFree(int count, String free);
+
+  /// No description provided for @deleteAccountSaveAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is already on this phone'**
+  String get deleteAccountSaveAllDone;
+
+  /// No description provided for @deleteAccountContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get deleteAccountContinue;
+
+  /// No description provided for @deleteAccountKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my account'**
+  String get deleteAccountKeep;
+
+  /// No description provided for @deleteAccountConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you'**
+  String get deleteAccountConfirmTitle;
+
+  /// No description provided for @deleteAccountConfirmSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For your security, enter your password and the word {word}.'**
+  String deleteAccountConfirmSubtitle(String word);
+
+  /// No description provided for @deleteAccountConfirmWord.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get deleteAccountConfirmWord;
+
+  /// No description provided for @deleteAccountTypeWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {word}'**
+  String deleteAccountTypeWord(String word);
+
+  /// No description provided for @deleteAccountFinalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be signed out on every device and everything will be deleted right away. This cannot be undone.'**
+  String get deleteAccountFinalNote;
+
+  /// No description provided for @deleteAccountSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteAccountSubmit;
+
+  /// No description provided for @deleteAccountWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is not correct'**
+  String get deleteAccountWrongPassword;
+
+  /// No description provided for @deleteAccountDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted'**
+  String get deleteAccountDone;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -2131,4 +2131,137 @@ class AppLocalizationsEs extends AppLocalizations {
   String errorTooManyFilesToShare(int max) {
     return 'Puedes compartir hasta $max archivos a la vez.';
   }
+
+  @override
+  String get deleteAccountAction => 'Eliminar cuenta';
+
+  @override
+  String deleteAccountStep(int current, int total) {
+    return 'Paso $current de $total';
+  }
+
+  @override
+  String get deleteAccountTitle => 'Antes de eliminar tu cuenta';
+
+  @override
+  String get deleteAccountSubtitle => 'Esto es lo que pasará y cómo llevarte tus fotos antes.';
+
+  @override
+  String get deleteAccountWhatIsDeleted => 'Qué se borra';
+
+  @override
+  String deleteAccountFiles(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString fotos y vídeos',
+      one: '1 foto o vídeo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deleteAccountFilesDetail(String size) {
+    return '$size guardados en la nube';
+  }
+
+  @override
+  String deleteAccountAlbums(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString álbumes',
+      one: '1 álbum',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteAccountAlbumsDetail => 'Con sus subálbumes, portadas y favoritas';
+
+  @override
+  String deleteAccountDevices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dispositivos se desvinculan',
+      one: '1 dispositivo se desvincula',
+      zero: 'Ningún dispositivo vinculado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteAccountDevicesDetail => 'La copia automática se detiene en todos';
+
+  @override
+  String get deleteAccountPhoneSafe => 'Las fotos de tu móvil no se tocan';
+
+  @override
+  String get deleteAccountPhoneSafeDetail => 'Solo se borra lo que está en la nube';
+
+  @override
+  String get deleteAccountTakePhotos => 'Llévate tus fotos';
+
+  @override
+  String get deleteAccountSaveAll => 'Guardar todo en este móvil';
+
+  @override
+  String deleteAccountSaveAllDetail(int count, String size) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString por descargar · $size';
+  }
+
+  @override
+  String deleteAccountSaveAllFree(int count, String free) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString por descargar · tienes $free libres';
+  }
+
+  @override
+  String get deleteAccountSaveAllDone => 'Ya está todo en este móvil';
+
+  @override
+  String get deleteAccountContinue => 'Continuar';
+
+  @override
+  String get deleteAccountKeep => 'Mantener mi cuenta';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Confirma que eres tú';
+
+  @override
+  String deleteAccountConfirmSubtitle(String word) {
+    return 'Por seguridad, escribe tu contraseña y la palabra $word.';
+  }
+
+  @override
+  String get deleteAccountConfirmWord => 'ELIMINAR';
+
+  @override
+  String deleteAccountTypeWord(String word) {
+    return 'Escribe $word';
+  }
+
+  @override
+  String get deleteAccountFinalNote => 'Se cerrará tu sesión en todos los dispositivos y todo se borrará al momento. No se puede deshacer.';
+
+  @override
+  String get deleteAccountSubmit => 'Eliminar mi cuenta';
+
+  @override
+  String get deleteAccountWrongPassword => 'La contraseña no es correcta';
+
+  @override
+  String get deleteAccountDone => 'Tu cuenta se ha eliminado';
 }

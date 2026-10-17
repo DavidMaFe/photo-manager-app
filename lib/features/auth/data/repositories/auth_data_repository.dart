@@ -67,6 +67,16 @@ class AuthDataRepository implements AuthRepository {
   }
 
   @override
+  Future<void> clearSession() async {
+    try {
+      await localDataSource.clearCache();
+      await profileLocalDataSource.clearProfileCache();
+    } finally {
+      await masterKeyLocalDataSource.clear();
+    }
+  }
+
+  @override
   Future<LoginResult> register({
     required String email,
     required CryptoKey authKey,

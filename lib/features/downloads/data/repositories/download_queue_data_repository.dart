@@ -33,4 +33,7 @@ class DownloadQueueDataRepository implements DownloadQueueRepository {
 
   @override
   Future<void> cancelPending() => localDataSource.deletePending();
+
+  @override
+  Future<void> clear() => localDataSource.deleteAll();
 }

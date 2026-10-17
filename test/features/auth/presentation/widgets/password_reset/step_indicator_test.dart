@@ -23,5 +23,24 @@ void main() {
       expect(colors, [AppPalette.light.accent, AppPalette.light.accent, AppPalette.light.line]);
       expect(find.bySemanticsLabel('Step 2 of 3'), findsOneWidget);
     });
+
+    testWidgets('should paint completed steps in the given color', (tester) async {
+      // Arrange
+      await tester.pumpWidget(makeTestableWidget(Scaffold(
+        body: Center(
+          child: StepIndicator(
+              current: 1, total: 2, semanticLabel: 'Step 1 of 2', activeColor: AppPalette.light.danger),
+        ),
+      )));
+
+      // Act
+      final colors = tester
+          .widgetList<AnimatedContainer>(find.byType(AnimatedContainer))
+          .map((c) => (c.decoration as BoxDecoration).color)
+          .toList();
+
+      // Assert
+      expect(colors, [AppPalette.light.danger, AppPalette.light.line]);
+    });
   });
 }

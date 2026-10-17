@@ -13,4 +13,7 @@ class FileMappingDataRepository implements FileMappingRepository {
   @override
   Future<void> save({required String serverId, required String localId, required String localPath}) =>
       database.saveFileMapping(serverId: serverId, localId: localId, localPath: localPath, hash: '');
+
+  @override
+  Future<void> clear() => database.clearFileMappings();
 }

@@ -12,6 +12,7 @@ abstract class DownloadQueueLocalDataSource {
   Future<List<String>> savedIds();
   Future<DownloadProgress> progress();
   Future<void> deletePending();
+  Future<void> deleteAll();
 }
 
 class DownloadQueueLocalDataSourceImpl implements DownloadQueueLocalDataSource {
@@ -110,5 +111,10 @@ class DownloadQueueLocalDataSourceImpl implements DownloadQueueLocalDataSource {
   @override
   Future<void> deletePending() async {
     await (await database()).delete(table, where: 'state = ?', whereArgs: [statePending]);
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await (await database()).delete(table);
   }
 }

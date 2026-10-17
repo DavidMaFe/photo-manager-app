@@ -131,6 +131,12 @@ class AppDatabase {
     );
   }
 
+  /// Forgets every file of the gallery linked to the server (the account was deleted).
+  Future<void> clearFileMappings() async {
+    final db = await database;
+    await db.delete('file_mapping');
+  }
+
   Future<void> deleteMappings(List<String> serverIds) async {
 
     final db = await database;

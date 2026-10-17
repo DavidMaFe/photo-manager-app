@@ -24,4 +24,7 @@ abstract class DownloadQueueRepository {
 
   /// Removes the files still pending (the saved ones stay, for the progress).
   Future<void> cancelPending();
+
+  /// Removes every file of the queue (the account was deleted).
+  Future<void> clear();
 }

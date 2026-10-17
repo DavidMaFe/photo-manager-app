@@ -34,6 +34,7 @@ void main() {
       when(() => dataSource.savedIds()).thenAnswer((_) async => ['9']);
       when(() => dataSource.progress()).thenAnswer((_) async => DownloadProgress.empty);
       when(() => dataSource.deletePending()).thenAnswer((_) async {});
+      when(() => dataSource.deleteAll()).thenAnswer((_) async {});
 
       await repository.enqueue(queued);
       expect(await repository.pending(limit: 5), queued);
@@ -41,9 +42,11 @@ void main() {
       expect(await repository.savedIds(), ['9']);
       expect(await repository.progress(), DownloadProgress.empty);
       await repository.cancelPending();
+      await repository.clear();
 
       verify(() => dataSource.enqueue(queued)).called(1);
       verify(() => dataSource.deletePending()).called(1);
+      verify(() => dataSource.deleteAll()).called(1);
     });
   });
 }

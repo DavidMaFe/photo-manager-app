@@ -30,5 +30,13 @@ void main() {
       verify(() => database.saveFileMapping(
           serverId: '1', localId: '100', localPath: 'Pictures/PhotoManager/IMG.jpg', hash: '')).called(1);
     });
+
+    test('should forget every mapping when cleared', () async {
+      when(() => database.clearFileMappings()).thenAnswer((_) async {});
+
+      await repository.clear();
+
+      verify(() => database.clearFileMappings()).called(1);
+    });
   });
 }

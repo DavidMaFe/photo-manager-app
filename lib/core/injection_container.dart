@@ -2,6 +2,14 @@ import 'package:flutter/painting.dart';
 
 import 'package:photo_manager_app/core/jpeg_xl/data/platform_jpeg_xl_codec.dart';
 import 'package:photo_manager_app/core/jpeg_xl/domain/jpeg_xl_codec.dart';
+import 'package:photo_manager_app/features/account_deletion/data/data_sources/account_deletion_remote_data_source.dart';
+import 'package:photo_manager_app/features/account_deletion/data/repositories/account_deletion_data_repository.dart';
+import 'package:photo_manager_app/features/account_deletion/domain/repositories/account_deletion_repository.dart';
+import 'package:photo_manager_app/features/account_deletion/domain/use_cases/delete_account_use_case.dart';
+import 'package:photo_manager_app/features/account_deletion/domain/use_cases/get_account_deletion_summary_use_case.dart';
+import 'package:photo_manager_app/features/account_deletion/presentation/bloc/account_deletion_summary_cubit.dart';
+import 'package:photo_manager_app/features/account_deletion/presentation/bloc/delete_account_bloc.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/get_device_storage_use_case.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/device_reset_password_bloc.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/locked_account_bloc.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/verify_recovery_phrase_bloc.dart';
@@ -293,6 +301,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => OnDevicePresence(sl<ComputeMissingOnDeviceUseCase>()));
   sl.registerLazySingleton(
       () => PlanDownloadUseCase(sl<ComputeMissingOnDeviceUseCase>(), sl<DeviceGalleryRepository>()));
+  sl.registerFactory(() => GetDeviceStorageUseCase(sl<DeviceGalleryRepository>()));
   sl.registerLazySingleton(() => StartDownloadUseCase(sl<DownloadQueueRepository>(), sl<DownloadScheduler>()));
   sl.registerLazySingleton(() => CancelDownloadUseCase(sl<DownloadQueueRepository>(), sl<DownloadScheduler>()));
   sl.registerLazySingleton(() => SaveOriginalToGalleryUseCase(
@@ -696,22 +705,36 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final repository = sl<AuthRepository>();
-        return LogoutUseCase(repository, onLogout: [
-          () => sl<RecoveryReminderRepository>().clear(),
-          () => sl<RecoveryPhraseExporter>().deleteExportedFiles(),
-          // Keys of the files, video proxy and encrypted cache; then the decoded images kept in memory
-          () => sl<ClearMediaDataUseCase>()(),
-          // Downloads of this account: the queue, what this device is missing and the files shared
-          () => sl<CancelDownloadUseCase>()(),
-          () => sl<OnDevicePresenceUpdater>().stop(),
-          () async => sl<OnDevicePresence>().clear(),
-          () => sl<ClearSharedFilesUseCase>()(),
-          () async => PaintingBinding.instance.imageCache
-            ..clear()
-            ..clearLiveImages(),
-        ]);
+        return LogoutUseCase(repository, onLogout: _sessionCleanups());
       }
   );
+
+  // account deletion (ROADMAP-downloads-and-account-deletion.md, Phase 5)
+  sl.registerLazySingleton<AccountDeletionRemoteDataSource>(
+      () => AccountDeletionRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<AccountDeletionRepository>(
+      () => AccountDeletionDataRepository(remoteDataSource: sl<AccountDeletionRemoteDataSource>()));
+  sl.registerFactory(() => GetAccountDeletionSummaryUseCase(sl<AccountDeletionRepository>()));
+  sl.registerFactory(() => DeleteAccountUseCase(
+        sl<AccountDeletionRepository>(),
+        sl<AccountSecurityRepository>(),
+        sl<CryptoEngine>(),
+        onDeleted: [
+          // The tokens no longer work: only the local session is removed
+          () => sl<AuthRepository>().clearSession(),
+          ..._sessionCleanups(),
+          // What this device keeps of the account beyond a session
+          () => sl<FileMappingRepository>().clear(),
+          () => sl<DownloadQueueRepository>().clear(),
+          () => sl<SyncConfigRepository>().clearSyncConfig(),
+          () => sl<SyncSchedulerService>().cancelSync(),
+          () => sl<DownloadScheduler>().cancel(),
+          () async => sl<SyncLogService>().clear(),
+          () => sl<SyncNotificationService>().cancelAll(),
+        ],
+      ));
+  sl.registerFactory(() => AccountDeletionSummaryCubit(getSummary: sl<GetAccountDeletionSummaryUseCase>()));
+  sl.registerFactory(() => DeleteAccountBloc(deleteAccountUseCase: sl<DeleteAccountUseCase>()));
 
   sl.registerFactory(
       () {
@@ -1225,3 +1248,19 @@ Future<void> init() async {
   // because it needs the same AuthBloc singleton instance.
   // It is registered here as a placeholder; see main.dart for the actual registration.
 }
+
+/// What this device keeps for a session: removed on logout and when the account is deleted.
+List<Future<void> Function()> _sessionCleanups() => [
+      () => sl<RecoveryReminderRepository>().clear(),
+      () => sl<RecoveryPhraseExporter>().deleteExportedFiles(),
+      // Keys of the files, video proxy and encrypted cache; then the decoded images kept in memory
+      () => sl<ClearMediaDataUseCase>()(),
+      // Downloads of this account: the queue, what this device is missing and the files shared
+      () => sl<CancelDownloadUseCase>()(),
+      () => sl<OnDevicePresenceUpdater>().stop(),
+      () async => sl<OnDevicePresence>().clear(),
+      () => sl<ClearSharedFilesUseCase>()(),
+      () async => PaintingBinding.instance.imageCache
+        ..clear()
+        ..clearLiveImages(),
+    ];
