@@ -21,7 +21,8 @@ class GalleryFileModel extends GalleryFile {
     super.sizeBytes,
     super.isFavorite,
     super.hasPreview,
-    super.coverOf
+    super.coverOf,
+    super.deviceName
   });
 
   factory GalleryFileModel.fromJson(Map<String, dynamic> json) {
@@ -36,6 +37,7 @@ class GalleryFileModel extends GalleryFile {
       isFavorite: json['isFavorite'] as bool? ?? false,
       hasPreview: json['hasPreview'] as bool? ?? false,
       coverOf: (json['coverOf'] as List<dynamic>? ?? const []).map((id) => id.toString()).toList(),
+      deviceName: json['deviceName'] as String?,
       encryptedRef: EncryptedFileRefModel.fromJson(json)
     );
   }
@@ -50,7 +52,8 @@ class GalleryFileModel extends GalleryFile {
       'sizeBytes': sizeBytes,
       'isFavorite': isFavorite,
       'hasPreview': hasPreview,
-      'coverOf': coverOf
+      'coverOf': coverOf,
+      'deviceName': deviceName
     };
   }
 
@@ -64,7 +67,8 @@ class GalleryFileModel extends GalleryFile {
       sizeBytes: file.sizeBytes,
       isFavorite: file.isFavorite,
       hasPreview: file.hasPreview,
-      coverOf: file.coverOf
+      coverOf: file.coverOf,
+      deviceName: file.deviceName
     );
   }
 }

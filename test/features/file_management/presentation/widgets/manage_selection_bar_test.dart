@@ -16,8 +16,14 @@ import 'package:photo_manager_app/features/file_management/presentation/bloc/man
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/core/widgets/selection_action_bar.dart';
+import 'package:photo_manager_app/core/enums/file_status.dart';
+import 'package:photo_manager_app/core/enums/file_type.dart';
+import 'package:photo_manager_app/features/downloads/domain/entities/remote_media_file.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_event.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 
 import '../../../../helpers/widget_test_helper.dart';
+import '../../../../helpers/downloads_test_providers.dart';
 
 class MockFileManagementBloc extends Mock implements FileManagementBloc {}
 
@@ -30,11 +36,13 @@ void main() {
   late MockManageFolderBloc folderBloc;
   late StreamController<FileManagementState> states;
   late int finished;
+  late DownloadsTestProviders downloads;
 
   setUpAll(() => registerFallbackValue(FakeFileManagementEvent()));
 
   setUp(() {
     finished = 0;
+    downloads = DownloadsTestProviders();
     states = StreamController<FileManagementState>.broadcast();
     fileBloc = MockFileManagementBloc();
     when(() => fileBloc.state).thenReturn(const FileManagementStarting());
@@ -62,11 +70,16 @@ void main() {
     return tester.pumpWidget(makeTestableWidgetWithBlocs(
       providers: [
         BlocProvider<FileManagementBloc>.value(value: fileBloc),
+        ...downloads.providers,
         BlocProvider<ManageFolderBloc>.value(value: folderBloc),
       ],
       child: Scaffold(
         bottomNavigationBar: ManageSelectionBar(
           fileIds: ids,
+          files: [
+            for (final id in ids)
+              GalleryFile(id: id, type: FileType.image, status: FileStatus.managed, capturedAt: null, sizeBytes: 10),
+          ],
           selectedSizeBytes: sizeBytes,
           onFinished: () => finished++,
           albumActions: albumActions,
@@ -88,15 +101,59 @@ void main() {
   }
 
   group('ManageSelectionBar', () {
-    testWidgets('should show the count and the four actions', (tester) async {
+    testWidgets('should show the five actions of the gallery without a count line', (tester) async {
       // Arrange & Act
       await pump(tester);
 
-      // Assert
-      expect(find.text('3 photos'), findsOneWidget);
-      for (final label in ['Save', 'To album', 'Free up', 'Delete']) {
+      // Assert: the count is in the selection header now; Share and Free up are under More
+      expect(find.text('3 photos'), findsNothing);
+      for (final label in ['Save', 'Download', 'To album', 'Delete', 'More']) {
         expect(find.text(label), findsOneWidget);
       }
+      expect(find.text('Free up'), findsNothing);
+    });
+
+    testWidgets('should offer Share and Free up under More', (tester) async {
+      // Arrange
+      await pump(tester);
+
+      // Act
+      await tester.tap(find.text('More'));
+      await settle(tester);
+
+      // Assert
+      expect(find.text('Share'), findsOneWidget);
+      expect(find.text('Free up'), findsOneWidget);
+    });
+
+    testWidgets('should download the selected files and leave the selection', (tester) async {
+      // Arrange
+      await pump(tester);
+
+      // Act
+      await tester.tap(find.text('Download'));
+      await settle(tester);
+
+      // Assert
+      final event = verify(() => downloads.progress.add(captureAny())).captured.single as DownloadFilesRequested;
+      expect(event.fileIds, {'a', 'b', 'c'});
+      expect(finished, 1);
+    });
+
+    testWidgets('should share the selected files and leave the selection', (tester) async {
+      // Arrange
+      await pump(tester);
+
+      // Act
+      await tester.tap(find.text('More'));
+      await settle(tester);
+      await tester.tap(find.text('Share'));
+      await settle(tester);
+
+      // Assert
+      final files = verify(() => downloads.share.share(captureAny())).captured.single as List<RemoteMediaFile>;
+      expect(files.map((file) => file.id), ['a', 'b', 'c']);
+      expect(finished, 1);
     });
 
     testWidgets('should open the sheet with "save and free" preselected', (tester) async {
@@ -133,6 +190,19 @@ void main() {
       for (final label in ['Save', 'To album', 'Free up']) {
         expect(find.text(label), findsNothing);
       }
+    });
+
+    testWidgets('should offer Download and Share under More inside an album', (tester) async {
+      // Arrange
+      await pump(tester, albumActions: const []);
+
+      // Act
+      await tester.tap(find.text('More'));
+      await settle(tester);
+
+      // Assert
+      expect(find.text('Download'), findsOneWidget);
+      expect(find.text('Share'), findsOneWidget);
     });
 
     testWidgets('should open the album option of the sheet from Move', (tester) async {
@@ -177,6 +247,8 @@ void main() {
       await pump(tester);
 
       // Act
+      await tester.tap(find.text('More'));
+      await settle(tester);
       await tester.tap(find.text('Free up'));
       await confirmDialog(tester);
 
@@ -199,6 +271,8 @@ void main() {
     testWidgets('should finish the selection when its action succeeds', (tester) async {
       // Arrange
       await pump(tester);
+      await tester.tap(find.text('More'));
+      await settle(tester);
       await tester.tap(find.text('Free up'));
       await confirmDialog(tester);
 

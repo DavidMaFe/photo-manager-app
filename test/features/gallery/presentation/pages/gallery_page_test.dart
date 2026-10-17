@@ -37,6 +37,7 @@ import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/file_thumbnail_card.dart';
+import '../../../../helpers/downloads_test_providers.dart';
 
 class MockGalleryBloc extends Mock implements GalleryBloc {}
 
@@ -90,6 +91,7 @@ void main() {
         BlocProvider<SyncSessionBloc>.value(value: mockSyncSessionBloc),
         BlocProvider<AuthBloc>.value(value: mockAuthBloc),
         BlocProvider<FileManagementBloc>.value(value: mockFileManagementBloc),
+        ...downloadsTestProviders(),
         BlocProvider<ManageFolderBloc>.value(value: mockManageFolderBloc),
       ],
       child: const GalleryPage(),
@@ -254,7 +256,7 @@ void main() {
         expect(tester.widgetList<FileThumbnailCard>(find.byType(FileThumbnailCard)).any((c) => c.leaving), isFalse);
       });
 
-      testWidgets('should keep the four gallery selection actions', (tester) async {
+      testWidgets('should keep the gallery selection actions', (tester) async {
         // Arrange
         when(() => mockGalleryBloc.state).thenReturn(loaded(isSelectionMode: true, selectedFileIds: {'file-1'}));
 
@@ -262,7 +264,7 @@ void main() {
         await tester.pumpWidget(createWidgetUnderTest());
 
         // Assert
-        for (final label in ['Save', 'To album', 'Free up', 'Delete']) {
+        for (final label in ['Save', 'Download', 'To album', 'Delete', 'More']) {
           expect(find.text(label), findsOneWidget);
         }
         expect(find.text('Favorites'), findsOneWidget); // only the filter pill
@@ -511,9 +513,10 @@ void main() {
       final bar = tester.widget<ManageSelectionBar>(find.byType(ManageSelectionBar));
       expect(bar.fileIds, ['file-1']);
       expect(find.text('Save'), findsOneWidget);
+      expect(find.text('Download'), findsOneWidget);
       expect(find.text('To album'), findsOneWidget);
-      expect(find.text('Free up'), findsOneWidget);
       expect(find.text('Delete'), findsOneWidget);
+      expect(find.text('More'), findsOneWidget);
     });
 
     // ==================== EDGE CASE TESTS ====================

@@ -65,6 +65,9 @@ class AccountLockDetected extends AuthEvent {}
 
 class LogoutRequested extends AuthEvent {}
 
+/// The account was deleted and this device already removed its session: back to the login.
+class AccountDeleted extends AuthEvent {}
+
 
 class CheckAuthStatus extends AuthEvent {}
 

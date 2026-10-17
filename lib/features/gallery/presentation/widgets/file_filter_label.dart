@@ -15,6 +15,8 @@ extension FileFilterLabel on FileFilter {
         return l10n.videos;
       case FileFilter.pending:
         return l10n.filterToReview;
+      case FileFilter.notOnDevice:
+        return l10n.filterNotOnDevice;
     }
   }
 }

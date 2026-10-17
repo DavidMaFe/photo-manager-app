@@ -509,6 +509,16 @@ void main() {
       );
     });
 
+    group('AccountDeleted', () {
+      blocTest<AuthBloc, AuthState>(
+        'should emit [NotAuthenticated] without logging out on the server',
+        build: () => authBloc,
+        act: (bloc) => bloc.add(AccountDeleted()),
+        expect: () => [isA<NotAuthenticated>()],
+        verify: (_) => verifyNever(() => mockLogoutUseCase()),
+      );
+    });
+
     group('LogoutRequested', () {
       blocTest<AuthBloc, AuthState>(
         'should emit [NotAuthenticated] when logout succeeds',

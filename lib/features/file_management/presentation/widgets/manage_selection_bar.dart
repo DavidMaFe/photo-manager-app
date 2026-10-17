@@ -3,6 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/core/widgets/selection_action_bar.dart';
+import 'package:photo_manager_app/features/downloads/domain/entities/remote_media_file.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_bloc.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_event.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/share_cubit.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_bloc.dart';
@@ -10,13 +14,16 @@ import 'package:photo_manager_app/features/file_management/presentation/bloc/fil
 import 'package:photo_manager_app/features/file_management/presentation/bloc/file_management/file_management_state.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/file_management_feedback.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
+import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-/// Selection action bar: Save, To album, Free up and Delete for the selected
-/// files of the gallery; inside an album, [albumActions] (Favorites, Cover…),
-/// Move and Delete.
+/// Selection action bar. In the gallery: Save · Download · Album · Delete · More (Share, Free up). Inside an album:
+/// [albumActions] (Favorites, Cover…) · Move · Delete · More (Download, Share).
 class ManageSelectionBar extends StatefulWidget {
   final List<String> fileIds;
+
+  /// The selected files, for sharing them (their type and size).
+  final List<GalleryFile> files;
 
   /// Size of the selection, shown in the manage sheet; 0 while unknown.
   final int selectedSizeBytes;
@@ -27,12 +34,13 @@ class ManageSelectionBar extends StatefulWidget {
   /// Album layout: these actions first, then Move and Delete. `null` for the gallery layout.
   final List<SelectionAction>? albumActions;
 
-  /// Line above the buttons; «{n} photos» by default.
+  /// Optional line above the buttons (e.g. the cover limit in an album).
   final String? label;
 
   const ManageSelectionBar({
     super.key,
     required this.fileIds,
+    this.files = const [],
     this.selectedSizeBytes = 0,
     required this.onFinished,
     this.albumActions,
@@ -104,16 +112,48 @@ class _ManageSelectionBarState extends State<ManageSelectionBar> {
     }
   }
 
+  void _download() {
+    context.read<DownloadProgressBloc>().add(DownloadFilesRequested(widget.fileIds.toSet()));
+    widget.onFinished();
+  }
+
+  void _share() {
+    context.read<ShareCubit>().share([
+      for (final file in widget.files)
+        RemoteMediaFile(id: file.id, type: file.type, sizeBytes: file.sizeBytes),
+    ]);
+    widget.onFinished();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final count = widget.fileIds.length;
     final enabled = count > 0 && _pendingAction == null;
 
+    final download = SelectionMenuItem(icon: Symbols.download_rounded, label: l10n.actionDownload, onSelected: _download);
+    final share = SelectionMenuItem(icon: Symbols.share_rounded, label: l10n.actionShare, onSelected: _share);
+    final delete = SelectionAction(
+      icon: Symbols.delete_rounded,
+      label: l10n.actionDelete,
+      style: SelectionActionStyle.danger,
+      onPressed: enabled
+          ? () => _confirmAndDispatch(
+                action: const ManageAction(serverAction: ServerAction.delete, keepOnDevice: false),
+                icon: Symbols.delete_rounded,
+                tone: AppDialogTone.danger,
+                title: l10n.deleteFilesTitle(count),
+                message: l10n.deleteFilesBody,
+                confirmLabel: l10n.actionDelete,
+                destructive: true,
+              )
+          : null,
+    );
+
     return BlocListener<FileManagementBloc, FileManagementState>(
       listener: _handleState,
       child: SelectionActionBar(
-        label: widget.label ?? l10n.photosCount(count),
+        label: widget.label,
         actions: [
           if (widget.albumActions case final albumActions?) ...[
             ...albumActions,
@@ -121,6 +161,13 @@ class _ManageSelectionBarState extends State<ManageSelectionBar> {
               icon: Symbols.drive_file_move_rounded,
               label: l10n.move,
               onPressed: enabled ? () => _openSheet(ManageOption.album) : null,
+            ),
+            delete,
+            SelectionAction(
+              icon: Symbols.more_horiz_rounded,
+              label: l10n.actionMore,
+              onPressed: enabled ? () {} : null,
+              menu: [download, share],
             ),
           ] else ...[
             SelectionAction(
@@ -130,41 +177,37 @@ class _ManageSelectionBarState extends State<ManageSelectionBar> {
               onPressed: enabled ? () => _openSheet(ManageOption.saveAndFree) : null,
             ),
             SelectionAction(
+              icon: Symbols.download_rounded,
+              label: l10n.actionDownload,
+              onPressed: enabled ? _download : null,
+            ),
+            SelectionAction(
               icon: Symbols.photo_album_rounded,
               label: l10n.actionToAlbum,
               onPressed: enabled ? () => _openSheet(ManageOption.album) : null,
             ),
+            delete,
             SelectionAction(
-              icon: Symbols.mobile_off_rounded,
-              label: l10n.actionFreeUp,
-              onPressed: enabled
-                  ? () => _confirmAndDispatch(
-                        action: const ManageAction(serverAction: ServerAction.save, keepOnDevice: false),
-                        icon: Symbols.cloud_upload_rounded,
-                        tone: AppDialogTone.accent,
-                        title: l10n.freeUpTitle,
-                        message: l10n.freeUpBody(count),
-                        confirmLabel: l10n.actionFreeUp,
-                      )
-                  : null,
+              icon: Symbols.more_horiz_rounded,
+              label: l10n.actionMore,
+              onPressed: enabled ? () {} : null,
+              menu: [
+                share,
+                SelectionMenuItem(
+                  icon: Symbols.mobile_off_rounded,
+                  label: l10n.actionFreeUp,
+                  onSelected: () => _confirmAndDispatch(
+                    action: const ManageAction(serverAction: ServerAction.save, keepOnDevice: false),
+                    icon: Symbols.cloud_upload_rounded,
+                    tone: AppDialogTone.accent,
+                    title: l10n.freeUpTitle,
+                    message: l10n.freeUpBody(count),
+                    confirmLabel: l10n.actionFreeUp,
+                  ),
+                ),
+              ],
             ),
           ],
-          SelectionAction(
-            icon: Symbols.delete_rounded,
-            label: l10n.actionDelete,
-            style: SelectionActionStyle.danger,
-            onPressed: enabled
-                ? () => _confirmAndDispatch(
-                      action: const ManageAction(serverAction: ServerAction.delete, keepOnDevice: false),
-                      icon: Symbols.delete_rounded,
-                      tone: AppDialogTone.danger,
-                      title: l10n.deleteFilesTitle(count),
-                      message: l10n.deleteFilesBody,
-                      confirmLabel: l10n.actionDelete,
-                      destructive: true,
-                    )
-                : null,
-          ),
         ],
       ),
     );

@@ -233,6 +233,67 @@ class SyncNotificationService {
     }
   }
 
+  /// Foreground notification of a download to the gallery (ROADMAP-downloads-and-account-deletion.md). It shares
+  /// the id of the sync progress: a download and a sync never run at the same time (SyncLock).
+  Future<void> showDownloadProgress({required int saved, required int total}) async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      final androidDetails = AndroidNotificationDetails(
+        _channelIdProgress,
+        'Sync Progress',
+        channelDescription: 'Shows sync progress for foreground service',
+        importance: Importance.low,
+        priority: Priority.low,
+        ongoing: true,
+        autoCancel: false,
+        showProgress: true,
+        maxProgress: total,
+        progress: saved,
+        icon: '@mipmap/ic_launcher',
+      );
+
+      await _notificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.startForegroundService(
+            _notificationIdProgress,
+            'Saving to this phone',
+            '$saved of $total files',
+            notificationDetails: androidDetails,
+            foregroundServiceTypes: {
+              AndroidServiceForegroundType.foregroundServiceTypeDataSync,
+            },
+          );
+    } catch (e) {
+      developer.log('❌ Failed to show download progress', name: 'SyncNotificationService', error: e);
+    }
+  }
+
+  /// Notification at the end of a download to the gallery.
+  Future<void> showDownloadFinished({required int saved, required int failed}) async {
+    try {
+      const androidDetails = AndroidNotificationDetails(
+        _channelIdSuccess,
+        'Sync Success',
+        channelDescription: 'Notifications for successful sync operations',
+        importance: Importance.low,
+        priority: Priority.low,
+        icon: '@mipmap/ic_launcher',
+      );
+      const notificationDetails = NotificationDetails(android: androidDetails, iOS: DarwinNotificationDetails());
+
+      final body = saved == 1 ? '1 file saved to this phone' : '$saved files saved to this phone';
+      await _notificationsPlugin.show(
+        _notificationIdSuccess,
+        'Download completed',
+        failed == 0 ? body : '$body · $failed could not be saved',
+        notificationDetails,
+      );
+    } catch (e) {
+      developer.log('❌ Failed to show download finished', name: 'SyncNotificationService', error: e);
+    }
+  }
+
   /// Show a sync success notification.
   Future<void> showSyncSuccessNotification({
     required int filesUploaded,

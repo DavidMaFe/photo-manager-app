@@ -21,6 +21,9 @@ enum AppButtonVariant {
 
   /// Fondo dangerSoft, texto dangerInk.
   danger,
+
+  /// Fondo danger, texto blanco. Confirma una acción que no se puede deshacer.
+  dangerSolid,
 }
 
 enum AppButtonSize {
@@ -108,6 +111,16 @@ class AppButton extends StatelessWidget {
     this.expand,
   }) : variant = AppButtonVariant.danger;
 
+  const AppButton.dangerSolid({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.size = AppButtonSize.large,
+    this.icon,
+    this.loading = false,
+    this.expand,
+  }) : variant = AppButtonVariant.dangerSolid;
+
   bool get _isLarge => size == AppButtonSize.large;
   bool get _enabled => onPressed != null && !loading;
 
@@ -183,6 +196,7 @@ class AppButton extends StatelessWidget {
       AppButtonVariant.inverse => (p.ink, p.surface),
       AppButtonVariant.text => (p.surface.withValues(alpha: 0), p.ink),
       AppButtonVariant.danger => (p.dangerSoft, p.dangerInk),
+      AppButtonVariant.dangerSolid => (p.danger, Colors.white),
     };
   }
 }

@@ -2,6 +2,14 @@ import 'package:flutter/painting.dart';
 
 import 'package:photo_manager_app/core/jpeg_xl/data/platform_jpeg_xl_codec.dart';
 import 'package:photo_manager_app/core/jpeg_xl/domain/jpeg_xl_codec.dart';
+import 'package:photo_manager_app/features/account_deletion/data/data_sources/account_deletion_remote_data_source.dart';
+import 'package:photo_manager_app/features/account_deletion/data/repositories/account_deletion_data_repository.dart';
+import 'package:photo_manager_app/features/account_deletion/domain/repositories/account_deletion_repository.dart';
+import 'package:photo_manager_app/features/account_deletion/domain/use_cases/delete_account_use_case.dart';
+import 'package:photo_manager_app/features/account_deletion/domain/use_cases/get_account_deletion_summary_use_case.dart';
+import 'package:photo_manager_app/features/account_deletion/presentation/bloc/account_deletion_summary_cubit.dart';
+import 'package:photo_manager_app/features/account_deletion/presentation/bloc/delete_account_bloc.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/get_device_storage_use_case.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/device_reset_password_bloc.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/locked_account_bloc.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/verify_recovery_phrase_bloc.dart';
@@ -105,6 +113,38 @@ import 'package:photo_manager_app/features/devices/domain/use_cases/rename_devic
 import 'package:photo_manager_app/features/devices/domain/use_cases/toggle_auto_sync_use_case.dart';
 import 'package:photo_manager_app/features/devices/domain/use_cases/unlink_device_use_case.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
+import 'package:photo_manager_app/features/downloads/data/data_sources/device_media_data_source.dart';
+import 'package:photo_manager_app/features/downloads/data/data_sources/download_queue_local_data_source.dart';
+import 'package:photo_manager_app/features/downloads/data/data_sources/server_files_remote_data_source.dart';
+import 'package:photo_manager_app/features/downloads/data/data_sources/share_local_data_source.dart';
+import 'package:photo_manager_app/features/downloads/data/repositories/device_gallery_data_repository.dart';
+import 'package:photo_manager_app/features/downloads/data/repositories/download_queue_data_repository.dart';
+import 'package:photo_manager_app/features/downloads/data/repositories/file_mapping_data_repository.dart';
+import 'package:photo_manager_app/features/downloads/data/repositories/server_files_data_repository.dart';
+import 'package:photo_manager_app/features/downloads/data/repositories/share_data_repository.dart';
+import 'package:photo_manager_app/features/downloads/data/services/background_download_service.dart';
+import 'package:photo_manager_app/features/downloads/data/services/work_manager_download_scheduler.dart';
+import 'package:photo_manager_app/features/downloads/domain/repositories/device_gallery_repository.dart';
+import 'package:photo_manager_app/features/downloads/domain/repositories/download_queue_repository.dart';
+import 'package:photo_manager_app/features/downloads/domain/repositories/file_mapping_repository.dart';
+import 'package:photo_manager_app/features/downloads/domain/repositories/server_files_repository.dart';
+import 'package:photo_manager_app/features/downloads/domain/repositories/share_repository.dart';
+import 'package:photo_manager_app/features/downloads/domain/services/download_scheduler.dart';
+import 'package:photo_manager_app/features/downloads/domain/services/on_device_presence.dart';
+import 'package:photo_manager_app/features/downloads/domain/services/original_content_reader.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/cancel_download_use_case.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/clear_shared_files_use_case.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/compute_missing_on_device_use_case.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/plan_download_use_case.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/process_download_queue_use_case.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/save_original_to_gallery_use_case.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/share_files_use_case.dart';
+import 'package:photo_manager_app/features/downloads/domain/use_cases/start_download_use_case.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_plan_cubit.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_bloc.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/on_device_presence_cubit.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/share_cubit.dart';
+import 'package:photo_manager_app/features/downloads/presentation/services/on_device_presence_updater.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/sync_device_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/remote/sync_device_remote_data_source.dart';
@@ -233,6 +273,63 @@ Future<void> init() async {
       () => GetFileMetadataUseCase(sl<FileKeyRepository>(), sl<FileKeyUnwrapper>(), sl<CryptoEngine>()));
   sl.registerLazySingleton(() => ClearMediaDataUseCase(sl<FileKeyRepository>(), sl<FileKeyUnwrapper>(),
       sl<DecryptedRangeReader>(), sl<VideoStreamServer>(), sl<EncryptedMediaRepository>()));
+
+  // Downloads to the gallery and sharing (ROADMAP-downloads-and-account-deletion.md). Also available in the
+  // WorkManager background isolate, which saves the queued files.
+  sl.registerLazySingleton<DeviceMediaDataSource>(() => const DeviceMediaDataSourceImpl());
+  sl.registerLazySingleton<ServerFilesRemoteDataSource>(
+      () => ServerFilesRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<DownloadQueueLocalDataSource>(
+      () => DownloadQueueLocalDataSourceImpl(database: () => sl<AppDatabase>().database));
+  sl.registerLazySingleton<ShareLocalDataSource>(() => ShareLocalDataSourceImpl());
+  sl.registerLazySingleton<DeviceGalleryRepository>(
+      () => DeviceGalleryDataRepository(dataSource: sl<DeviceMediaDataSource>()));
+  sl.registerLazySingleton<FileMappingRepository>(() => FileMappingDataRepository(database: sl<AppDatabase>()));
+  sl.registerLazySingleton<ServerFilesRepository>(() => ServerFilesDataRepository(
+      remoteDataSource: sl<ServerFilesRemoteDataSource>(),
+      fileKeyRepository: sl<FileKeyRepository>(),
+      syncDeviceRepository: sl<SyncDeviceRepository>()));
+  sl.registerLazySingleton<DownloadQueueRepository>(
+      () => DownloadQueueDataRepository(localDataSource: sl<DownloadQueueLocalDataSource>()));
+  sl.registerLazySingleton<ShareRepository>(() => ShareDataRepository(
+      localDataSource: sl<ShareLocalDataSource>(), deviceMediaDataSource: sl<DeviceMediaDataSource>()));
+  sl.registerLazySingleton<DownloadScheduler>(() => WorkManagerDownloadScheduler());
+  sl.registerLazySingleton(
+      () => OriginalContentReader(sl<DecryptedRangeReader>(), sl<GetFileMetadataUseCase>(), sl<JpegXlCodec>()));
+  sl.registerLazySingleton(() => ComputeMissingOnDeviceUseCase(
+      sl<ServerFilesRepository>(), sl<FileMappingRepository>(), sl<DeviceGalleryRepository>()));
+  sl.registerLazySingleton(() => OnDevicePresence(sl<ComputeMissingOnDeviceUseCase>()));
+  sl.registerLazySingleton(
+      () => PlanDownloadUseCase(sl<ComputeMissingOnDeviceUseCase>(), sl<DeviceGalleryRepository>()));
+  sl.registerFactory(() => GetDeviceStorageUseCase(sl<DeviceGalleryRepository>()));
+  sl.registerLazySingleton(() => StartDownloadUseCase(sl<DownloadQueueRepository>(), sl<DownloadScheduler>()));
+  sl.registerLazySingleton(() => CancelDownloadUseCase(sl<DownloadQueueRepository>(), sl<DownloadScheduler>()));
+  sl.registerLazySingleton(() => SaveOriginalToGalleryUseCase(
+      sl<OriginalContentReader>(), sl<DeviceGalleryRepository>(), sl<FileMappingRepository>()));
+  sl.registerLazySingleton(() => ProcessDownloadQueueUseCase(
+      sl<DownloadQueueRepository>(), sl<ServerFilesRepository>(), sl<SaveOriginalToGalleryUseCase>()));
+  sl.registerLazySingleton(() => ShareFilesUseCase(sl<FileMappingRepository>(), sl<DeviceGalleryRepository>(),
+      sl<OriginalContentReader>(), sl<ShareRepository>()));
+  sl.registerLazySingleton(() => ClearSharedFilesUseCase(sl<ShareRepository>()));
+  sl.registerLazySingleton(() => BackgroundDownloadService(
+      processQueue: sl<ProcessDownloadQueueUseCase>(),
+      queue: sl<DownloadQueueRepository>(),
+      scheduler: sl<DownloadScheduler>(),
+      lock: sl<SyncLock>(),
+      notifications: sl<SyncNotificationService>(),
+      log: sl<SyncLogService>()));
+  sl.registerLazySingleton(() => OnDevicePresenceUpdater(sl<OnDevicePresence>(), sl<AppEventBus>()));
+  // App-wide: the progress card shows on several pages
+  sl.registerLazySingleton(() => DownloadProgressBloc(
+      queue: sl<DownloadQueueRepository>(),
+      startDownload: sl<StartDownloadUseCase>(),
+      cancelDownload: sl<CancelDownloadUseCase>(),
+      planDownload: sl<PlanDownloadUseCase>(),
+      presence: sl<OnDevicePresence>()));
+  sl.registerFactory(() => OnDevicePresenceCubit(sl<OnDevicePresence>()));
+  sl.registerFactory(() => ShareCubit(sl<ShareFilesUseCase>()));
+  sl.registerFactoryParam<DownloadPlanCubit, String?, void>(
+      (folderId, _) => DownloadPlanCubit(sl<PlanDownloadUseCase>(), folderId: folderId));
 
   // Persistent sync log — registered immediately after SharedPreferences so it
   // is available in both the main isolate and the WorkManager background isolate.
@@ -608,17 +705,36 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final repository = sl<AuthRepository>();
-        return LogoutUseCase(repository, onLogout: [
-          () => sl<RecoveryReminderRepository>().clear(),
-          () => sl<RecoveryPhraseExporter>().deleteExportedFiles(),
-          // Keys of the files, video proxy and encrypted cache; then the decoded images kept in memory
-          () => sl<ClearMediaDataUseCase>()(),
-          () async => PaintingBinding.instance.imageCache
-            ..clear()
-            ..clearLiveImages(),
-        ]);
+        return LogoutUseCase(repository, onLogout: _sessionCleanups());
       }
   );
+
+  // account deletion (ROADMAP-downloads-and-account-deletion.md, Phase 5)
+  sl.registerLazySingleton<AccountDeletionRemoteDataSource>(
+      () => AccountDeletionRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<AccountDeletionRepository>(
+      () => AccountDeletionDataRepository(remoteDataSource: sl<AccountDeletionRemoteDataSource>()));
+  sl.registerFactory(() => GetAccountDeletionSummaryUseCase(sl<AccountDeletionRepository>()));
+  sl.registerFactory(() => DeleteAccountUseCase(
+        sl<AccountDeletionRepository>(),
+        sl<AccountSecurityRepository>(),
+        sl<CryptoEngine>(),
+        onDeleted: [
+          // The tokens no longer work: only the local session is removed
+          () => sl<AuthRepository>().clearSession(),
+          ..._sessionCleanups(),
+          // What this device keeps of the account beyond a session
+          () => sl<FileMappingRepository>().clear(),
+          () => sl<DownloadQueueRepository>().clear(),
+          () => sl<SyncConfigRepository>().clearSyncConfig(),
+          () => sl<SyncSchedulerService>().cancelSync(),
+          () => sl<DownloadScheduler>().cancel(),
+          () async => sl<SyncLogService>().clear(),
+          () => sl<SyncNotificationService>().cancelAll(),
+        ],
+      ));
+  sl.registerFactory(() => AccountDeletionSummaryCubit(getSummary: sl<GetAccountDeletionSummaryUseCase>()));
+  sl.registerFactory(() => DeleteAccountBloc(deleteAccountUseCase: sl<DeleteAccountUseCase>()));
 
   sl.registerFactory(
       () {
@@ -740,7 +856,7 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final repository = sl<GalleryRepository>();
-        return GetFilesUseCase(repository);
+        return GetFilesUseCase(repository, sl<OnDevicePresence>());
       }
   );
   sl.registerFactory(
@@ -979,6 +1095,7 @@ Future<void> init() async {
           getFilesUseCase: getFileUseCase,
           getPendingFileIdsUseCase: getPendingFileIdsUseCase,
           eventBus: eventBus,
+          onDevicePresenceChanges: sl<OnDevicePresence>().changes,
         );
       }
   );
@@ -1131,3 +1248,19 @@ Future<void> init() async {
   // because it needs the same AuthBloc singleton instance.
   // It is registered here as a placeholder; see main.dart for the actual registration.
 }
+
+/// What this device keeps for a session: removed on logout and when the account is deleted.
+List<Future<void> Function()> _sessionCleanups() => [
+      () => sl<RecoveryReminderRepository>().clear(),
+      () => sl<RecoveryPhraseExporter>().deleteExportedFiles(),
+      // Keys of the files, video proxy and encrypted cache; then the decoded images kept in memory
+      () => sl<ClearMediaDataUseCase>()(),
+      // Downloads of this account: the queue, what this device is missing and the files shared
+      () => sl<CancelDownloadUseCase>()(),
+      () => sl<OnDevicePresenceUpdater>().stop(),
+      () async => sl<OnDevicePresence>().clear(),
+      () => sl<ClearSharedFilesUseCase>()(),
+      () async => PaintingBinding.instance.imageCache
+        ..clear()
+        ..clearLiveImages(),
+    ];

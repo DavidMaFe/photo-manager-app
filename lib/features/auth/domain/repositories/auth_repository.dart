@@ -15,6 +15,10 @@ abstract class AuthRepository {
 
   /// Logs out and removes the tokens and the keys of this device.
   Future<void> logout();
+
+  /// Removes the tokens, the cached user and the keys of this device without calling the server (the account was
+  /// deleted, so its tokens are no longer valid).
+  Future<void> clearSession();
   Future<User?> getCurrentUser();
   Future<LoginResult> register({
     required String email,

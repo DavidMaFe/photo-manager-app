@@ -4,6 +4,12 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/app_config.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/utils/date_formatter.dart';
+import 'package:photo_manager_app/core/utils/file_size_formatter.dart';
+import 'package:photo_manager_app/features/downloads/domain/entities/remote_media_file.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_bloc.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_event.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/on_device_presence_cubit.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/share_cubit.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/encrypted_image.dart';
 import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/zoomable_encrypted_photo.dart';
@@ -121,7 +127,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
                       title: file.capturedAt != null
                           ? DateFormatter.formatDayAndTime(file.capturedAt!, context)
                           : l10n.noDate,
-                      subtitle: _albumContext?.path ?? _subtitleFor(file, l10n),
+                      subtitle: _albumContext?.path ?? _subtitleFor(file, l10n, context),
                       onBack: () => Navigator.pop(context),
                       actions: [
                         if (file.isPending) MediaViewerReviewPill(label: l10n.filterToReview),
@@ -171,29 +177,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
                           padding: EdgeInsets.symmetric(horizontal: _albumContext != null ? 12 : 16),
                           child: _albumContext != null
                               ? _buildAlbumActionBar(context, file, l10n, palette)
-                              : MediaViewerActionBar(
-                            children: [
-                              if (AppConfig.favoritesAndCoversEnabled) ...[
-                                FavoriteViewerButton(key: ValueKey('favorite-${file.id}'), file: file),
-                                const SizedBox(width: 8),
-                              ],
-                              Expanded(
-                                child: MediaViewerAction(
-                                  icon: Symbols.cloud_upload_rounded,
-                                  label: l10n.actionSave,
-                                  highlighted: true,
-                                  onPressed: () => _showManageModal(context),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              MediaViewerAction(
-                                icon: Symbols.delete_rounded,
-                                label: l10n.actionDelete,
-                                color: palette.mediaDanger,
-                                onPressed: () => _confirmDelete(context, l10n),
-                              ),
-                            ],
-                          ),
+                              : _buildGalleryActionBar(context, file, l10n, palette),
                         ),
                       ],
                     ),
@@ -268,12 +252,71 @@ class _FileDetailPageState extends State<FileDetailPage> {
     );
   }
 
-  /// "Image" or "Video · 1:15".
-  String _subtitleFor(GalleryFile file, AppLocalizations l10n) {
-    if (!file.isVideo) return l10n.filePropertyTypeImage;
+  /// The device it comes from and its size («Galaxy S23 · 4,2 MB»); «Image» or «Video · 1:15» when the device is not
+  /// known.
+  String _subtitleFor(GalleryFile file, AppLocalizations l10n, BuildContext context) {
+    final size = file.sizeBytes > 0
+        ? ' · ${FileSizeFormatter.format(file.sizeBytes, locale: Localizations.localeOf(context).toLanguageTag())}'
+        : '';
+    if (file.deviceName case final device?) return '$device$size';
+    if (!file.isVideo) return '${l10n.filePropertyTypeImage}$size';
     final seconds = file.durationSeconds;
-    if (seconds == null) return l10n.filePropertyTypeVideo;
+    if (seconds == null) return '${l10n.filePropertyTypeVideo}$size';
     return '${l10n.filePropertyTypeVideo} · ${MediaThumbnail.formatDuration(Duration(seconds: seconds))}';
+  }
+
+  /// Whether this phone has the file; null while it is not known.
+  bool? _isOnDevice(BuildContext context, GalleryFile file) =>
+      context.select<OnDevicePresenceCubit, bool?>((cubit) => cubit.state.isOnDevice(file.id));
+
+  /// «On phone» (dimmed) when this phone has it; «Download» otherwise.
+  Widget _downloadAction(BuildContext context, GalleryFile file, AppLocalizations l10n) {
+    final onDevice = _isOnDevice(context, file) ?? false;
+    return MediaViewerAction(
+      icon: onDevice ? Symbols.download_done_rounded : Symbols.download_rounded,
+      label: onDevice ? l10n.actionOnDevice : l10n.actionDownload,
+      onPressed: onDevice
+          ? null
+          : () => context.read<DownloadProgressBloc>().add(DownloadFilesRequested({file.id})),
+    );
+  }
+
+  void _share(BuildContext context, GalleryFile file) {
+    context.read<ShareCubit>().share([RemoteMediaFile(id: file.id, type: file.type, sizeBytes: file.sizeBytes)]);
+  }
+
+  /// Gallery bar: Share · Favorite · Save · On phone/Download · Delete.
+  Widget _buildGalleryActionBar(BuildContext context, GalleryFile file, AppLocalizations l10n, AppPalette palette) {
+    return MediaViewerActionBar(
+      children: [
+        Expanded(
+          child: MediaViewerAction(
+            icon: Symbols.ios_share_rounded,
+            label: l10n.actionShare,
+            onPressed: () => _share(context, file),
+          ),
+        ),
+        if (AppConfig.favoritesAndCoversEnabled)
+          Expanded(child: FavoriteViewerButton(key: ValueKey('favorite-${file.id}'), file: file)),
+        Expanded(
+          child: MediaViewerAction(
+            icon: Symbols.cloud_upload_rounded,
+            label: l10n.actionSave,
+            highlighted: true,
+            onPressed: () => _showManageModal(context),
+          ),
+        ),
+        Expanded(child: _downloadAction(context, file, l10n)),
+        Expanded(
+          child: MediaViewerAction(
+            icon: Symbols.delete_rounded,
+            label: l10n.actionDelete,
+            color: palette.mediaDanger,
+            onPressed: () => _confirmDelete(context, l10n),
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _confirmDelete(BuildContext context, AppLocalizations l10n) async {
@@ -314,7 +357,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
     }
   }
 
-  /// Album bar: Favorite · Cover (photos only) · Move · Delete.
+  /// Album bar: Favorite · Cover (photos only) · Move · On phone/Download · More (Share, Delete).
   Widget _buildAlbumActionBar(BuildContext context, GalleryFile file, AppLocalizations l10n, AppPalette palette) {
     return MediaViewerActionBar(
       children: [
@@ -333,12 +376,23 @@ class _FileDetailPageState extends State<FileDetailPage> {
             onPressed: () => _showManageModal(context, initialOption: ManageOption.album),
           ),
         ),
+        Expanded(child: _downloadAction(context, file, l10n)),
         Expanded(
-          child: MediaViewerAction(
-            icon: Symbols.delete_rounded,
-            label: l10n.actionDelete,
-            color: palette.mediaDanger,
-            onPressed: () => _confirmDelete(context, l10n),
+          child: MediaViewerMoreAction(
+            label: l10n.actionMore,
+            items: [
+              MediaViewerMenuItem(
+                icon: Symbols.ios_share_rounded,
+                label: l10n.actionShare,
+                onSelected: () => _share(context, file),
+              ),
+              MediaViewerMenuItem(
+                icon: Symbols.delete_rounded,
+                label: l10n.actionDelete,
+                destructive: true,
+                onSelected: () => _confirmDelete(context, l10n),
+              ),
+            ],
           ),
         ),
       ],

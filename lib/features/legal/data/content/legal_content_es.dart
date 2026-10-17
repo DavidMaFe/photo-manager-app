@@ -2,13 +2,12 @@ import 'package:photo_manager_app/features/legal/domain/entities/legal_document.
 import 'package:photo_manager_app/features/legal/domain/entities/legal_versions.dart';
 
 // BORRADOR: los términos y la política de privacidad deben revisarse por un abogado antes de abrir la app a otros
-// usuarios. Los datos entre corchetes se completan entonces.
+// usuarios.
 //
 // Al cambiar los términos o la política, sube su versión en LegalVersions y en app.legal.* del backend.
 
-const String _controller = '[NOMBRE DEL RESPONSABLE]';
-const String _contactEmail = '[EMAIL DE CONTACTO]';
-const String _serverProvider = '[PROVEEDOR DEL SERVIDOR]';
+const String _controller = 'David Martínez Fernández';
+const String _contactEmail = 'soporte@photo-manager-pro.com';
 
 final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
   LegalDocumentType.protection: const LegalDocument(
@@ -185,9 +184,13 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
             'de seguridad cifradas, pero no podemos garantizar que funcione siempre sin interrupciones ni errores.'),
       ]),
       LegalSection(heading: '9. Baja', blocks: [
-        LegalParagraph('Puedes pedir que borremos tu cuenta escribiendo a $_contactEmail desde el email de la '
-            'cuenta. La borraremos, junto con tus archivos y claves, en un plazo máximo de 30 días. Las copias de '
-            'seguridad cifradas pueden conservarlos 30 días más.'),
+        LegalParagraph('Puedes eliminar tu cuenta cuando quieras desde la app, en Perfil → Eliminar cuenta. Se borra '
+            'al momento, con tus archivos, álbumes, claves y dispositivos, y no se puede deshacer. Las fotos y vídeos '
+            'que tengas en tus móviles no se tocan.'),
+        LegalParagraph('Si no puedes usar la app, escribe a $_contactEmail desde el email de la cuenta. La borraremos '
+            'en un plazo máximo de 30 días.'),
+        LegalParagraph('Las copias de seguridad cifradas conservan los datos borrados hasta 6 meses. Como también se '
+            'borran tus claves, nadie puede abrirlos.'),
       ]),
       LegalSection(heading: '10. Cambios en los términos', blocks: [
         LegalParagraph('Si cambiamos estos términos, publicaremos una versión nueva y la app te pedirá aceptarla '
@@ -227,6 +230,9 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
       LegalSection(heading: '3. Lo que no podemos ver', blocks: [
         LegalParagraph('El contenido de tus fotos y vídeos, sus miniaturas, los nombres originales, los datos EXIF y la '
             'ubicación GPS van cifrados de extremo a extremo. Tampoco recibimos tu contraseña ni tus 24 palabras.'),
+        LegalParagraph('Cuando compartes una foto o un vídeo con otra app, se envía el original sin cifrar. Si no '
+            'está en la galería de tu móvil, la app lo descifra en un archivo temporal privado, que se borra al volver '
+            'a la app. Lo que pase después depende de la app con la que lo compartas.'),
       ]),
       LegalSection(heading: '4. Para qué y con qué base legal', blocks: [
         LegalBullets([
@@ -240,12 +246,13 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
       ]),
       LegalSection(heading: '5. Dónde están tus datos y quién nos ayuda', blocks: [
         LegalBullets([
-          'Servidor de la aplicación: $_serverProvider, en la Unión Europea.',
-          'Archivos cifrados: Cloudflare R2, con los datos en la jurisdicción de la Unión Europea.',
+          'Servidor de la aplicación y archivos cifrados: un servidor propio, en España.',
           'Copias de seguridad cifradas: Backblaze B2, en una región de la Unión Europea.',
-          'Emails (códigos para restablecer la contraseña): Google (Gmail).',
+          'Emails de la app (códigos para restablecer la contraseña y confirmación del borrado de la cuenta): Brevo, '
+              'en la Unión Europea.',
+          'Correo de soporte ($_contactEmail): Zoho Mail, en su centro de datos de la Unión Europea.',
         ]),
-        LegalParagraph('Cloudflare, Backblaze y Google son empresas de Estados Unidos. Cuando acceden a datos desde '
+        LegalParagraph('Backblaze es una empresa de Estados Unidos y Zoho, de la India. Cuando acceden a datos desde '
             'fuera de la Unión Europea, la transferencia se ampara en el Marco de Privacidad de Datos UE-EE. UU. o en '
             'las cláusulas contractuales tipo de la Comisión Europea.'),
       ]),
@@ -254,13 +261,17 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
           'Mientras tengas la cuenta.',
           'Los archivos de la papelera se borran a los 30 días.',
           'Los tokens de sesión caducan a los 30 días.',
-          'Si pides la baja, borramos tus datos en un plazo máximo de 30 días; las copias de seguridad cifradas los '
-              'conservan 30 días más.',
+          'Si eliminas la cuenta desde la app, tus datos se borran al momento; si lo pides por email, en un plazo '
+              'máximo de 30 días.',
+          'Las copias de seguridad cifradas conservan los datos borrados hasta 6 meses. Como también se borran tus '
+              'claves, nadie puede abrirlos.',
         ]),
       ]),
       LegalSection(heading: '7. Tus derechos', blocks: [
         LegalParagraph('Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación del '
-            'tratamiento y portabilidad escribiendo a $_contactEmail desde el email de tu cuenta.'),
+            'tratamiento y portabilidad escribiendo a $_contactEmail desde el email de tu cuenta. Para borrar tu '
+            'cuenta no hace falta escribirnos: puedes hacerlo desde la app, en Perfil → Eliminar cuenta. También lo '
+            'explicamos en photo-manager-pro.com/eliminar-cuenta.'),
         LegalParagraph('Si crees que no hemos tratado bien tus datos, puedes reclamar ante la Agencia Española de '
             'Protección de Datos (www.aepd.es).'),
       ]),

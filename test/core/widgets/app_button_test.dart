@@ -20,6 +20,7 @@ void main() {
         AppButtonVariant.neutral: p.surface2,
         AppButtonVariant.inverse: p.ink,
         AppButtonVariant.danger: p.dangerSoft,
+        AppButtonVariant.dangerSolid: p.danger,
       };
       cases.forEach((variant, background) {
         testWidgets('should paint the $variant background from the palette', (tester) async {

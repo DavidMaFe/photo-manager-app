@@ -29,6 +29,9 @@ import 'package:photo_manager_app/features/file_management/presentation/bloc/man
 import 'package:photo_manager_app/features/file_management/presentation/pages/file_detail_page.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/file_properties_sheet.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/gallery_file.dart';
+import 'package:photo_manager_app/features/downloads/domain/entities/remote_media_file.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/download_progress_event.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/on_device_presence_cubit.dart';
 
 import '../../../../helpers/widget_test_helper.dart';
 import 'package:photo_manager_app/features/file_management/presentation/models/album_viewer_context.dart';
@@ -37,6 +40,7 @@ import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_action_
 import 'package:photo_manager_app/features/folders/presentation/bloc/cover_picker/cover_picker_cubit.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/cover_picker/cover_picker_state.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/cover_picker_sheet.dart';
+import '../../../../helpers/downloads_test_providers.dart';
 
 class MockFileManagementBloc extends Mock implements FileManagementBloc {}
 
@@ -94,14 +98,19 @@ void main() {
     ),
   ];
 
+  late DownloadsTestProviders downloads;
+
   Widget createWidgetUnderTest({
     required List<GalleryFile> files,
     int initialIndex = 0,
     AlbumViewerContext? albumContext,
+    OnDevicePresenceState presence = const OnDevicePresenceState(),
   }) {
+    downloads = DownloadsTestProviders(presenceState: presence);
     return makeTestableWidgetWithBlocs(
       providers: [
         BlocProvider<FileManagementBloc>.value(value: mockFileManagementBloc),
+        ...downloads.providers,
         BlocProvider<ManageFolderBloc>.value(value: mockManageFolderBloc),
         BlocProvider<FavoritesBloc>.value(value: mockFavoritesBloc),
       ],
@@ -232,6 +241,71 @@ void main() {
 
     // ==================== ALBUM CONTEXT TESTS ====================
 
+    // ==================== DOWNLOADS AND SHARING ====================
+
+    testWidgets('should show the device it comes from and its size in the header', (tester) async {
+      // Arrange
+      final file = GalleryFile(id: 'd', type: FileType.image, status: FileStatus.managed, capturedAt: now,
+          sizeBytes: 4404019, deviceName: 'Galaxy S23');
+
+      // Act
+      await tester.pumpWidget(createWidgetUnderTest(files: [file]));
+
+      // Assert
+      expect(find.text('Galaxy S23 · 4 MB'), findsOneWidget);
+    });
+
+    testWidgets('should offer Share, Save, Download and Delete', (tester) async {
+      // Arrange & Act
+      await tester.pumpWidget(createWidgetUnderTest(files: testFiles));
+
+      // Assert
+      for (final label in ['Share', 'Save', 'Download', 'Delete']) {
+        expect(find.text(label), findsOneWidget);
+      }
+    });
+
+    testWidgets('should download the file when this phone does not have it', (tester) async {
+      // Arrange
+      await tester.pumpWidget(createWidgetUnderTest(files: testFiles,
+          presence: const OnDevicePresenceState(known: true, missing: {'file-1'})));
+
+      // Act
+      await tester.tap(find.text('Download'));
+      await settle(tester);
+
+      // Assert
+      final event = verify(() => downloads.progress.add(captureAny())).captured.single as DownloadFilesRequested;
+      expect(event.fileIds, {'file-1'});
+    });
+
+    testWidgets('should show On phone, disabled, when this phone has the file', (tester) async {
+      // Arrange
+      await tester.pumpWidget(createWidgetUnderTest(files: testFiles,
+          presence: const OnDevicePresenceState(known: true)));
+
+      // Act
+      await tester.tap(find.text('On phone'));
+      await settle(tester);
+
+      // Assert
+      expect(find.text('Download'), findsNothing);
+      verifyNever(() => downloads.progress.add(any()));
+    });
+
+    testWidgets('should share the file', (tester) async {
+      // Arrange
+      await tester.pumpWidget(createWidgetUnderTest(files: testFiles));
+
+      // Act
+      await tester.tap(find.text('Share'));
+      await settle(tester);
+
+      // Assert
+      final files = verify(() => downloads.share.share(captureAny())).captured.single as List<RemoteMediaFile>;
+      expect(files.single.id, 'file-1');
+    });
+
     group('opened from an album', () {
       setUp(() => AppConfig.favoritesAndCoversEnabled = true);
       tearDown(() => AppConfig.favoritesAndCoversEnabled = false);
@@ -257,10 +331,23 @@ void main() {
         // Assert
         expect(find.byType(FavoriteViewerButton), findsOneWidget);
         expect(find.byType(MediaViewerCoverAction), findsOneWidget);
-        for (final label in ['Cover', 'Move', 'Delete']) {
+        for (final label in ['Cover', 'Move', 'Download', 'More']) {
           expect(find.text(label), findsOneWidget);
         }
         expect(find.text('Save'), findsNothing);
+      });
+
+      testWidgets('should offer Share and Delete under More', (tester) async {
+        // Arrange
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo()], albumContext: album));
+
+        // Act
+        await tester.tap(find.text('More'));
+        await settle(tester);
+
+        // Assert
+        expect(find.text('Share'), findsOneWidget);
+        expect(find.text('Delete'), findsOneWidget);
       });
 
       testWidgets('should meet the tap target guideline in the album bar', (tester) async {
@@ -462,6 +549,7 @@ void main() {
         builder: (_) => MultiBlocProvider(
           providers: [
             BlocProvider<FileManagementBloc>.value(value: mockFileManagementBloc),
+            ...downloadsTestProviders(),
             BlocProvider<ManageFolderBloc>.value(value: mockManageFolderBloc),
           ],
           child: FileDetailPage(files: testFiles, initialIndex: 0),

@@ -59,6 +59,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginRequested>(_onLoginRequested);
     on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
+    on<AccountDeleted>((event, emit) => emit(NotAuthenticated()));
     on<CheckAuthStatus>(_onCheckAuthStatus);
     on<TokenRefreshRequested>(_onTokenRefreshRequested);
     on<PasswordResetRequested>(_onPasswordResetRequested);

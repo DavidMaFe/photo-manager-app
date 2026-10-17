@@ -13,6 +13,9 @@ import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
 import 'package:photo_manager_app/core/widgets/user_avatar.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/features/downloads/presentation/bloc/on_device_presence_cubit.dart';
+import 'package:photo_manager_app/features/downloads/presentation/widgets/not_on_device_summary.dart';
+import 'package:photo_manager_app/features/downloads/presentation/widgets/selection_device_summary.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_file_modal.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/features/gallery/domain/entities/file_date_group.dart';
@@ -43,6 +46,9 @@ class GalleryPage extends StatelessWidget {
           final isSelectionMode = state is GalleryLoaded && state.isSelectionMode;
           final selectedCount = isSelectionMode ? state.selectedFileIds.length : 0;
           final areAllFilesSelected = state is GalleryLoaded && state.areAllFilesSelected;
+          final selectedFiles = isSelectionMode
+              ? state.files.where((file) => state.selectedFileIds.contains(file.id)).toList()
+              : const <GalleryFile>[];
 
           return ReportSelectionMode(
             active: isSelectionMode,
@@ -64,6 +70,7 @@ class GalleryPage extends StatelessWidget {
                     GalleryTopBar(
                       isSelectionMode: isSelectionMode,
                       selectedCount: selectedCount,
+                      selectionSubtitle: isSelectionMode ? selectionDeviceSummary(context, selectedFiles) : null,
                       areAllFilesSelected: areAllFilesSelected,
                       actions: [
                         BackupStatusChip(onTap: () => context.go(RoutePaths.sync)),
@@ -89,6 +96,7 @@ class GalleryPage extends StatelessWidget {
               bottomNavigationBar: isSelectionMode
                   ? ManageSelectionBar(
                       fileIds: state.selectedFileIds.toList(),
+                      files: selectedFiles,
                       selectedSizeBytes: state.selectedSizeBytes,
                       onFinished: () => context.read<GalleryBloc>().add(const ExitSelectionMode()),
                     )
@@ -159,14 +167,22 @@ class GalleryPage extends StatelessWidget {
       _ => 0,
     };
 
+    // «Not on phone» once this phone knows what it is missing (not on phones that cannot save into their gallery)
+    final presence = context.watch<OnDevicePresenceCubit>().state;
+
     return FilterPillBar<FileFilter>(
       items: [
         for (final filter in FileFilter.values)
-          if (filter != FileFilter.favorites || AppConfig.favoritesAndCoversEnabled)
+          if ((filter != FileFilter.favorites || AppConfig.favoritesAndCoversEnabled) &&
+              (filter != FileFilter.notOnDevice || presence.known || currentFilter == FileFilter.notOnDevice))
             FilterPillItem(
               value: filter,
               label: filter.label(l10n),
-              count: filter == FileFilter.pending ? pendingCount : null,
+              count: switch (filter) {
+                FileFilter.pending => pendingCount,
+                FileFilter.notOnDevice => presence.missingCount,
+                _ => null,
+              },
               icon: filter == FileFilter.favorites ? Symbols.favorite_rounded : null,
               iconColor: filter == FileFilter.favorites ? context.palette.favorite : null,
             ),
@@ -262,7 +278,10 @@ class GalleryPage extends StatelessWidget {
       },
       fadeOutUnfavorited: filter == FileFilter.favorites,
       leading: [
-        if (!isSelectionMode && filter != FileFilter.pending && filter != FileFilter.favorites)
+        if (!isSelectionMode && filter == FileFilter.notOnDevice)
+          const SliverToBoxAdapter(child: NotOnDeviceSummary()),
+        if (!isSelectionMode && filter != FileFilter.pending && filter != FileFilter.favorites &&
+            filter != FileFilter.notOnDevice)
           SliverToBoxAdapter(
             child: PendingReviewCard(
               pendingCount: pendingCount,
@@ -283,6 +302,11 @@ class GalleryPage extends StatelessWidget {
             icon: Symbols.favorite_rounded,
             title: l10n.favoritesEmptyTitle,
             message: l10n.favoritesEmptyBody,
+          ),
+        FileFilter.notOnDevice => EmptyState(
+            icon: Symbols.download_done_rounded,
+            title: l10n.emptyNotOnDeviceTitle,
+            message: l10n.emptyNotOnDeviceBody,
           ),
         _ => EmptyState(
             icon: Symbols.filter_alt_off_rounded,
