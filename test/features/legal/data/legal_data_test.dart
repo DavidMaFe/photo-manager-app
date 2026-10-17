@@ -78,11 +78,37 @@ void main() {
     test('should name the processors and the right to complain in the privacy policy', () {
       for (final language in ['es', 'en']) {
         final text = allText(repository.document(LegalDocumentType.privacy, language));
-        expect(text, contains('Cloudflare R2'));
         expect(text, contains('Backblaze B2'));
-        expect(text, contains('Gmail'));
+        expect(text, isNot(contains('Cloudflare')));
+        expect(text, contains('Brevo'));
+        expect(text, contains('Zoho Mail'));
+        expect(text, isNot(contains('Gmail')));
         expect(text, contains('www.aepd.es'));
       }
+    });
+
+    test('should explain the account deletion, the backups and the shared files in the privacy policy', () {
+      for (final (language, words) in [
+        ('es', ['Perfil → Eliminar cuenta', 'hasta 6 meses', 'archivo temporal', 'soporte@photo-manager-pro.com',
+            'photo-manager-pro.com/eliminar-cuenta']),
+        ('en', ['Profile → Delete account', 'up to 6 months', 'temporary file', 'soporte@photo-manager-pro.com',
+            'photo-manager-pro.com/eliminar-cuenta']),
+      ]) {
+        final text = allText(repository.document(LegalDocumentType.privacy, language));
+        for (final word in words) {
+          expect(text, contains(word), reason: '$language: $word');
+        }
+        expect(text, contains('David Martínez Fernández'));
+        expect(RegExp(r'\[[^\]]*\]').hasMatch(text), isFalse, reason: '$language has a placeholder');
+      }
+    });
+
+    test('should explain in the terms that the account is deleted at once from the app', () {
+      final es = allText(repository.document(LegalDocumentType.terms, 'es'));
+      final en = allText(repository.document(LegalDocumentType.terms, 'en'));
+
+      expect(es, contains('Se borra al momento'));
+      expect(en, contains('It is deleted at once'));
     });
   });
 
