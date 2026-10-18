@@ -23,6 +23,8 @@ import 'package:photo_manager_app/features/profile/presentation/widgets/profile_
 import 'package:photo_manager_app/features/profile/presentation/widgets/storage_bar.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/sync_config_summary.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/theme_mode_sheet.dart';
+import 'package:photo_manager_app/features/profile/presentation/widgets/accent_color_sheet.dart';
+import 'package:photo_manager_app/config/theme/app_accent.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/profile_bloc.dart';
@@ -179,6 +181,20 @@ class _ProfilePageState extends State<ProfilePage> {
                         title: l10n.appearance,
                         value: ThemeModeSheet.labelOf(mode, l10n),
                         onTap: () => _chooseTheme(context, mode),
+                      ),
+                    ),
+                    ValueListenableBuilder<AppAccent>(
+                      valueListenable: _uiPreferences.accent,
+                      builder: (context, accent, _) => ListRow(
+                        key: const ValueKey('profile-app-color'),
+                        icon: Symbols.palette_rounded,
+                        title: l10n.appColor,
+                        value: AccentColorSheet.labelOf(accent, l10n),
+                        onTap: () => AccentColorSheet.show(
+                          context,
+                          accent: _uiPreferences.accent,
+                          onChanged: _uiPreferences.setAccent,
+                        ),
                       ),
                     ),
                     ListRow(

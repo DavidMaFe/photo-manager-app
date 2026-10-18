@@ -19,7 +19,8 @@ class AuthNotifier extends ChangeNotifier {
     return result;
   }
 
-  bool get isLoading => authBloc.state is AuthLoading;
+  /// Checking the stored session at startup ([AuthInitial] until [CheckAuthStatus] answers) or logging in.
+  bool get isLoading => authBloc.state is AuthInitial || authBloc.state is AuthLoading;
 
   /// Just registered: the 24 words must be confirmed before the session starts.
   bool get isRecoveryPhrasePending => authBloc.state is RecoveryPhraseRequired;

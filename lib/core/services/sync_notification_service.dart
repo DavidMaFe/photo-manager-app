@@ -2,6 +2,8 @@ import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:photo_manager_app/core/utils/app_locale.dart';
+import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 /// Service for managing background sync notifications
 ///
@@ -10,6 +12,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 /// - Showing success/failure notifications based on user preferences
 /// - Managing foreground service notifications (Android 12+)
 /// - Handling notification tap actions
+///
+/// Texts in the language of the device ([AppLocale]), also in the WorkManager isolate.
 ///
 /// IMPORTANT: There are two initialization paths:
 /// - [initialize]: full init called from main.dart (foreground app)
@@ -28,7 +32,11 @@ class SyncNotificationService {
   static const int _notificationIdSuccess = 2;
   static const int _notificationIdFailure = 3;
 
-  SyncNotificationService(this._notificationsPlugin);
+  /// Texts of the notifications; read on every notification, so a change of the device language applies at once.
+  final AppLocalizations Function() _strings;
+
+  SyncNotificationService(this._notificationsPlugin, {AppLocalizations Function()? strings})
+      : _strings = strings ?? AppLocale.strings;
 
   /// Full initialization — called from main.dart (foreground context).
   ///
@@ -88,28 +96,31 @@ class SyncNotificationService {
   Future<void> _createNotificationChannels() async {
     if (!Platform.isAndroid) return;
 
-    const successChannel = AndroidNotificationChannel(
+    final l10n = _strings();
+
+    // Creating a channel again updates its name and description (the language of the device may have changed)
+    final successChannel = AndroidNotificationChannel(
       _channelIdSuccess,
-      'Sync Success',
-      description: 'Notifications for successful sync operations',
+      l10n.notificationChannelFinishedName,
+      description: l10n.notificationChannelFinishedDescription,
       importance: Importance.low,
       playSound: false,
       enableVibration: false,
     );
 
-    const failureChannel = AndroidNotificationChannel(
+    final failureChannel = AndroidNotificationChannel(
       _channelIdFailure,
-      'Sync Failures',
-      description: 'Notifications for failed sync operations',
+      l10n.notificationChannelFailureName,
+      description: l10n.notificationChannelFailureDescription,
       importance: Importance.high,
       playSound: true,
       enableVibration: true,
     );
 
-    const progressChannel = AndroidNotificationChannel(
+    final progressChannel = AndroidNotificationChannel(
       _channelIdProgress,
-      'Sync Progress',
-      description: 'Shows sync progress for foreground service',
+      l10n.notificationChannelProgressName,
+      description: l10n.notificationChannelProgressDescription,
       importance: Importance.low,
       playSound: false,
       enableVibration: false,
@@ -137,10 +148,11 @@ class SyncNotificationService {
     if (!Platform.isAndroid) return;
 
     try {
-      const androidDetails = AndroidNotificationDetails(
+      final l10n = _strings();
+      final androidDetails = AndroidNotificationDetails(
         _channelIdProgress,
-        'Sync Progress',
-        channelDescription: 'Shows sync progress for foreground service',
+        l10n.notificationChannelProgressName,
+        channelDescription: l10n.notificationChannelProgressDescription,
         importance: Importance.low,
         priority: Priority.low,
         ongoing: true,
@@ -154,8 +166,8 @@ class SyncNotificationService {
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
           ?.startForegroundService(
             _notificationIdProgress,
-            'Syncing photos',
-            'Sync in progress...',
+            l10n.notificationBackupRunningTitle,
+            l10n.notificationBackupPreparing,
             notificationDetails: androidDetails,
             foregroundServiceTypes: {
               AndroidServiceForegroundType.foregroundServiceTypeDataSync,
@@ -180,10 +192,11 @@ class SyncNotificationService {
     if (!Platform.isAndroid) return;
 
     try {
+      final l10n = _strings();
       final androidDetails = AndroidNotificationDetails(
         _channelIdProgress,
-        'Sync Progress',
-        channelDescription: 'Shows sync progress for foreground service',
+        l10n.notificationChannelProgressName,
+        channelDescription: l10n.notificationChannelProgressDescription,
         importance: Importance.low,
         priority: Priority.low,
         ongoing: true,
@@ -198,8 +211,8 @@ class SyncNotificationService {
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
           ?.startForegroundService(
             _notificationIdProgress,
-            'Syncing photos',
-            'Uploading $current of $total files...',
+            l10n.notificationBackupRunningTitle,
+            l10n.notificationBackupProgress(current, total),
             notificationDetails: androidDetails,
             foregroundServiceTypes: {
               AndroidServiceForegroundType.foregroundServiceTypeDataSync,
@@ -233,16 +246,17 @@ class SyncNotificationService {
     }
   }
 
-  /// Foreground notification of a download to the gallery (ROADMAP-downloads-and-account-deletion.md). It shares
+  /// Foreground notification of a download to the gallery It shares
   /// the id of the sync progress: a download and a sync never run at the same time (SyncLock).
   Future<void> showDownloadProgress({required int saved, required int total}) async {
     if (!Platform.isAndroid) return;
 
     try {
+      final l10n = _strings();
       final androidDetails = AndroidNotificationDetails(
         _channelIdProgress,
-        'Sync Progress',
-        channelDescription: 'Shows sync progress for foreground service',
+        l10n.notificationChannelProgressName,
+        channelDescription: l10n.notificationChannelProgressDescription,
         importance: Importance.low,
         priority: Priority.low,
         ongoing: true,
@@ -257,8 +271,8 @@ class SyncNotificationService {
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
           ?.startForegroundService(
             _notificationIdProgress,
-            'Saving to this phone',
-            '$saved of $total files',
+            l10n.notificationDownloadRunningTitle,
+            l10n.notificationDownloadProgress(saved, total),
             notificationDetails: androidDetails,
             foregroundServiceTypes: {
               AndroidServiceForegroundType.foregroundServiceTypeDataSync,
@@ -272,21 +286,22 @@ class SyncNotificationService {
   /// Notification at the end of a download to the gallery.
   Future<void> showDownloadFinished({required int saved, required int failed}) async {
     try {
-      const androidDetails = AndroidNotificationDetails(
+      final l10n = _strings();
+      final androidDetails = AndroidNotificationDetails(
         _channelIdSuccess,
-        'Sync Success',
-        channelDescription: 'Notifications for successful sync operations',
+        l10n.notificationChannelFinishedName,
+        channelDescription: l10n.notificationChannelFinishedDescription,
         importance: Importance.low,
         priority: Priority.low,
         icon: '@mipmap/ic_launcher',
       );
-      const notificationDetails = NotificationDetails(android: androidDetails, iOS: DarwinNotificationDetails());
+      final notificationDetails = NotificationDetails(android: androidDetails, iOS: const DarwinNotificationDetails());
 
-      final body = saved == 1 ? '1 file saved to this phone' : '$saved files saved to this phone';
+      final body = l10n.notificationDownloadDoneBody(saved);
       await _notificationsPlugin.show(
         _notificationIdSuccess,
-        'Download completed',
-        failed == 0 ? body : '$body · $failed could not be saved',
+        l10n.notificationDownloadDoneTitle,
+        failed == 0 ? body : '$body · ${l10n.notificationDownloadFailedSuffix(failed)}',
         notificationDetails,
       );
     } catch (e) {
@@ -299,10 +314,11 @@ class SyncNotificationService {
     required int filesUploaded,
   }) async {
     try {
-      const androidDetails = AndroidNotificationDetails(
+      final l10n = _strings();
+      final androidDetails = AndroidNotificationDetails(
         _channelIdSuccess,
-        'Sync Success',
-        channelDescription: 'Notifications for successful sync operations',
+        l10n.notificationChannelFinishedName,
+        channelDescription: l10n.notificationChannelFinishedDescription,
         importance: Importance.low,
         priority: Priority.low,
         icon: '@mipmap/ic_launcher',
@@ -310,22 +326,15 @@ class SyncNotificationService {
 
       const iosDetails = DarwinNotificationDetails();
 
-      const notificationDetails = NotificationDetails(
+      final notificationDetails = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );
 
-      const title = 'Sync completed';
-      final body = filesUploaded == 0
-          ? 'All files already synced'
-          : filesUploaded == 1
-              ? '1 file uploaded successfully'
-              : '$filesUploaded files uploaded successfully';
-
       await _notificationsPlugin.show(
         _notificationIdSuccess,
-        title,
-        body,
+        l10n.notificationBackupDoneTitle,
+        l10n.notificationBackupDoneBody(filesUploaded),
         notificationDetails,
         payload: 'sync_history',
       );
@@ -343,15 +352,17 @@ class SyncNotificationService {
     }
   }
 
-  /// Show a sync failure notification.
+  /// Show a sync failure notification. The technical error stays in the log ([SyncLogService]); the notification
+  /// only says what the user can do.
   Future<void> showSyncFailureNotification({
-    required String errorMessage,
+    required bool sessionExpired,
   }) async {
     try {
-      const androidDetails = AndroidNotificationDetails(
+      final l10n = _strings();
+      final androidDetails = AndroidNotificationDetails(
         _channelIdFailure,
-        'Sync Failures',
-        channelDescription: 'Notifications for failed sync operations',
+        l10n.notificationChannelFailureName,
+        channelDescription: l10n.notificationChannelFailureDescription,
         importance: Importance.high,
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',
@@ -359,21 +370,21 @@ class SyncNotificationService {
 
       const iosDetails = DarwinNotificationDetails();
 
-      const notificationDetails = NotificationDetails(
+      final notificationDetails = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );
 
       await _notificationsPlugin.show(
         _notificationIdFailure,
-        'Sync failed',
-        errorMessage,
+        l10n.notificationBackupFailedTitle,
+        sessionExpired ? l10n.notificationBackupSessionExpired : l10n.notificationBackupFailedBody,
         notificationDetails,
         payload: 'sync_history',
       );
 
       developer.log(
-        '⚠️ Failure notification shown: $errorMessage',
+        '⚠️ Failure notification shown (sessionExpired=$sessionExpired)',
         name: 'SyncNotificationService',
       );
     } catch (e) {

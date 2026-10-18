@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
+import 'app_accent.dart';
 import 'app_palette.dart';
 import 'app_radius.dart';
 import 'app_typography.dart';
 
 /// Temas claro y oscuro de «Revelado».
 class AppTheme {
-  static ThemeData light() => _build(Brightness.light, AppPalette.light);
-  static ThemeData dark() => _build(Brightness.dark, AppPalette.dark);
+  static ThemeData light([AppAccent accent = AppAccent.defaultAccent]) =>
+      _build(Brightness.light, AppPalette.lightFor(accent));
+  static ThemeData dark([AppAccent accent = AppAccent.defaultAccent]) =>
+      _build(Brightness.dark, AppPalette.darkFor(accent));
 
   static ThemeData _build(Brightness b, AppPalette p) {
     final scheme = ColorScheme(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/config/theme/app_accent.dart';
+import 'package:photo_manager_app/features/profile/presentation/widgets/accent_color_sheet.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
@@ -99,7 +101,7 @@ void main() {
       expect(find.text('Recover locked photos'), findsOneWidget);
       // Information pages and legal texts
       expect(find.text('Information and legal'), findsOneWidget);
-      expect(find.byType(ListRow), findsNWidgets(11));
+      expect(find.byType(ListRow), findsNWidgets(12));
     });
 
     testWidgets('should summarize the backup as off when it cannot be loaded', (tester) async {
@@ -196,6 +198,28 @@ void main() {
       expect(find.byType(ThemeModeSheet), findsNothing);
       expect(uiPreferences.themeMode.value, ThemeMode.light);
       expect(tester.widget<ListRow>(find.widgetWithText(ListRow, 'Appearance')).value, 'Light');
+    });
+
+    testWidgets('should show the color of the app', (tester) async {
+      await pump(tester, ProfileLoaded(TestProfiles.johnDoeProfile));
+      expect(tester.widget<ListRow>(find.byKey(const ValueKey('profile-app-color'))).value, 'Violet');
+    });
+
+    testWidgets('should change the color of the app at once from its sheet', (tester) async {
+      // Arrange
+      await pump(tester, ProfileLoaded(TestProfiles.johnDoeProfile));
+
+      // Act
+      await tester.tap(find.byKey(const ValueKey('profile-app-color')));
+      await settle(tester);
+      expect(find.byType(AccentColorSheet), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('Teal'));
+      await settle(tester);
+
+      // Assert: applied while the sheet stays open to try another one
+      expect(uiPreferences.accent.value, AppAccent.teal);
+      expect(find.byType(AccentColorSheet), findsOneWidget);
+      expect(tester.widget<ListRow>(find.byKey(const ValueKey('profile-app-color'))).value, 'Teal');
     });
 
     testWidgets('should keep the appearance when the sheet is dismissed', (tester) async {

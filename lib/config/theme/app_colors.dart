@@ -50,6 +50,7 @@ class AppColors {
   static const mediaReview = Color(0xFFFFC766); // «Por revisar» sobre fondo oscuro
   static const mediaCover = Color(0xFFD6D2FF); // «Portada de…» sobre fondo oscuro
   static const mediaCoverSoft = Color(0x3D8E86FF); // rgba(142,134,255,.24), su pastilla
+  static const mediaAccent = Color(0xFFB3ADFF); // acción principal o activa (Portada, Guardar, Restaurar) sobre el negro del visor
 
   // Oscuro (mismos roles)
   static const darkBackground = Color(0xFF0E0E12);

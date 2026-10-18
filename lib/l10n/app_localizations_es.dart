@@ -1146,9 +1146,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get alertFailureBody => 'Para que puedas reintentarlo';
 
   @override
-  String get sectionDiagnostics => 'Diagnóstico';
-
-  @override
   String manageQuestion(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -2264,4 +2261,111 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deleteAccountDone => 'Tu cuenta se ha eliminado';
+
+  @override
+  String get notificationChannelFinishedName => 'Terminadas';
+
+  @override
+  String get notificationChannelFinishedDescription => 'Cuando termina una copia o una descarga a este teléfono';
+
+  @override
+  String get notificationChannelFailureName => 'Problemas con la copia';
+
+  @override
+  String get notificationChannelFailureDescription => 'Cuando una copia no se ha podido completar';
+
+  @override
+  String get notificationChannelProgressName => 'En curso';
+
+  @override
+  String get notificationChannelProgressDescription => 'Progreso de una copia o una descarga en segundo plano';
+
+  @override
+  String get notificationBackupRunningTitle => 'Haciendo la copia de tus fotos';
+
+  @override
+  String get notificationBackupPreparing => 'Preparando la copia…';
+
+  @override
+  String notificationBackupProgress(int current, int total) {
+    return '$current de $total archivos subidos';
+  }
+
+  @override
+  String get notificationBackupDoneTitle => 'Copia completada';
+
+  @override
+  String notificationBackupDoneBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count archivos subidos',
+      one: '1 archivo subido',
+      zero: 'Ya estaba todo copiado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationBackupFailedTitle => 'No se ha podido completar la copia';
+
+  @override
+  String get notificationBackupFailedBody => 'Se volverá a intentar más tarde. Abre la app para ver qué ha pasado.';
+
+  @override
+  String get notificationBackupSessionExpired => 'Tu sesión ha caducado. Vuelve a entrar para seguir copiando tus fotos.';
+
+  @override
+  String get notificationDownloadRunningTitle => 'Guardando en este teléfono';
+
+  @override
+  String notificationDownloadProgress(int saved, int total) {
+    return '$saved de $total archivos';
+  }
+
+  @override
+  String get notificationDownloadDoneTitle => 'Descarga completada';
+
+  @override
+  String notificationDownloadDoneBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count archivos guardados en este teléfono',
+      one: '1 archivo guardado en este teléfono',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notificationDownloadFailedSuffix(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count no se han podido guardar',
+      one: '1 no se ha podido guardar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get appColor => 'Color de la app';
+
+  @override
+  String get appColorHint => 'Cambia los botones, la selección y los enlaces. El logo no cambia.';
+
+  @override
+  String get accentViolet => 'Morado';
+
+  @override
+  String get accentBlue => 'Azul';
+
+  @override
+  String get accentTeal => 'Turquesa';
+
+  @override
+  String get accentTerracotta => 'Terracota';
+
+  @override
+  String get accentGraphite => 'Grafito';
 }

@@ -60,6 +60,49 @@ void main() {
 
   group('DownloadProgressBloc', () {
     blocTest<DownloadProgressBloc, DownloadProgressState>(
+      'should not announce again a download that had already finished when the app opened',
+      setUp: () => when(() => queue.progress()).thenAnswer((_) async => finished),
+      build: build,
+      act: (bloc) async {
+        bloc.add(const DownloadProgressWatchRequested());
+        await Future<void>.delayed(Duration.zero);
+        // Back to the app later: still nothing to show
+        bloc.add(const DownloadProgressWatchRequested());
+      },
+      verify: (bloc) {
+        expect(bloc.state.progress, finished);
+        expect(bloc.state.isVisible, isFalse);
+      },
+    );
+
+    blocTest<DownloadProgressBloc, DownloadProgressState>(
+      'should announce the end of a download this run of the app saw running',
+      setUp: () => when(() => queue.progress()).thenAnswer((_) async => running),
+      build: build,
+      act: (bloc) async {
+        bloc.add(const DownloadProgressWatchRequested());
+        await Future<void>.delayed(Duration.zero);
+        when(() => queue.progress()).thenAnswer((_) async => finished);
+        bloc.add(const DownloadProgressPolled());
+      },
+      verify: (bloc) {
+        expect(bloc.state.progress, finished);
+        expect(bloc.state.isVisible, isTrue);
+      },
+    );
+
+    blocTest<DownloadProgressBloc, DownloadProgressState>(
+      'should announce the end of a download started in this run even when it finished at once',
+      setUp: () {
+        when(() => planDownload(fileIds: any(named: 'fileIds'))).thenAnswer((_) async => plan);
+        when(() => queue.progress()).thenAnswer((_) async => finished);
+      },
+      build: build,
+      act: (bloc) => bloc.add(const DownloadFilesRequested({'1'})),
+      verify: (bloc) => expect(bloc.state.isVisible, isTrue),
+    );
+
+    blocTest<DownloadProgressBloc, DownloadProgressState>(
       'should show nothing when no download is queued',
       build: build,
       act: (bloc) => bloc.add(const DownloadProgressWatchRequested()),
@@ -179,13 +222,17 @@ void main() {
 
     blocTest<DownloadProgressBloc, DownloadProgressState>(
       'should hide a finished download once dismissed',
-      setUp: () => when(() => queue.progress()).thenAnswer((_) async => finished),
+      setUp: () => when(() => queue.progress()).thenAnswer((_) async => running),
       build: build,
       act: (bloc) async {
         bloc.add(const DownloadProgressWatchRequested());
         await Future<void>.delayed(Duration.zero);
+        when(() => queue.progress()).thenAnswer((_) async => finished);
+        bloc.add(const DownloadProgressPolled());
+        await Future<void>.delayed(Duration.zero);
         bloc.add(const DownloadProgressDismissed());
       },
+      skip: 1,
       expect: () => [
         const DownloadProgressState(progress: finished),
         const DownloadProgressState(progress: finished, dismissed: true),

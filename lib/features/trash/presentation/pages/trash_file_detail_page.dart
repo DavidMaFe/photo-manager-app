@@ -8,6 +8,7 @@ import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/
 import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_action_bar.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_thumbnail_strip.dart';
+import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_layout.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_top_bar.dart';
 import 'package:photo_manager_app/core/widgets/status_chip.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/file_properties_sheet.dart';
@@ -41,10 +42,6 @@ class TrashFileDetailPage extends StatefulWidget {
 
 class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
 
-  /// Space reserved under a video so its own controls stay above the chrome.
-  static const double _bottomChromeHeight =
-      MediaViewerActionBar.height + MediaViewerThumbnailStrip.height + 12 + 16;
-
   late PageController _pageController;
   late int _currentIndex;
   bool _chromeVisible = true;
@@ -74,122 +71,76 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
 
     return Scaffold(
       backgroundColor: palette.media,
-      body: Stack(
-        children: [
-          PageView.builder(
-            controller: _pageController,
-            itemCount: widget.files.length,
-            onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-                _chromeVisible = true;
-              });
-            },
-            itemBuilder: (context, index) => _buildMediaViewer(widget.files[index], l10n),
-          ),
-
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: _chrome(
-              MediaViewerTopBar(
-                title: file.capturedAt != null
-                      ? DateFormatter.formatDayAndTime(file.capturedAt!, context)
-                      : l10n.noDate,
-                subtitle: _subtitleFor(file, l10n),
-                onBack: () => Navigator.pop(context),
-                actions: [
-                  _CountdownPill(label: countdown, soon: TrashFileCard.isDeletedSoon(file)),
-                  MediaViewerIconButton(
-                    icon: Symbols.info_rounded,
-                    tooltip: l10n.viewerInfo,
-                    onPressed: () => FilePropertiesSheet.show(
-                      context,
-                      file,
-                      status: StatusChip(
-                        compact: true,
-                        icon: Symbols.auto_delete_rounded,
-                        label: countdown,
-                        variant: TrashFileCard.isDeletedSoon(file)
-                            ? StatusChipVariant.danger
-                            : StatusChipVariant.neutral,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _chrome(
-              SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.files.length > 1) ...[
-                        MediaViewerThumbnailStrip(
-                          itemCount: widget.files.length,
-                          currentIndex: _currentIndex,
-                          thumbnailBuilder: (context, index) =>
-                              EncryptedImage(fileId: widget.files[index].id, transparentWhileLoading: true),
-                          onSelected: (index) => _pageController.animateToPage(
-                            index,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.easeOut,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: MediaViewerActionBar(
-                          children: [
-                            Expanded(
-                              child: MediaViewerAction(
-                                icon: Symbols.restore_rounded,
-                                label: l10n.restore,
-                                highlighted: true,
-                                onPressed: () => _confirmRestore(context),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: MediaViewerAction(
-                                icon: Symbols.delete_forever_rounded,
-                                label: l10n.deleteForever,
-                                color: palette.mediaDanger,
-                                onPressed: () => _confirmDeleteForever(context),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+      body: MediaViewerLayout(
+        chromeVisible: _chromeVisible,
+        media: PageView.builder(
+          controller: _pageController,
+          itemCount: widget.files.length,
+          // Moving to another file keeps the chrome as it is (full screen or not)
+          onPageChanged: (index) => setState(() => _currentIndex = index),
+          itemBuilder: (context, index) => _buildMediaViewer(widget.files[index], l10n),
+        ),
+          top: MediaViewerTopBar(
+            title: file.capturedAt != null
+                  ? DateFormatter.formatDayAndTime(file.capturedAt!, context)
+                  : l10n.noDate,
+            subtitle: _subtitleFor(file, l10n),
+            onBack: () => Navigator.pop(context),
+            actions: [
+              _CountdownPill(label: countdown, soon: TrashFileCard.isDeletedSoon(file)),
+              MediaViewerIconButton(
+                icon: Symbols.info_rounded,
+                tooltip: l10n.viewerInfo,
+                onPressed: () => FilePropertiesSheet.show(
+                  context,
+                  file,
+                  status: StatusChip(
+                    compact: true,
+                    icon: Symbols.auto_delete_rounded,
+                    label: countdown,
+                    variant: TrashFileCard.isDeletedSoon(file)
+                        ? StatusChipVariant.danger
+                        : StatusChipVariant.neutral,
                   ),
                 ),
               ),
+            ],
+          ),
+          bottom: MediaViewerBottomPanel(
+            strip: widget.files.length > 1
+                ? MediaViewerThumbnailStrip(
+                    itemCount: widget.files.length,
+                    currentIndex: _currentIndex,
+                    thumbnailBuilder: (context, index) =>
+                        EncryptedImage(fileId: widget.files[index].id, transparentWhileLoading: true),
+                    onSelected: (index) => _pageController.animateToPage(
+                      index,
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOut,
+                    ),
+                  )
+                : null,
+            actions: MediaViewerActionBar(
+              children: [
+                Expanded(
+                  child: MediaViewerAction(
+                    icon: Symbols.restore_rounded,
+                    label: l10n.restore,
+                    highlighted: true,
+                    onPressed: () => _confirmRestore(context),
+                  ),
+                ),
+                Expanded(
+                  child: MediaViewerAction(
+                    icon: Symbols.delete_forever_rounded,
+                    label: l10n.deleteForever,
+                    color: palette.mediaDanger,
+                    onPressed: () => _confirmDeleteForever(context),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _chrome(Widget child) {
-    return IgnorePointer(
-      ignoring: !_chromeVisible,
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 200),
-        opacity: _chromeVisible ? 1 : 0,
-        child: child,
       ),
     );
   }
@@ -206,16 +157,12 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
     }
 
     if (file.isVideo) {
-      final insets = MediaQuery.paddingOf(context);
-      return Padding(
-        padding: EdgeInsets.only(top: insets.top + 64, bottom: insets.bottom + _bottomChromeHeight),
-        child: VideoPlayerWidget(
-          fileId: file.id,
-          key: ValueKey(file.id),
-          onControlsVisibilityChanged: (visible) {
-            if (mounted) setState(() => _chromeVisible = visible);
-          },
-        ),
+      return VideoPlayerWidget(
+        fileId: file.id,
+        key: ValueKey(file.id),
+        onControlsVisibilityChanged: (visible) {
+          if (mounted) setState(() => _chromeVisible = visible);
+        },
       );
     }
 

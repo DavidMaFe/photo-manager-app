@@ -16,6 +16,7 @@ import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/
 import 'package:photo_manager_app/core/widgets/media_thumbnail.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_action_bar.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_thumbnail_strip.dart';
+import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_layout.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_top_bar.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
@@ -58,10 +59,6 @@ class FileDetailPage extends StatefulWidget {
 
 class _FileDetailPageState extends State<FileDetailPage> {
 
-  /// Space reserved under a video so its own controls stay above the chrome.
-  static const double _bottomChromeHeight =
-      MediaViewerActionBar.height + MediaViewerThumbnailStrip.height + 12 + 16;
-
   late PageController _pageController;
   late int _currentIndex;
   bool _chromeVisible = true;
@@ -100,105 +97,59 @@ class _FileDetailPageState extends State<FileDetailPage> {
       listener: _handleManagementState,
       child: Scaffold(
         backgroundColor: palette.media,
-        body: Stack(
-          children: [
-            PageView.builder(
-              controller: _pageController,
-              itemCount: widget.files.length,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                  _chromeVisible = true;
-                });
-              },
-              itemBuilder: (context, index) => _buildMediaViewer(widget.files[index], l10n),
-            ),
-
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: _chrome(
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    MediaViewerTopBar(
-                      title: file.capturedAt != null
-                          ? DateFormatter.formatDayAndTime(file.capturedAt!, context)
-                          : l10n.noDate,
-                      subtitle: _albumContext?.path ?? _subtitleFor(file, l10n, context),
-                      onBack: () => Navigator.pop(context),
-                      actions: [
-                        if (file.isPending) MediaViewerReviewPill(label: l10n.filterToReview),
-                        MediaViewerIconButton(
-                          icon: Symbols.info_rounded,
-                          tooltip: l10n.viewerInfo,
-                          onPressed: () => FilePropertiesSheet.show(context, file),
-                        ),
-                      ],
-                    ),
-                    if (_albumContext != null && _coverOf(file).isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-                        child: MediaViewerCoverPill(label: _coverPillLabel(_coverOf(file), l10n)),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: _chrome(
-                SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (widget.files.length > 1) ...[
-                          MediaViewerThumbnailStrip(
-                            itemCount: widget.files.length,
-                            currentIndex: _currentIndex,
-                            thumbnailBuilder: (context, index) => _thumbnail(widget.files[index]),
-                            onSelected: (index) => _pageController.animateToPage(
-                              index,
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.easeOut,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: _albumContext != null ? 12 : 16),
-                          child: _albumContext != null
-                              ? _buildAlbumActionBar(context, file, l10n, palette)
-                              : _buildGalleryActionBar(context, file, l10n, palette),
-                        ),
-                      ],
-                    ),
+        body: MediaViewerLayout(
+          chromeVisible: _chromeVisible,
+          media: PageView.builder(
+            controller: _pageController,
+            itemCount: widget.files.length,
+            // Moving to another file keeps the chrome as it is (full screen or not)
+            onPageChanged: (index) => setState(() => _currentIndex = index),
+            itemBuilder: (context, index) => _buildMediaViewer(widget.files[index], l10n),
+          ),
+          top: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MediaViewerTopBar(
+                title: file.capturedAt != null
+                    ? DateFormatter.formatDayAndTime(file.capturedAt!, context)
+                    : l10n.noDate,
+                subtitle: _albumContext?.path ?? _subtitleFor(file, l10n, context),
+                onBack: () => Navigator.pop(context),
+                actions: [
+                  if (file.isPending) MediaViewerReviewPill(label: l10n.filterToReview),
+                  MediaViewerIconButton(
+                    icon: Symbols.info_rounded,
+                    tooltip: l10n.viewerInfo,
+                    onPressed: () => FilePropertiesSheet.show(context, file),
                   ),
-                ),
+                ],
               ),
-            ),
-          ],
+              if (_albumContext != null && _coverOf(file).isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                  child: MediaViewerCoverPill(label: _coverPillLabel(_coverOf(file), l10n)),
+                ),
+            ],
+          ),
+          bottom: MediaViewerBottomPanel(
+            strip: widget.files.length > 1
+                ? MediaViewerThumbnailStrip(
+                    itemCount: widget.files.length,
+                    currentIndex: _currentIndex,
+                    thumbnailBuilder: (context, index) => _thumbnail(widget.files[index]),
+                    onSelected: (index) => _pageController.animateToPage(
+                      index,
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOut,
+                    ),
+                  )
+                : null,
+            actions: _albumContext != null
+                ? _buildAlbumActionBar(context, file, l10n, palette)
+                : _buildGalleryActionBar(context, file, l10n, palette),
+          ),
         ),
-      ),
-    );
-  }
-
-  /// Fades the viewer chrome in and out (a tap on the photo toggles it).
-  Widget _chrome(Widget child) {
-    return IgnorePointer(
-      ignoring: !_chromeVisible,
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 200),
-        opacity: _chromeVisible ? 1 : 0,
-        child: child,
       ),
     );
   }
@@ -214,16 +165,12 @@ class _FileDetailPageState extends State<FileDetailPage> {
     }
 
     if (file.isVideo) {
-      final insets = MediaQuery.paddingOf(context);
-      return Padding(
-        padding: EdgeInsets.only(top: insets.top + 64, bottom: insets.bottom + _bottomChromeHeight),
-        child: VideoPlayerWidget(
-          fileId: file.id,
-          key: ValueKey(file.id),
-          onControlsVisibilityChanged: (visible) {
-            if (mounted) setState(() => _chromeVisible = visible);
-          }
-        ),
+      return VideoPlayerWidget(
+        fileId: file.id,
+        key: ValueKey(file.id),
+        onControlsVisibilityChanged: (visible) {
+          if (mounted) setState(() => _chromeVisible = visible);
+        },
       );
     }
 
@@ -357,7 +304,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
     }
   }
 
-  /// Album bar: Favorite · Cover (photos only) · Move · On phone/Download · More (Share, Delete).
+  /// Album bar: Favorite · Cover (photos only) · Share · On phone/Download · More (Move, Delete).
   Widget _buildAlbumActionBar(BuildContext context, GalleryFile file, AppLocalizations l10n, AppPalette palette) {
     return MediaViewerActionBar(
       children: [
@@ -366,14 +313,15 @@ class _FileDetailPageState extends State<FileDetailPage> {
           Expanded(
             child: MediaViewerCoverAction(
               label: l10n.cover,
+              isCover: _coverOf(file).isNotEmpty,
               onPressed: () => _openCoverPicker(context, file),
             ),
           ),
         Expanded(
           child: MediaViewerAction(
-            icon: Symbols.drive_file_move_rounded,
-            label: l10n.move,
-            onPressed: () => _showManageModal(context, initialOption: ManageOption.album),
+            icon: Symbols.ios_share_rounded,
+            label: l10n.actionShare,
+            onPressed: () => _share(context, file),
           ),
         ),
         Expanded(child: _downloadAction(context, file, l10n)),
@@ -382,9 +330,9 @@ class _FileDetailPageState extends State<FileDetailPage> {
             label: l10n.actionMore,
             items: [
               MediaViewerMenuItem(
-                icon: Symbols.ios_share_rounded,
-                label: l10n.actionShare,
-                onSelected: () => _share(context, file),
+                icon: Symbols.drive_file_move_rounded,
+                label: l10n.move,
+                onSelected: () => _showManageModal(context, initialOption: ManageOption.album),
               ),
               MediaViewerMenuItem(
                 icon: Symbols.delete_rounded,

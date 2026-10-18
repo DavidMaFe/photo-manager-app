@@ -324,20 +324,21 @@ void main() {
         expect(tester.widget<MediaViewerTopBar>(find.byType(MediaViewerTopBar)).subtitle, album.path);
       });
 
-      testWidgets('should show Favorite, Cover, Move and Delete', (tester) async {
+      testWidgets('should show Favorite, Cover, Share, Download and More', (tester) async {
         // Arrange & Act
         await tester.pumpWidget(createWidgetUnderTest(files: [photo()], albumContext: album));
 
         // Assert
         expect(find.byType(FavoriteViewerButton), findsOneWidget);
         expect(find.byType(MediaViewerCoverAction), findsOneWidget);
-        for (final label in ['Cover', 'Move', 'Download', 'More']) {
+        for (final label in ['Cover', 'Share', 'Download', 'More']) {
           expect(find.text(label), findsOneWidget);
         }
+        expect(find.text('Move'), findsNothing);
         expect(find.text('Save'), findsNothing);
       });
 
-      testWidgets('should offer Share and Delete under More', (tester) async {
+      testWidgets('should offer Move and Delete under More', (tester) async {
         // Arrange
         await tester.pumpWidget(createWidgetUnderTest(files: [photo()], albumContext: album));
 
@@ -346,8 +347,18 @@ void main() {
         await settle(tester);
 
         // Assert
-        expect(find.text('Share'), findsOneWidget);
+        expect(find.text('Move'), findsOneWidget);
         expect(find.text('Delete'), findsOneWidget);
+      });
+
+      testWidgets('should show Cover active when the photo is a cover of an album', (tester) async {
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo(coverOf: ['a2'])], albumContext: album));
+        expect(tester.widget<MediaViewerCoverAction>(find.byType(MediaViewerCoverAction)).isCover, isTrue);
+      });
+
+      testWidgets('should show Cover inactive when the photo is no cover', (tester) async {
+        await tester.pumpWidget(createWidgetUnderTest(files: [photo()], albumContext: album));
+        expect(tester.widget<MediaViewerCoverAction>(find.byType(MediaViewerCoverAction)).isCover, isFalse);
       });
 
       testWidgets('should meet the tap target guideline in the album bar', (tester) async {
@@ -368,7 +379,7 @@ void main() {
 
         // Assert
         expect(find.byType(MediaViewerCoverAction), findsNothing);
-        expect(find.text('Move'), findsOneWidget);
+        expect(find.text('Share'), findsOneWidget);
       });
 
       testWidgets('should name the album a photo is the cover of', (tester) async {
@@ -407,6 +418,8 @@ void main() {
       testWidgets('should open the album option of the manage sheet from Move', (tester) async {
         // Arrange
         await tester.pumpWidget(createWidgetUnderTest(files: [photo()], albumContext: album));
+        await tester.tap(find.text('More'));
+        await settle(tester);
 
         // Act
         await tester.tap(find.text('Move'));

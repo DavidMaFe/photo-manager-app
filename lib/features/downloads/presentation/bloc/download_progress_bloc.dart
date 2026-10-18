@@ -26,6 +26,10 @@ class DownloadProgressBloc extends Bloc<DownloadProgressEvent, DownloadProgressS
 
   Timer? _timer;
   final Set<String> _markedOnDevice = {};
+
+  /// Whether this run of the app saw the download running (or started it). A download that had already finished
+  /// when the app opened is not announced again: the queue keeps it, and the card came back on every start.
+  bool _sawRunning = false;
   ({DateTime at, int bytes})? _firstSample;
 
   DownloadProgressBloc({
@@ -70,6 +74,7 @@ class DownloadProgressBloc extends Bloc<DownloadProgressEvent, DownloadProgressS
     try {
       final wasRunning = state.isRunning;
       await _startDownload(plan, album: album);
+      _sawRunning = true;
       if (!wasRunning) {
         _firstSample = null;
         _markedOnDevice.clear();
@@ -84,6 +89,8 @@ class DownloadProgressBloc extends Bloc<DownloadProgressEvent, DownloadProgressS
   }
 
   Future<void> _onCancelRequested(DownloadCancelRequested event, Emitter<DownloadProgressState> emit) async {
+    // Cancelled from the card: the user is looking at it, so what was saved is shown
+    _sawRunning = true;
     await _cancelDownload();
     await _poll(emit);
   }
@@ -97,11 +104,15 @@ class DownloadProgressBloc extends Bloc<DownloadProgressEvent, DownloadProgressS
       _presence.markOnDevice(newlySaved);
     }
 
+    if (progress.isRunning) _sawRunning = true;
+    // Finished before this run of the app watched it: nothing to show
+    final finishedUnseen = !progress.isEmpty && !progress.isRunning && !_sawRunning;
+
     emit(state.copyWith(
       progress: progress,
       remaining: () => _estimateRemaining(progress.bytesSaved, progress.bytesTotal),
       failure: restart ? () => null : null,
-      dismissed: restart ? false : null,
+      dismissed: restart ? false : (finishedUnseen ? true : null),
     ));
 
     if (progress.isRunning) {

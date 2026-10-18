@@ -2015,12 +2015,6 @@ abstract class AppLocalizations {
   /// **'So you can retry it'**
   String get alertFailureBody;
 
-  /// No description provided for @sectionDiagnostics.
-  ///
-  /// In en, this message translates to:
-  /// **'Diagnostics'**
-  String get sectionDiagnostics;
-
   /// No description provided for @manageQuestion.
   ///
   /// In en, this message translates to:
@@ -3670,6 +3664,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your account has been deleted'**
   String get deleteAccountDone;
+
+  /// No description provided for @notificationChannelFinishedName.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished'**
+  String get notificationChannelFinishedName;
+
+  /// No description provided for @notificationChannelFinishedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'When a backup or a download to this phone finishes'**
+  String get notificationChannelFinishedDescription;
+
+  /// No description provided for @notificationChannelFailureName.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup problems'**
+  String get notificationChannelFailureName;
+
+  /// No description provided for @notificationChannelFailureDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'When a backup could not be completed'**
+  String get notificationChannelFailureDescription;
+
+  /// No description provided for @notificationChannelProgressName.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get notificationChannelProgressName;
+
+  /// No description provided for @notificationChannelProgressDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress of a backup or a download running in the background'**
+  String get notificationChannelProgressDescription;
+
+  /// No description provided for @notificationBackupRunningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backing up your photos'**
+  String get notificationBackupRunningTitle;
+
+  /// No description provided for @notificationBackupPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing the backup…'**
+  String get notificationBackupPreparing;
+
+  /// No description provided for @notificationBackupProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total} files uploaded'**
+  String notificationBackupProgress(int current, int total);
+
+  /// No description provided for @notificationBackupDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup completed'**
+  String get notificationBackupDoneTitle;
+
+  /// No description provided for @notificationBackupDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Everything was already backed up} =1{1 file uploaded} other{{count} files uploaded}}'**
+  String notificationBackupDoneBody(int count);
+
+  /// No description provided for @notificationBackupFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup could not be completed'**
+  String get notificationBackupFailedTitle;
+
+  /// No description provided for @notificationBackupFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be tried again later. Open the app to see what happened.'**
+  String get notificationBackupFailedBody;
+
+  /// No description provided for @notificationBackupSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Log in again to keep backing up your photos.'**
+  String get notificationBackupSessionExpired;
+
+  /// No description provided for @notificationDownloadRunningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving to this phone'**
+  String get notificationDownloadRunningTitle;
+
+  /// No description provided for @notificationDownloadProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{saved} of {total} files'**
+  String notificationDownloadProgress(int saved, int total);
+
+  /// No description provided for @notificationDownloadDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download completed'**
+  String get notificationDownloadDoneTitle;
+
+  /// No description provided for @notificationDownloadDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file saved to this phone} other{{count} files saved to this phone}}'**
+  String notificationDownloadDoneBody(int count);
+
+  /// No description provided for @notificationDownloadFailedSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 could not be saved} other{{count} could not be saved}}'**
+  String notificationDownloadFailedSuffix(int count);
+
+  /// No description provided for @appColor.
+  ///
+  /// In en, this message translates to:
+  /// **'App color'**
+  String get appColor;
+
+  /// No description provided for @appColorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes buttons, selection and links. The logo stays the same.'**
+  String get appColorHint;
+
+  /// No description provided for @accentViolet.
+  ///
+  /// In en, this message translates to:
+  /// **'Violet'**
+  String get accentViolet;
+
+  /// No description provided for @accentBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get accentBlue;
+
+  /// No description provided for @accentTeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Teal'**
+  String get accentTeal;
+
+  /// No description provided for @accentTerracotta.
+  ///
+  /// In en, this message translates to:
+  /// **'Terracotta'**
+  String get accentTerracotta;
+
+  /// No description provided for @accentGraphite.
+  ///
+  /// In en, this message translates to:
+  /// **'Graphite'**
+  String get accentGraphite;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

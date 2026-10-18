@@ -192,6 +192,14 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
       final result = await getFilesUseCase(page: 0, pageSize: _pageSize, filter: currentFilter);
       final groupedFiles = DateGroupingUtil.groupFilesByDate(result.files);
 
+      // The selection may have changed while loading (an action that ends it): keep the current one, not the one
+      // from before the request, or the selection of an applied action would come back
+      final latest = state;
+      if (latest is GalleryLoaded) {
+        isSelectionMode = latest.isSelectionMode;
+        selectedFileIds = latest.selectedFileIds;
+      }
+
       // Clean up selectedFileIds - remove any IDs that no longer exist in the file list
       final currentFileIds = result.files.map((f) => f.id).toSet();
       final cleanedSelectedIds = selectedFileIds.where((id) => currentFileIds.contains(id)).toSet();

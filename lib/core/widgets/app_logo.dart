@@ -121,7 +121,8 @@ class _Wordmark extends StatelessWidget {
         style: style,
         children: [
           TextSpan(text: 'Photo', style: TextStyle(color: onAccent ? white : palette.ink)),
-          TextSpan(text: 'Manager', style: TextStyle(color: onAccent ? white : palette.accent)),
+          // The brand violet, whatever the color of the app
+          TextSpan(text: 'Manager', style: TextStyle(color: onAccent ? white : palette.brand)),
         ],
       ),
       maxLines: 1,

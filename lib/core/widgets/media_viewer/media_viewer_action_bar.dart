@@ -5,9 +5,46 @@ import '../../../config/theme/app_palette.dart';
 import '../../../config/theme/app_radius.dart';
 import '../app_context_menu.dart';
 
-/// Floating dark action bar at the bottom of the viewer.
+/// Bottom of the viewer, part of the viewer itself: full width on its black background, with a hairline above, the
+/// thumbnail strip (when there is one) and the [actions].
+class MediaViewerBottomPanel extends StatelessWidget {
+  final Widget? strip;
+  final Widget actions;
+
+  const MediaViewerBottomPanel({super.key, this.strip, required this.actions});
+
+  static const double _topPadding = 12;
+  static const double _stripGap = 8;
+  static const double _bottomPadding = 4;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: p.media,
+        border: Border(top: BorderSide(color: p.mediaChromeRaised)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.only(top: _topPadding, bottom: _bottomPadding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (strip case final strip?) ...[strip, const SizedBox(height: _stripGap)],
+              actions,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Row of actions of the viewer ([MediaViewerAction]), without a background of its own.
 class MediaViewerActionBar extends StatelessWidget {
-  static const double height = 72;
+  static const double height = 60;
 
   final List<Widget> children;
 
@@ -15,27 +52,24 @@ class MediaViewerActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
-    return Container(
+    return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: height),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: p.mediaChrome,
-        borderRadius: BorderRadius.circular(24),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(children: children),
       ),
-      child: Row(children: children),
     );
   }
 }
 
-/// Action of [MediaViewerActionBar]: icon + label, optionally as an accent pill.
+/// Action of [MediaViewerActionBar]: icon + label.
 class MediaViewerAction extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
   final Color? color;
 
-  /// Accent pill (main action).
+  /// Main action of the viewer (Save, Restore): icon and label in the accent of the viewer.
   final bool highlighted;
 
   /// Icon fill (1 = filled), label weight and icon scale, for toggles like Favorite.
@@ -60,7 +94,7 @@ class MediaViewerAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final foreground = color ?? p.onMedia;
+    final foreground = color ?? (highlighted ? p.mediaAccent : p.onMedia);
     final radius = BorderRadius.circular(AppRadius.button);
 
     return Opacity(
@@ -80,19 +114,14 @@ class MediaViewerAction extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 52,
-                    height: 30,
-                    decoration: highlighted
-                        ? BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(AppRadius.pill))
-                        : null,
+                  SizedBox(
+                    height: 28,
                     child: Transform.scale(
                       scale: iconScale,
-                      child: Icon(icon,
-                          size: 22, color: highlighted ? p.onAccent : (iconColor ?? foreground), fill: iconFill),
+                      child: Icon(icon, size: 24, color: iconColor ?? foreground, fill: iconFill),
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
                     label,
                     maxLines: 1,
@@ -149,47 +178,24 @@ class MediaViewerMenuItem {
 }
 
 
-/// "Cover" action of the album viewer: the mosaic icon in an accent pill (52×30).
+/// "Cover" action of the album viewer: in the accent of the viewer, filled, when the photo is a cover of an album.
 class MediaViewerCoverAction extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
+  final bool isCover;
 
-  const MediaViewerCoverAction({super.key, required this.label, required this.onPressed});
+  const MediaViewerCoverAction({super.key, required this.label, required this.onPressed, this.isCover = false});
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final radius = BorderRadius.circular(AppRadius.button);
-
-    return Material(
-      color: p.accent.withValues(alpha: 0),
-      borderRadius: radius,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: radius,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 56, minWidth: 64),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 52,
-                height: 30,
-                decoration: BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(AppRadius.pill)),
-                child: Icon(Symbols.auto_awesome_mosaic_rounded, size: 20, fill: 1, color: p.onAccent),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: p.onMedia),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return MediaViewerAction(
+      icon: Symbols.auto_awesome_mosaic_rounded,
+      label: label,
+      onPressed: onPressed,
+      iconFill: isCover ? 1 : 0,
+      color: isCover ? p.mediaAccent : null,
+      labelWeight: isCover ? FontWeight.w800 : FontWeight.w700,
     );
   }
 }

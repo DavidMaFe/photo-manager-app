@@ -120,6 +120,9 @@ class _BreakdownBar extends StatelessWidget {
                     final width = constraints.maxWidth;
                     final gaps = gap * (visible.length > 1 ? visible.length - 1 : 0);
                     return Row(
+                      // The segments take the height of the bar: without it they were 0 px high and the bar
+                      // always looked empty
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         for (var i = 0; i < visible.length; i++) ...[
                           if (i > 0) const SizedBox(width: gap),
