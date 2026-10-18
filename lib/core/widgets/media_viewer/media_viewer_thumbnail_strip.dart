@@ -87,7 +87,12 @@ class _MediaViewerThumbnailStripState extends State<MediaViewerThumbnailStrip> {
                 decoration: BoxDecoration(
                   color: p.mediaChromeRaised,
                   borderRadius: BorderRadius.circular(current ? 8 : 6),
-                  border: current ? Border.all(color: p.onMedia, width: 2) : null,
+                ),
+                // Painted over the thumbnail: under it, the photo covered the corners of the border and it looked
+                // like four separate lines
+                foregroundDecoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(current ? 8 : 6),
+                  border: Border.all(color: current ? p.onMedia : p.onMedia.withValues(alpha: 0), width: 2),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: widget.thumbnailBuilder(context, index),

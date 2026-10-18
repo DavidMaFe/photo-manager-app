@@ -17,7 +17,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color shadow, shadowSoft;
   final Color media, onMedia, scrim;
   final Color mediaChrome, mediaChromeRaised, onMediaMuted, mediaDanger, mediaReview;
-  final Color mediaCover, mediaCoverSoft;
+  final Color mediaCover, mediaCoverSoft, mediaAccent;
 
   const AppPalette({
     required this.background,
@@ -58,6 +58,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.mediaReview,
     required this.mediaCover,
     required this.mediaCoverSoft,
+    required this.mediaAccent,
   });
 
   static const light = AppPalette(
@@ -99,6 +100,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     mediaReview: AppColors.mediaReview,
     mediaCover: AppColors.mediaCover,
     mediaCoverSoft: AppColors.mediaCoverSoft,
+    mediaAccent: AppColors.mediaAccent,
   );
 
   static const dark = AppPalette(
@@ -140,6 +142,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     mediaReview: AppColors.mediaReview,
     mediaCover: AppColors.mediaCover,
     mediaCoverSoft: AppColors.mediaCoverSoft,
+    mediaAccent: AppColors.mediaAccent,
   );
 
   @override
@@ -182,6 +185,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? mediaReview,
     Color? mediaCover,
     Color? mediaCoverSoft,
+    Color? mediaAccent,
   }) {
     return AppPalette(
       background: background ?? this.background,
@@ -222,6 +226,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       mediaReview: mediaReview ?? this.mediaReview,
       mediaCover: mediaCover ?? this.mediaCover,
       mediaCoverSoft: mediaCoverSoft ?? this.mediaCoverSoft,
+      mediaAccent: mediaAccent ?? this.mediaAccent,
     );
   }
 
@@ -268,6 +273,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       mediaReview: l(mediaReview, other.mediaReview),
       mediaCover: l(mediaCover, other.mediaCover),
       mediaCoverSoft: l(mediaCoverSoft, other.mediaCoverSoft),
+      mediaAccent: l(mediaAccent, other.mediaAccent),
     );
   }
 }

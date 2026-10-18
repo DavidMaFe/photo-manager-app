@@ -41,9 +41,9 @@ class TrashFileDetailPage extends StatefulWidget {
 
 class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
 
-  /// Space reserved under a video so its own controls stay above the chrome.
-  static const double _bottomChromeHeight =
-      MediaViewerActionBar.height + MediaViewerThumbnailStrip.height + 12 + 16;
+  /// Space reserved under a video so its own controls stay above the bottom panel.
+  double get _bottomChromeHeight =>
+      MediaViewerBottomPanel.heightWithoutStrip + (widget.files.length > 1 ? MediaViewerBottomPanel.stripHeight : 0);
 
   late PageController _pageController;
   late int _currentIndex;
@@ -127,53 +127,39 @@ class _TrashFileDetailPageState extends State<TrashFileDetailPage> {
             right: 0,
             bottom: 0,
             child: _chrome(
-              SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.files.length > 1) ...[
-                        MediaViewerThumbnailStrip(
-                          itemCount: widget.files.length,
-                          currentIndex: _currentIndex,
-                          thumbnailBuilder: (context, index) =>
-                              EncryptedImage(fileId: widget.files[index].id, transparentWhileLoading: true),
-                          onSelected: (index) => _pageController.animateToPage(
-                            index,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.easeOut,
-                          ),
+              MediaViewerBottomPanel(
+                strip: widget.files.length > 1
+                    ? MediaViewerThumbnailStrip(
+                        itemCount: widget.files.length,
+                        currentIndex: _currentIndex,
+                        thumbnailBuilder: (context, index) =>
+                            EncryptedImage(fileId: widget.files[index].id, transparentWhileLoading: true),
+                        onSelected: (index) => _pageController.animateToPage(
+                          index,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOut,
                         ),
-                        const SizedBox(height: 12),
-                      ],
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: MediaViewerActionBar(
-                          children: [
-                            Expanded(
-                              child: MediaViewerAction(
-                                icon: Symbols.restore_rounded,
-                                label: l10n.restore,
-                                highlighted: true,
-                                onPressed: () => _confirmRestore(context),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: MediaViewerAction(
-                                icon: Symbols.delete_forever_rounded,
-                                label: l10n.deleteForever,
-                                color: palette.mediaDanger,
-                                onPressed: () => _confirmDeleteForever(context),
-                              ),
-                            ),
-                          ],
-                        ),
+                      )
+                    : null,
+                actions: MediaViewerActionBar(
+                  children: [
+                    Expanded(
+                      child: MediaViewerAction(
+                        icon: Symbols.restore_rounded,
+                        label: l10n.restore,
+                        highlighted: true,
+                        onPressed: () => _confirmRestore(context),
                       ),
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      child: MediaViewerAction(
+                        icon: Symbols.delete_forever_rounded,
+                        label: l10n.deleteForever,
+                        color: palette.mediaDanger,
+                        onPressed: () => _confirmDeleteForever(context),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

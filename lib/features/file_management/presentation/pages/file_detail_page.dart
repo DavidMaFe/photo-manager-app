@@ -58,9 +58,9 @@ class FileDetailPage extends StatefulWidget {
 
 class _FileDetailPageState extends State<FileDetailPage> {
 
-  /// Space reserved under a video so its own controls stay above the chrome.
-  static const double _bottomChromeHeight =
-      MediaViewerActionBar.height + MediaViewerThumbnailStrip.height + 12 + 16;
+  /// Space reserved under a video so its own controls stay above the bottom panel.
+  double get _bottomChromeHeight =>
+      MediaViewerBottomPanel.heightWithoutStrip + (widget.files.length > 1 ? MediaViewerBottomPanel.stripHeight : 0);
 
   late PageController _pageController;
   late int _currentIndex;
@@ -153,35 +153,22 @@ class _FileDetailPageState extends State<FileDetailPage> {
               right: 0,
               bottom: 0,
               child: _chrome(
-                SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (widget.files.length > 1) ...[
-                          MediaViewerThumbnailStrip(
-                            itemCount: widget.files.length,
-                            currentIndex: _currentIndex,
-                            thumbnailBuilder: (context, index) => _thumbnail(widget.files[index]),
-                            onSelected: (index) => _pageController.animateToPage(
-                              index,
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.easeOut,
-                            ),
+                MediaViewerBottomPanel(
+                  strip: widget.files.length > 1
+                      ? MediaViewerThumbnailStrip(
+                          itemCount: widget.files.length,
+                          currentIndex: _currentIndex,
+                          thumbnailBuilder: (context, index) => _thumbnail(widget.files[index]),
+                          onSelected: (index) => _pageController.animateToPage(
+                            index,
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.easeOut,
                           ),
-                          const SizedBox(height: 12),
-                        ],
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: _albumContext != null ? 12 : 16),
-                          child: _albumContext != null
-                              ? _buildAlbumActionBar(context, file, l10n, palette)
-                              : _buildGalleryActionBar(context, file, l10n, palette),
-                        ),
-                      ],
-                    ),
-                  ),
+                        )
+                      : null,
+                  actions: _albumContext != null
+                      ? _buildAlbumActionBar(context, file, l10n, palette)
+                      : _buildGalleryActionBar(context, file, l10n, palette),
                 ),
               ),
             ),
@@ -357,7 +344,7 @@ class _FileDetailPageState extends State<FileDetailPage> {
     }
   }
 
-  /// Album bar: Favorite · Cover (photos only) · Move · On phone/Download · More (Share, Delete).
+  /// Album bar: Favorite · Cover (photos only) · Share · On phone/Download · More (Move, Delete).
   Widget _buildAlbumActionBar(BuildContext context, GalleryFile file, AppLocalizations l10n, AppPalette palette) {
     return MediaViewerActionBar(
       children: [
@@ -366,14 +353,15 @@ class _FileDetailPageState extends State<FileDetailPage> {
           Expanded(
             child: MediaViewerCoverAction(
               label: l10n.cover,
+              isCover: _coverOf(file).isNotEmpty,
               onPressed: () => _openCoverPicker(context, file),
             ),
           ),
         Expanded(
           child: MediaViewerAction(
-            icon: Symbols.drive_file_move_rounded,
-            label: l10n.move,
-            onPressed: () => _showManageModal(context, initialOption: ManageOption.album),
+            icon: Symbols.ios_share_rounded,
+            label: l10n.actionShare,
+            onPressed: () => _share(context, file),
           ),
         ),
         Expanded(child: _downloadAction(context, file, l10n)),
@@ -382,9 +370,9 @@ class _FileDetailPageState extends State<FileDetailPage> {
             label: l10n.actionMore,
             items: [
               MediaViewerMenuItem(
-                icon: Symbols.ios_share_rounded,
-                label: l10n.actionShare,
-                onSelected: () => _share(context, file),
+                icon: Symbols.drive_file_move_rounded,
+                label: l10n.move,
+                onSelected: () => _showManageModal(context, initialOption: ManageOption.album),
               ),
               MediaViewerMenuItem(
                 icon: Symbols.delete_rounded,

@@ -92,15 +92,21 @@ Resultado: 3067 tests y analizador sin avisos.
 Status: ✅ Completed
 
 ## Phase 4: Visor: barra de acciones integrada y borde del carrusel
-- [ ] Carrusel: el borde de la miniatura actual se dibuja por encima (`foregroundDecoration`) y la imagen se recorta con el radio interior, para que el borde sea un rectángulo redondeado continuo.
-- [ ] Revisar la captura del usuario y concretar el diseño (posición, fondo, iconos, textos, comportamiento al ocultar los controles).
-- [ ] Implementarla en el visor (`file_detail_page.dart`) y en el de la papelera si aplica.
-- [ ] Tests de widget.
-- [ ] Comprobar en el S23 con fotos y vídeos, en modo claro y oscuro.
+- [x] Carrusel: el borde de la miniatura actual se dibuja por encima (`foregroundDecoration`), con el mismo radio, y se desvanece al cambiar de foto: es un rectángulo redondeado continuo, también en las esquinas.
+- [x] Diseño de la captura del usuario (`~/cambios/Nuevo · Visor dentro de un álbum@1x.png`), con estas decisiones:
+  - la parte de abajo deja de ser una barra flotante: `MediaViewerBottomPanel`, a todo lo ancho sobre el negro del visor, con una línea fina arriba, el carrusel y las acciones (icono y texto, sin pastillas de fondo);
+  - álbum: Favorita · Portada (solo fotos) · Compartir · Descargar · Más (Mover, Eliminar), como en el diseño;
+  - Favorita en rosa si la foto es favorita y Portada en el acento del visor (`mediaAccent`, nuevo en `AppPalette`) si la foto es portada de algún álbum; en blanco si no;
+  - el mismo estilo en los visores de la galería y de la papelera; su acción principal (Guardar, Restaurar) va en `mediaAccent` en lugar de con una pastilla.
+- [x] El espacio reservado bajo los vídeos sigue la altura del panel (con o sin carrusel).
+- [x] Tests: carrusel (3), panel y colores de las acciones (5), y los del visor del álbum con las acciones nuevas (Mover dentro de Más, Portada activa e inactiva).
+- [x] Comprobar en el S23 con fotos y vídeos, en modo claro y oscuro (revisado por el usuario).
 
 **Criterio de aceptación:** la barra del visor coincide con el diseño de la captura y el borde de la miniatura actual es continuo, también en las esquinas.
 
-Status: 🚧 In Progress
+Resultado: 3077 tests y analizador sin avisos.
+
+Status: ✅ Completed
 
 ## Phase 5: Color de la app
 - [ ] Definir las familias de color de Morado, Azul, Turquesa, Naranja/terracota y Grafito, para claro y oscuro: contraste AA del texto y los iconos sobre sus fondos, y distintas de los colores de estado.
