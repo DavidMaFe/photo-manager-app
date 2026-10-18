@@ -9,10 +9,21 @@ import 'package:photo_manager_app/features/account_deletion/domain/use_cases/del
 import 'package:photo_manager_app/features/account_deletion/domain/use_cases/get_account_deletion_summary_use_case.dart';
 import 'package:photo_manager_app/features/account_deletion/presentation/bloc/account_deletion_summary_cubit.dart';
 import 'package:photo_manager_app/features/account_deletion/presentation/bloc/delete_account_bloc.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:photo_manager_app/features/plans/data/data_sources/billing_remote_data_source.dart';
+import 'package:photo_manager_app/features/plans/data/data_sources/billing_store_data_source.dart';
 import 'package:photo_manager_app/features/plans/data/data_sources/plan_remote_data_source.dart';
+import 'package:photo_manager_app/features/plans/data/repositories/billing_data_repository.dart';
 import 'package:photo_manager_app/features/plans/data/repositories/plan_data_repository.dart';
+import 'package:photo_manager_app/features/plans/domain/repositories/billing_repository.dart';
 import 'package:photo_manager_app/features/plans/domain/repositories/plan_repository.dart';
+import 'package:photo_manager_app/features/plans/domain/use_cases/buy_plan_use_case.dart';
 import 'package:photo_manager_app/features/plans/domain/use_cases/get_user_plan_use_case.dart';
+import 'package:photo_manager_app/features/plans/domain/use_cases/load_plan_offers_use_case.dart';
+import 'package:photo_manager_app/features/plans/domain/use_cases/register_store_purchase_use_case.dart';
+import 'package:photo_manager_app/features/plans/domain/use_cases/restore_purchases_use_case.dart';
+import 'package:photo_manager_app/features/plans/domain/use_cases/watch_store_purchases_use_case.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/billing_cubit.dart';
 import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
 import 'package:photo_manager_app/features/sync_config/domain/use_cases/apply_plan_to_sync_config_use_case.dart';
 import 'package:photo_manager_app/features/downloads/domain/use_cases/get_device_storage_use_case.dart';
@@ -752,6 +763,28 @@ Future<void> init() async {
         getUserPlan: sl<GetUserPlanUseCase>(),
         deviceUuid: () => sl<SyncDeviceRepository>().getDeviceUuid(),
       ));
+  // Buying with Google Play, behind AppConfig.billingEnabled: nothing talks to the store until the cubit starts
+  sl.registerLazySingleton<BillingStoreDataSource>(() => GooglePlayBillingStoreDataSource(InAppPurchase.instance));
+  sl.registerLazySingleton<BillingRemoteDataSource>(
+      () => BillingRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<BillingRepository>(() => BillingDataRepository(
+        storeDataSource: sl<BillingStoreDataSource>(),
+        remoteDataSource: sl<BillingRemoteDataSource>(),
+      ));
+  sl.registerFactory(() => WatchStorePurchasesUseCase(sl<BillingRepository>()));
+  sl.registerFactory(() => LoadPlanOffersUseCase(sl<BillingRepository>()));
+  sl.registerFactory(() => BuyPlanUseCase(sl<BillingRepository>()));
+  sl.registerFactory(() => RegisterStorePurchaseUseCase(sl<BillingRepository>()));
+  sl.registerFactory(() => RestorePurchasesUseCase(sl<BillingRepository>()));
+  sl.registerLazySingleton(() => BillingCubit(
+        watchPurchases: sl<WatchStorePurchasesUseCase>(),
+        loadOffers: sl<LoadPlanOffersUseCase>(),
+        buy: sl<BuyPlanUseCase>(),
+        register: sl<RegisterStorePurchaseUseCase>(),
+        restore: sl<RestorePurchasesUseCase>(),
+        accountId: () => sl<PlanCubit>().state.plan?.billingAccountId,
+        onPlan: (plan) => sl<PlanCubit>().show(plan),
+      ));
   sl.registerFactory(() => ApplyPlanToSyncConfigUseCase(
         sl<SyncConfigRepository>(),
         reschedule: (config) => sl<SyncSchedulerService>().rescheduleSync(config),
@@ -1274,6 +1307,7 @@ Future<void> init() async {
 /// What this device keeps for a session: removed on logout and when the account is deleted.
 List<Future<void> Function()> _sessionCleanups() => [
       () async => sl<PlanCubit>().clear(),
+      () async => sl<BillingCubit>().clear(),
       () => sl<RecoveryReminderRepository>().clear(),
       () => sl<RecoveryPhraseExporter>().deleteExportedFiles(),
       // Keys of the files, video proxy and encrypted cache; then the decoded images kept in memory

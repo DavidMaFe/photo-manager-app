@@ -47,6 +47,9 @@ class PlanCubit extends Cubit<PlanState> {
     }
   }
 
+  /// The plan answered by the server after a purchase.
+  void show(UserPlan plan) => emit(PlanState(plan: plan, deviceUuid: state.deviceUuid));
+
   /// The session ended: nothing of the previous user stays.
   void clear() => emit(const PlanState());
 }

@@ -958,7 +958,6 @@
   "planBackupWeekly": "Copia automática semanal",
   "planPriceMonthly": "{price}/mes",
   "planPriceAnnual": "o {price}/año: 2 meses gratis",
-  "planChoose": "Elegir",
   "planComingSoon": "Los planes de pago llegarán pronto.",
   "planUsageStorage": "Espacio: {used} de {limit}",
   "planUsageDevices": "Dispositivos: {count} de {max}",
@@ -978,5 +977,15 @@
   "planWeeklyOnly": "En el plan gratuito la copia automática es semanal.",
   "planVideosSkipped": "{count, plural, =1{1 vídeo no se ha copiado} other{{count} vídeos no se han copiado}}: tu plan admite vídeos de hasta {size}.",
   "errorPlanLimit": "Tu plan ha llegado a uno de sus límites.",
-  "notificationBackupPlanLimit": "Tu plan ha llegado a uno de sus límites. Abre la app para verlo."
+  "notificationBackupPlanLimit": "Tu plan ha llegado a uno de sus límites. Abre la app para verlo.",
+  "planPaymentPending": "Pago pendiente: el plan se aplica en cuanto se confirme",
+  "planBuyMonthly": "{price} al mes",
+  "planBuyAnnual": "{price} al año",
+  "planStoreUnavailable": "No se pudo conectar con Google Play. Inténtalo más tarde.",
+  "planPurchaseDone": "¡Listo! Ya tienes el plan {name}",
+  "planPurchasePending": "Tu pago está pendiente. El plan se aplicará en cuanto se confirme.",
+  "planPurchaseError": "No se pudo completar la compra. Inténtalo de nuevo más tarde.",
+  "planManage": "Gestionar en Google Play",
+  "deleteAccountSubscription": "Tu suscripción se cancela",
+  "deleteAccountSubscriptionDetail": "No se renovará ni se te volverá a cobrar"
 }

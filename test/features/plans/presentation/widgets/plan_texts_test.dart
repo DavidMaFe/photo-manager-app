@@ -43,6 +43,7 @@ void main() {
           startsWith('Ends on'));
       expect(PlanTexts.subscriptionStatus(subscription(SubscriptionStatus.onHold), en), contains('payment'));
       expect(PlanTexts.subscriptionStatus(subscription(SubscriptionStatus.expired), es), startsWith('Tu suscripción terminó'));
+      expect(PlanTexts.subscriptionStatus(subscription(SubscriptionStatus.pending), es), startsWith('Pago pendiente'));
     });
   });
 }

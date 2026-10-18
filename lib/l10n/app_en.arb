@@ -1098,7 +1098,6 @@
   "@planPriceMonthly": {"placeholders": {"price": {"type": "String"}}},
   "planPriceAnnual": "or {price}/year: 2 months free",
   "@planPriceAnnual": {"placeholders": {"price": {"type": "String"}}},
-  "planChoose": "Choose",
   "planComingSoon": "Paid plans are coming soon.",
   "planUsageStorage": "Space: {used} of {limit}",
   "@planUsageStorage": {"placeholders": {"used": {"type": "String"}, "limit": {"type": "String"}}},
@@ -1128,5 +1127,18 @@
   "planVideosSkipped": "{count, plural, =1{1 video was not backed up} other{{count} videos were not backed up}}: your plan allows videos up to {size}.",
   "@planVideosSkipped": {"placeholders": {"count": {"type": "int"}, "size": {"type": "String"}}},
   "errorPlanLimit": "Your plan has reached one of its limits.",
-  "notificationBackupPlanLimit": "Your plan has reached one of its limits. Open the app to see it."
+  "notificationBackupPlanLimit": "Your plan has reached one of its limits. Open the app to see it.",
+  "planPaymentPending": "Payment pending: the plan applies as soon as it is confirmed",
+  "planBuyMonthly": "{price} per month",
+  "@planBuyMonthly": {"placeholders": {"price": {"type": "String"}}},
+  "planBuyAnnual": "{price} per year",
+  "@planBuyAnnual": {"placeholders": {"price": {"type": "String"}}},
+  "planStoreUnavailable": "Could not connect to Google Play. Try again later.",
+  "planPurchaseDone": "Done! You now have the {name} plan",
+  "@planPurchaseDone": {"placeholders": {"name": {"type": "String"}}},
+  "planPurchasePending": "Your payment is pending. The plan will apply as soon as it is confirmed.",
+  "planPurchaseError": "The purchase could not be completed. Try again later.",
+  "planManage": "Manage in Google Play",
+  "deleteAccountSubscription": "Your subscription is cancelled",
+  "deleteAccountSubscriptionDetail": "It will not renew and you will not be charged again"
 }

@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/billing_period.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/plan_subscription.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/plan_tier.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/store_offer.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
 
 import '../../../../helpers/plan_test_providers.dart';
@@ -38,6 +41,45 @@ void main() {
 
       expect(plan.isPaused('tablet'), isTrue);
       expect(plan.isPaused('phone'), isFalse);
+    });
+  });
+
+  group('PlanSubscription', () {
+    PlanSubscription subscription(SubscriptionStatus status, {bool autoRenewing = true}) => PlanSubscription(
+        tier: PlanTier.plus100, status: status, periodEnd: null, autoRenewing: autoRenewing);
+
+    test('should renew while the store will charge it again', () {
+      expect(subscription(SubscriptionStatus.active).renews, isTrue);
+      expect(subscription(SubscriptionStatus.inGracePeriod).renews, isTrue);
+      expect(subscription(SubscriptionStatus.onHold).renews, isTrue);
+      expect(subscription(SubscriptionStatus.paused).renews, isTrue);
+    });
+
+    test('should not renew when cancelled, ended or not paid yet', () {
+      expect(subscription(SubscriptionStatus.active, autoRenewing: false).renews, isFalse);
+      expect(subscription(SubscriptionStatus.expired).renews, isFalse);
+      expect(subscription(SubscriptionStatus.revoked).renews, isFalse);
+      expect(subscription(SubscriptionStatus.pending).renews, isFalse);
+    });
+  });
+
+  group('BillingPeriod', () {
+    test('should read the base plans of the store', () {
+      expect(BillingPeriod.fromBasePlan('monthly'), BillingPeriod.monthly);
+      expect(BillingPeriod.fromBasePlan('annual'), BillingPeriod.annual);
+      expect(BillingPeriod.fromBasePlan('weekly'), isNull);
+      expect(BillingPeriod.fromBasePlan(null), isNull);
+    });
+  });
+
+  group('StoreOffer', () {
+    test('should map the plans to the products of the store and back', () {
+      expect(StoreOffer.productIdOf(PlanTier.plus100), 'plus_100');
+      expect(StoreOffer.productIdOf(PlanTier.plus250), 'plus_250');
+      expect(StoreOffer.productIdOf(PlanTier.plus1tb), 'plus_1tb');
+      expect(StoreOffer.tierOf('plus_1tb'), PlanTier.plus1tb);
+      expect(StoreOffer.tierOf(''), isNull);
+      expect(StoreOffer.tierOf('other'), isNull);
     });
   });
 }

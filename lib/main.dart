@@ -25,6 +25,7 @@ import 'package:photo_manager_app/features/downloads/presentation/bloc/on_device
 import 'package:photo_manager_app/features/downloads/presentation/bloc/share_cubit.dart';
 import 'package:photo_manager_app/features/downloads/presentation/services/on_device_presence_updater.dart';
 import 'package:photo_manager_app/features/onboarding/domain/use_cases/check_onboarding_status_use_case.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/billing_cubit.dart';
 import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
 import 'package:photo_manager_app/features/sync_config/domain/use_cases/apply_plan_to_sync_config_use_case.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
@@ -152,6 +153,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void _onAuthState(AuthState state) {
     if (state is AuthSuccessful) {
       di.sl<PlanCubit>().load();
+      // Purchases paid while the app was closed, or in another session, reach the server
+      if (AppConfig.billingEnabled) di.sl<BillingCubit>().start();
       di.sl<OnDevicePresenceUpdater>().start();
       di.sl<DownloadProgressBloc>().add(const DownloadProgressWatchRequested());
     }
@@ -193,6 +196,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         BlocProvider(create: (_) => di.sl<OnDevicePresenceCubit>()),
         BlocProvider(create: (_) => di.sl<ShareCubit>()),
         BlocProvider.value(value: di.sl<PlanCubit>()),
+        BlocProvider.value(value: di.sl<BillingCubit>()),
       ],
       // Theme mode and color of the app chosen by the user
       child: ListenableBuilder(

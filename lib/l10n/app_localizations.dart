@@ -3905,12 +3905,6 @@ abstract class AppLocalizations {
   /// **'or {price}/year: 2 months free'**
   String planPriceAnnual(String price);
 
-  /// No description provided for @planChoose.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose'**
-  String get planChoose;
-
   /// No description provided for @planComingSoon.
   ///
   /// In en, this message translates to:
@@ -4030,6 +4024,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your plan has reached one of its limits. Open the app to see it.'**
   String get notificationBackupPlanLimit;
+
+  /// No description provided for @planPaymentPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment pending: the plan applies as soon as it is confirmed'**
+  String get planPaymentPending;
+
+  /// No description provided for @planBuyMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} per month'**
+  String planBuyMonthly(String price);
+
+  /// No description provided for @planBuyAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} per year'**
+  String planBuyAnnual(String price);
+
+  /// No description provided for @planStoreUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not connect to Google Play. Try again later.'**
+  String get planStoreUnavailable;
+
+  /// No description provided for @planPurchaseDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done! You now have the {name} plan'**
+  String planPurchaseDone(String name);
+
+  /// No description provided for @planPurchasePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment is pending. The plan will apply as soon as it is confirmed.'**
+  String get planPurchasePending;
+
+  /// No description provided for @planPurchaseError.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase could not be completed. Try again later.'**
+  String get planPurchaseError;
+
+  /// No description provided for @planManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage in Google Play'**
+  String get planManage;
+
+  /// No description provided for @deleteAccountSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription is cancelled'**
+  String get deleteAccountSubscription;
+
+  /// No description provided for @deleteAccountSubscriptionDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'It will not renew and you will not be charged again'**
+  String get deleteAccountSubscriptionDetail;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

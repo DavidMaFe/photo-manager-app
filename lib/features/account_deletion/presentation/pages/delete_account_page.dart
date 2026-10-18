@@ -13,6 +13,7 @@ import 'package:photo_manager_app/features/account_deletion/domain/entities/acco
 import 'package:photo_manager_app/features/account_deletion/presentation/bloc/account_deletion_summary_cubit.dart';
 import 'package:photo_manager_app/features/account_deletion/presentation/widgets/delete_account_header.dart';
 import 'package:photo_manager_app/features/account_deletion/presentation/widgets/save_everything_row.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 /// First step of the account deletion: what is deleted, and how to save the photos on this phone first.
@@ -112,6 +113,8 @@ class _WhatIsDeleted extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final p = context.palette;
     final size = FileSizeFormatter.format(summary.storedBytes, locale: Localizations.localeOf(context).toLanguageTag());
+    // Deleting the account cancels the renewal in the store
+    final renews = context.select<PlanCubit, bool>((cubit) => cubit.state.plan?.subscription?.renews ?? false);
     return ListRowGroup(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       children: [
@@ -133,6 +136,13 @@ class _WhatIsDeleted extends StatelessWidget {
           title: l10n.deleteAccountDevices(summary.devices),
           subtitle: l10n.deleteAccountDevicesDetail,
         ),
+        if (renews)
+          ListRow(
+            icon: Symbols.credit_card_off_rounded,
+            iconColor: p.danger,
+            title: l10n.deleteAccountSubscription,
+            subtitle: l10n.deleteAccountSubscriptionDetail,
+          ),
         ListRow(
           icon: Symbols.smartphone_rounded,
           iconColor: p.safe,

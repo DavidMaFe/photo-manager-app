@@ -4,19 +4,36 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_card.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/billing_period.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/store_offer.dart';
 import 'package:photo_manager_app/features/plans/presentation/widgets/plan_offer.dart';
 import 'package:photo_manager_app/features/plans/presentation/widgets/plan_texts.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-/// One plan of the plans page: name, price, what it includes and, when buying is on, its button.
+/// One plan of the plans page: name, price, what it includes and, when buying is on, a button per way to pay it.
 class PlanCard extends StatelessWidget {
   final PlanOffer offer;
   final bool isCurrent;
 
-  /// Null hides the button (buying is off, or it is the current or the free plan).
-  final VoidCallback? onChoose;
+  /// The prices of the store for this plan; empty shows the prices of the launch.
+  final List<StoreOffer> storePrices;
 
-  const PlanCard({super.key, required this.offer, required this.isCurrent, this.onChoose});
+  /// What can be bought of this plan (not the free plan, nor what the user already has); empty hides the buttons.
+  final List<StoreOffer> buyable;
+
+  /// The offer being bought: every button waits.
+  final StoreOffer? buying;
+  final ValueChanged<StoreOffer>? onBuy;
+
+  const PlanCard({
+    super.key,
+    required this.offer,
+    required this.isCurrent,
+    this.storePrices = const [],
+    this.buyable = const [],
+    this.buying,
+    this.onBuy,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +41,10 @@ class PlanCard extends StatelessWidget {
     final p = context.palette;
     final limits = offer.limits;
     final currency = NumberFormat.simpleCurrency(locale: l10n.localeName, name: 'EUR');
+    final monthlyPrice = _storePrice(BillingPeriod.monthly) ??
+        (offer.monthlyPrice == null ? null : currency.format(offer.monthlyPrice));
+    final annualPrice =
+        _storePrice(BillingPeriod.annual) ?? (offer.annualPrice == null ? null : currency.format(offer.annualPrice));
 
     return AppCard(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -47,12 +68,12 @@ class PlanCard extends StatelessWidget {
                 ),
             ],
           ),
-          if (offer.monthlyPrice case final monthly?) ...[
+          if (monthlyPrice != null) ...[
             const SizedBox(height: 4),
-            Text(l10n.planPriceMonthly(currency.format(monthly)),
+            Text(l10n.planPriceMonthly(monthlyPrice),
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: p.accentInk)),
-            if (offer.annualPrice case final annual?)
-              Text(l10n.planPriceAnnual(currency.format(annual)),
+            if (annualPrice != null)
+              Text(l10n.planPriceAnnual(annualPrice),
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.ink2)),
           ],
           const SizedBox(height: 12),
@@ -63,13 +84,29 @@ class PlanCard extends StatelessWidget {
             icon: Symbols.event_repeat_rounded,
             text: limits.dailyBackup ? l10n.planBackupDaily : l10n.planBackupWeekly,
           ),
-          if (onChoose != null) ...[
-            const SizedBox(height: 14),
-            AppButton.primary(label: l10n.planChoose, onPressed: onChoose, expand: true),
+          for (final (index, storeOffer) in buyable.indexed) ...[
+            SizedBox(height: index == 0 ? 14 : 8),
+            _buyButton(storeOffer, l10n),
           ],
         ],
       ),
     );
+  }
+
+  String? _storePrice(BillingPeriod period) =>
+      storePrices.where((storeOffer) => storeOffer.period == period).firstOrNull?.price;
+
+  /// Monthly as the main button, annual as the second one.
+  Widget _buyButton(StoreOffer storeOffer, AppLocalizations l10n) {
+    final key = ValueKey('plan-buy-${storeOffer.productId}-${storeOffer.period.basePlanId}');
+    final label = storeOffer.period == BillingPeriod.monthly
+        ? l10n.planBuyMonthly(storeOffer.price)
+        : l10n.planBuyAnnual(storeOffer.price);
+    final onPressed = buying == null && onBuy != null ? () => onBuy!(storeOffer) : null;
+    final loading = buying == storeOffer;
+    return storeOffer.period == BillingPeriod.monthly
+        ? AppButton.primary(key: key, label: label, onPressed: onPressed, loading: loading, expand: true)
+        : AppButton.secondary(key: key, label: label, onPressed: onPressed, loading: loading, expand: true);
   }
 }
 

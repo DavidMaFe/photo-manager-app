@@ -21,6 +21,10 @@ class UserPlan extends Equatable {
   /// Null for a user who never subscribed.
   final PlanSubscription? subscription;
 
+  /// Sent to the store with each purchase, so the server knows the purchase is of this account. Null while buying is
+  /// off in the server.
+  final String? billingAccountId;
+
   const UserPlan({
     required this.tier,
     required this.limits,
@@ -29,6 +33,7 @@ class UserPlan extends Equatable {
     required this.pausedDevices,
     required this.readOnly,
     required this.subscription,
+    this.billingAccountId,
   });
 
   bool isPaused(String deviceUuid) => pausedDevices.contains(deviceUuid);
@@ -37,5 +42,5 @@ class UserPlan extends Equatable {
   bool allowsVideo(int plainBytes) => plainBytes <= limits.maxVideoBytes;
 
   @override
-  List<Object?> get props => [tier, limits, storedBytes, devices, pausedDevices, readOnly, subscription];
+  List<Object?> get props => [tier, limits, storedBytes, devices, pausedDevices, readOnly, subscription, billingAccountId];
 }

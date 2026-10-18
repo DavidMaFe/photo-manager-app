@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_manager_app/features/plans/data/models/user_plan_model.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/billing_period.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/plan_subscription.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/plan_tier.dart';
 
@@ -48,6 +49,29 @@ void main() {
       expect(plan.subscription!.tier, PlanTier.plus250);
       expect(plan.subscription!.periodEnd, DateTime(2026, 11, 18, 10));
       expect(plan.subscription!.autoRenewing, isFalse);
+      expect(plan.subscription!.period, BillingPeriod.monthly);
+      expect(plan.billingAccountId, isNull);
+    });
+
+    test('should read the billing account id and a pending annual subscription', () {
+      final plan = UserPlanModel.fromJson(const {
+        'plan': 'FREE',
+        'subscription': {'productId': 'plus_1tb:annual', 'plan': 'PLUS_1TB', 'status': 'PENDING', 'autoRenewing': true},
+        'billingAccountId': 'account',
+      });
+
+      expect(plan.subscription!.status, SubscriptionStatus.pending);
+      expect(plan.subscription!.period, BillingPeriod.annual);
+      expect(plan.billingAccountId, 'account');
+    });
+
+    test('should leave the period unknown for an unknown base plan', () {
+      final plan = UserPlanModel.fromJson(const {
+        'plan': 'PLUS_100',
+        'subscription': {'productId': 'plus_100', 'plan': 'PLUS_100', 'status': 'ACTIVE'},
+      });
+
+      expect(plan.subscription!.period, isNull);
     });
 
     test('should fall back to the free plan and an expired state for unknown names', () {

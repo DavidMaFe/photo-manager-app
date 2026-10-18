@@ -2,19 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/config/app_config.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_card.dart';
 import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/plan_tier.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/store_offer.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/billing_cubit.dart';
 import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
 import 'package:photo_manager_app/features/plans/presentation/widgets/plan_card.dart';
 import 'package:photo_manager_app/features/plans/presentation/widgets/plan_limit_banner.dart';
 import 'package:photo_manager_app/features/plans/presentation/widgets/plan_offer.dart';
 import 'package:photo_manager_app/features/plans/presentation/widgets/plan_texts.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// The plans: the current one with what the user uses of it, and every plan with what it includes and its price.
-class PlansPage extends StatelessWidget {
+/// With buying on, the prices are the ones of the store and each paid plan has a button per way to pay it.
+class PlansPage extends StatefulWidget {
   const PlansPage({super.key});
+
+  @override
+  State<PlansPage> createState() => _PlansPageState();
+}
+
+class _PlansPageState extends State<PlansPage> {
+  @override
+  void initState() {
+    super.initState();
+    if (AppConfig.billingEnabled) context.read<BillingCubit>().loadOffers();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,42 +42,79 @@ class PlansPage extends StatelessWidget {
       appBar: SecondaryTopBar(title: l10n.plansTitle),
       body: SafeArea(
         top: false,
-        child: BlocBuilder<PlanCubit, PlanState>(
-          builder: (context, state) {
-            final plan = state.plan;
-            return RefreshIndicator(
-              onRefresh: () => context.read<PlanCubit>().load(),
-              child: ListView(
-                padding: const EdgeInsets.only(top: 8, bottom: 24),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                    child: Text(l10n.plansSubtitle, style: TextStyle(fontSize: 14, color: p.ink2)),
-                  ),
-                  const PlanLimitBanner(),
-                  if (plan != null) _CurrentPlan(plan: plan),
-                  for (final offer in PlanOffer.catalog)
-                    PlanCard(
-                      offer: offer,
-                      isCurrent: plan?.tier == offer.tier,
-                      // Buying arrives with Google Play Billing (Phase 4), behind its switch
-                      onChoose: AppConfig.billingEnabled && offer.tier.isPaid && plan?.tier != offer.tier
-                          ? () {}
-                          : null,
-                    ),
-                  if (!AppConfig.billingEnabled)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
-                      child: Text(l10n.planComingSoon,
-                          textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: p.ink2)),
-                    ),
-                ],
-              ),
-            );
-          },
+        child: BlocListener<BillingCubit, BillingState>(
+          listenWhen: (previous, current) => current.notice != null && previous.notice != current.notice,
+          listener: _showNotice,
+          child: BlocBuilder<PlanCubit, PlanState>(
+            builder: (context, state) => BlocBuilder<BillingCubit, BillingState>(
+              builder: (context, billing) => _plans(context, state.plan, billing),
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  Widget _plans(BuildContext context, UserPlan? plan, BillingState billing) {
+    final l10n = AppLocalizations.of(context)!;
+    final p = context.palette;
+    final note = !AppConfig.billingEnabled
+        ? l10n.planComingSoon
+        : billing.storeUnavailable
+            ? l10n.planStoreUnavailable
+            : null;
+    return RefreshIndicator(
+      onRefresh: () => context.read<PlanCubit>().load(),
+      child: ListView(
+        padding: const EdgeInsets.only(top: 8, bottom: 24),
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+            child: Text(l10n.plansSubtitle, style: TextStyle(fontSize: 14, color: p.ink2)),
+          ),
+          const PlanLimitBanner(),
+          if (plan != null) _CurrentPlan(plan: plan),
+          for (final offer in PlanOffer.catalog)
+            PlanCard(
+              offer: offer,
+              isCurrent: plan?.tier == offer.tier,
+              storePrices: AppConfig.billingEnabled ? _offersOf(offer.tier, billing) : const [],
+              buyable: _buyable(offer.tier, plan, billing),
+              buying: billing.buying,
+              onBuy: (storeOffer) => context.read<BillingCubit>().buy(storeOffer),
+            ),
+          if (note != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+              child: Text(note, textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: p.ink2)),
+            ),
+        ],
+      ),
+    );
+  }
+
+  static List<StoreOffer> _offersOf(PlanTier tier, BillingState billing) =>
+      billing.offers.where((storeOffer) => storeOffer.tier == tier).toList();
+
+  /// Without the account id of the server (buying is off there) nothing can be bought. What the user already pays is
+  /// left out: the same plan and period, or the whole plan when the period is unknown.
+  static List<StoreOffer> _buyable(PlanTier tier, UserPlan? plan, BillingState billing) {
+    if (!AppConfig.billingEnabled || plan == null || plan.billingAccountId == null) return const [];
+    final period = plan.subscription?.period;
+    return _offersOf(tier, billing)
+        .where((storeOffer) => plan.tier != tier || (period != null && period != storeOffer.period))
+        .toList();
+  }
+
+  void _showNotice(BuildContext context, BillingState billing) {
+    final l10n = AppLocalizations.of(context)!;
+    final text = switch (billing.notice!) {
+      BillingNotice.done => l10n.planPurchaseDone(PlanTexts.name(billing.noticeTier ?? PlanTier.free, l10n)),
+      BillingNotice.pending => l10n.planPurchasePending,
+      BillingNotice.error => l10n.planPurchaseError,
+    };
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+    context.read<BillingCubit>().noticeShown();
   }
 }
 
@@ -97,8 +151,24 @@ class _CurrentPlan extends StatelessWidget {
             const SizedBox(height: 8),
             Text(status, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: p.accentInk)),
           ],
+          if (AppConfig.billingEnabled && plan.subscription != null) ...[
+            const SizedBox(height: 8),
+            AppButton.text(
+              key: const ValueKey('plans-manage'),
+              label: l10n.planManage,
+              onPressed: () => launchUrl(manageSubscriptionsUrl(plan.subscription!.tier),
+                  mode: LaunchMode.externalApplication),
+            ),
+          ],
         ],
       ),
     );
   }
 }
+
+/// The subscriptions of the user in Google Play, on the one of [tier]: there the user cancels it or changes the
+/// payment method.
+Uri manageSubscriptionsUrl(PlanTier tier) => Uri.https('play.google.com', '/store/account/subscriptions', {
+      'sku': StoreOffer.productIdOf(tier),
+      'package': 'com.photomanagerpro.app',
+    });

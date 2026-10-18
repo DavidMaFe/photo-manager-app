@@ -2428,9 +2428,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get planChoose => 'Elegir';
-
-  @override
   String get planComingSoon => 'Los planes de pago llegarán pronto.';
 
   @override
@@ -2527,4 +2524,40 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get notificationBackupPlanLimit => 'Tu plan ha llegado a uno de sus límites. Abre la app para verlo.';
+
+  @override
+  String get planPaymentPending => 'Pago pendiente: el plan se aplica en cuanto se confirme';
+
+  @override
+  String planBuyMonthly(String price) {
+    return '$price al mes';
+  }
+
+  @override
+  String planBuyAnnual(String price) {
+    return '$price al año';
+  }
+
+  @override
+  String get planStoreUnavailable => 'No se pudo conectar con Google Play. Inténtalo más tarde.';
+
+  @override
+  String planPurchaseDone(String name) {
+    return '¡Listo! Ya tienes el plan $name';
+  }
+
+  @override
+  String get planPurchasePending => 'Tu pago está pendiente. El plan se aplicará en cuanto se confirme.';
+
+  @override
+  String get planPurchaseError => 'No se pudo completar la compra. Inténtalo de nuevo más tarde.';
+
+  @override
+  String get planManage => 'Gestionar en Google Play';
+
+  @override
+  String get deleteAccountSubscription => 'Tu suscripción se cancela';
+
+  @override
+  String get deleteAccountSubscriptionDetail => 'No se renovará ni se te volverá a cobrar';
 }

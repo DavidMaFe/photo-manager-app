@@ -43,6 +43,7 @@ class PlanTexts {
     final end = subscription.periodEnd;
     final date = end == null ? '' : DateFormat.yMMMd(l10n.localeName).format(end);
     return switch (subscription.status) {
+      SubscriptionStatus.pending => l10n.planPaymentPending,
       SubscriptionStatus.active => subscription.autoRenewing ? l10n.planRenews(date) : l10n.planEnds(date),
       SubscriptionStatus.canceled => l10n.planEnds(date),
       SubscriptionStatus.inGracePeriod || SubscriptionStatus.onHold => l10n.planPaymentIssue,

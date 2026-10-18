@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/features/plans/domain/entities/billing_period.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/plan_limits.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/plan_subscription.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/plan_tier.dart';
@@ -13,6 +14,7 @@ class UserPlanModel extends UserPlan {
     required super.pausedDevices,
     required super.readOnly,
     required super.subscription,
+    super.billingAccountId,
   });
 
   factory UserPlanModel.fromJson(Map<String, dynamic> json) {
@@ -36,9 +38,12 @@ class UserPlanModel extends UserPlan {
           : PlanSubscription(
               tier: PlanTier.fromApi(subscription['plan'] as String?),
               status: SubscriptionStatus.fromApi(subscription['status'] as String?),
+              // «plus_100:monthly»: product and base plan of the store
+              period: BillingPeriod.fromBasePlan((subscription['productId'] as String?)?.split(':').last),
               periodEnd: DateTime.tryParse(subscription['periodEnd'] as String? ?? ''),
               autoRenewing: subscription['autoRenewing'] as bool? ?? false,
             ),
+      billingAccountId: json['billingAccountId'] as String?,
     );
   }
 }

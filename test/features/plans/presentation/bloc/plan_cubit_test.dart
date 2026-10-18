@@ -52,6 +52,14 @@ void main() {
       expect: () => [const PlanState()],
     );
 
+    blocTest<PlanCubit, PlanState>(
+      'should show the plan answered after a purchase',
+      build: build,
+      seed: () => const PlanState(plan: TestPlans.free, deviceUuid: 'phone'),
+      act: (cubit) => cubit.show(TestPlans.plus100),
+      expect: () => [const PlanState(plan: TestPlans.plus100, deviceUuid: 'phone')],
+    );
+
     test('should know whether this device is paused', () {
       const paused = UserPlan(
         tier: PlanTier.free,
