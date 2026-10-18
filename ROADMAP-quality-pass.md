@@ -145,16 +145,18 @@ Resultado: 3127 tests y analizador sin avisos.
 Status: ✅ Completed
 
 ## Phase 7: Logo en los correos (backend)
-- [ ] Rama en `photo-manager-server`.
-- [ ] PNG del logo para correo (fondo transparente, ≈ 2× el tamaño mostrado; los clientes de correo no muestran SVG) en `src/main/resources/email/`.
-- [ ] El logo va **incrustado** en el correo (imagen `cid:`, `MimeMessageHelper.addInline`), no enlazado a una URL: se ve sin cargar imágenes externas y no depende de nginx.
-- [ ] Cabecera nueva de los dos correos (restablecer la contraseña y cuenta eliminada): el logo y el título sobre un fondo que todos los clientes muestran (color sólido, o el degradado con `background-color` de respaldo), y sin el hueco en blanco. Plantilla común para los dos.
-- [ ] Tests E2E que siguen pasando; prueba manual enviando los dos correos a Gmail y Outlook (claro y oscuro).
-- [ ] PR del backend y despliegue en freya tras la aprobación.
+- [x] Rama `feature/email-logo` en `photo-manager-server`.
+- [x] PNG del logo en blanco para correo (139 × 96 px, el doble del tamaño mostrado; generado desde `splash_logo.png`) en `src/main/resources/email/logo-white.png`.
+- [x] El logo va **incrustado** en el correo (`cid:logo`, `MimeMessageHelper.addInline`), no enlazado a una URL.
+- [x] Cabecera nueva y común para los dos correos (`EmailDataService#layout`): el logo y el título sobre el morado de la marca sólido (tabla con `bgcolor` y estilos en línea), sin degradado.
+- [x] El pie ya no dice «no respondas a este correo»: invita a responder, porque las respuestas llegan a soporte (`Reply-To`).
+- [x] Tests: `AutomaticEmailsApiTest` (E2E, solo se simula el servidor SMTP): los dos correos llevan el logo como PNG en línea y la cabecera con `bgcolor` sin degradados, y las respuestas van a soporte. 915 tests. Vista previa de los dos correos revisada antes de la PR.
+- [x] PR del backend (https://github.com/DavidMaFe/photo-manager-server/pull/27), fusionada y desplegada en freya (`72a4757`).
+- [x] Prueba en producción: código de restablecimiento revisado por el usuario en Gmail y en Outlook (claro y oscuro).
 
 **Criterio de aceptación:** los dos correos empiezan con el logo y el título, sin hueco en blanco, en Gmail y Outlook.
 
-Status: 🚧 In Progress
+Status: ✅ Completed
 
 ## Phase 8: Versión y prueba final
 - [ ] **Bug detectado por el usuario:** aparece una y otra vez el aviso de que un archivo se ha descargado correctamente («1 guardado en el móvil»), sin haber descargado nada. Pista: en las pruebas de la Fase 2 el aviso de una descarga ya terminada volvió a salir al reabrir la app; puede que `DownloadProgressWatchRequested` (al iniciar sesión y al volver a la app) vuelva a anunciar la última descarga terminada. Reproducir, corregir y añadir un test.
@@ -166,4 +168,4 @@ Status: 🚧 In Progress
 
 **Criterio de aceptación:** todos los cambios funcionan en producción.
 
-Status: ⏳ Pending
+Status: 🚧 In Progress
