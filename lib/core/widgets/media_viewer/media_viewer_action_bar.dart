@@ -4,7 +4,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../config/theme/app_palette.dart';
 import '../../../config/theme/app_radius.dart';
 import '../app_context_menu.dart';
-import 'media_viewer_thumbnail_strip.dart';
 
 /// Bottom of the viewer, part of the viewer itself: full width on its black background, with a hairline above, the
 /// thumbnail strip (when there is one) and the [actions].
@@ -13,12 +12,6 @@ class MediaViewerBottomPanel extends StatelessWidget {
   final Widget actions;
 
   const MediaViewerBottomPanel({super.key, this.strip, required this.actions});
-
-  /// Height above the safe area, without the strip: under a video, its own controls stay above the panel.
-  static const double heightWithoutStrip = _topPadding + MediaViewerActionBar.height + _bottomPadding + 1;
-
-  /// Extra height of the strip and its gap.
-  static const double stripHeight = MediaViewerThumbnailStrip.height + _stripGap;
 
   static const double _topPadding = 12;
   static const double _stripGap = 8;

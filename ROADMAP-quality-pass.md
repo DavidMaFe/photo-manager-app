@@ -2,7 +2,7 @@
 
 ## Overview
 
-Retoques detectados en el uso real, antes de empezar con las suscripciones de pago. Casi todo es de la app móvil; la Fase 6 (correos) es del backend (`photo-manager-server`).
+Retoques detectados en el uso real, antes de empezar con las suscripciones de pago. Casi todo es de la app móvil; la Fase 7 (correos) es del backend (`photo-manager-server`).
 
 1. El logo del splash sale cortado en Android.
 2. La barra de acciones del visor de fotos debe integrarse con el propio visor (diseño en la captura del usuario).
@@ -12,6 +12,7 @@ Retoques detectados en el uso real, antes de empezar con las suscripciones de pa
 6. En el carrusel de miniaturas del visor, el borde blanco de la foto actual se ve como cuatro líneas en las esquinas.
 7. El usuario puede elegir el color de la app entre una selección controlada, que funcione en tema claro y oscuro.
 8. Los correos de restablecer la contraseña y de cuenta eliminada empiezan con un espacio en blanco muy grande: ahí debe ir el logo.
+9. Al ocultar los controles del visor, la foto o el vídeo pasan a pantalla completa con una animación, y vuelven a su hueco al mostrarlos (añadido tras la Fase 4).
 
 Decisiones tomadas:
 - La app y las notificaciones siguen el **idioma del móvil**: español si el teléfono está en español, inglés en cualquier otro caso. Se quita el `locale: const Locale('es')` fijo de `main.dart`.
@@ -108,7 +109,23 @@ Resultado: 3077 tests y analizador sin avisos.
 
 Status: ✅ Completed
 
-## Phase 5: Color de la app
+## Phase 5: Visor a pantalla completa
+- [x] Con los controles visibles, la foto o el vídeo se ajustan al hueco entre la barra de arriba y el panel de abajo (sin que nada los tape); hoy ocupan toda la pantalla y el panel opaco tapa su parte de abajo.
+- [x] Al ocultar los controles (un toque en la foto, o los controles del vídeo), la barra de arriba sube y el panel baja mientras se desvanecen, y a la vez la foto o el vídeo crecen hasta la pantalla completa (unos 250 ms, curva suave). Al mostrarlos, el camino inverso.
+- [x] Un componente común para los visores de la galería, el álbum y la papelera (`MediaViewerLayout`), que mide la parte de arriba y el panel y anima el hueco alrededor del `PageView` (al pasar de foto se mantiene el modo; el zoom no se pierde).
+- [x] Pantalla completa de verdad: se oculta también la barra de estado al ocultar los controles, y vuelve con ellos y al salir del visor.
+- [x] El vídeo deja de reservar su propio espacio bajo los controles: usa el mismo hueco animado.
+- [x] Tests de widget de `MediaViewerLayout` (7): hueco con controles, sin animación al abrir, crecimiento animado a pantalla completa, controles fuera de pantalla e ignorando toques, vuelta al hueco, y barra de estado al ocultar, al mostrar y al salir.
+- [x] Al pasar de un archivo a otro se mantiene el modo (antes volvían siempre los controles). Las dos medidas (arriba y panel) se aplican juntas aunque lleguen en el mismo fotograma.
+- [x] Comprobar en el S23 con fotos (también con zoom) y vídeos, al deslizar entre archivos y al salir del visor (probado por el usuario).
+
+**Criterio de aceptación:** con controles nada tapa la foto; al ocultarlos la foto o el vídeo pasan a pantalla completa con una transición suave, y al mostrarlos vuelven a su hueco.
+
+Resultado: 3084 tests y analizador sin avisos.
+
+Status: ✅ Completed
+
+## Phase 6: Color de la app
 - [ ] Definir las familias de color de Morado, Azul, Turquesa, Naranja/terracota y Grafito, para claro y oscuro: contraste AA del texto y los iconos sobre sus fondos, y distintas de los colores de estado.
 - [ ] Modelo: enum `AppAccent` y las familias por acento; `AppPalette.light/dark` y `AppTheme` se construyen a partir del acento elegido.
 - [ ] `UiPreferencesService` guarda el acento (`SharedPreferences`) y lo expone como `ValueNotifier`, como `themeMode`; `MaterialApp` se reconstruye al cambiarlo.
@@ -121,7 +138,7 @@ Status: ✅ Completed
 
 Status: ⏳ Pending
 
-## Phase 6: Logo en los correos (backend)
+## Phase 7: Logo en los correos (backend)
 - [ ] Rama en `photo-manager-server`.
 - [ ] PNG del logo para correo (fondo transparente, ≈ 2× el tamaño mostrado; los clientes de correo no muestran SVG) en `src/main/resources/email/`.
 - [ ] El logo va **incrustado** en el correo (imagen `cid:`, `MimeMessageHelper.addInline`), no enlazado a una URL: se ve sin cargar imágenes externas y no depende de nginx.
@@ -133,7 +150,8 @@ Status: ⏳ Pending
 
 Status: ⏳ Pending
 
-## Phase 7: Versión y prueba final
+## Phase 8: Versión y prueba final
+- [ ] **Bug detectado por el usuario:** aparece una y otra vez el aviso de que un archivo se ha descargado correctamente («1 guardado en el móvil»), sin haber descargado nada. Pista: en las pruebas de la Fase 2 el aviso de una descarga ya terminada volvió a salir al reabrir la app; puede que `DownloadProgressWatchRequested` (al iniciar sesión y al volver a la app) vuelva a anunciar la última descarga terminada. Reproducir, corregir y añadir un test.
 - [ ] Subir la versión a 1.2.1.
 - [ ] Tests completos y analizador sin avisos.
 - [ ] Commit, PR y, tras la aprobación, APK release con `--dart-define-from-file=config/prod.json` en el S23 (y el APK para el Realme).
