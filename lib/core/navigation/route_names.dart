@@ -35,6 +35,7 @@ class RouteNames {
   static const String trash = 'trash';
   static const String trashFileDetail = 'trash_file_detail';
   static const String deleteAccount = 'delete_account';
+  static const String plans = 'plans';
   static const String deleteAccountConfirm = 'delete_account_confirm';
 }
 
@@ -78,5 +79,6 @@ class RoutePaths {
 
   // Account deletion, in two steps
   static const String deleteAccount = '/profile/delete-account';
+  static const String plans = '/profile/plans';
   static const String deleteAccountConfirm = '/profile/delete-account/confirm';
 }

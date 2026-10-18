@@ -59,6 +59,15 @@ void main() {
         ));
       });
 
+      test('should say that a limit of the plan stopped the backup', () async {
+        await service('es').showSyncFailureNotification(sessionExpired: false, planLimit: true);
+
+        expect(shown(), (
+          'No se ha podido completar la copia',
+          'Tu plan ha llegado a uno de sus límites. Abre la app para verlo.',
+        ));
+      });
+
       test('should ask to log in again when the session expired', () async {
         await service('en').showSyncFailureNotification(sessionExpired: true);
 

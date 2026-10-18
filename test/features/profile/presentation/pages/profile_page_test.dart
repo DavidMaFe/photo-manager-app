@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
 import 'package:photo_manager_app/config/theme/app_accent.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/accent_color_sheet.dart';
 import 'package:mocktail/mocktail.dart';
@@ -22,6 +23,7 @@ import 'package:photo_manager_app/features/profile/presentation/widgets/theme_mo
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../fixtures/test_data.dart';
+import '../../../../helpers/plan_test_providers.dart';
 import '../../../../helpers/widget_test_helper.dart';
 
 class MockProfileBloc extends Mock implements ProfileBloc {}
@@ -52,6 +54,7 @@ void main() {
     await tester.pumpWidget(makeTestableWidgetWithBlocs(
       providers: [
         BlocProvider<ProfileBloc>.value(value: mockProfileBloc),
+        ...PlanTestProviders(state: const PlanState(plan: TestPlans.free)).providers,
         BlocProvider<AuthBloc>.value(value: mockAuthBloc),
       ],
       child: ProfilePage(uiPreferences: uiPreferences),
@@ -101,7 +104,7 @@ void main() {
       expect(find.text('Recover locked photos'), findsOneWidget);
       // Information pages and legal texts
       expect(find.text('Information and legal'), findsOneWidget);
-      expect(find.byType(ListRow), findsNWidgets(12));
+      expect(find.byType(ListRow), findsNWidgets(13));
     });
 
     testWidgets('should summarize the backup as off when it cannot be loaded', (tester) async {
@@ -198,6 +201,11 @@ void main() {
       expect(find.byType(ThemeModeSheet), findsNothing);
       expect(uiPreferences.themeMode.value, ThemeMode.light);
       expect(tester.widget<ListRow>(find.widgetWithText(ListRow, 'Appearance')).value, 'Light');
+    });
+
+    testWidgets('should show the plan of the user', (tester) async {
+      await pump(tester, ProfileLoaded(TestProfiles.johnDoeProfile));
+      expect(tester.widget<ListRow>(find.byKey(const ValueKey('profile-plan'))).value, 'Free · 5 GB');
     });
 
     testWidgets('should show the color of the app', (tester) async {

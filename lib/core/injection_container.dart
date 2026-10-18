@@ -9,6 +9,12 @@ import 'package:photo_manager_app/features/account_deletion/domain/use_cases/del
 import 'package:photo_manager_app/features/account_deletion/domain/use_cases/get_account_deletion_summary_use_case.dart';
 import 'package:photo_manager_app/features/account_deletion/presentation/bloc/account_deletion_summary_cubit.dart';
 import 'package:photo_manager_app/features/account_deletion/presentation/bloc/delete_account_bloc.dart';
+import 'package:photo_manager_app/features/plans/data/data_sources/plan_remote_data_source.dart';
+import 'package:photo_manager_app/features/plans/data/repositories/plan_data_repository.dart';
+import 'package:photo_manager_app/features/plans/domain/repositories/plan_repository.dart';
+import 'package:photo_manager_app/features/plans/domain/use_cases/get_user_plan_use_case.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
+import 'package:photo_manager_app/features/sync_config/domain/use_cases/apply_plan_to_sync_config_use_case.dart';
 import 'package:photo_manager_app/features/downloads/domain/use_cases/get_device_storage_use_case.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/device_reset_password_bloc.dart';
 import 'package:photo_manager_app/features/account_security/presentation/bloc/locked_account_bloc.dart';
@@ -371,6 +377,7 @@ Future<void> init() async {
       syncLogService: sl<SyncLogService>(),
       syncLock: sl<SyncLock>(),
       syncKeepAlive: sl<SyncKeepAlive>(),
+      getUserPlanUseCase: sl<GetUserPlanUseCase>(),
     ),
   );
 
@@ -736,6 +743,20 @@ Future<void> init() async {
   sl.registerFactory(() => AccountDeletionSummaryCubit(getSummary: sl<GetAccountDeletionSummaryUseCase>()));
   sl.registerFactory(() => DeleteAccountBloc(deleteAccountUseCase: sl<DeleteAccountUseCase>()));
 
+  // plans (ROADMAP-subscriptions.md in the backend)
+  sl.registerLazySingleton<PlanRemoteDataSource>(() => PlanRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<PlanRepository>(() => PlanDataRepository(remoteDataSource: sl<PlanRemoteDataSource>()));
+  sl.registerFactory(() => GetUserPlanUseCase(sl<PlanRepository>()));
+  // One for the whole app: the profile, the plans page, the backup settings and the backup share it
+  sl.registerLazySingleton(() => PlanCubit(
+        getUserPlan: sl<GetUserPlanUseCase>(),
+        deviceUuid: () => sl<SyncDeviceRepository>().getDeviceUuid(),
+      ));
+  sl.registerFactory(() => ApplyPlanToSyncConfigUseCase(
+        sl<SyncConfigRepository>(),
+        reschedule: (config) => sl<SyncSchedulerService>().rescheduleSync(config),
+      ));
+
   sl.registerFactory(
       () {
         final repository = sl<AuthRepository>();
@@ -1081,6 +1102,7 @@ Future<void> init() async {
           eventBus: eventBus,
           syncLock: syncLock,
           syncKeepAlive: syncKeepAlive,
+          getUserPlanUseCase: sl<GetUserPlanUseCase>(),
         );
       }
   );
@@ -1251,6 +1273,7 @@ Future<void> init() async {
 
 /// What this device keeps for a session: removed on logout and when the account is deleted.
 List<Future<void> Function()> _sessionCleanups() => [
+      () async => sl<PlanCubit>().clear(),
       () => sl<RecoveryReminderRepository>().clear(),
       () => sl<RecoveryPhraseExporter>().deleteExportedFiles(),
       // Keys of the files, video proxy and encrypted cache; then the decoded images kept in memory

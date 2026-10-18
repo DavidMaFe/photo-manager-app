@@ -24,6 +24,8 @@ import 'package:photo_manager_app/features/profile/presentation/widgets/storage_
 import 'package:photo_manager_app/features/profile/presentation/widgets/sync_config_summary.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/theme_mode_sheet.dart';
 import 'package:photo_manager_app/features/profile/presentation/widgets/accent_color_sheet.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
+import 'package:photo_manager_app/features/plans/presentation/widgets/plan_texts.dart';
 import 'package:photo_manager_app/config/theme/app_accent.dart';
 
 import '../../../../l10n/app_localizations.dart';
@@ -144,6 +146,18 @@ class _ProfilePageState extends State<ProfilePage> {
                 ListRowGroup(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
+                    BlocBuilder<PlanCubit, PlanState>(
+                      builder: (context, planState) => ListRow(
+                        key: const ValueKey('profile-plan'),
+                        icon: Symbols.workspace_premium_rounded,
+                        title: l10n.planRow,
+                        value: switch (planState.plan) {
+                          final plan? => PlanTexts.summary(plan.tier, plan.limits, l10n),
+                          null => null,
+                        },
+                        onTap: () => context.goNamed(RouteNames.plans),
+                      ),
+                    ),
                     ListRow(
                       icon: Symbols.cloud_sync_rounded,
                       title: l10n.backupSettings,

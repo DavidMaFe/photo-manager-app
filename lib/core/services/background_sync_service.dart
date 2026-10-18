@@ -19,7 +19,12 @@ import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_d
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_sync_session_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_sync_session_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/files_within_plan.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:photo_manager_app/features/plans/domain/use_cases/get_user_plan_use_case.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
+import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
 
 /// Result of a background sync operation.
 class _SyncResult {
@@ -33,11 +38,16 @@ class _SyncResult {
   /// instead schedule the next regular recurrence so the chain is maintained.
   final bool isAuthFailure;
 
+  /// True when a limit of the plan stops the backup (read only account, device over the limit or paused). Retrying
+  /// in an hour does not help either: like [isAuthFailure], the next regular recurrence is scheduled.
+  final bool isPlanLimit;
+
   _SyncResult({
     required this.success,
     this.filesUploaded = 0,
     this.errorMessage,
     this.isAuthFailure = false,
+    this.isPlanLimit = false,
   });
 
   factory _SyncResult.success(int filesUploaded) =>
@@ -49,7 +59,20 @@ class _SyncResult {
   /// Use this factory when the failure is definitively auth-related.
   factory _SyncResult.authFailure(String errorMessage) =>
       _SyncResult(success: false, errorMessage: errorMessage, isAuthFailure: true);
+
+  factory _SyncResult.planLimit(String errorMessage) =>
+      _SyncResult(success: false, errorMessage: errorMessage, isPlanLimit: true);
 }
+
+/// Codes of the server for a limit of the plan that stops the whole backup (ROADMAP-subscriptions.md in the backend).
+const _planLimitCodes = {
+  FailureCodes.accountReadOnly,
+  FailureCodes.deviceLimitReached,
+  FailureCodes.devicePaused,
+  FailureCodes.userDoesNotHaveStorageSpace,
+};
+
+bool _isPlanLimit(Object error) => error is ApiException && _planLimitCodes.contains(error.code);
 
 /// Service for executing background synchronization.
 ///
@@ -71,6 +94,7 @@ class BackgroundSyncService {
   final SyncLogService syncLogService;
   final SyncLock syncLock;
   final SyncKeepAlive syncKeepAlive;
+  final GetUserPlanUseCase getUserPlanUseCase;
 
   static const String _lastSyncAttemptKey = 'LAST_SYNC_ATTEMPT';
   static const String _lastSyncAuthFailureKey = 'SYNC_LAST_FAILURE_IS_AUTH';
@@ -90,6 +114,7 @@ class BackgroundSyncService {
     required this.syncLogService,
     required this.syncLock,
     required this.syncKeepAlive,
+    required this.getUserPlanUseCase,
   });
 
   /// Execute background sync.
@@ -166,7 +191,8 @@ class BackgroundSyncService {
             );
           }
         } else {
-          _recordFailedSync(isAuthFailure: result.isAuthFailure);
+          // A limit of the plan is not retried in an hour either (wasLastFailureAuthRelated)
+          _recordFailedSync(isAuthFailure: result.isAuthFailure || result.isPlanLimit);
           syncLogService.writeResult(
             success: false,
             detail: result.errorMessage ?? 'Error desconocido',
@@ -175,6 +201,7 @@ class BackgroundSyncService {
           if (syncConfig.notifyOnFailure) {
             await notificationService.showSyncFailureNotification(
               sessionExpired: result.isAuthFailure,
+              planLimit: result.isPlanLimit,
             );
           }
         }
@@ -296,6 +323,18 @@ class BackgroundSyncService {
     String? sessionId;
 
     try {
+      // A read only account (a paid plan ended with more stored than the free plan) uploads nothing
+      UserPlan? plan;
+      try {
+        plan = await getUserPlanUseCase();
+      } catch (_) {
+        plan = null;
+      }
+      if (plan != null && plan.readOnly) {
+        syncLogService.write('✗ Cuenta en solo lectura: el plan no permite subir más');
+        return _SyncResult.planLimit(FailureCodes.accountReadOnly);
+      }
+
       final deviceUuid = await syncDeviceRepository.getDeviceUuid();
       syncLogService.write('✓ UUID dispositivo: $deviceUuid');
 
@@ -322,8 +361,12 @@ class BackgroundSyncService {
       );
 
       final hashesToUpload = duplicateResult.filesToUpload.toSet();
-      final filesToUpload =
-          mediaFiles.where((f) => hashesToUpload.contains(f.hash)).toList();
+      final pending = mediaFiles.where((f) => hashesToUpload.contains(f.hash)).toList();
+      // Videos over the limit of the plan are left out: the server would reject them after sending them whole
+      final filesToUpload = filesWithinPlan(pending, plan);
+      if (filesToUpload.length < pending.length) {
+        syncLogService.write('⚠ ${pending.length - filesToUpload.length} vídeos superan el límite del plan');
+      }
 
       syncLogService.write(
         '✓ A subir: ${filesToUpload.length} '
@@ -347,6 +390,8 @@ class BackgroundSyncService {
             syncLogService.write('⬆ Subidos $uploadedCount/${filesToUpload.length}');
           }
         } catch (e) {
+          // A limit of the plan stops every upload the same way
+          if (_isPlanLimit(e)) rethrow;
           // Every file would fail the same way: the keys are refreshed the next time the app is opened
           if (e is OutdatedKeysFailure || e is MissingCurrentKeyFailure) {
             syncLogService.write('✗ Las claves cambiaron en otro dispositivo: abre la app para actualizarlas');
@@ -389,6 +434,7 @@ class BackgroundSyncService {
         }
       }
 
+      if (_isPlanLimit(e)) return _SyncResult.planLimit(e.toString());
       return isAuth
           ? _SyncResult.authFailure(e.toString())
           : _SyncResult.failure(e.toString());

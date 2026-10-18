@@ -122,6 +122,14 @@ class ErrorHandler {
           errorResponse: errorResponse,
         );
 
+      case FailureCodes.accountReadOnly:
+      case FailureCodes.deviceLimitReached:
+      case FailureCodes.devicePaused:
+        return PlanLimitFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
       case FailureCodes.updateUserError:
         return ServerFailure(
           code: code,

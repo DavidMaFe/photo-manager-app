@@ -2,6 +2,13 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
+import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/plan_tier.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/plan_limits.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
+import 'package:photo_manager_app/features/plans/domain/use_cases/get_user_plan_use_case.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
@@ -19,6 +26,8 @@ import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_s
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
 
+import '../../../../helpers/plan_test_providers.dart';
+
 class MockStartSyncSessionUseCase extends Mock implements StartSyncSessionUseCase {}
 class MockCheckDuplicatedFilesUseCase extends Mock implements CheckDuplicatedFilesUseCase {}
 class MockUploadFileUseCase extends Mock implements UploadFileUseCase {}
@@ -30,6 +39,7 @@ class MockAppEventBus extends Mock implements AppEventBus {}
 class MockBuildContext extends Mock implements BuildContext {}
 class MockSyncLock extends Mock implements SyncLock {}
 class MockSyncKeepAlive extends Mock implements SyncKeepAlive {}
+class MockGetUserPlanUseCase extends Mock implements GetUserPlanUseCase {}
 
 class FakeAppEvent extends Fake implements AppEvent {}
 
@@ -51,6 +61,8 @@ void main() {
     registerFallbackValue(FakeAppEvent());
   });
 
+  late MockGetUserPlanUseCase mockGetUserPlan;
+
   setUp(() {
     mockStartUseCase = MockStartSyncSessionUseCase();
     mockCheckDuplicatesUseCase = MockCheckDuplicatedFilesUseCase();
@@ -63,6 +75,9 @@ void main() {
     mockContext = MockBuildContext();
     mockSyncLock = MockSyncLock();
     mockKeepAlive = MockSyncKeepAlive();
+    mockGetUserPlan = MockGetUserPlanUseCase();
+    // The free plan, writable
+    when(() => mockGetUserPlan()).thenAnswer((_) async => TestPlans.free);
 
     // Mock context.mounted to return true
     when(() => mockContext.mounted).thenReturn(true);
@@ -89,6 +104,7 @@ void main() {
       eventBus: mockEventBus,
       syncLock: mockSyncLock,
       syncKeepAlive: mockKeepAlive,
+      getUserPlanUseCase: mockGetUserPlan,
     );
   });
 
@@ -176,6 +192,61 @@ void main() {
         verify: (_) {
           verify(() => mockStartUseCase(deviceUuid: deviceUuid)).called(1);
         },
+      );
+    });
+
+    group('plan limits', () {
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should not start a backup while the account is read only',
+        setUp: () {
+          when(() => mockGetUserPlan()).thenAnswer((_) async => const UserPlan(
+                tier: PlanTier.free,
+                limits: PlanLimits(storageBytes: 5 * testGib, maxDevices: 2, maxVideoBytes: 100 * testMib,
+                    dailyBackup: false),
+                storedBytes: 6 * testGib,
+                devices: 1,
+                pausedDevices: [],
+                readOnly: true,
+                subscription: null,
+              ));
+        },
+        build: () => bloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        expect: () => [
+          const SyncSessionStarting(),
+          isA<SyncSessionError>()
+              .having((state) => state.failure, 'failure', isA<PlanLimitFailure>())
+              .having((state) => state.failure.code, 'code', FailureCodes.accountReadOnly),
+        ],
+        verify: (_) => verifyNever(() => mockStartUseCase(deviceUuid: any(named: 'deviceUuid'))),
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should start the backup when the plan cannot be read (the server applies the limits)',
+        setUp: () {
+          when(() => mockGetUserPlan()).thenThrow(Exception('offline'));
+          when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => 'device-uuid-123');
+          when(() => mockStartUseCase(deviceUuid: 'device-uuid-123')).thenThrow(Exception('Network error'));
+        },
+        build: () => bloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        expect: () => [const SyncSessionStarting(), isA<SyncSessionError>()],
+        verify: (_) => verify(() => mockStartUseCase(deviceUuid: 'device-uuid-123')).called(1),
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should offer the plans when the device is over the limit of the plan',
+        setUp: () {
+          when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => 'device-uuid-123');
+          when(() => mockStartUseCase(deviceUuid: 'device-uuid-123')).thenThrow(ApiException(
+              ErrorResponseModel(code: FailureCodes.deviceLimitReached, message: 'Not linked', timestamp: '2026-10-18T10:00:00')));
+        },
+        build: () => bloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        expect: () => [
+          const SyncSessionStarting(),
+          isA<SyncSessionError>().having((state) => state.failure, 'failure', isA<PlanLimitFailure>()),
+        ],
       );
     });
 

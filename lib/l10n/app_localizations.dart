@@ -3820,6 +3820,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Graphite'**
   String get accentGraphite;
+
+  /// No description provided for @plansTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get plansTitle;
+
+  /// No description provided for @plansSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End-to-end encrypted: nobody but you can see your photos, whatever the plan.'**
+  String get plansSubtitle;
+
+  /// No description provided for @planNameFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get planNameFree;
+
+  /// No description provided for @planName100.
+  ///
+  /// In en, this message translates to:
+  /// **'100 GB'**
+  String get planName100;
+
+  /// No description provided for @planName250.
+  ///
+  /// In en, this message translates to:
+  /// **'250 GB'**
+  String get planName250;
+
+  /// No description provided for @planName1tb.
+  ///
+  /// In en, this message translates to:
+  /// **'1 TB'**
+  String get planName1tb;
+
+  /// No description provided for @planYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan'**
+  String get planYours;
+
+  /// No description provided for @planStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} of space'**
+  String planStorage(String size);
+
+  /// No description provided for @planDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 device} other{{count} devices}}'**
+  String planDevices(int count);
+
+  /// No description provided for @planVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos up to {size}'**
+  String planVideos(String size);
+
+  /// No description provided for @planBackupDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily automatic backup'**
+  String get planBackupDaily;
+
+  /// No description provided for @planBackupWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly automatic backup'**
+  String get planBackupWeekly;
+
+  /// No description provided for @planPriceMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}/month'**
+  String planPriceMonthly(String price);
+
+  /// No description provided for @planPriceAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'or {price}/year: 2 months free'**
+  String planPriceAnnual(String price);
+
+  /// No description provided for @planChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get planChoose;
+
+  /// No description provided for @planComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid plans are coming soon.'**
+  String get planComingSoon;
+
+  /// No description provided for @planUsageStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Space: {used} of {limit}'**
+  String planUsageStorage(String used, String limit);
+
+  /// No description provided for @planUsageDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices: {count} of {max}'**
+  String planUsageDevices(int count, int max);
+
+  /// No description provided for @planRenews.
+  ///
+  /// In en, this message translates to:
+  /// **'Renews on {date}'**
+  String planRenews(String date);
+
+  /// No description provided for @planEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends on {date}: it will not renew'**
+  String planEnds(String date);
+
+  /// No description provided for @planPaymentIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'The last payment failed: check your payment method in Google Play'**
+  String get planPaymentIssue;
+
+  /// No description provided for @planEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription ended on {date}'**
+  String planEnded(String date);
+
+  /// No description provided for @planRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan'**
+  String get planRow;
+
+  /// No description provided for @planRowValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {size}'**
+  String planRowValue(String name, String size);
+
+  /// No description provided for @planSeePlans.
+  ///
+  /// In en, this message translates to:
+  /// **'See plans'**
+  String get planSeePlans;
+
+  /// No description provided for @planReadOnlyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is read only'**
+  String get planReadOnlyTitle;
+
+  /// No description provided for @planReadOnlyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You use {used} and your plan allows {limit}. You can view, download and delete your files, but not back up new ones until you free up space or upgrade your plan.'**
+  String planReadOnlyBody(String used, String limit);
+
+  /// No description provided for @planDevicePausedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is paused'**
+  String get planDevicePausedTitle;
+
+  /// No description provided for @planDevicePausedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{max, plural, =1{Your plan allows 1 device} other{Your plan allows {max} devices}}, and the ones that backed up most recently use them. Unlink another one or upgrade your plan.'**
+  String planDevicePausedBody(int max);
+
+  /// No description provided for @planDeviceNotLinkedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is not linked'**
+  String get planDeviceNotLinkedTitle;
+
+  /// No description provided for @planDeviceNotLinkedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{max, plural, =1{Your plan allows 1 device} other{Your plan allows {max} devices}}. Unlink another one from My devices or upgrade your plan to back up from this one.'**
+  String planDeviceNotLinkedBody(int max);
+
+  /// No description provided for @planWeeklyOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'On the free plan the automatic backup is weekly.'**
+  String get planWeeklyOnly;
+
+  /// No description provided for @planVideosSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 video was not backed up} other{{count} videos were not backed up}}: your plan allows videos up to {size}.'**
+  String planVideosSkipped(int count, String size);
+
+  /// No description provided for @errorPlanLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan has reached one of its limits.'**
+  String get errorPlanLimit;
+
+  /// No description provided for @notificationBackupPlanLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan has reached one of its limits. Open the app to see it.'**
+  String get notificationBackupPlanLimit;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

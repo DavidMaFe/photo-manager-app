@@ -14,13 +14,18 @@ class FailureCodes {
   static const String emailAlreadyUsed = "EMAIL_ALREADY_USED";
   static const String userNotFound = "USER_NOT_FOUND";
   static const String incorrectPassword = "INCORRECT_PASSWORD";
-  static const String userDoesNotHaveStorageSpace = "USER_DOES_NOT_HAVE_STORAGE_SPACE";
+  static const String userDoesNotHaveStorageSpace = "USER_NOT_HAVE_STORAGE_SPACE";
   static const String updateUserError = "UPDATE_USER_ERROR";
 
   // ==================== Device Domain Errors ====================
   static const String deviceNotFound = "DEVICE_NOT_FOUND";
   static const String deviceLinkedToAnotherUser = "DEVICE_LINKED_TO_ANOTHER_USER";
-  static const String deviceNotLinkedToUser = "DEVICE_NOT_LINKED_TO_USER";
+  static const String deviceNotLinkedToUser = "DEVICE_NOT_LINKED";
+
+  // ==================== Plan Limits (ROADMAP-subscriptions.md in the backend) ====================
+  static const String accountReadOnly = "ACCOUNT_READ_ONLY";
+  static const String deviceLimitReached = "DEVICE_LIMIT_REACHED";
+  static const String devicePaused = "DEVICE_PAUSED";
 
   // ==================== File Domain Errors ====================
   static const String fileNotFound = "FILE_NOT_FOUND";

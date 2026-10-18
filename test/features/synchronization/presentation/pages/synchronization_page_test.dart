@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/plan_tier.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/errors/widget/error_display.dart';
@@ -23,6 +27,7 @@ import 'package:photo_manager_app/features/synchronization/presentation/widgets/
 import 'package:photo_manager_app/features/synchronization/presentation/widgets/synchronization_status_card.dart';
 
 import '../../../../fixtures/test_data.dart';
+import '../../../../helpers/plan_test_providers.dart';
 import '../../../../helpers/widget_test_helper.dart';
 
 class MockSynchronizationBloc extends Mock implements SynchronizationBloc {}
@@ -68,12 +73,17 @@ void main() {
 
   tearDown(() => sessionStates.close());
 
-  Future<void> pump(WidgetTester tester, SynchronizationState state, {bool background = true}) async {
+  late PlanTestProviders plan;
+
+  Future<void> pump(WidgetTester tester, SynchronizationState state,
+      {bool background = true, PlanState planState = const PlanState(plan: TestPlans.free)}) async {
     setUpCustomScreenSize(tester, 390, 1400);
     when(() => syncBloc.state).thenReturn(state);
+    plan = PlanTestProviders(state: planState);
     await tester.pumpWidget(makeTestableWidgetWithBlocs(
       providers: [
         BlocProvider<SynchronizationBloc>.value(value: syncBloc),
+        ...plan.providers,
         BlocProvider<SyncConfigBloc>.value(value: configBloc),
         BlocProvider<SyncSessionBloc>.value(value: sessionBloc),
       ],
@@ -310,6 +320,54 @@ void main() {
       // Assert
       expect(find.text('12 items saved'), findsWidgets);
       expect(find.text('Back up now'), findsOneWidget);
+    });
+
+    testWidgets('should say how many videos were too big for the plan', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionCompleting());
+
+      // Act
+      await emitSession(tester, SyncSessionSuccess(SyncResult(totalFiles: 12, uploadedFiles: 10, failedFiles: 0),
+          skippedLargeVideos: 2));
+
+      // Assert
+      expect(find.text('2 videos were not backed up: your plan allows videos up to 100 MB.'), findsOneWidget);
+      expect(find.text('See plans'), findsOneWidget);
+    });
+
+    testWidgets('should offer the plans when a limit of the plan stops the backup', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionStarting());
+
+      // Act
+      await emitSession(tester, SyncSessionError(PlanLimitFailure(
+          code: 'DEVICE_PAUSED',
+          errorResponse: ErrorResponseModel(code: 'DEVICE_PAUSED', message: 'This device is paused',
+              timestamp: '2026-10-18T10:00:00'))));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // Assert: the message of the server and the plans, not a retry; the plan is read again
+      expect(find.text('This device is paused'), findsOneWidget);
+      expect(find.text('See plans'), findsOneWidget);
+      verify(() => plan.plan.load()).called(1);
+    });
+
+    testWidgets('should show the banner of a read only account', (tester) async {
+      // Arrange & Act
+      await pump(tester, loaded(1), planState: const PlanState(plan: UserPlan(
+        tier: PlanTier.free,
+        limits: TestPlans.freeLimits,
+        storedBytes: 6 * testGib,
+        devices: 1,
+        pausedDevices: [],
+        readOnly: true,
+        subscription: null,
+      )));
+
+      // Assert
+      expect(find.text('Your account is read only'), findsOneWidget);
     });
 
     testWidgets('should show the error of a failed backup with retry', (tester) async {
