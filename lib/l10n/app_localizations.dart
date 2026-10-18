@@ -3778,6 +3778,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 could not be saved} other{{count} could not be saved}}'**
   String notificationDownloadFailedSuffix(int count);
+
+  /// No description provided for @appColor.
+  ///
+  /// In en, this message translates to:
+  /// **'App color'**
+  String get appColor;
+
+  /// No description provided for @appColorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes buttons, selection and links. The logo stays the same.'**
+  String get appColorHint;
+
+  /// No description provided for @accentViolet.
+  ///
+  /// In en, this message translates to:
+  /// **'Violet'**
+  String get accentViolet;
+
+  /// No description provided for @accentBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get accentBlue;
+
+  /// No description provided for @accentTeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Teal'**
+  String get accentTeal;
+
+  /// No description provided for @accentTerracotta.
+  ///
+  /// In en, this message translates to:
+  /// **'Terracotta'**
+  String get accentTerracotta;
+
+  /// No description provided for @accentGraphite.
+  ///
+  /// In en, this message translates to:
+  /// **'Graphite'**
+  String get accentGraphite;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

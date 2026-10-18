@@ -1069,5 +1069,13 @@
   "notificationDownloadDoneBody": "{count, plural, =1{1 file saved to this phone} other{{count} files saved to this phone}}",
   "@notificationDownloadDoneBody": {"placeholders": {"count": {"type": "int"}}},
   "notificationDownloadFailedSuffix": "{count, plural, =1{1 could not be saved} other{{count} could not be saved}}",
-  "@notificationDownloadFailedSuffix": {"placeholders": {"count": {"type": "int"}}}
+  "@notificationDownloadFailedSuffix": {"placeholders": {"count": {"type": "int"}}},
+
+  "appColor": "App color",
+  "appColorHint": "Changes buttons, selection and links. The logo stays the same.",
+  "accentViolet": "Violet",
+  "accentBlue": "Blue",
+  "accentTeal": "Teal",
+  "accentTerracotta": "Terracotta",
+  "accentGraphite": "Graphite"
 }

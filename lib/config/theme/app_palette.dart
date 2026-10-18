@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_accent.dart';
 import 'app_colors.dart';
 
 /// Roles de color de «Revelado» que no caben en [ColorScheme].
@@ -18,6 +19,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color media, onMedia, scrim;
   final Color mediaChrome, mediaChromeRaised, onMediaMuted, mediaDanger, mediaReview;
   final Color mediaCover, mediaCoverSoft, mediaAccent;
+
+  /// Violeta de la marca (el «Manager» del logotipo): no cambia con el color que elige el usuario.
+  final Color brand;
 
   const AppPalette({
     required this.background,
@@ -59,6 +63,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.mediaCover,
     required this.mediaCoverSoft,
     required this.mediaAccent,
+    required this.brand,
   });
 
   static const light = AppPalette(
@@ -101,6 +106,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     mediaCover: AppColors.mediaCover,
     mediaCoverSoft: AppColors.mediaCoverSoft,
     mediaAccent: AppColors.mediaAccent,
+    brand: AppColors.accent,
   );
 
   static const dark = AppPalette(
@@ -143,7 +149,38 @@ class AppPalette extends ThemeExtension<AppPalette> {
     mediaCover: AppColors.mediaCover,
     mediaCoverSoft: AppColors.mediaCoverSoft,
     mediaAccent: AppColors.mediaAccent,
+    brand: AppColors.darkAccent,
   );
+
+  /// Light palette with the color the user chose.
+  static AppPalette lightFor(AppAccent accent) {
+    // The violet is the base palette itself
+    if (accent == AppAccent.violet) return light;
+    final c = accent.colors;
+    return light.copyWith(
+      accent: c.accent,
+      accentInk: c.accentInk,
+      accentSoft: c.accentSoft,
+      mediaAccent: c.mediaAccent,
+      mediaCover: c.mediaCover,
+      mediaCoverSoft: c.mediaCoverSoft,
+    );
+  }
+
+  /// Dark palette with the color the user chose.
+  static AppPalette darkFor(AppAccent accent) {
+    // The violet is the base palette itself
+    if (accent == AppAccent.violet) return dark;
+    final c = accent.colors;
+    return dark.copyWith(
+      accent: c.darkAccent,
+      accentInk: c.darkAccentInk,
+      accentSoft: c.darkAccentSoft,
+      mediaAccent: c.mediaAccent,
+      mediaCover: c.mediaCover,
+      mediaCoverSoft: c.mediaCoverSoft,
+    );
+  }
 
   @override
   AppPalette copyWith({
@@ -186,6 +223,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? mediaCover,
     Color? mediaCoverSoft,
     Color? mediaAccent,
+    Color? brand,
   }) {
     return AppPalette(
       background: background ?? this.background,
@@ -227,6 +265,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       mediaCover: mediaCover ?? this.mediaCover,
       mediaCoverSoft: mediaCoverSoft ?? this.mediaCoverSoft,
       mediaAccent: mediaAccent ?? this.mediaAccent,
+      brand: brand ?? this.brand,
     );
   }
 
@@ -274,6 +313,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       mediaCover: l(mediaCover, other.mediaCover),
       mediaCoverSoft: l(mediaCoverSoft, other.mediaCoverSoft),
       mediaAccent: l(mediaAccent, other.mediaAccent),
+      brand: l(brand, other.brand),
     );
   }
 }

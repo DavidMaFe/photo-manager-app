@@ -2347,4 +2347,25 @@ class AppLocalizationsEs extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get appColor => 'Color de la app';
+
+  @override
+  String get appColorHint => 'Cambia los botones, la selección y los enlaces. El logo no cambia.';
+
+  @override
+  String get accentViolet => 'Morado';
+
+  @override
+  String get accentBlue => 'Azul';
+
+  @override
+  String get accentTeal => 'Turquesa';
+
+  @override
+  String get accentTerracotta => 'Terracota';
+
+  @override
+  String get accentGraphite => 'Grafito';
 }

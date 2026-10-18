@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/config/theme/app_accent.dart';
 import 'package:photo_manager_app/core/services/ui_preferences_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,6 +10,39 @@ void main() {
       SharedPreferences.setMockInitialValues(values);
       return UiPreferencesService(await SharedPreferences.getInstance());
     }
+
+    group('accent', () {
+      test('should default to violet when nothing is stored', () async {
+        final service = await buildService({});
+        expect(service.accent.value, AppAccent.violet);
+      });
+
+      test('should restore the stored color', () async {
+        final service = await buildService({'app_accent': 'graphite'});
+        expect(service.accent.value, AppAccent.graphite);
+      });
+
+      test('should fall back to violet when the stored color is unknown', () async {
+        final service = await buildService({'app_accent': 'pink'});
+        expect(service.accent.value, AppAccent.violet);
+      });
+
+      test('should apply and persist a new color', () async {
+        // Arrange
+        final service = await buildService({});
+        var notified = 0;
+        service.accent.addListener(() => notified++);
+
+        // Act
+        await service.setAccent(AppAccent.blue);
+
+        // Assert
+        expect(service.accent.value, AppAccent.blue);
+        expect(notified, 1);
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getString('app_accent'), 'blue');
+      });
+    });
 
     group('themeMode', () {
       test('should default to system when nothing is stored', () async {

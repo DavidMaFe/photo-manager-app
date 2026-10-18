@@ -934,5 +934,13 @@
   "notificationDownloadProgress": "{saved} de {total} archivos",
   "notificationDownloadDoneTitle": "Descarga completada",
   "notificationDownloadDoneBody": "{count, plural, =1{1 archivo guardado en este teléfono} other{{count} archivos guardados en este teléfono}}",
-  "notificationDownloadFailedSuffix": "{count, plural, =1{1 no se ha podido guardar} other{{count} no se han podido guardar}}"
+  "notificationDownloadFailedSuffix": "{count, plural, =1{1 no se ha podido guardar} other{{count} no se han podido guardar}}",
+
+  "appColor": "Color de la app",
+  "appColorHint": "Cambia los botones, la selección y los enlaces. El logo no cambia.",
+  "accentViolet": "Morado",
+  "accentBlue": "Azul",
+  "accentTeal": "Turquesa",
+  "accentTerracotta": "Terracota",
+  "accentGraphite": "Grafito"
 }

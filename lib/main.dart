@@ -180,15 +180,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         BlocProvider(create: (_) => di.sl<OnDevicePresenceCubit>()),
         BlocProvider(create: (_) => di.sl<ShareCubit>()),
       ],
-      child: ValueListenableBuilder<ThemeMode>(
-        valueListenable: widget.uiPreferencesService.themeMode,
-        builder: (context, themeMode, _) => MaterialApp.router(
+      // Theme mode and color of the app chosen by the user
+      child: ListenableBuilder(
+        listenable: Listenable.merge([widget.uiPreferencesService.themeMode, widget.uiPreferencesService.accent]),
+        builder: (context, _) => MaterialApp.router(
           title: 'Photo Manager',
           routerConfig: widget.router,
 
-          theme: AppTheme.light(),
-          darkTheme: AppTheme.dark(),
-          themeMode: themeMode,
+          theme: AppTheme.light(widget.uiPreferencesService.accent.value),
+          darkTheme: AppTheme.dark(widget.uiPreferencesService.accent.value),
+          themeMode: widget.uiPreferencesService.themeMode.value,
 
           localizationsDelegates: const [
             AppLocalizations.delegate,

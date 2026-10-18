@@ -126,17 +126,23 @@ Resultado: 3084 tests y analizador sin avisos.
 Status: ✅ Completed
 
 ## Phase 6: Color de la app
-- [ ] Definir las familias de color de Morado, Azul, Turquesa, Naranja/terracota y Grafito, para claro y oscuro: contraste AA del texto y los iconos sobre sus fondos, y distintas de los colores de estado.
-- [ ] Modelo: enum `AppAccent` y las familias por acento; `AppPalette.light/dark` y `AppTheme` se construyen a partir del acento elegido.
-- [ ] `UiPreferencesService` guarda el acento (`SharedPreferences`) y lo expone como `ValueNotifier`, como `themeMode`; `MaterialApp` se reconstruye al cambiarlo.
-- [ ] Revisar que ningún widget use el morado sin pasar por la paleta (colores fijos, `AppColors.accent` directo, SVG del logo fuera de la marca).
-- [ ] Selector en Perfil (junto al tema claro/oscuro): muestras de los cinco colores, con la previsualización inmediata. Textos en `app_es.arb` y `app_en.arb`.
-- [ ] Tests: familias completas y contraste, persistencia, tema construido con cada acento, y el selector.
-- [ ] Comprobar en el S23 los cinco colores en claro y oscuro: galería, selección, visor, sincronización, perfil y diálogos.
+- [x] Familias de Morado, Azul, Turquesa, Terracota y Grafito para claro, oscuro y el visor (`lib/config/theme/app_accent.dart`), con el mismo contraste que el morado:
+  - claro: texto blanco sobre el acento ≥ 4,5:1, y el texto del acento sobre el fondo y sobre su fondo suave ≥ 4,5:1;
+  - oscuro: texto blanco sobre el acento ≥ 3:1 (el del morado; azul, turquesa y terracota se oscurecieron hasta igualarlo) y el acento sobre el fondo ≥ 4,5:1;
+  - visor: acción activa y «Portada de…» sobre negro ≥ 7:1;
+  - el tono de cada color se separa al menos 14° del verde, el ámbar, el rojo y el rosa de estado.
+- [x] Modelo: enum `AppAccent` con sus `AccentColors`; `AppPalette.lightFor/darkFor` y `AppTheme.light/dark` se construyen con el color elegido (el morado devuelve la paleta base). Nuevo rol `brand` en la paleta: el «Manager» del logotipo sigue en el morado de la marca con cualquier color.
+- [x] `UiPreferencesService.accent` (`SharedPreferences`, clave `app_accent`, morado si no hay nada o es desconocido); `MaterialApp` se reconstruye al cambiar el tema o el color.
+- [x] Revisado que ningún widget use el morado sin pasar por la paleta: no hay colores fijos fuera del tema; solo el logotipo, que ahora usa `brand`.
+- [x] Fila «Color de la app» en Perfil, debajo de Apariencia, y hoja con las cinco muestras (en el tono del tema actual): al tocar una se aplica al momento y la hoja sigue abierta para probar otra. Textos en `app_es.arb` y `app_en.arb`.
+- [x] Tests: contraste de las cinco familias en claro, oscuro y visor, distancia a los colores de estado, paletas (acento, `brand` y estados), persistencia, hoja de colores y fila del perfil.
+- [x] Comprobar en el S23 los cinco colores en claro y oscuro: galería, selección, visor, sincronización, perfil y diálogos (revisado y aprobado por el usuario).
 
 **Criterio de aceptación:** el usuario puede elegir entre los cinco colores, se aplica en toda la interfaz al momento, se recuerda al reiniciar y todos se leen bien en claro y oscuro.
 
-Status: ⏳ Pending
+Resultado: 3127 tests y analizador sin avisos.
+
+Status: ✅ Completed
 
 ## Phase 7: Logo en los correos (backend)
 - [ ] Rama en `photo-manager-server`.
@@ -148,7 +154,7 @@ Status: ⏳ Pending
 
 **Criterio de aceptación:** los dos correos empiezan con el logo y el título, sin hueco en blanco, en Gmail y Outlook.
 
-Status: ⏳ Pending
+Status: 🚧 In Progress
 
 ## Phase 8: Versión y prueba final
 - [ ] **Bug detectado por el usuario:** aparece una y otra vez el aviso de que un archivo se ha descargado correctamente («1 guardado en el móvil»), sin haber descargado nada. Pista: en las pruebas de la Fase 2 el aviso de una descarga ya terminada volvió a salir al reabrir la app; puede que `DownloadProgressWatchRequested` (al iniciar sesión y al volver a la app) vuelva a anunciar la última descarga terminada. Reproducir, corregir y añadir un test.
