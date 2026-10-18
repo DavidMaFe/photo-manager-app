@@ -44,15 +44,18 @@ Resultado: imágenes generadas desde `splash_logo*.png` con todo el logo dentro 
 Status: ✅ Completed
 
 ## Phase 1: Sin destello de la pantalla de login al abrir la app
-- [ ] Mantener el splash nativo (`FlutterNativeSplash.preserve`) hasta que se resuelva la sesión guardada y el onboarding, y quitarlo (`FlutterNativeSplash.remove`) en cuanto el router tenga destino.
-- [ ] `AuthNotifier.isLoading` trata también `AuthInitial` como carga, para que `AppRedirect` no envíe a login antes de tiempo.
-- [ ] Si la comprobación falla o tarda, se quita el splash igualmente (sin quedarse colgado) y se muestra login.
-- [ ] Tests: `AppRedirect` con `AuthInitial`, `AuthNotifier`, y el arranque con y sin sesión.
-- [ ] Comprobar en el S23 en arranque en frío con sesión (directo a la galería) y sin sesión (directo a login).
+- [x] Mantener el splash nativo hasta que se resuelva la sesión guardada y el onboarding: `main.dart` difiere el primer fotograma de Flutter (`deferFirstFrame`) y `StartupSplash` (`lib/core/navigation/startup_splash.dart`) lo suelta (`allowFirstFrame`) cuando el router tiene destino. Sin paquetes nuevos (`flutter_native_splash` sigue solo en `dev_dependencies`).
+- [x] Con sesión, el router anima el cambio de login a la galería: el splash se suelta cuando termina esa transición (la de la plataforma: 450 ms en Android, la de Cupertino en iOS), así que el login no se ve ni a medias.
+- [x] `AuthNotifier.isLoading` trata también `AuthInitial` como carga, para que `AppRedirect` no envíe a login antes de tiempo.
+- [x] Si la comprobación falla o tarda, se quita el splash igualmente a los 5 s (sin quedarse colgado).
+- [x] Tests: `StartupSplash` (6) y `AuthNotifier` con `AuthInitial`, `AuthLoading` y `NotAuthenticated` (3). `AppRedirect` no cambia.
+- [x] Comprobar en el S23 en arranque en frío con sesión (directo a la galería) y sin sesión (directo a login).
 
 **Criterio de aceptación:** con la sesión iniciada no se ve nunca la pantalla de login al abrir la app.
 
-Status: ⏳ Pending
+Resultado: grabaciones del arranque en frío en el S23, fotograma a fotograma: sin sesión, splash → login; con sesión (dos arranques), splash → galería sin ningún fotograma del login. 3045 tests y analizador sin avisos.
+
+Status: ✅ Completed
 
 ## Phase 2: Idioma del móvil y notificaciones traducidas
 - [ ] Un único resolvedor de idioma (es si el móvil está en español, en en cualquier otro caso), usado por `MaterialApp` y por las notificaciones. Se quita el `locale` fijo.
@@ -64,7 +67,7 @@ Status: ⏳ Pending
 
 **Criterio de aceptación:** la app y las notificaciones salen en el idioma del móvil.
 
-Status: ⏳ Pending
+Status: 🚧 In Progress
 
 ## Phase 3: La selección termina al aplicar una acción
 - [ ] Inventario de todas las acciones sobre una selección: galería, álbum, papelera, favoritas y portadas.

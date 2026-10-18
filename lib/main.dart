@@ -1,12 +1,16 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/navigation/app_router.dart';
+import 'package:photo_manager_app/core/navigation/auth_notifier.dart';
 import 'package:photo_manager_app/core/navigation/onboarding_notifier.dart';
+import 'package:photo_manager_app/core/navigation/startup_splash.dart';
 import 'package:photo_manager_app/core/services/background_task_handler.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/core/services/sync_scheduler_service.dart';
@@ -30,7 +34,9 @@ import 'core/injection_container.dart' as di;
 
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  // The native splash stays until the router knows where the app opens (StartupSplash)
+  binding.deferFirstFrame();
 
   // Hide system navigation bar completely (immersive sticky).
   // The bar appears briefly as a semi-transparent overlay when the user
@@ -75,12 +81,31 @@ void main() async {
 
   final router = AppRouter.createRouter(authBloc, onboardingNotifier);
 
+  final startupAuth = AuthNotifier(authBloc);
+  StartupSplash(
+    changes: Listenable.merge([startupAuth, onboardingNotifier]),
+    isResolved: () => !startupAuth.isLoading && !onboardingNotifier.isCheckingStatus,
+    release: () async {
+      // One more frame, so the router has already moved to the page the app opens on
+      await binding.endOfFrame;
+      // Away from the login page (the initial location) the router animates the change of page: it finishes under
+      // the splash, so the login page is never seen
+      if (authBloc.state is! NotAuthenticated) await Future<void>.delayed(_routeTransitionDuration);
+      binding.allowFirstFrame();
+    },
+  ).start();
+
   runApp(MyApp(
     authBloc: authBloc,
     router: router,
     uiPreferencesService: di.sl<UiPreferencesService>(),
   ));
 }
+
+/// Default page transition of the platform (MaterialApp without a custom pageTransitionsTheme).
+Duration get _routeTransitionDuration => defaultTargetPlatform == TargetPlatform.iOS
+    ? CupertinoRouteTransitionMixin.kTransitionDuration
+    : const Duration(milliseconds: FadeForwardsPageTransitionsBuilder.kTransitionMilliseconds);
 
 class MyApp extends StatefulWidget {
 

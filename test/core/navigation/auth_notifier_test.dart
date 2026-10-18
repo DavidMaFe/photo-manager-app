@@ -57,6 +57,25 @@ void main() {
       expect(notifier.isRecoveryPhrasePending, isFalse);
     });
 
+    test('should be loading while the stored session is checked at startup', () {
+      when(() => authBloc.state).thenReturn(AuthInitial());
+
+      expect(notifier.isLoading, isTrue);
+      expect(notifier.isAuthenticated, isFalse);
+    });
+
+    test('should be loading while logging in', () {
+      when(() => authBloc.state).thenReturn(AuthLoading());
+
+      expect(notifier.isLoading, isTrue);
+    });
+
+    test('should stop loading once the session check answers', () {
+      when(() => authBloc.state).thenReturn(NotAuthenticated());
+
+      expect(notifier.isLoading, isFalse);
+    });
+
     test('should notify the router on every state change', () async {
       var notifications = 0;
       notifier.addListener(() => notifications++);
