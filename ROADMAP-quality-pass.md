@@ -159,9 +159,9 @@ Status: ✅ Completed
 Status: ✅ Completed
 
 ## Phase 8: Versión y prueba final
-- [ ] **Bug detectado por el usuario:** aparece una y otra vez el aviso de que un archivo se ha descargado correctamente («1 guardado en el móvil»), sin haber descargado nada. Pista: en las pruebas de la Fase 2 el aviso de una descarga ya terminada volvió a salir al reabrir la app; puede que `DownloadProgressWatchRequested` (al iniciar sesión y al volver a la app) vuelva a anunciar la última descarga terminada. Reproducir, corregir y añadir un test.
-- [ ] Subir la versión a 1.2.1.
-- [ ] Tests completos y analizador sin avisos.
+- [x] **Bug detectado por el usuario:** aparecía una y otra vez «1 guardado en el móvil» sin haber descargado nada. Causa: la cola de descargas se guarda en el teléfono y una descarga terminada se queda en ella; que la tarjeta se había cerrado solo se recordaba en memoria, así que cada arranque de la app la volvía a anunciar. Ahora `DownloadProgressBloc` solo anuncia el final de una descarga que esta ejecución de la app vio en marcha, empezó o canceló; las que ya habían terminado al abrirla no se muestran (de ellas ya avisa la notificación). Tests: no se anuncia al abrir (falla sin el arreglo), se anuncia la vista en marcha y la recién empezada.
+- [x] Subir la versión a 1.2.1 (`1.2.1+4`).
+- [x] Tests completos y analizador sin avisos (3130 tests).
 - [ ] Commit, PR y, tras la aprobación, APK release con `--dart-define-from-file=config/prod.json` en el S23 (y el APK para el Realme).
 - [ ] Prueba completa en el S23 contra producción de todos los cambios.
 - [ ] Borrar este roadmap.
