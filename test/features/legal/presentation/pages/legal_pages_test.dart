@@ -83,7 +83,7 @@ void main() {
 
       expect(tester.widget<Text>(find.byKey(const ValueKey('legal-document-title'))).data, 'Terms of use');
       expect(tester.widget<Text>(find.byKey(const ValueKey('legal-document-version'))).data,
-          'Version 1.1 · in force since October 17, 2026');
+          'Version 1.2 · in force since October 18, 2026');
       expect(find.text('5. Locked files and disclaimer'), findsOneWidget);
     });
 
@@ -91,7 +91,7 @@ void main() {
       await pumpRouter(tester, RoutePaths.legalDocumentOf('privacy'), locale: const Locale('es'));
 
       expect(tester.widget<Text>(find.byKey(const ValueKey('legal-document-version'))).data,
-          'Versión 1.1 · vigente desde el 17 de octubre de 2026');
+          'Versión 1.2 · vigente desde el 18 de octubre de 2026');
     });
 
     testWidgets('should show the information pages without a version, with paragraphs and lists', (tester) async {

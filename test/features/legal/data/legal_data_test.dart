@@ -89,9 +89,9 @@ void main() {
 
     test('should explain the account deletion, the backups and the shared files in the privacy policy', () {
       for (final (language, words) in [
-        ('es', ['Perfil → Eliminar cuenta', 'hasta 6 meses', 'archivo temporal', 'soporte@photo-manager-pro.com',
+        ('es', ['Perfil → Eliminar cuenta', 'hasta 5 semanas', 'archivo temporal', 'soporte@photo-manager-pro.com',
             'photo-manager-pro.com/eliminar-cuenta']),
-        ('en', ['Profile → Delete account', 'up to 6 months', 'temporary file', 'soporte@photo-manager-pro.com',
+        ('en', ['Profile → Delete account', 'up to 5 weeks', 'temporary file', 'soporte@photo-manager-pro.com',
             'photo-manager-pro.com/eliminar-cuenta']),
       ]) {
         final text = allText(repository.document(LegalDocumentType.privacy, language));

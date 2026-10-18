@@ -189,7 +189,7 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEn = {
             'on your phones are not touched.'),
         LegalParagraph('If you cannot use the app, write to $_contactEmail from the email of the account. We will '
             'delete it within 30 days.'),
-        LegalParagraph('The encrypted backups keep deleted data for up to 6 months. Since your keys are deleted too, '
+        LegalParagraph('The encrypted backups keep deleted data for up to 5 weeks. Since your keys are deleted too, '
             'nobody can open it.'),
       ]),
       LegalSection(heading: '10. Changes to the terms', blocks: [
@@ -263,7 +263,7 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEn = {
           'Session tokens expire after 30 days.',
           'If you delete your account from the app, your data is deleted at once; if you ask by email, within 30 '
               'days.',
-          'The encrypted backups keep deleted data for up to 6 months. Since your keys are deleted too, nobody can '
+          'The encrypted backups keep deleted data for up to 5 weeks. Since your keys are deleted too, nobody can '
               'open it.',
         ]),
       ]),

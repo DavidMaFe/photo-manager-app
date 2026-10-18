@@ -189,7 +189,7 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
             'que tengas en tus móviles no se tocan.'),
         LegalParagraph('Si no puedes usar la app, escribe a $_contactEmail desde el email de la cuenta. La borraremos '
             'en un plazo máximo de 30 días.'),
-        LegalParagraph('Las copias de seguridad cifradas conservan los datos borrados hasta 6 meses. Como también se '
+        LegalParagraph('Las copias de seguridad cifradas conservan los datos borrados hasta 5 semanas. Como también se '
             'borran tus claves, nadie puede abrirlos.'),
       ]),
       LegalSection(heading: '10. Cambios en los términos', blocks: [
@@ -263,7 +263,7 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
           'Los tokens de sesión caducan a los 30 días.',
           'Si eliminas la cuenta desde la app, tus datos se borran al momento; si lo pides por email, en un plazo '
               'máximo de 30 días.',
-          'Las copias de seguridad cifradas conservan los datos borrados hasta 6 meses. Como también se borran tus '
+          'Las copias de seguridad cifradas conservan los datos borrados hasta 5 semanas. Como también se borran tus '
               'claves, nadie puede abrirlos.',
         ]),
       ]),
