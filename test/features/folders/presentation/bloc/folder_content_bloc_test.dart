@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -269,6 +271,40 @@ void main() {
         act: (bloc) => bloc.add(const RefreshFolderContent()),
         wait: const Duration(milliseconds: 500),
         expect: () => []
+      );
+      blocTest<FolderContentBloc, FolderContentState>(
+        'does not bring back a selection that an action ended while refreshing',
+        setUp: () {
+          var calls = 0;
+          final refresh = Completer<FolderContent>();
+          when(() => mockGetFolderContentUseCase.call(
+                folderId: 'folder-1',
+                filter: FileFilter.all,
+              )).thenAnswer((_) => ++calls == 1 ? Future.value(folderContent) : refresh.future);
+          // The action ends the selection while the refresh is waiting for the server
+          Future<void>.delayed(const Duration(milliseconds: 1500), () => refresh.complete(folderContent));
+        },
+        build: () => FolderContentBloc(
+          getFolderContentUseCase: mockGetFolderContentUseCase,
+          eventBus: mockEventBus,
+        ),
+        act: (bloc) async {
+          bloc.add(const LoadFolderContent(folderId: 'folder-1'));
+          await bloc.stream.firstWhere((s) => s is FolderContentLoaded);
+          bloc
+            ..add(const EnterSelectionMode())
+            ..add(const ToggleFileSelection('file-1'))
+            ..add(const RefreshFolderContent());
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          bloc.add(const ExitSelectionMode());
+        },
+        wait: const Duration(milliseconds: 2500),
+        verify: (bloc) {
+          final state = bloc.state as FolderContentLoaded;
+          expect(state.isRefreshing, isFalse);
+          expect(state.isSelectionMode, isFalse);
+          expect(state.selectedFileIds, isEmpty);
+        },
       );
     });
 

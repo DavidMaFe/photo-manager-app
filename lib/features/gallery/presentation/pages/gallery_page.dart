@@ -110,6 +110,7 @@ class GalleryPage extends StatelessWidget {
   /// Manage sheet with every pending file selected by [ReviewPendingFiles].
   Future<void> _openReviewSheet(BuildContext context, List<String> fileIds, int totalSizeBytes) async {
     final bloc = context.read<GalleryBloc>();
+    // The selection was made by "Review" itself, not by the user: it ends however the sheet closes
     await ManageFileModal.show(context, fileIds: fileIds, totalSizeBytes: totalSizeBytes);
     bloc.add(const ExitSelectionMode());
   }

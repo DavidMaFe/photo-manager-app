@@ -56,14 +56,15 @@ class _ManageSelectionBarState extends State<ManageSelectionBar> {
   /// Action dispatched from the bar itself (the sheet handles its own).
   ManageAction? _pendingAction;
 
+  /// The selection ends only when the sheet applied something (closing it without acting keeps the selection).
   Future<void> _openSheet(ManageOption option) async {
-    await ManageFileModal.show(
+    final applied = await ManageFileModal.show(
       context,
       fileIds: widget.fileIds,
       totalSizeBytes: widget.selectedSizeBytes,
       initialOption: option,
     );
-    if (mounted) widget.onFinished();
+    if (applied == true && mounted) widget.onFinished();
   }
 
   Future<void> _confirmAndDispatch({

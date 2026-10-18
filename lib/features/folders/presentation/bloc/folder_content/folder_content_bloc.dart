@@ -138,6 +138,14 @@ class FolderContentBloc extends Bloc<FolderContentEvent, FolderContentState> {
       );
       final groupedFiles = DateGroupingUtil.groupFilesByDate(content.files);
 
+      // The selection may have changed while loading (an action that ends it): keep the current one, not the one
+      // from before the request, or the selection of an applied action would come back
+      final latest = state;
+      if (latest is FolderContentLoaded) {
+        isSelectionMode = latest.isSelectionMode;
+        selectedFileIds = latest.selectedFileIds;
+      }
+
       // Clean up selectedFileIds - remove any IDs that no longer exist in the file list
       final currentFileIds = content.files.map((f) => f.id).toSet();
       final cleanedSelectedIds = selectedFileIds.where((id) => currentFileIds.contains(id)).toSet();

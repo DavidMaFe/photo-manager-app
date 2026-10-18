@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
@@ -283,6 +284,64 @@ void main() {
       // Assert
       expect(finished, 1);
       expect(find.text('Done'), findsOneWidget);
+    });
+
+    testWidgets('should finish the selection when the sheet applies an action', (tester) async {
+      // Arrange
+      await pump(tester);
+      await tester.tap(find.text('Save'));
+      await settle(tester);
+
+      // Act: the sheet closes after its action succeeds
+      Navigator.of(tester.element(find.byType(ManageFileModal))).pop(true);
+      await settle(tester);
+
+      // Assert
+      expect(finished, 1);
+    });
+
+    testWidgets('should keep the selection when the sheet is closed without applying anything', (tester) async {
+      // Arrange
+      await pump(tester);
+      await tester.tap(find.text('To album'));
+      await settle(tester);
+
+      // Act
+      Navigator.of(tester.element(find.byType(ManageFileModal))).pop();
+      await settle(tester);
+
+      // Assert
+      expect(find.byType(ManageFileModal), findsNothing);
+      expect(finished, 0);
+    });
+
+    testWidgets('should keep the selection when the confirmation is cancelled', (tester) async {
+      // Arrange
+      await pump(tester);
+      await tester.tap(find.text('Delete'));
+      await settle(tester);
+
+      // Act
+      await tester.tap(find.descendant(of: find.byType(AppDialog), matching: find.byType(AppButton)).first);
+      await settle(tester);
+
+      // Assert
+      verifyNever(() => fileBloc.add(any()));
+      expect(finished, 0);
+    });
+
+    testWidgets('should keep the selection when the action fails', (tester) async {
+      // Arrange
+      await pump(tester);
+      await tester.tap(find.text('Delete'));
+      await confirmDialog(tester);
+
+      // Act
+      states.add(const FileManagementError(failure: ServerFailure()));
+      await settle(tester);
+
+      // Assert
+      expect(finished, 0);
     });
 
     testWidgets('should disable the actions without selected files', (tester) async {

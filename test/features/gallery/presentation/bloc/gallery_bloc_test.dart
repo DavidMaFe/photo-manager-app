@@ -480,6 +480,44 @@ void main() {
     );
 
     blocTest<GalleryBloc, GalleryState>(
+      'does not bring back a selection that an action ended while refreshing',
+      setUp: () {
+        final response = Completer<GalleryPage>();
+        when(() => mockGetFilesUseCase.call(
+              page: any(named: 'page'),
+              pageSize: any(named: 'pageSize'),
+              filter: any(named: 'filter'),
+            )).thenAnswer((_) => response.future);
+        // The action ends the selection while the refresh is waiting for the server
+        Future<void>.delayed(const Duration(milliseconds: 100), () => response.complete(testPage));
+      },
+      seed: () => GalleryLoaded(
+        files: testFiles,
+        groupedFiles: groupTestFiles(testFiles),
+        isSelectionMode: true,
+        selectedFileIds: const {'file-1'},
+        hasNext: true,
+        currentPage: 0,
+        totalFilesCount: 100,
+        totalPendingCount: 1,
+        filter: FileFilter.all,
+      ),
+      build: () => bloc,
+      act: (bloc) async {
+        bloc.add(const RefreshGallery());
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        bloc.add(const ExitSelectionMode());
+      },
+      wait: const Duration(milliseconds: 500),
+      verify: (bloc) {
+        final state = bloc.state as GalleryLoaded;
+        expect(state.isRefreshing, isFalse);
+        expect(state.isSelectionMode, isFalse);
+        expect(state.selectedFileIds, isEmpty);
+      },
+    );
+
+    blocTest<GalleryBloc, GalleryState>(
       'handles empty result',
       setUp: () {
         const emptyPage = GalleryPage(

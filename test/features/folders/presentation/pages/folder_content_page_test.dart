@@ -219,7 +219,7 @@ void main() {
         expect(find.descendant(of: bar, matching: find.text('Save')), findsNothing);
       });
 
-      testWidgets('should mark the whole selection and leave selection mode', (tester) async {
+      testWidgets('should mark the whole selection and keep it until the change is saved', (tester) async {
         // Arrange
         await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
 
@@ -228,7 +228,39 @@ void main() {
 
         // Assert
         verify(() => favoritesBloc.add(SetFavorites(files: [favorite, plain], favorite: true))).called(1);
+        verifyNever(() => contentBloc.add(const ExitSelectionMode()));
+      });
+
+      testWidgets('should leave selection mode once the favorites are saved', (tester) async {
+        // Arrange
+        whenListen(
+          favoritesBloc,
+          Stream.value(const FavoritesState(outcome: FavoritesSaved(count: 2, favorite: true))),
+          initialState: const FavoritesState(),
+        );
+
+        // Act
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+        await tester.pump();
+
+        // Assert
         verify(() => contentBloc.add(const ExitSelectionMode())).called(1);
+      });
+
+      testWidgets('should keep the selection when the favorites could not be saved', (tester) async {
+        // Arrange
+        whenListen(
+          favoritesBloc,
+          Stream.value(const FavoritesState(outcome: FavoritesFailed(NetworkFailure()))),
+          initialState: const FavoritesState(),
+        );
+
+        // Act
+        await pumpPage(tester, loaded(fileList: [favorite, plain], isSelectionMode: true, selected: {'file-1', 'file-2'}));
+        await tester.pump();
+
+        // Assert
+        verifyNever(() => contentBloc.add(const ExitSelectionMode()));
       });
 
       testWidgets('should offer to remove when every selected file is a favorite', (tester) async {

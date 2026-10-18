@@ -181,14 +181,19 @@ class FolderContentPage extends StatelessWidget {
       onPressed: selected.isEmpty
           ? null
           : () {
+              // The selection ends when the change is saved (_showFavoritesOutcome); a failure keeps it
               context.read<FavoritesBloc>().add(SetFavorites(files: selected, favorite: !allFavorite));
-              context.read<FolderContentBloc>().add(const ExitSelectionMode());
             },
     );
   }
 
   void _showFavoritesOutcome(BuildContext context, FavoritesState state) {
     final l10n = AppLocalizations.of(context)!;
+    if (state.outcome is FavoritesSaved) {
+      final bloc = context.read<FolderContentBloc>();
+      final content = bloc.state;
+      if (content is FolderContentLoaded && content.isSelectionMode) bloc.add(const ExitSelectionMode());
+    }
     final message = switch (state.outcome) {
       FavoritesSaved(:final count, favorite: true) => l10n.favoritesAdded(count),
       FavoritesSaved(:final count, favorite: false) => l10n.favoritesRemoved(count),

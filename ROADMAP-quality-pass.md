@@ -73,16 +73,23 @@ Resultado: 3059 tests y analizador sin avisos. En el S23 se descargó una foto e
 Status: ✅ Completed
 
 ## Phase 3: La selección termina al aplicar una acción
-- [ ] Inventario de todas las acciones sobre una selección: galería, álbum, papelera, favoritas y portadas.
-- [ ] Regla única: éxito o éxito parcial → se desactiva la selección; cancelar o error → se mantiene.
-- [ ] `ManageSelectionBar`: la hoja de gestión devuelve si se aplicó algo, y solo entonces se llama a `onFinished`.
-- [ ] Papelera (restaurar y borrar para siempre), favoritas y portadas siguen la misma regla.
-- [ ] Tests de widget y de BLoC de cada caso (aplicar, cancelar, fallar).
-- [ ] Comprobar en el S23 cada acción.
+- [x] Inventario de las acciones sobre una selección:
+  - galería (`ManageSelectionBar`): Guardar, A un álbum (hoja), Descargar, Compartir, Eliminar y Liberar espacio (diálogo);
+  - álbum: Favoritas, Portada, Mover (hoja), Eliminar, Descargar y Compartir;
+  - papelera: Restaurar y Borrar para siempre (ya cumplían la regla: al terminar se recarga sin selección; si falla, se mantiene);
+  - «Revisar» de la galería: selecciona ella misma los pendientes, así que la selección termina al cerrar la hoja, se aplique o no.
+- [x] Regla única: éxito o éxito parcial → se desactiva la selección; cancelar o error → se mantiene. Descargar y Compartir terminan al pulsarlas.
+- [x] **Causa del «unas veces sí y otras no»:** `RefreshGallery` y `RefreshFolderContent` guardaban la selección al empezar a recargar y la volvían a poner al terminar. Si la acción la cerraba mientras tanto y los archivos seguían en la lista (descargar, compartir, añadir a un álbum, favoritas…), la selección reaparecía. Ahora usan la selección del estado al terminar la petición.
+- [x] `ManageSelectionBar`: la hoja de gestión devuelve si se aplicó algo (`ManageFileModal.show` → `true`), y solo entonces se llama a `onFinished`.
+- [x] Favoritas en el álbum: la selección termina cuando se guarda (`FavoritesSaved`), no al pulsar; si falla, se mantiene. Portadas ya seguía la regla.
+- [x] Tests: carrera de la recarga en `GalleryBloc` y `FolderContentBloc` (fallan sin el arreglo), y en `ManageSelectionBar` aplicar con la hoja, cerrar la hoja, cancelar la confirmación y fallar; favoritas guardadas y fallidas en el álbum.
+- [x] Comprobar en el S23 cada acción (probado por el usuario: cerrar la hoja, añadir a un álbum, cancelar Eliminar, favoritas en un álbum, descargar y compartir).
 
 **Criterio de aceptación:** toda acción aplicada termina la selección; cancelar o fallar la mantiene, en todas las pantallas.
 
-Status: 🚧 In Progress
+Resultado: 3067 tests y analizador sin avisos.
+
+Status: ✅ Completed
 
 ## Phase 4: Visor: barra de acciones integrada y borde del carrusel
 - [ ] Carrusel: el borde de la miniatura actual se dibuja por encima (`foregroundDecoration`) y la imagen se recorta con el radio interior, para que el borde sea un rectángulo redondeado continuo.
@@ -93,7 +100,7 @@ Status: 🚧 In Progress
 
 **Criterio de aceptación:** la barra del visor coincide con el diseño de la captura y el borde de la miniatura actual es continuo, también en las esquinas.
 
-Status: ⏳ Pending
+Status: 🚧 In Progress
 
 ## Phase 5: Color de la app
 - [ ] Definir las familias de color de Morado, Azul, Turquesa, Naranja/terracota y Grafito, para claro y oscuro: contraste AA del texto y los iconos sobre sus fondos, y distintas de los colores de estado.
