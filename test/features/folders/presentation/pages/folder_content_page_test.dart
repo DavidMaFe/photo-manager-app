@@ -45,6 +45,7 @@ import 'package:photo_manager_app/features/folders/presentation/widgets/album_co
 import 'package:photo_manager_app/features/folders/presentation/widgets/album_covers_sheet.dart';
 import 'package:photo_manager_app/features/folders/presentation/widgets/cover_picker_sheet.dart';
 import 'package:photo_manager_app/features/gallery/presentation/widgets/file_thumbnail_card.dart';
+import '../../../../helpers/downloads_test_providers.dart';
 
 class MockFolderContentBloc extends Mock implements FolderContentBloc {}
 
@@ -136,6 +137,7 @@ void main() {
         BlocProvider<FolderContentBloc>.value(value: contentBloc),
         BlocProvider<FolderBloc>.value(value: folderBloc),
         BlocProvider<FileManagementBloc>.value(value: fileManagementBloc),
+        ...downloadsTestProviders(),
         BlocProvider<FavoritesBloc>.value(value: favoritesBloc),
       ],
       child: const FolderContentPage(folderId: 'folder-1'),
@@ -302,7 +304,7 @@ void main() {
         expect(find.text('in Japan'), findsOneWidget);
         expect(find.text('2 photos · up to 3 can be a cover'), findsOneWidget);
         final actions = tester.widget<SelectionActionBar>(find.byType(SelectionActionBar)).actions;
-        expect(actions.map((a) => a.label), ['Cover', 'Favorites', 'Move', 'Delete']);
+        expect(actions.map((a) => a.label), ['Cover', 'Favorites', 'Move', 'Delete', 'More']);
         expect(actions.first.style, SelectionActionStyle.primary);
         expect(actions.first.dimmed, isFalse);
       });

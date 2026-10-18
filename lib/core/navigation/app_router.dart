@@ -18,6 +18,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/navigation/app_redirect.dart';
+import 'package:photo_manager_app/features/account_deletion/presentation/bloc/account_deletion_summary_cubit.dart';
+import 'package:photo_manager_app/features/account_deletion/presentation/bloc/delete_account_bloc.dart';
+import 'package:photo_manager_app/features/account_deletion/presentation/pages/confirm_delete_account_page.dart';
+import 'package:photo_manager_app/features/account_deletion/presentation/pages/delete_account_page.dart';
 import 'package:photo_manager_app/core/navigation/auth_notifier.dart';
 import 'package:photo_manager_app/core/navigation/main_shell.dart';
 import 'package:photo_manager_app/core/navigation/onboarding_notifier.dart';
@@ -331,6 +335,24 @@ class AppRouter {
                               create: (_) => sl<VerifyRecoveryPhraseBloc>()..add(VerifyRecoveryPhraseStarted()),
                               child: const VerifyRecoveryPhrasePage(),
                             ),
+                          ),
+                          GoRoute(
+                            path: 'delete-account',
+                            name: RouteNames.deleteAccount,
+                            builder: (context, state) => BlocProvider(
+                              create: (_) => sl<AccountDeletionSummaryCubit>()..load(),
+                              child: const DeleteAccountPage(),
+                            ),
+                            routes: [
+                              GoRoute(
+                                path: 'confirm',
+                                name: RouteNames.deleteAccountConfirm,
+                                builder: (context, state) => BlocProvider(
+                                  create: (_) => sl<DeleteAccountBloc>(),
+                                  child: const ConfirmDeleteAccountPage(),
+                                ),
+                              ),
+                            ],
                           ),
                           GoRoute(
                             path: 'forgot-password',

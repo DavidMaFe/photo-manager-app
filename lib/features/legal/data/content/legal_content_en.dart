@@ -2,13 +2,12 @@ import 'package:photo_manager_app/features/legal/domain/entities/legal_document.
 import 'package:photo_manager_app/features/legal/domain/entities/legal_versions.dart';
 
 // DRAFT: the terms and the privacy policy must be reviewed by a lawyer before the app is opened to other users. The
-// data in brackets is filled in then. The Spanish text (legal_content_es.dart) is the reference one.
+// rest stays as it is. The Spanish text (legal_content_es.dart) is the reference one.
 //
 // When the terms or the policy change, raise their version in LegalVersions and in app.legal.* in the backend.
 
-const String _controller = '[NAME OF THE CONTROLLER]';
-const String _contactEmail = '[CONTACT EMAIL]';
-const String _serverProvider = '[SERVER PROVIDER]';
+const String _controller = 'David Martínez Fernández';
+const String _contactEmail = 'soporte@photo-manager-pro.com';
 
 final Map<LegalDocumentType, LegalDocument> legalDocumentsEn = {
   LegalDocumentType.protection: const LegalDocument(
@@ -185,9 +184,13 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEn = {
             'but we cannot guarantee that it always works without interruptions or errors.'),
       ]),
       LegalSection(heading: '9. Closing your account', blocks: [
-        LegalParagraph('You can ask us to delete your account by writing to $_contactEmail from the email of the '
-            'account. We will delete it, with your files and keys, within 30 days. The encrypted backups may keep '
-            'them for 30 more days.'),
+        LegalParagraph('You can delete your account at any time from the app, in Profile → Delete account. It is '
+            'deleted at once, with your files, albums, keys and devices, and it cannot be undone. The photos and videos '
+            'on your phones are not touched.'),
+        LegalParagraph('If you cannot use the app, write to $_contactEmail from the email of the account. We will '
+            'delete it within 30 days.'),
+        LegalParagraph('The encrypted backups keep deleted data for up to 6 months. Since your keys are deleted too, '
+            'nobody can open it.'),
       ]),
       LegalSection(heading: '10. Changes to the terms', blocks: [
         LegalParagraph('If we change these terms, we will publish a new version and the app will ask you to accept it '
@@ -227,6 +230,9 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEn = {
       LegalSection(heading: '3. What we cannot see', blocks: [
         LegalParagraph('The content of your photos and videos, their thumbnails, the original names, the EXIF data and '
             'the GPS location are encrypted end to end. We do not receive your password or your 24 words either.'),
+        LegalParagraph('When you share a photo or a video with another app, the original is sent unencrypted. If it '
+            'is not in the gallery of your phone, the app decrypts it into a private temporary file, which is deleted '
+            'when you come back to the app. What happens next depends on the app you share it with.'),
       ]),
       LegalSection(heading: '4. Purposes and legal basis', blocks: [
         LegalBullets([
@@ -240,12 +246,13 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEn = {
       ]),
       LegalSection(heading: '5. Where your data is and who helps us', blocks: [
         LegalBullets([
-          'Application server: $_serverProvider, in the European Union.',
-          'Encrypted files: Cloudflare R2, with the data in the European Union jurisdiction.',
+          'Application server and encrypted files: our own server, in Spain.',
           'Encrypted backups: Backblaze B2, in a European Union region.',
-          'Emails (codes to reset your password): Google (Gmail).',
+          'Emails of the app (codes to reset your password and confirmation of the account deletion): Brevo, in the '
+              'European Union.',
+          'Support email ($_contactEmail): Zoho Mail, in its European Union data centre.',
         ]),
-        LegalParagraph('Cloudflare, Backblaze and Google are United States companies. When they access data from '
+        LegalParagraph('Backblaze is a United States company and Zoho is an Indian one. When they access data from '
             'outside the European Union, the transfer relies on the EU-US Data Privacy Framework or on the standard '
             'contractual clauses of the European Commission.'),
       ]),
@@ -254,13 +261,17 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEn = {
           'As long as you have the account.',
           'Files in the trash are deleted after 30 days.',
           'Session tokens expire after 30 days.',
-          'If you close your account, we delete your data within 30 days; the encrypted backups keep it for 30 more '
+          'If you delete your account from the app, your data is deleted at once; if you ask by email, within 30 '
               'days.',
+          'The encrypted backups keep deleted data for up to 6 months. Since your keys are deleted too, nobody can '
+              'open it.',
         ]),
       ]),
       LegalSection(heading: '7. Your rights', blocks: [
         LegalParagraph('You can exercise your rights of access, rectification, erasure, objection, restriction of '
-            'processing and portability by writing to $_contactEmail from the email of your account.'),
+            'processing and portability by writing to $_contactEmail from the email of your account. You do not need '
+            'to write to us to delete your account: you can do it from the app, in Profile → Delete account. We also '
+            'explain it at photo-manager-pro.com/eliminar-cuenta.'),
         LegalParagraph('If you think we have not handled your data properly, you can file a complaint with the '
             'Spanish Data Protection Agency (www.aepd.es).'),
       ]),

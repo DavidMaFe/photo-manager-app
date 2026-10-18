@@ -201,6 +201,31 @@ void main() {
       });
     });
 
+    group('clearSession', () {
+      test('should clear the caches and remove the keys without calling the server', () async {
+        // Arrange: the account was deleted, so its tokens no longer work
+        await masterKeys.saveMasterKey(1, E2eeTestData.key(1));
+
+        // Act
+        await repository.clearSession();
+
+        // Assert
+        verifyNever(() => remote.logout(any()));
+        verify(() => local.clearCache()).called(1);
+        verify(() => profileLocal.clearProfileCache()).called(1);
+        expect(await masterKeys.getVersions(), isEmpty);
+      });
+
+      test('should remove the keys even when clearing the caches fails', () async {
+        when(() => local.clearCache()).thenThrow(Exception('storage error'));
+        await masterKeys.saveMasterKey(1, E2eeTestData.key(1));
+
+        await expectLater(repository.clearSession(), throwsException);
+
+        expect(await masterKeys.getVersions(), isEmpty);
+      });
+    });
+
     group('getCurrentUser', () {
       test('should return the cached user when there is a valid token', () async {
         when(() => local.getCachedUser()).thenAnswer((_) async => user);

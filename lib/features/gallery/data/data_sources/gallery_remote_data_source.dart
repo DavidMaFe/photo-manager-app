@@ -1,3 +1,4 @@
+import 'package:photo_manager_app/features/gallery/data/models/gallery_file_model.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -21,6 +22,9 @@ abstract class GalleryRemoteDataSource {
 
   /// Every pending file ID and their total size, without pagination.
   Future<PendingFilesModel> getPendingFileIds({String? type, String? folderId});
+
+  /// POST /api/file/list/by-ids/ with at most 200 ids: the files as the list returns them, newest first.
+  Future<List<GalleryFileModel>> getFilesByIds(List<String> fileIds);
 }
 
 
@@ -104,6 +108,33 @@ class GalleryRemoteDataSourceImpl implements GalleryRemoteDataSource {
 
       if (response.statusCode == 200) {
         return PendingFilesModel.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+      } else {
+        final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
+        throw ApiException(errorResponse);
+      }
+    } on SocketException {
+      rethrow;
+    } on HttpException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw Exception('Connection error: $e');
+    }
+  }
+
+  @override
+  Future<List<GalleryFileModel>> getFilesByIds(List<String> fileIds) async {
+    try {
+      final response = await client.post(
+        Uri.parse('$baseUrl/api/file/list/by-ids/'),
+        headers: HttpHeadersUtil.getJsonHeaders(),
+        body: jsonEncode({'fileIds': fileIds.map(int.parse).toList()}),
+      );
+
+      if (response.statusCode == 200) {
+        final files = (jsonDecode(response.body) as Map<String, dynamic>)['files'] as List<dynamic>;
+        return [for (final json in files) GalleryFileModel.fromJson(json as Map<String, dynamic>)];
       } else {
         final errorResponse = ErrorResponseModel.fromJson(jsonDecode(response.body));
         throw ApiException(errorResponse);

@@ -278,8 +278,8 @@ void main() {
       // Assert
       expect(
         galleryFile.props,
-        // sizeBytes, isFavorite, hasPreview and coverOf take their defaults
-        equals(['file-1', FileType.video, FileStatus.pending, 120, testDate, 0, false, false, const <String>[]]),
+        // sizeBytes, isFavorite, hasPreview, coverOf and deviceName take their defaults
+        equals(['file-1', FileType.video, FileStatus.pending, 120, testDate, 0, false, false, const <String>[], null]),
       );
     });
 

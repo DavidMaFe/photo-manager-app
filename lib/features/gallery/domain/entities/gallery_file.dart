@@ -21,6 +21,9 @@ class GalleryFile extends Equatable {
   /// Albums of which this file is a cover, from the root down. Only sent inside an album.
   final List<String> coverOf;
 
+  /// Name of the device that uploaded it; null if unknown or removed.
+  final String? deviceName;
+
   const GalleryFile({
     required this.id,
     required this.type,
@@ -30,7 +33,8 @@ class GalleryFile extends Equatable {
     this.sizeBytes = 0,
     this.isFavorite = false,
     this.hasPreview = false,
-    this.coverOf = const []
+    this.coverOf = const [],
+    this.deviceName
   });
 
   bool get isImage => type == FileType.image;
@@ -50,7 +54,8 @@ class GalleryFile extends Equatable {
     int? sizeBytes,
     bool? isFavorite,
     bool? hasPreview,
-    List<String>? coverOf
+    List<String>? coverOf,
+    String? deviceName
   }) {
     return GalleryFile(
       id: id ?? this.id,
@@ -61,11 +66,12 @@ class GalleryFile extends Equatable {
       sizeBytes: sizeBytes ?? this.sizeBytes,
       isFavorite: isFavorite ?? this.isFavorite,
       hasPreview: hasPreview ?? this.hasPreview,
-      coverOf: coverOf ?? this.coverOf
+      coverOf: coverOf ?? this.coverOf,
+      deviceName: deviceName ?? this.deviceName
     );
   }
 
   @override
   List<Object?> get props =>
-      [id, type, status, durationSeconds, capturedAt, sizeBytes, isFavorite, hasPreview, coverOf];
+      [id, type, status, durationSeconds, capturedAt, sizeBytes, isFavorite, hasPreview, coverOf, deviceName];
 }

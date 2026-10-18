@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
@@ -208,6 +209,18 @@ class _ProfilePageState extends State<ProfilePage> {
               label: l10n.logoutButton,
               icon: Symbols.logout_rounded,
               onPressed: () => _showLogoutDialog(context),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Center(
+              child: TextButton.icon(
+                key: const ValueKey('profile-delete-account'),
+                onPressed: () => context.goNamed(RouteNames.deleteAccount),
+                icon: Icon(Symbols.person_remove_rounded, size: 18, color: context.palette.dangerInk),
+                label: Text(l10n.deleteAccountAction,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.palette.dangerInk)),
+              ),
             ),
           ),
         ],

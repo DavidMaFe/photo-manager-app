@@ -136,6 +136,17 @@ void main() {
       expect(button.variant, AppButtonVariant.danger);
     });
 
+    testWidgets('should offer to delete the account below sign out', (tester) async {
+      // Arrange & Act
+      await pump(tester, ProfileLoaded(TestProfiles.emptyStorageProfile));
+
+      // Assert
+      expect(find.byKey(const ValueKey('profile-delete-account')), findsOneWidget);
+      expect(find.text('Delete account'), findsOneWidget);
+      expect(tester.getTopLeft(find.text('Delete account')).dy,
+          greaterThan(tester.getTopLeft(find.widgetWithText(AppButton, 'Sign out')).dy));
+    });
+
     // ==================== LOADING & ERROR TESTS ====================
 
     testWidgets('should show a spinner before the profile loads', (tester) async {

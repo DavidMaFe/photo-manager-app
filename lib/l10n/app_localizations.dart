@@ -3274,6 +3274,402 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The keys of your account changed on another device. Open the app and type your current password.'**
   String get errorOutdatedKeys;
+
+  /// No description provided for @actionDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get actionDownload;
+
+  /// No description provided for @actionShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get actionShare;
+
+  /// No description provided for @actionMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get actionMore;
+
+  /// No description provided for @actionOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'On phone'**
+  String get actionOnDevice;
+
+  /// No description provided for @selectionSizeOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} · {count, plural, =0{none on this phone} =1{1 on this phone} other{{count} on this phone}}'**
+  String selectionSizeOnDevice(String size, int count);
+
+  /// No description provided for @downloadAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Download album'**
+  String get downloadAlbum;
+
+  /// No description provided for @downloadSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to this phone'**
+  String get downloadSheetTitle;
+
+  /// No description provided for @downloadSheetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {count, plural, =1{1 item} other{{count} items}}'**
+  String downloadSheetSubtitle(String name, int count);
+
+  /// No description provided for @downloadSheetAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is not on this phone'**
+  String get downloadSheetAllTitle;
+
+  /// No description provided for @downloadToDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 to download} other{{count} to download}}'**
+  String downloadToDownload(int count);
+
+  /// No description provided for @downloadApproxSize.
+  ///
+  /// In en, this message translates to:
+  /// **'About {size}'**
+  String downloadApproxSize(String size);
+
+  /// No description provided for @downloadAlreadyOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 already on this phone} other{{count} already on this phone}}'**
+  String downloadAlreadyOnDevice(int count);
+
+  /// No description provided for @downloadSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get downloadSkipped;
+
+  /// No description provided for @downloadIncludeSubalbums.
+  ///
+  /// In en, this message translates to:
+  /// **'Include subalbums'**
+  String get downloadIncludeSubalbums;
+
+  /// No description provided for @downloadFreeSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Free space on this phone'**
+  String get downloadFreeSpace;
+
+  /// No description provided for @downloadFreeOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{free} of {total}'**
+  String downloadFreeOfTotal(String free, String total);
+
+  /// No description provided for @downloadDestinationNote.
+  ///
+  /// In en, this message translates to:
+  /// **'They are saved in the phone gallery, in the album «{album}». Use Wi-Fi if you can.'**
+  String downloadDestinationNote(String album);
+
+  /// No description provided for @downloadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Download 1 item} other{Download {count} items}}'**
+  String downloadButton(int count);
+
+  /// No description provided for @downloadNothingMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is already on this phone'**
+  String get downloadNothingMissing;
+
+  /// No description provided for @downloadNotEnoughSpaceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'It does not fit: you need {size} free on this phone'**
+  String downloadNotEnoughSpaceNote(String size);
+
+  /// No description provided for @downloadProgressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving to this phone · {saved} of {total}'**
+  String downloadProgressTitle(int saved, int total);
+
+  /// No description provided for @downloadProgressRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'about {time} left'**
+  String downloadProgressRemaining(String time);
+
+  /// No description provided for @downloadProgressFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 saved to this phone} other{{count} saved to this phone}}'**
+  String downloadProgressFinished(int count);
+
+  /// No description provided for @downloadProgressFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 could not be saved} other{{count} could not be saved}}'**
+  String downloadProgressFailed(int count);
+
+  /// No description provided for @downloadProgressMainAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone gallery'**
+  String get downloadProgressMainAlbum;
+
+  /// No description provided for @downloadStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Downloading 1 item} other{Downloading {count} items}}'**
+  String downloadStarted(int count);
+
+  /// No description provided for @downloadAllOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{It is already on this phone} other{They are all on this phone already}}'**
+  String downloadAllOnDevice(int count);
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String durationMinutes(int count);
+
+  /// No description provided for @durationLessThanMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'less than 1 min'**
+  String get durationLessThanMinute;
+
+  /// No description provided for @filterNotOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on phone'**
+  String get filterNotOnDevice;
+
+  /// No description provided for @notOnDeviceSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}} · {size}'**
+  String notOnDeviceSummary(int count, String size);
+
+  /// No description provided for @downloadAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Download all'**
+  String get downloadAll;
+
+  /// No description provided for @emptyNotOnDeviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is on this phone'**
+  String get emptyNotOnDeviceTitle;
+
+  /// No description provided for @emptyNotOnDeviceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos and videos that are only in the cloud show up here.'**
+  String get emptyNotOnDeviceBody;
+
+  /// No description provided for @sharePreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing {prepared} of {total}…'**
+  String sharePreparing(int prepared, int total);
+
+  /// No description provided for @errorNotEnoughSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'There is not enough space on this phone for these files.'**
+  String get errorNotEnoughSpace;
+
+  /// No description provided for @errorDeviceMediaUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone does not let the app save photos into its gallery.'**
+  String get errorDeviceMediaUnsupported;
+
+  /// No description provided for @errorTooManyFilesToShare.
+  ///
+  /// In en, this message translates to:
+  /// **'You can share up to {max} files at once.'**
+  String errorTooManyFilesToShare(int max);
+
+  /// No description provided for @deleteAccountAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccountAction;
+
+  /// No description provided for @deleteAccountStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String deleteAccountStep(int current, int total);
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you delete your account'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This is what will happen and how to take your photos with you first.'**
+  String get deleteAccountSubtitle;
+
+  /// No description provided for @deleteAccountWhatIsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'What is deleted'**
+  String get deleteAccountWhatIsDeleted;
+
+  /// No description provided for @deleteAccountFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo or video} other{{count} photos and videos}}'**
+  String deleteAccountFiles(int count);
+
+  /// No description provided for @deleteAccountFilesDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} stored in the cloud'**
+  String deleteAccountFilesDetail(String size);
+
+  /// No description provided for @deleteAccountAlbums.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 album} other{{count} albums}}'**
+  String deleteAccountAlbums(int count);
+
+  /// No description provided for @deleteAccountAlbumsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'With their subalbums, covers and favorites'**
+  String get deleteAccountAlbumsDetail;
+
+  /// No description provided for @deleteAccountDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No linked devices} =1{1 device is unlinked} other{{count} devices are unlinked}}'**
+  String deleteAccountDevices(int count);
+
+  /// No description provided for @deleteAccountDevicesDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic backup stops on all of them'**
+  String get deleteAccountDevicesDetail;
+
+  /// No description provided for @deleteAccountPhoneSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'The photos on your phone are not touched'**
+  String get deleteAccountPhoneSafe;
+
+  /// No description provided for @deleteAccountPhoneSafeDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Only what is in the cloud is deleted'**
+  String get deleteAccountPhoneSafeDetail;
+
+  /// No description provided for @deleteAccountTakePhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Take your photos with you'**
+  String get deleteAccountTakePhotos;
+
+  /// No description provided for @deleteAccountSaveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save everything on this phone'**
+  String get deleteAccountSaveAll;
+
+  /// No description provided for @deleteAccountSaveAllDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 to download} other{{count} to download}} · {size}'**
+  String deleteAccountSaveAllDetail(int count, String size);
+
+  /// No description provided for @deleteAccountSaveAllFree.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 to download} other{{count} to download}} · you have {free} free'**
+  String deleteAccountSaveAllFree(int count, String free);
+
+  /// No description provided for @deleteAccountSaveAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is already on this phone'**
+  String get deleteAccountSaveAllDone;
+
+  /// No description provided for @deleteAccountContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get deleteAccountContinue;
+
+  /// No description provided for @deleteAccountKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my account'**
+  String get deleteAccountKeep;
+
+  /// No description provided for @deleteAccountConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you'**
+  String get deleteAccountConfirmTitle;
+
+  /// No description provided for @deleteAccountConfirmSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For your security, enter your password and the word {word}.'**
+  String deleteAccountConfirmSubtitle(String word);
+
+  /// No description provided for @deleteAccountConfirmWord.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get deleteAccountConfirmWord;
+
+  /// No description provided for @deleteAccountTypeWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {word}'**
+  String deleteAccountTypeWord(String word);
+
+  /// No description provided for @deleteAccountFinalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be signed out on every device and everything will be deleted right away. This cannot be undone.'**
+  String get deleteAccountFinalNote;
+
+  /// No description provided for @deleteAccountSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteAccountSubmit;
+
+  /// No description provided for @deleteAccountWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is not correct'**
+  String get deleteAccountWrongPassword;
+
+  /// No description provided for @deleteAccountDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted'**
+  String get deleteAccountDone;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

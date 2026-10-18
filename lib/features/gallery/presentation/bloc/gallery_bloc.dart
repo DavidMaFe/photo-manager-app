@@ -29,11 +29,13 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
   StreamSubscription<FolderUpdatedEvent>? _folderUpdateSubscription;
   StreamSubscription<SyncCompletedEvent>? _syncCompletedSubscription;
   StreamSubscription<FavoritesChangedEvent>? _favoritesSubscription;
+  StreamSubscription<void>? _presenceSubscription;
 
   GalleryBloc({
     required this.getFilesUseCase,
     required this.getPendingFileIdsUseCase,
     required this.eventBus,
+    Stream<void>? onDevicePresenceChanges,
   }) : super(const GalleryStarting()) {
     on<LoadGallery>(_onLoadGallery);
     on<LoadMoreFiles>(_onLoadMoreFiles);
@@ -62,6 +64,12 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
       add(const RefreshGallery());
     });
 
+    // Files saved to (or freed up from) this phone: the "Not on phone" filter shows them leave (or come back)
+    _presenceSubscription = onDevicePresenceChanges?.listen((_) {
+      final current = state;
+      if (current is GalleryLoaded && current.filter.onlyNotOnDevice) add(const RefreshGallery());
+    });
+
     // Favorites marked elsewhere: update the hearts in place, without reloading
     _favoritesSubscription = eventBus.on<FavoritesChangedEvent>().listen((event) {
       add(FavoritesChanged(fileIds: event.fileIds, favorite: event.favorite));
@@ -74,6 +82,7 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     _folderUpdateSubscription?.cancel();
     _syncCompletedSubscription?.cancel();
     _favoritesSubscription?.cancel();
+    _presenceSubscription?.cancel();
     return super.close();
   }
 

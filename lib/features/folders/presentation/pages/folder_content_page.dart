@@ -13,6 +13,8 @@ import 'package:photo_manager_app/core/widgets/icon_circle_button.dart';
 import 'package:photo_manager_app/core/widgets/media_grid_skeleton.dart';
 import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
 import 'package:photo_manager_app/core/widgets/selection_header.dart';
+import 'package:photo_manager_app/features/downloads/presentation/widgets/download_sheet.dart';
+import 'package:photo_manager_app/features/downloads/presentation/widgets/selection_device_summary.dart';
 import 'package:photo_manager_app/features/file_management/presentation/widgets/manage_selection_bar.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
 import 'package:photo_manager_app/features/folders/presentation/bloc/folder_content/folder_content_bloc.dart';
@@ -96,6 +98,7 @@ class FolderContentPage extends StatelessWidget {
             bottomNavigationBar: isSelectionMode
                 ? ManageSelectionBar(
                     fileIds: state.selectedFileIds.toList(),
+                    files: _selectedFiles(state),
                     selectedSizeBytes: state.selectedSizeBytes,
                     onFinished: () => context.read<FolderContentBloc>().add(const ExitSelectionMode()),
                     albumActions: AppConfig.favoritesAndCoversEnabled
@@ -219,15 +222,23 @@ class FolderContentPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final bloc = context.read<FolderContentBloc>();
 
+    final summary = selectionDeviceSummary(context, _selectedFiles(state));
+    final subtitle = [
+      if (AppConfig.favoritesAndCoversEnabled) l10n.inAlbum(state.currentFolder.name),
+      if (summary != null) summary,
+    ];
     return SelectionHeader(
       title: l10n.selectedCount(selectedCount),
-      subtitle: AppConfig.favoritesAndCoversEnabled ? l10n.inAlbum(state.currentFolder.name) : null,
+      subtitle: subtitle.isEmpty ? null : subtitle.join(' · '),
       closeTooltip: l10n.closeSelection,
       onClose: () => bloc.add(const ExitSelectionMode()),
       toggleLabel: state.areAllFilesSelected ? l10n.selectNone : l10n.selectAllShort,
       onToggle: () => bloc.add(state.areAllFilesSelected ? const DeselectAllFiles() : const SelectAllFiles()),
     );
   }
+
+  List<GalleryFile> _selectedFiles(FolderContentLoaded state) =>
+      state.files.where((file) => state.selectedFileIds.contains(file.id)).toList();
 
   Future<void> _showMoreMenu(BuildContext buttonContext) async {
     final l10n = AppLocalizations.of(buttonContext)!;
@@ -238,11 +249,20 @@ class FolderContentPage extends StatelessWidget {
       buttonContext,
       position: position,
       items: [
+        AppMenuItem(value: 'download', label: l10n.downloadAlbum, icon: Symbols.download_rounded),
         AppMenuItem(value: 'subalbum', label: l10n.newSubalbum, icon: Symbols.create_new_folder_rounded),
       ],
     );
-    if (action == 'subalbum' && buttonContext.mounted) {
+    if (!buttonContext.mounted) return;
+    if (action == 'subalbum') {
       CreateFolderModal.show(buttonContext, parentFolderId: folderId);
+    } else if (action == 'download') {
+      final state = buttonContext.read<FolderContentBloc>().state;
+      if (state is FolderContentLoaded) {
+        DownloadSheet.showAlbum(buttonContext,
+            folderId: folderId, albumName: state.currentFolder.name,
+            subalbumNames: [for (final subfolder in state.subfolders) subfolder.name]);
+      }
     }
   }
 

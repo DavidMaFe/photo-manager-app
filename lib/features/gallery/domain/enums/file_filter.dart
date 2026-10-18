@@ -7,7 +7,10 @@ enum FileFilter {
   favorites,
   images,
   videos,
-  pending;
+  pending,
+
+  /// Files this phone does not have (computed on the device, ROADMAP-downloads-and-account-deletion.md).
+  notOnDevice;
 
   FileType? get fileType {
     switch (this) {
@@ -21,6 +24,8 @@ enum FileFilter {
   }
 
   bool get onlyFavorites => this == FileFilter.favorites;
+
+  bool get onlyNotOnDevice => this == FileFilter.notOnDevice;
 
   FileStatus? get fileStatus {
     switch (this) {

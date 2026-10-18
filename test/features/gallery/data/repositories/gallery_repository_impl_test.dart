@@ -477,4 +477,25 @@ void main() {
       verify(() => mockRemoteDataSource.getFiles(page: 0, pageSize: 50, type: null, status: null, favorite: true)).called(1);
     });
   });
+
+  group('getFilesByIds', () {
+    test('should return the files and keep their keys', () async {
+      // Arrange
+      final file = GalleryFileModel.fromJson(const {
+        'id': 7,
+        'type': 'IMAGE',
+        'status': 'MANAGED',
+        'encryptedFileKey': 'a2V5',
+        'keyVersion': 1,
+      });
+      when(() => mockRemoteDataSource.getFilesByIds(['7'])).thenAnswer((_) async => [file]);
+
+      // Act
+      final files = await repository.getFilesByIds(['7']);
+
+      // Assert
+      expect(files, [file]);
+      expect(fileKeys.remembered.map((ref) => ref.fileId), ['7']);
+    });
+  });
 }

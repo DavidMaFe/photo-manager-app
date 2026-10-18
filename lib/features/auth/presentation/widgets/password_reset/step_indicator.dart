@@ -7,11 +7,15 @@ class StepIndicator extends StatelessWidget {
   final int total;
   final String semanticLabel;
 
+  /// Color of the completed steps; accent by default.
+  final Color? activeColor;
+
   const StepIndicator({
     super.key,
     required this.current,
     required this.total,
     required this.semanticLabel,
+    this.activeColor,
   });
 
   @override
@@ -30,7 +34,7 @@ class StepIndicator extends StatelessWidget {
               width: 22,
               height: 6,
               decoration: BoxDecoration(
-                color: i <= current ? p.accent : p.line,
+                color: i <= current ? (activeColor ?? p.accent) : p.line,
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
