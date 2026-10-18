@@ -2560,4 +2560,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deleteAccountSubscriptionDetail => 'No se renovará ni se te volverá a cobrar';
+
+  @override
+  String get planPurchaseTerms => 'Al contratar, el plan empieza al momento y pides que empiece ya, así que renuncias al desistimiento. Se renueva solo hasta que lo canceles en Google Play; al cancelarlo lo mantienes hasta el final del periodo pagado y no se devuelve.';
+
+  @override
+  String get planPurchaseTermsLink => 'Términos de uso';
 }

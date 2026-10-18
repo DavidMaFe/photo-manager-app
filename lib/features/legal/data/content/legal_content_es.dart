@@ -1,13 +1,11 @@
+import 'package:photo_manager_app/features/legal/data/content/legal_provider.dart';
 import 'package:photo_manager_app/features/legal/domain/entities/legal_document.dart';
 import 'package:photo_manager_app/features/legal/domain/entities/legal_versions.dart';
 
-// BORRADOR: los términos y la política de privacidad deben revisarse por un abogado antes de abrir la app a otros
-// usuarios.
-//
 // Al cambiar los términos o la política, sube su versión en LegalVersions y en app.legal.* del backend.
 
-const String _controller = 'David Martínez Fernández';
-const String _contactEmail = 'soporte@photo-manager-pro.com';
+const String _controller = LegalProvider.name;
+const String _contactEmail = LegalProvider.email;
 
 final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
   LegalDocumentType.protection: const LegalDocument(
@@ -133,10 +131,16 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
     title: 'Términos y condiciones de uso',
     version: LegalVersions.terms,
     sections: [
-      LegalSection(heading: '1. El servicio', blocks: [
+      LegalSection(heading: '1. El servicio y quién lo presta', blocks: [
         LegalParagraph('Photo Manager es un servicio para guardar una copia de seguridad de tus fotos y vídeos y '
             'organizarlos. Lo presta $_controller ("nosotros"). Al crear una cuenta aceptas estos términos y la '
             'Política de privacidad.'),
+        LegalBullets([
+          'Prestador: $_controller.',
+          'NIF: ${LegalProvider.taxId}.',
+          'Domicilio: ${LegalProvider.address}.',
+          'Correo de contacto: $_contactEmail.',
+        ]),
       ]),
       LegalSection(heading: '2. Tu cuenta', blocks: [
         LegalBullets([
@@ -173,34 +177,78 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
             'el servicio para guardar contenido ilegal ni que infrinja derechos de otras personas, ni para atacarlo, '
             'sobrecargarlo o acceder a cuentas ajenas. Podemos suspender las cuentas que incumplan estos términos.'),
       ]),
-      LegalSection(heading: '7. Espacio y papelera', blocks: [
+      LegalSection(heading: '7. Planes', blocks: [
+        LegalParagraph('El espacio, el número de dispositivos que hacen copia, el tamaño máximo de los vídeos y la '
+            'frecuencia de la copia automática dependen de tu plan. Los precios incluyen el IVA:'),
         LegalBullets([
-          'Cada cuenta tiene un espacio máximo, que puedes consultar en la app.',
-          'Los archivos que envías a la papelera se borran definitivamente a los 30 días.',
+          'Gratis: 5 GB (10 GB para las cuentas creadas antes de los planes), 2 dispositivos, vídeos de hasta '
+              '100 MB y copia automática semanal.',
+          '100 GB: 1,99 € al mes o 19,99 € al año. 3 dispositivos.',
+          '250 GB: 3,99 € al mes o 39,99 € al año. 5 dispositivos.',
+          '1 TB: 9,99 € al mes o 99,99 € al año. 10 dispositivos.',
+          'Los planes de pago admiten vídeos de hasta 2 GB y hacen la copia automática a diario.',
+        ]),
+        LegalParagraph('En otros países, Google Play puede mostrar el precio en tu moneda. Los archivos que envías a '
+            'la papelera se borran definitivamente a los 30 días.'),
+      ]),
+      LegalSection(heading: '8. Suscripciones de pago', blocks: [
+        LegalBullets([
+          'Los planes de pago se contratan desde la app y se pagan con Google Play, que gestiona el cobro. Nosotros no '
+              'recibimos los datos de tu tarjeta ni de tu medio de pago.',
+          'El plan empieza en cuanto se confirma el pago y se renueva automáticamente al final de cada periodo '
+              '(mes o año) por el mismo precio, hasta que lo canceles.',
+          'Puedes cancelarlo cuando quieras en Google Play (Pagos y suscripciones), también desde la app con '
+              '«Gestionar en Google Play». Al cancelarlo no se renueva más y mantienes el plan hasta el final del '
+              'periodo que ya pagaste. No se devuelve el importe del periodo en curso.',
+          'Puedes cambiar de plan en cualquier momento. El nuevo empieza al momento y el tiempo que te quedaba del '
+              'anterior se descuenta de él.',
+          'Si cambiamos el precio, te avisaremos con al menos 30 días de antelación. Si no estás de acuerdo, puedes '
+              'cancelar antes de que se aplique.',
+          'Si un cobro falla, Google Play lo reintenta durante unos días y mantienes el plan mientras tanto. Si no se '
+              'consigue cobrar, la suscripción termina.',
         ]),
       ]),
-      LegalSection(heading: '8. Disponibilidad', blocks: [
+      LegalSection(heading: '9. Cuando termina un plan de pago', blocks: [
+        LegalParagraph('Vuelves al plan gratuito. Nunca borramos tus archivos porque termine una suscripción:'),
+        LegalBullets([
+          'Si ocupas más de lo que permite el plan gratuito, tu cuenta queda en solo lectura: puedes ver, descargar, '
+              'mover y borrar tus archivos, pero no copiar otros nuevos hasta liberar espacio o volver a contratar.',
+          'Si tienes más dispositivos vinculados de los que permite el plan, siguen haciendo copia los que la hicieron '
+              'más recientemente y los demás quedan en pausa, sin desvincularse.',
+          'Los vídeos de más de 100 MB que ya tengas se conservan.',
+        ]),
+      ]),
+      LegalSection(heading: '10. Derecho de desistimiento', blocks: [
+        LegalParagraph('Al contratar un plan de pago pides expresamente que el servicio empiece de inmediato, sin '
+            'esperar a que acaben los 14 días del plazo de desistimiento, y aceptas que, una vez empezado, pierdes '
+            'ese derecho. Si la ley te reconociera igualmente el desistimiento, solo se te devolvería la parte '
+            'proporcional del periodo que no hayas disfrutado.'),
+        LegalParagraph('Esto no afecta a las devoluciones que Google Play conceda según sus propias condiciones.'),
+      ]),
+      LegalSection(heading: '11. Disponibilidad', blocks: [
         LegalParagraph('Hacemos lo posible para que el servicio esté disponible y sus datos protegidos, con copias '
             'de seguridad cifradas, pero no podemos garantizar que funcione siempre sin interrupciones ni errores.'),
       ]),
-      LegalSection(heading: '9. Baja', blocks: [
+      LegalSection(heading: '12. Baja', blocks: [
         LegalParagraph('Puedes eliminar tu cuenta cuando quieras desde la app, en Perfil → Eliminar cuenta. Se borra '
             'al momento, con tus archivos, álbumes, claves y dispositivos, y no se puede deshacer. Las fotos y vídeos '
             'que tengas en tus móviles no se tocan.'),
+        LegalParagraph('Si tienes una suscripción, al eliminar la cuenta cancelamos su renovación en Google Play. No '
+            'se devuelve el importe del periodo en curso.'),
         LegalParagraph('Si no puedes usar la app, escribe a $_contactEmail desde el email de la cuenta. La borraremos '
             'en un plazo máximo de 30 días.'),
         LegalParagraph('Las copias de seguridad cifradas conservan los datos borrados hasta 5 semanas. Como también se '
             'borran tus claves, nadie puede abrirlos.'),
       ]),
-      LegalSection(heading: '10. Cambios en los términos', blocks: [
+      LegalSection(heading: '13. Cambios en los términos', blocks: [
         LegalParagraph('Si cambiamos estos términos, publicaremos una versión nueva y la app te pedirá aceptarla '
             'la próxima vez que inicies sesión.'),
       ]),
-      LegalSection(heading: '11. Tus derechos como consumidor', blocks: [
+      LegalSection(heading: '14. Tus derechos como consumidor', blocks: [
         LegalParagraph('Nada de lo anterior limita los derechos que te reconoce la legislación de consumo ni nuestra '
             'responsabilidad en caso de dolo o negligencia grave.'),
       ]),
-      LegalSection(heading: '12. Ley aplicable y contacto', blocks: [
+      LegalSection(heading: '15. Ley aplicable y contacto', blocks: [
         LegalParagraph('Estos términos se rigen por la ley española. Si eres consumidor, son competentes los '
             'tribunales de tu domicilio. Para cualquier consulta, escribe a $_contactEmail.'),
       ]),
@@ -212,8 +260,8 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
     version: LegalVersions.privacy,
     sections: [
       LegalSection(heading: '1. Responsable', blocks: [
-        LegalParagraph('El responsable del tratamiento de tus datos es $_controller. Puedes contactar escribiendo a '
-            '$_contactEmail.'),
+        LegalParagraph('El responsable del tratamiento de tus datos es $_controller, con NIF ${LegalProvider.taxId} y '
+            'domicilio en ${LegalProvider.address}. Puedes contactar escribiendo a $_contactEmail.'),
       ]),
       LegalSection(heading: '2. Datos que tratamos', blocks: [
         LegalBullets([
@@ -225,6 +273,8 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
           'Sesión y seguridad: fechas de acceso, tokens de sesión y la dirección IP de las peticiones.',
           'Tus claves, siempre cifradas: el servidor no puede abrirlas.',
           'La versión de los términos y de esta política que aceptaste, y la fecha.',
+          'Suscripciones: el identificador de la compra en Google Play, el plan, su estado, las fechas del periodo '
+              'y si se renueva. Nunca recibimos los datos de tu tarjeta ni de tu medio de pago.',
         ]),
       ]),
       LegalSection(heading: '3. Lo que no podemos ver', blocks: [
@@ -236,8 +286,9 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
       ]),
       LegalSection(heading: '4. Para qué y con qué base legal', blocks: [
         LegalBullets([
-          'Prestarte el servicio: guardar, organizar y sincronizar tus archivos y enviarte los códigos para '
-              'restablecer la contraseña. Base: la ejecución del contrato (art. 6.1.b del RGPD).',
+          'Prestarte el servicio: guardar, organizar y sincronizar tus archivos, enviarte los códigos para '
+              'restablecer la contraseña y aplicar el plan que contrates. Base: la ejecución del contrato (art. 6.1.b '
+              'del RGPD).',
           'Proteger el servicio y evitar abusos, por ejemplo limitando los intentos por dirección IP. Base: nuestro '
               'interés legítimo (art. 6.1.f).',
           'Cumplir obligaciones legales. Base: la obligación legal (art. 6.1.c).',
@@ -251,6 +302,9 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
           'Emails de la app (códigos para restablecer la contraseña y confirmación del borrado de la cuenta): Brevo, '
               'en la Unión Europea.',
           'Correo de soporte ($_contactEmail): Zoho Mail, en su centro de datos de la Unión Europea.',
+          'Pagos de las suscripciones: Google Play (Google Ireland Limited). Google trata los datos del pago como '
+              'responsable, según su propia política de privacidad. Con cada compra le enviamos un identificador '
+              'seudónimo de tu cuenta (nunca tu email) para comprobar que la compra es tuya.',
         ]),
         LegalParagraph('Backblaze es una empresa de Estados Unidos y Zoho, de la India. Cuando acceden a datos desde '
             'fuera de la Unión Europea, la transferencia se ampara en el Marco de Privacidad de Datos UE-EE. UU. o en '
@@ -261,6 +315,8 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
           'Mientras tengas la cuenta.',
           'Los archivos de la papelera se borran a los 30 días.',
           'Los tokens de sesión caducan a los 30 días.',
+          'Los datos de tus suscripciones, mientras tengas la cuenta. Google Play conserva sus propios registros de '
+              'los pagos.',
           'Si eliminas la cuenta desde la app, tus datos se borran al momento; si lo pides por email, en un plazo '
               'máximo de 30 días.',
           'Las copias de seguridad cifradas conservan los datos borrados hasta 5 semanas. Como también se borran tus '

@@ -4084,6 +4084,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It will not renew and you will not be charged again'**
   String get deleteAccountSubscriptionDetail;
+
+  /// No description provided for @planPurchaseTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'When you subscribe, the plan starts at once at your request, so you give up the right of withdrawal. It renews automatically until you cancel it in Google Play; once cancelled you keep it until the end of the paid period and it is not refunded.'**
+  String get planPurchaseTerms;
+
+  /// No description provided for @planPurchaseTermsLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get planPurchaseTermsLink;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

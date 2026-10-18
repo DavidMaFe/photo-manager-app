@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/config/app_config.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
+import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_card.dart';
 import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
+import 'package:photo_manager_app/features/legal/domain/entities/legal_document.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/plan_tier.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/store_offer.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
@@ -88,6 +91,7 @@ class _PlansPageState extends State<PlansPage> {
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
               child: Text(note, textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: p.ink2)),
             ),
+          if (PlanOffer.catalog.any((offer) => _buyable(offer.tier, plan, billing).isNotEmpty)) const _PurchaseTerms(),
         ],
       ),
     );
@@ -115,6 +119,31 @@ class _PlansPageState extends State<PlansPage> {
     };
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
     context.read<BillingCubit>().noticeShown();
+  }
+}
+
+/// What buying means, under the buy buttons: the plan starts at once (so the user asks to start it within the
+/// withdrawal period), renews until cancelled in Google Play and is kept until the end of the paid period.
+class _PurchaseTerms extends StatelessWidget {
+  const _PurchaseTerms();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final p = context.palette;
+    return Padding(
+      key: const ValueKey('plans-purchase-terms'),
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+      child: Column(
+        children: [
+          Text(l10n.planPurchaseTerms, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: p.ink2)),
+          TextButton(
+            onPressed: () => context.push(RoutePaths.legalDocumentOf(LegalDocumentType.terms.slug)),
+            child: Text(l10n.planPurchaseTermsLink),
+          ),
+        ],
+      ),
+    );
   }
 }
 

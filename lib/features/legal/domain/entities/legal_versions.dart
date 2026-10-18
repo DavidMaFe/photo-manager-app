@@ -3,8 +3,8 @@
 class LegalVersions {
   const LegalVersions._();
 
-  static const String terms = '1.2';
-  static const String privacy = '1.2';
+  static const String terms = '1.3';
+  static const String privacy = '1.3';
 
   /// Date the current versions came into force.
   static final DateTime effectiveDate = DateTime(2026, 10, 18);

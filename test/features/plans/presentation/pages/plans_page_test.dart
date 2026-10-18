@@ -197,6 +197,22 @@ void main() {
           'https://play.google.com/store/account/subscriptions?sku=plus_100&package=com.photomanagerpro.app');
     });
 
+    testWidgets('should explain what buying means under the buy buttons', (tester) async {
+      AppConfig.billingEnabled = true;
+      await pump(tester, PlanState(plan: buyer(TestPlans.free)), billing: withOffers);
+
+      expect(find.byKey(const ValueKey('plans-purchase-terms')), findsOneWidget);
+      expect(find.textContaining('the plan starts at once'), findsOneWidget);
+      expect(find.text('Terms of use'), findsOneWidget);
+    });
+
+    testWidgets('should not explain buying when nothing can be bought', (tester) async {
+      AppConfig.billingEnabled = true;
+      await pump(tester, const PlanState(plan: TestPlans.free), billing: withOffers);
+
+      expect(find.byKey(const ValueKey('plans-purchase-terms')), findsNothing);
+    });
+
     testWidgets('should not link to Google Play without a subscription', (tester) async {
       AppConfig.billingEnabled = true;
       await pump(tester, PlanState(plan: buyer(TestPlans.free)), billing: withOffers);

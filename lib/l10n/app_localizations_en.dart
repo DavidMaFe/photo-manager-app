@@ -2572,4 +2572,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAccountSubscriptionDetail => 'It will not renew and you will not be charged again';
+
+  @override
+  String get planPurchaseTerms => 'When you subscribe, the plan starts at once at your request, so you give up the right of withdrawal. It renews automatically until you cancel it in Google Play; once cancelled you keep it until the end of the paid period and it is not refunded.';
+
+  @override
+  String get planPurchaseTermsLink => 'Terms of use';
 }
