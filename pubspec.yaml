@@ -172,8 +172,9 @@ flutter_native_splash:
   android: true
   ios: true
   web: false
+  # Android 12+ masks the icon to a circle (2/3 of the side): the logo must fit inside it
   android_12:
     color: "#F7F7F9"
-    image: "assets/branding/splash_logo.png"
+    image: "assets/branding/android12_splash_logo.png"
     color_dark: "#0E0E12"
-    image_dark: "assets/branding/splash_logo_dark.png"
+    image_dark: "assets/branding/android12_splash_logo_dark.png"
