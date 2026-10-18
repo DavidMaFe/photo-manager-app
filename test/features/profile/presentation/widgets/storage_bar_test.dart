@@ -102,6 +102,16 @@ void main() {
         expect(widths, [120, 60, 30]);
       });
 
+      testWidgets('should fill the whole height of the bar with each type', (tester) async {
+        // Arrange & Act
+        await pumpSized(tester, withStorage(storage));
+
+        // Assert: visible, as high as the bar (10 px)
+        for (final part in segments(tester)) {
+          expect(tester.getSize(find.byWidget(part)).height, 10);
+        }
+      });
+
       testWidgets('should show the legend with the size of each type', (tester) async {
         // Arrange & Act
         await pumpSized(tester, withStorage(storage));

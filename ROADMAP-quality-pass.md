@@ -160,8 +160,9 @@ Status: ✅ Completed
 
 ## Phase 8: Versión y prueba final
 - [x] **Bug detectado por el usuario:** aparecía una y otra vez «1 guardado en el móvil» sin haber descargado nada. Causa: la cola de descargas se guarda en el teléfono y una descarga terminada se queda en ella; que la tarjeta se había cerrado solo se recordaba en memoria, así que cada arranque de la app la volvía a anunciar. Ahora `DownloadProgressBloc` solo anuncia el final de una descarga que esta ejecución de la app vio en marcha, empezó o canceló; las que ya habían terminado al abrirla no se muestran (de ellas ya avisa la notificación). Tests: no se anuncia al abrir (falla sin el arreglo), se anuncia la vista en marcha y la recién empezada.
+- [x] **Bug detectado por el usuario:** la barra de espacio del perfil estaba siempre vacía. El servidor manda bien el uso (1,5 GB de 10 GB); en `StorageBar` cada tramo (fotos, vídeos, papelera) tenía el ancho correcto pero 0 px de alto dentro de su fila. Ahora ocupan todo el alto de la barra (`CrossAxisAlignment.stretch`). Test del alto (falla sin el arreglo).
 - [x] Subir la versión a 1.2.1 (`1.2.1+4`).
-- [x] Tests completos y analizador sin avisos (3130 tests).
+- [x] Tests completos y analizador sin avisos (3131 tests).
 - [ ] Commit, PR y, tras la aprobación, APK release con `--dart-define-from-file=config/prod.json` en el S23 (y el APK para el Realme).
 - [ ] Prueba completa en el S23 contra producción de todos los cambios.
 - [ ] Borrar este roadmap.
