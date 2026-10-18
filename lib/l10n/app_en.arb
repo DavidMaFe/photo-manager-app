@@ -573,7 +573,6 @@
   "alertSuccessBody": "A notice with what was saved",
   "alertFailure": "If something fails",
   "alertFailureBody": "So you can retry it",
-  "sectionDiagnostics": "Diagnostics",
 
   "manageQuestion": "{count, plural, =1{What should we do with this photo?} other{What should we do with these {count} photos?}}",
   "@manageQuestion": {
@@ -1045,5 +1044,30 @@
   "deleteAccountFinalNote": "You will be signed out on every device and everything will be deleted right away. This cannot be undone.",
   "deleteAccountSubmit": "Delete my account",
   "deleteAccountWrongPassword": "The password is not correct",
-  "deleteAccountDone": "Your account has been deleted"
+  "deleteAccountDone": "Your account has been deleted",
+
+  "notificationChannelFinishedName": "Finished",
+  "notificationChannelFinishedDescription": "When a backup or a download to this phone finishes",
+  "notificationChannelFailureName": "Backup problems",
+  "notificationChannelFailureDescription": "When a backup could not be completed",
+  "notificationChannelProgressName": "In progress",
+  "notificationChannelProgressDescription": "Progress of a backup or a download running in the background",
+  "notificationBackupRunningTitle": "Backing up your photos",
+  "notificationBackupPreparing": "Preparing the backup…",
+  "notificationBackupProgress": "{current} of {total} files uploaded",
+  "@notificationBackupProgress": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "notificationBackupDoneTitle": "Backup completed",
+  "notificationBackupDoneBody": "{count, plural, =0{Everything was already backed up} =1{1 file uploaded} other{{count} files uploaded}}",
+  "@notificationBackupDoneBody": {"placeholders": {"count": {"type": "int"}}},
+  "notificationBackupFailedTitle": "The backup could not be completed",
+  "notificationBackupFailedBody": "It will be tried again later. Open the app to see what happened.",
+  "notificationBackupSessionExpired": "Your session has expired. Log in again to keep backing up your photos.",
+  "notificationDownloadRunningTitle": "Saving to this phone",
+  "notificationDownloadProgress": "{saved} of {total} files",
+  "@notificationDownloadProgress": {"placeholders": {"saved": {"type": "int"}, "total": {"type": "int"}}},
+  "notificationDownloadDoneTitle": "Download completed",
+  "notificationDownloadDoneBody": "{count, plural, =1{1 file saved to this phone} other{{count} files saved to this phone}}",
+  "@notificationDownloadDoneBody": {"placeholders": {"count": {"type": "int"}}},
+  "notificationDownloadFailedSuffix": "{count, plural, =1{1 could not be saved} other{{count} could not be saved}}",
+  "@notificationDownloadFailedSuffix": {"placeholders": {"count": {"type": "int"}}}
 }

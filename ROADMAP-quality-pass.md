@@ -58,16 +58,19 @@ Resultado: grabaciones del arranque en frío en el S23, fotograma a fotograma: s
 Status: ✅ Completed
 
 ## Phase 2: Idioma del móvil y notificaciones traducidas
-- [ ] Un único resolvedor de idioma (es si el móvil está en español, en en cualquier otro caso), usado por `MaterialApp` y por las notificaciones. Se quita el `locale` fijo.
-- [ ] `SyncNotificationService` obtiene sus textos de `AppLocalizations` (`lookupAppLocalizations`) con el idioma del móvil, también desde el isolate de WorkManager.
-- [ ] Claves nuevas en `app_es.arb` y `app_en.arb` para los títulos, cuerpos (con plurales) y nombres y descripciones de los canales de notificación.
-- [ ] Revisar que no queden otros textos visibles escritos a mano en inglés o español fuera de los ARB.
-- [ ] Tests del resolvedor y de los textos de las notificaciones en los dos idiomas.
-- [ ] Comprobar en el S23 con el móvil en español y en inglés: sincronización, descarga y error.
+- [x] Un único resolvedor de idioma, `AppLocale` (`lib/core/utils/app_locale.dart`): el primer idioma del móvil que tiene la app (es o en), inglés si no hay ninguno. Lo usan `MaterialApp` (`localeListResolutionCallback`), el `Accept-Language` de las peticiones y las notificaciones. Se quita el `locale` fijo.
+- [x] `SyncNotificationService` toma sus textos de `AppLocalizations` en el idioma del móvil (`AppLocale.strings`, inyectable para los tests), también desde el isolate de WorkManager. Los canales se vuelven a crear con el nombre traducido en cada inicio.
+- [x] Claves `notification*` en `app_es.arb` y `app_en.arb`: títulos, cuerpos con plurales, y nombres y descripciones de los canales («copia», como en el resto de la app).
+- [x] La notificación de fallo ya no muestra el error técnico (`e.toString()`): dice que se reintentará, o que hay que volver a entrar si la sesión caducó. El detalle sigue en el log.
+- [x] Revisar otros textos escritos a mano: solo estaba el panel de diagnóstico de la sincronización, que **se elimina** (decisión del usuario: las sincronizaciones ya funcionan bien). `SyncLogService` queda como traza en logcat y deja de guardar en el teléfono; `clear()` borra lo que guardaban las versiones anteriores.
+- [x] Tests: `AppLocale` (7) y los textos de las notificaciones en los dos idiomas (7).
+- [x] Comprobar en el S23 con la app en inglés y en español (`cmd locale set-app-locales`, sin tocar el idioma del teléfono): la interfaz, la notificación «Download completed» / «Descarga completada» y los nombres de los canales («Finished», «In progress», «Backup problems» / «Terminadas», «En curso», «Problemas con la copia»).
 
 **Criterio de aceptación:** la app y las notificaciones salen en el idioma del móvil.
 
-Status: 🚧 In Progress
+Resultado: 3059 tests y analizador sin avisos. En el S23 se descargó una foto en cada idioma y se borró después; la app vuelve al idioma del sistema.
+
+Status: ✅ Completed
 
 ## Phase 3: La selección termina al aplicar una acción
 - [ ] Inventario de todas las acciones sobre una selección: galería, álbum, papelera, favoritas y portadas.
@@ -79,7 +82,7 @@ Status: 🚧 In Progress
 
 **Criterio de aceptación:** toda acción aplicada termina la selección; cancelar o fallar la mantiene, en todas las pantallas.
 
-Status: ⏳ Pending
+Status: 🚧 In Progress
 
 ## Phase 4: Visor: barra de acciones integrada y borde del carrusel
 - [ ] Carrusel: el borde de la miniatura actual se dibuja por encima (`foregroundDecoration`) y la imagen se recorta con el radio interior, para que el borde sea un rectángulo redondeado continuo.

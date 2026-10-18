@@ -31,6 +31,7 @@ import 'package:workmanager/workmanager.dart';
 import 'config/app_config.dart';
 import 'config/theme/app_theme.dart';
 import 'core/injection_container.dart' as di;
+import 'core/utils/app_locale.dart';
 
 
 void main() async {
@@ -196,24 +197,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             GlobalCupertinoLocalizations.delegate
           ],
 
-          supportedLocales: const [
-            Locale('es', ''),
-            Locale('en', ''),
-          ],
-
-          locale: const Locale('es'),
-
-          localeResolutionCallback: (locale, supportedLocales) {
-            if (locale != null) {
-              for (var supportedLocale in supportedLocales) {
-                if (supportedLocale.languageCode == locale.languageCode) {
-                  return supportedLocale;
-                }
-              }
-            }
-
-            return const Locale('es');
-          },
+          // The language of the device when the app has it, English otherwise (AppLocale)
+          supportedLocales: AppLocale.supported,
+          localeListResolutionCallback: (locales, _) => AppLocale.resolve(locales),
         ),
       )
     );

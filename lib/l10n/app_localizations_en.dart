@@ -1146,9 +1146,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alertFailureBody => 'So you can retry it';
 
   @override
-  String get sectionDiagnostics => 'Diagnostics';
-
-  @override
   String manageQuestion(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -2276,4 +2273,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAccountDone => 'Your account has been deleted';
+
+  @override
+  String get notificationChannelFinishedName => 'Finished';
+
+  @override
+  String get notificationChannelFinishedDescription => 'When a backup or a download to this phone finishes';
+
+  @override
+  String get notificationChannelFailureName => 'Backup problems';
+
+  @override
+  String get notificationChannelFailureDescription => 'When a backup could not be completed';
+
+  @override
+  String get notificationChannelProgressName => 'In progress';
+
+  @override
+  String get notificationChannelProgressDescription => 'Progress of a backup or a download running in the background';
+
+  @override
+  String get notificationBackupRunningTitle => 'Backing up your photos';
+
+  @override
+  String get notificationBackupPreparing => 'Preparing the backup…';
+
+  @override
+  String notificationBackupProgress(int current, int total) {
+    return '$current of $total files uploaded';
+  }
+
+  @override
+  String get notificationBackupDoneTitle => 'Backup completed';
+
+  @override
+  String notificationBackupDoneBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files uploaded',
+      one: '1 file uploaded',
+      zero: 'Everything was already backed up',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationBackupFailedTitle => 'The backup could not be completed';
+
+  @override
+  String get notificationBackupFailedBody => 'It will be tried again later. Open the app to see what happened.';
+
+  @override
+  String get notificationBackupSessionExpired => 'Your session has expired. Log in again to keep backing up your photos.';
+
+  @override
+  String get notificationDownloadRunningTitle => 'Saving to this phone';
+
+  @override
+  String notificationDownloadProgress(int saved, int total) {
+    return '$saved of $total files';
+  }
+
+  @override
+  String get notificationDownloadDoneTitle => 'Download completed';
+
+  @override
+  String notificationDownloadDoneBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files saved to this phone',
+      one: '1 file saved to this phone',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notificationDownloadFailedSuffix(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count could not be saved',
+      one: '1 could not be saved',
+    );
+    return '$_temp0';
+  }
 }

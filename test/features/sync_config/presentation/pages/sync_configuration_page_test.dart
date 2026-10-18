@@ -34,7 +34,7 @@ void main() {
     when(() => bloc.stream).thenAnswer((_) => Stream.fromIterable(states));
     await tester.pumpWidget(makeTestableWidgetWithBloc<SyncConfigBloc>(
       bloc: bloc,
-      child: const SyncConfigurationView(showDiagnostics: false),
+      child: const SyncConfigurationView(),
     ));
     await tester.pump();
   }

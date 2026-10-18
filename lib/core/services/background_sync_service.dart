@@ -174,7 +174,7 @@ class BackgroundSyncService {
 
           if (syncConfig.notifyOnFailure) {
             await notificationService.showSyncFailureNotification(
-              errorMessage: result.errorMessage ?? 'Error desconocido',
+              sessionExpired: result.isAuthFailure,
             );
           }
         }

@@ -22,7 +22,6 @@ import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/network_preference_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/notification_preferences_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/save_button_widget.dart';
-import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/sync_diagnostics_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/time_picker_widget.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
@@ -41,10 +40,7 @@ class SyncConfigurationPage extends StatelessWidget {
 /// Backup settings content; expects a [SyncConfigBloc] above it.
 class SyncConfigurationView extends StatefulWidget {
 
-  /// Hidden in tests: it reads the device battery and background task status.
-  final bool showDiagnostics;
-
-  const SyncConfigurationView({super.key, this.showDiagnostics = true});
+  const SyncConfigurationView({super.key});
 
   @override
   State<SyncConfigurationView> createState() => _SyncConfigurationViewState();
@@ -176,13 +172,6 @@ class _SyncConfigurationViewState extends State<SyncConfigurationView> {
             ),
           ),
         ),
-        if (widget.showDiagnostics) ...[
-          SectionLabel(l10n.sectionDiagnostics),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: SyncDiagnosticsWidget(),
-          ),
-        ],
       ],
     );
   }

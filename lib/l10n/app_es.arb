@@ -573,7 +573,6 @@
   "alertSuccessBody": "Un aviso con lo que se guardó",
   "alertFailure": "Si algo falla",
   "alertFailureBody": "Para que puedas reintentarlo",
-  "sectionDiagnostics": "Diagnóstico",
 
   "manageQuestion": "{count, plural, =1{¿Qué hacemos con esta foto?} other{¿Qué hacemos con estas {count} fotos?}}",
   "@manageQuestion": {
@@ -915,5 +914,25 @@
   "deleteAccountFinalNote": "Se cerrará tu sesión en todos los dispositivos y todo se borrará al momento. No se puede deshacer.",
   "deleteAccountSubmit": "Eliminar mi cuenta",
   "deleteAccountWrongPassword": "La contraseña no es correcta",
-  "deleteAccountDone": "Tu cuenta se ha eliminado"
+  "deleteAccountDone": "Tu cuenta se ha eliminado",
+
+  "notificationChannelFinishedName": "Terminadas",
+  "notificationChannelFinishedDescription": "Cuando termina una copia o una descarga a este teléfono",
+  "notificationChannelFailureName": "Problemas con la copia",
+  "notificationChannelFailureDescription": "Cuando una copia no se ha podido completar",
+  "notificationChannelProgressName": "En curso",
+  "notificationChannelProgressDescription": "Progreso de una copia o una descarga en segundo plano",
+  "notificationBackupRunningTitle": "Haciendo la copia de tus fotos",
+  "notificationBackupPreparing": "Preparando la copia…",
+  "notificationBackupProgress": "{current} de {total} archivos subidos",
+  "notificationBackupDoneTitle": "Copia completada",
+  "notificationBackupDoneBody": "{count, plural, =0{Ya estaba todo copiado} =1{1 archivo subido} other{{count} archivos subidos}}",
+  "notificationBackupFailedTitle": "No se ha podido completar la copia",
+  "notificationBackupFailedBody": "Se volverá a intentar más tarde. Abre la app para ver qué ha pasado.",
+  "notificationBackupSessionExpired": "Tu sesión ha caducado. Vuelve a entrar para seguir copiando tus fotos.",
+  "notificationDownloadRunningTitle": "Guardando en este teléfono",
+  "notificationDownloadProgress": "{saved} de {total} archivos",
+  "notificationDownloadDoneTitle": "Descarga completada",
+  "notificationDownloadDoneBody": "{count, plural, =1{1 archivo guardado en este teléfono} other{{count} archivos guardados en este teléfono}}",
+  "notificationDownloadFailedSuffix": "{count, plural, =1{1 no se ha podido guardar} other{{count} no se han podido guardar}}"
 }

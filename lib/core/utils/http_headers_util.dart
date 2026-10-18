@@ -1,6 +1,5 @@
-import 'dart:ui';
-
 import 'package:photo_manager_app/core/services/timezone_service.dart';
+import 'package:photo_manager_app/core/utils/app_locale.dart';
 
 /// Utility class for generating HTTP headers with proper localization support
 class HttpHeadersUtil {
@@ -88,9 +87,9 @@ class HttpHeadersUtil {
 
   /// Language and time zone of the device, shared by every request.
   static Map<String, String> _localeHeaders() {
-    final languageCode = PlatformDispatcher.instance.locale.languageCode; // e.g., 'es', 'en'
     return {
-      'Accept-Language': languageCode,
+      // The language the app is shown in, so the server answers (errors, emails) in the same one
+      'Accept-Language': AppLocale.current().languageCode,
       timezoneHeader: TimezoneService.current,
     };
   }
