@@ -90,6 +90,16 @@ void main() {
       verify(() => providers.billing.loadOffers()).called(1);
     });
 
+    testWidgets('should read the plan and the prices of the store again when pulled down', (tester) async {
+      AppConfig.billingEnabled = true;
+      final providers = await pump(tester, PlanState(plan: buyer(TestPlans.free)), billing: withOffers);
+
+      await tester.widget<RefreshIndicator>(find.byType(RefreshIndicator)).onRefresh();
+
+      verify(() => providers.plan.load()).called(1);
+      verify(() => providers.billing.loadOffers()).called(2);
+    });
+
     testWidgets('should not read the store while buying is off', (tester) async {
       final providers = await pump(tester, PlanState(plan: buyer(TestPlans.free)), billing: withOffers);
 

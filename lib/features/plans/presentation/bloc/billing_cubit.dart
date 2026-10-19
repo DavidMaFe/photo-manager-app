@@ -107,15 +107,17 @@ class BillingCubit extends Cubit<BillingState> {
     }
   }
 
+  /// Read again each time the plans page opens: the prices and the plans of the store can change during a session.
+  /// The plans already read are shown meanwhile, and kept if the store fails.
   Future<void> loadOffers() async {
-    if (state.offers.isNotEmpty || state.loadingOffers) return;
+    if (state.loadingOffers) return;
     emit(state.copyWith(loadingOffers: true, storeUnavailable: false));
     try {
       final offers = await _loadOffers();
       emit(state.copyWith(offers: offers, loadingOffers: false, storeUnavailable: offers.isEmpty));
     } catch (e) {
       developer.log('Reading the plans of the store failed: $e', name: 'Billing');
-      emit(state.copyWith(loadingOffers: false, storeUnavailable: true));
+      emit(state.copyWith(loadingOffers: false, storeUnavailable: state.offers.isEmpty));
     }
   }
 

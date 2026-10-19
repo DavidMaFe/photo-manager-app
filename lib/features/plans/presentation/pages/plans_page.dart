@@ -67,8 +67,13 @@ class _PlansPageState extends State<PlansPage> {
             ? l10n.planStoreUnavailable
             : null;
     return RefreshIndicator(
-      onRefresh: () => context.read<PlanCubit>().load(),
+      onRefresh: () => Future.wait([
+        context.read<PlanCubit>().load(),
+        if (AppConfig.billingEnabled) context.read<BillingCubit>().loadOffers(),
+      ]),
       child: ListView(
+        // Pulled down to refresh even when the plans fit on the screen
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(top: 8, bottom: 24),
         children: [
           Padding(

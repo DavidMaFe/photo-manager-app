@@ -89,9 +89,33 @@ void main() {
     );
 
     blocTest<BillingCubit, BillingState>(
-      'should not read the store again once it has the plans',
+      'should read the store again when it already has the plans, showing the old ones meanwhile',
+      setUp: () => when(() => loadOffers()).thenAnswer((_) async => [TestOffers.plus100Monthly]),
       build: build,
       seed: () => const BillingState(offers: TestOffers.all),
+      act: (cubit) => cubit.loadOffers(),
+      expect: () => [
+        const BillingState(offers: TestOffers.all, loadingOffers: true),
+        const BillingState(offers: [TestOffers.plus100Monthly]),
+      ],
+    );
+
+    blocTest<BillingCubit, BillingState>(
+      'should keep the plans already read when the store fails',
+      setUp: () => when(() => loadOffers()).thenThrow(Exception('no store')),
+      build: build,
+      seed: () => const BillingState(offers: TestOffers.all),
+      act: (cubit) => cubit.loadOffers(),
+      expect: () => [
+        const BillingState(offers: TestOffers.all, loadingOffers: true),
+        const BillingState(offers: TestOffers.all),
+      ],
+    );
+
+    blocTest<BillingCubit, BillingState>(
+      'should not read the store twice at the same time',
+      build: build,
+      seed: () => const BillingState(loadingOffers: true),
       act: (cubit) => cubit.loadOffers(),
       expect: () => const <BillingState>[],
       verify: (_) => verifyNever(() => loadOffers()),
