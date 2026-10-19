@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.2.2+5
+version: 1.2.2+6
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -71,8 +71,8 @@ dependencies:
   share_plus: ^12.0.2
   # Subscriptions with Google Play Billing (ROADMAP-subscriptions.md in the backend). Exact versions: the next ones
   # need Flutter 3.41/3.44
-  in_app_purchase: 3.2.4
-  in_app_purchase_android: 0.4.0+11
+  in_app_purchase: 3.3.1
+  in_app_purchase_android: 0.5.0
   url_launcher: 6.3.2
   # Lossless JPEG <-> JPEG XL (ROADMAP-media-compression.md, Phase 3)
   jpeg_xl_codec:
