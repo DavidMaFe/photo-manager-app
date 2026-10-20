@@ -69,7 +69,7 @@ dependencies:
   local_auth: ^3.0.2
   pdf: ^3.12.0
   share_plus: ^12.0.2
-  # Subscriptions with Google Play Billing (ROADMAP-subscriptions.md in the backend). Exact versions: the next ones
+  # Subscriptions with Google Play Billing (CLAUDE.md of the backend). Exact versions: the next ones
   # need Flutter 3.41/3.44
   in_app_purchase: 3.3.1
   in_app_purchase_android: 0.5.0
