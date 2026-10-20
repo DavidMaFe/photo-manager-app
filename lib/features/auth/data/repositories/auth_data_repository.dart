@@ -86,6 +86,7 @@ class AuthDataRepository implements AuthRepository {
     required NewKeyMaterial key,
     required String acceptedTermsVersion,
     required String acceptedPrivacyVersion,
+    required String emailCode,
   }) async {
     final deviceUuid = await syncDeviceLocalDataSource.getDeviceUuid();
     final authResponse = await remoteDataSource.register(
@@ -98,12 +99,20 @@ class AuthDataRepository implements AuthRepository {
       key: key,
       acceptedTermsVersion: acceptedTermsVersion,
       acceptedPrivacyVersion: acceptedPrivacyVersion,
+      emailCode: emailCode,
     );
 
     await _cacheSession(authResponse);
     return LoginResult(user: authResponse.user, keys: authResponse.keys!,
         legalAcceptanceRequired: authResponse.legalAcceptanceRequired);
   }
+
+  @override
+  Future<void> requestRegistrationCode(String email) => remoteDataSource.requestRegistrationCode(email);
+
+  @override
+  Future<void> verifyRegistrationCode(String email, String code) =>
+      remoteDataSource.verifyRegistrationCode(email, code);
 
   @override
   Future<User?> getCurrentUser() async {

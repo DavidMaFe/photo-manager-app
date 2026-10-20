@@ -2566,4 +2566,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get planPurchaseTermsLink => 'Términos de uso';
+
+  @override
+  String get registerEmailBody => 'Primero verificamos tu email: te enviaremos un código de 6 dígitos.';
+
+  @override
+  String get registerEmailTaken => 'Este email ya tiene una cuenta.';
+
+  @override
+  String get registerChangeEmail => 'Cambiar email';
 }

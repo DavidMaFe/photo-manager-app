@@ -12,7 +12,8 @@ import 'package:photo_manager_app/features/legal/domain/entities/legal_versions.
 /// Registration (docs/e2ee-spec.md, section 8.1): the device generates the master key, the recovery key and the
 /// identity key pair; the server only receives them wrapped. Returns the 24 words to show to the user.
 ///
-/// The user must accept the terms of use and the privacy policy: the versions bundled in the app are sent.
+/// The user must accept the terms of use and the privacy policy: the versions bundled in the app are sent. The email
+/// must have been verified first: [emailCode] is the code emailed to it.
 class RegisterUseCase {
 
   final AuthRepository _repository;
@@ -28,6 +29,7 @@ class RegisterUseCase {
     String? surname,
     required RecoveryPhraseLanguage language,
     required bool acceptedLegalTerms,
+    required String emailCode,
   }) async {
 
     if (!acceptedLegalTerms) {
@@ -35,6 +37,7 @@ class RegisterUseCase {
     }
     AuthInputValidator.requireEmail(email);
     AuthInputValidator.requireStrongPassword(password);
+    AuthInputValidator.requireEmailCode(emailCode);
 
     if (name.trim().isEmpty) {
       throw Exception('Name is required');
@@ -57,6 +60,7 @@ class RegisterUseCase {
           key: material,
           acceptedTermsVersion: LegalVersions.terms,
           acceptedPrivacyVersion: LegalVersions.privacy,
+          emailCode: emailCode.trim(),
       );
 
       final version = result.keys.versions.single.version;

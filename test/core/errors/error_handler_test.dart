@@ -57,6 +57,24 @@ void main() {
       });
     });
 
+    group('registration codes', () {
+      test('should map a wrong emailed code to a ValidationFailure with the server message', () {
+        final failure = ErrorHandler.handleError(apiError(FailureCodes.invalidEmailCode));
+
+        expect(failure, isA<ValidationFailure>());
+        expect(failure.code, FailureCodes.invalidEmailCode);
+        expect(failure.errorResponse?.message, 'Mensaje del servidor');
+      });
+
+      test('should map too many emailed codes to a PermissionDeniedFailure', () {
+        expect(ErrorHandler.handleError(apiError(FailureCodes.tooManyEmailCodes)), isA<PermissionDeniedFailure>());
+      });
+
+      test('should map an email with an account to an EmailAlreadyExistsFailure', () {
+        expect(ErrorHandler.handleError(apiError(FailureCodes.emailAlreadyUsed)), isA<EmailAlreadyExistsFailure>());
+      });
+    });
+
     test('should return a Failure thrown by a use case as it is', () {
       // Arrange
       const failure = ValidationFailure(code: FailureCodes.folderCoversLimitExceeded);

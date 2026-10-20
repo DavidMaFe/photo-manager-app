@@ -129,7 +129,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final result = await registerUseCase(email: event.email, password: event.password,
           name: event.name, surname: event.surname, language: event.language,
-          acceptedLegalTerms: event.acceptedLegalTerms);
+          acceptedLegalTerms: event.acceptedLegalTerms, emailCode: event.emailCode);
       await _waitForLoading(stopwatch);
       emit(RecoveryPhraseRequired(result.user, result.recoveryWords));
 

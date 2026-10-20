@@ -27,6 +27,9 @@ class RegisterRequested extends AuthEvent {
   /// The user ticked the acceptance of the terms of use and the privacy policy.
   final bool acceptedLegalTerms;
 
+  /// The code emailed to verify [email] (first steps of the registration).
+  final String emailCode;
+
   RegisterRequested({
     required this.email,
     required this.password,
@@ -34,6 +37,7 @@ class RegisterRequested extends AuthEvent {
     this.surname,
     required this.language,
     required this.acceptedLegalTerms,
+    required this.emailCode,
   });
 }
 

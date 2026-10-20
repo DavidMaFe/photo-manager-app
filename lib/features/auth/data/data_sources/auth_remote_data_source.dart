@@ -32,7 +32,10 @@ abstract class AuthRemoteDataSource {
     required NewKeyMaterial key,
     required String acceptedTermsVersion,
     required String acceptedPrivacyVersion,
+    required String emailCode,
   });
+  Future<void> requestRegistrationCode(String email);
+  Future<void> verifyRegistrationCode(String email, String code);
   Future<RefreshTokenResponseModel> refreshToken(String refreshToken, String deviceUuid);
   Future<void> requestPasswordReset(String email);
   Future<void> validateResetCode(String email, String code);
@@ -120,6 +123,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required NewKeyMaterial key,
     required String acceptedTermsVersion,
     required String acceptedPrivacyVersion,
+    required String emailCode,
   }) async {
     final json = await _post('/api/register/', {
       'email': email,
@@ -132,8 +136,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'key': KeyRequestModel.newKey(key),
       'acceptedTermsVersion': acceptedTermsVersion,
       'acceptedPrivacyVersion': acceptedPrivacyVersion,
+      'emailCode': emailCode,
     });
     return AuthResponseModel.fromJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> requestRegistrationCode(String email) async {
+    await _post('/api/register/email-code/', {'email': email});
+  }
+
+  @override
+  Future<void> verifyRegistrationCode(String email, String code) async {
+    await _post('/api/register/email-code/verify/', {'email': email, 'code': code});
   }
 
   @override

@@ -28,4 +28,11 @@ class AuthInputValidator {
       throw const WeakPasswordFailure();
     }
   }
+
+  /// The 6-digit codes sent by email.
+  static void requireEmailCode(String code) {
+    if (!RegExp(r'^\d{6}$').hasMatch(code.trim())) {
+      throw Exception('Code must be 6 digits');
+    }
+  }
 }

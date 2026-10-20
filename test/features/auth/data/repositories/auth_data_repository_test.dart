@@ -145,19 +145,33 @@ void main() {
               key: any(named: 'key'),
               acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
               acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+              emailCode: any(named: 'emailCode'),
             )).thenAnswer((_) async => authResponse);
 
         // Act
         final result = await repository.register(email: email, authKey: E2eeTestData.key(7), name: 'John',
             surname: 'Doe', kdfParams: params, key: material, acceptedTermsVersion: '1.0',
-            acceptedPrivacyVersion: '1.0');
+            acceptedPrivacyVersion: '1.0', emailCode: '482913');
 
         // Assert
         verify(() => remote.register(email: email, authKey: base64Encode(E2eeTestData.key(7).bytes), name: 'John',
             surname: 'Doe', deviceUuid: deviceUuid, kdfParams: params, key: material, acceptedTermsVersion: '1.0',
-            acceptedPrivacyVersion: '1.0')).called(1);
+            acceptedPrivacyVersion: '1.0', emailCode: '482913')).called(1);
         verify(() => local.cacheToken('access')).called(1);
         expect(result.keys.versions.single.version, 1);
+      });
+    });
+
+    group('registration code', () {
+      test('should request the code and verify it through the remote data source', () async {
+        when(() => remote.requestRegistrationCode(any())).thenAnswer((_) async {});
+        when(() => remote.verifyRegistrationCode(any(), any())).thenAnswer((_) async {});
+
+        await repository.requestRegistrationCode('new@example.com');
+        await repository.verifyRegistrationCode('new@example.com', '482913');
+
+        verify(() => remote.requestRegistrationCode('new@example.com')).called(1);
+        verify(() => remote.verifyRegistrationCode('new@example.com', '482913')).called(1);
       });
     });
 

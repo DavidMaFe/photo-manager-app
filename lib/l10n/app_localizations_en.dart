@@ -2578,4 +2578,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planPurchaseTermsLink => 'Terms of use';
+
+  @override
+  String get registerEmailBody => 'First we verify your email: we\'ll send you a 6-digit code.';
+
+  @override
+  String get registerEmailTaken => 'This email already has an account.';
+
+  @override
+  String get registerChangeEmail => 'Change email';
 }

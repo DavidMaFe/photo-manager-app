@@ -30,6 +30,7 @@ class _Received {
   String? surname;
   late String termsVersion;
   late String privacyVersion;
+  late String emailCode;
 }
 
 void main() {
@@ -63,6 +64,7 @@ void main() {
           key: any(named: 'key'),
           acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
           acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+          emailCode: any(named: 'emailCode'),
         )).thenAnswer((invocation) async {
       final args = invocation.namedArguments;
       received
@@ -72,7 +74,8 @@ void main() {
         ..name = args[#name] as String
         ..surname = args[#surname] as String?
         ..termsVersion = args[#acceptedTermsVersion] as String
-        ..privacyVersion = args[#acceptedPrivacyVersion] as String;
+        ..privacyVersion = args[#acceptedPrivacyVersion] as String
+        ..emailCode = args[#emailCode] as String;
       return LoginResult(user: user,
           keys: AccountKeys(accountLocked: false, versions: [E2eeTestKit.serverVersion(received.key)]));
     });
@@ -81,7 +84,7 @@ void main() {
   Future<void> register({String name = 'John', String? surname, String userEmail = email,
       RecoveryPhraseLanguage language = RecoveryPhraseLanguage.english}) {
     return useCase(email: userEmail, password: password, name: name, surname: surname, language: language,
-        acceptedLegalTerms: true);
+        acceptedLegalTerms: true, emailCode: '482913');
   }
 
   group('RegisterUseCase', () {
@@ -90,7 +93,7 @@ void main() {
     test('should return the 24 words of the recovery key that keep the account', () async {
       // Act
       final result = await useCase(email: email, password: password, name: 'John',
-          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true);
+          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true, emailCode: '482913');
 
       // Assert
       expect(result.user, user);
@@ -101,7 +104,7 @@ void main() {
 
     test('should give the words in Spanish when asked', () async {
       final result = await useCase(email: email, password: password, name: 'John',
-          language: RecoveryPhraseLanguage.spanish, acceptedLegalTerms: true);
+          language: RecoveryPhraseLanguage.spanish, acceptedLegalTerms: true, emailCode: '482913');
 
       final spanish = RecoveryPhraseLanguage.spanish.words.map(RecoveryPhrase.normalizeWord).toSet();
       expect(result.recoveryWords.map(RecoveryPhrase.normalizeWord).every(spanish.contains), isTrue);
@@ -148,7 +151,7 @@ void main() {
     test('should throw LegalTermsNotAcceptedFailure without calling the server when the terms are not accepted',
         () async {
       await expectLater(useCase(email: email, password: password, name: 'John',
-          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: false),
+          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: false, emailCode: '482913'),
           throwsA(isA<LegalTermsNotAcceptedFailure>()));
 
       expect(await kit.store.getVersions(), isEmpty);
@@ -161,7 +164,22 @@ void main() {
             key: any(named: 'key'),
             acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
             acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+            emailCode: any(named: 'emailCode'),
           ));
+    });
+
+    test('should send the code emailed to verify the email', () async {
+      await useCase(email: email, password: password, name: 'John', language: RecoveryPhraseLanguage.english,
+          acceptedLegalTerms: true, emailCode: ' 482913 ');
+
+      expect(received.emailCode, '482913');
+    });
+
+    test('should throw without calling the server when the email code is not 6 digits', () async {
+      await expectLater(useCase(email: email, password: password, name: 'John',
+          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true, emailCode: '12345'), throwsException);
+
+      expect(await kit.store.getVersions(), isEmpty);
     });
 
     test('should register with the trimmed email', () async {
@@ -176,6 +194,7 @@ void main() {
             key: any(named: 'key'),
             acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
             acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+            emailCode: any(named: 'emailCode'),
           )).called(1);
     });
 
@@ -191,6 +210,7 @@ void main() {
             key: any(named: 'key'),
             acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
             acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+            emailCode: any(named: 'emailCode'),
           )).thenThrow(Exception('Email already exists'));
 
       await expectLater(register(), throwsException);
@@ -201,7 +221,8 @@ void main() {
 
     test('should throw WeakPasswordFailure with fewer than 10 characters', () async {
       await expectLater(useCase(email: email, password: 'short', name: 'John',
-          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true), throwsA(isA<WeakPasswordFailure>()));
+          language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true, emailCode: '482913'),
+          throwsA(isA<WeakPasswordFailure>()));
     });
 
     for (final (description, badEmail, badName) in [
@@ -211,7 +232,7 @@ void main() {
     ]) {
       test('should throw without calling the server when $description', () async {
         await expectLater(useCase(email: badEmail, password: password, name: badName,
-            language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true), throwsException);
+            language: RecoveryPhraseLanguage.english, acceptedLegalTerms: true, emailCode: '482913'), throwsException);
 
         verifyNever(() => repository.register(
               email: any(named: 'email'),
@@ -222,6 +243,7 @@ void main() {
               key: any(named: 'key'),
               acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
               acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+              emailCode: any(named: 'emailCode'),
             ));
       });
     }

@@ -4096,6 +4096,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Terms of use'**
   String get planPurchaseTermsLink;
+
+  /// No description provided for @registerEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'First we verify your email: we\'ll send you a 6-digit code.'**
+  String get registerEmailBody;
+
+  /// No description provided for @registerEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This email already has an account.'**
+  String get registerEmailTaken;
+
+  /// No description provided for @registerChangeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Change email'**
+  String get registerChangeEmail;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

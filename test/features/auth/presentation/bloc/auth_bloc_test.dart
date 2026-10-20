@@ -288,6 +288,7 @@ void main() {
               surname: any(named: 'surname'),
               language: any(named: 'language'),
               acceptedLegalTerms: any(named: 'acceptedLegalTerms'),
+              emailCode: any(named: 'emailCode'),
             )).thenAnswer((_) async => RegistrationResult(user: testUser, recoveryWords: testWords));
       }
 
@@ -298,6 +299,7 @@ void main() {
             surname: surname,
             language: RecoveryPhraseLanguage.spanish,
             acceptedLegalTerms: true,
+            emailCode: '482913',
           );
 
       blocTest<AuthBloc, AuthState>(
@@ -332,6 +334,7 @@ void main() {
                 surname: null,
                 language: RecoveryPhraseLanguage.spanish,
                 acceptedLegalTerms: true,
+                emailCode: '482913',
               )).called(1);
         },
       );
@@ -360,6 +363,7 @@ void main() {
                 surname: any(named: 'surname'),
                 language: any(named: 'language'),
                 acceptedLegalTerms: any(named: 'acceptedLegalTerms'),
+                emailCode: any(named: 'emailCode'),
               )).thenThrow(Exception('Email already registered'));
           return authBloc;
         },
@@ -381,6 +385,7 @@ void main() {
                 surname: any(named: 'surname'),
                 language: any(named: 'language'),
                 acceptedLegalTerms: any(named: 'acceptedLegalTerms'),
+                emailCode: any(named: 'emailCode'),
               )).thenThrow(const WeakPasswordFailure());
           return authBloc;
         },

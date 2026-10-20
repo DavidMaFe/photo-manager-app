@@ -48,6 +48,10 @@ class FailureCodes {
   static const String folderCoverVideoNotAllowed = "FOLDER_COVER_VIDEO_NOT_ALLOWED";
   static const String folderCoverReplaceNotValid = "FOLDER_COVER_REPLACE_NOT_VALID";
 
+  // ==================== Email Verification on Registration ====================
+  static const String invalidEmailCode = "INVALID_EMAIL_CODE";
+  static const String tooManyEmailCodes = "TOO_MANY_EMAIL_CODES";
+
   // ==================== Password Reset Domain Errors ====================
   static const String expiredResetCode = "EXPIRED_RESET_CODE";
   static const String invalidResetCode = "INVALID_RESET_CODE";

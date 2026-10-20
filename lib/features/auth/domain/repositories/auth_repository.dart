@@ -20,6 +20,15 @@ abstract class AuthRepository {
   /// deleted, so its tokens are no longer valid).
   Future<void> clearSession();
   Future<User?> getCurrentUser();
+
+  /// First step of the registration: emails a code to verify [email]. Fails with an `EmailAlreadyExistsFailure` when
+  /// the email already has an account.
+  Future<void> requestRegistrationCode(String email);
+
+  /// Second step: checks the emailed code without spending it (the registration spends it).
+  Future<void> verifyRegistrationCode(String email, String code);
+
+  /// [emailCode] is the code emailed by [requestRegistrationCode].
   Future<LoginResult> register({
     required String email,
     required CryptoKey authKey,
@@ -29,6 +38,7 @@ abstract class AuthRepository {
     required NewKeyMaterial key,
     required String acceptedTermsVersion,
     required String acceptedPrivacyVersion,
+    required String emailCode,
   });
   Future<bool> hasToken();
   Future<void> refreshToken();

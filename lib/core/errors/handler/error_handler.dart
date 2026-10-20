@@ -227,6 +227,13 @@ class ErrorHandler {
           errorResponse: errorResponse,
         );
 
+      case FailureCodes.invalidEmailCode:
+        return ValidationFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.tooManyEmailCodes:
       case FailureCodes.tooManyResetAttempts:
         return PermissionDeniedFailure(
           code: code,

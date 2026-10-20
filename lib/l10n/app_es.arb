@@ -989,5 +989,8 @@
   "deleteAccountSubscription": "Tu suscripción se cancela",
   "deleteAccountSubscriptionDetail": "No se renovará ni se te volverá a cobrar",
   "planPurchaseTerms": "Al contratar, el plan empieza al momento y pides que empiece ya, así que renuncias al desistimiento. Se renueva solo hasta que lo canceles en Google Play; al cancelarlo lo mantienes hasta el final del periodo pagado y no se devuelve.",
-  "planPurchaseTermsLink": "Términos de uso"
+  "planPurchaseTermsLink": "Términos de uso",
+  "registerEmailBody": "Primero verificamos tu email: te enviaremos un código de 6 dígitos.",
+  "registerEmailTaken": "Este email ya tiene una cuenta.",
+  "registerChangeEmail": "Cambiar email"
 }

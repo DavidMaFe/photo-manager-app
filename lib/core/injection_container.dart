@@ -90,6 +90,9 @@ import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/refresh_token_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/request_registration_code_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/verify_registration_code_use_case.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/registration_email_cubit.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_deletion_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_management_remote_data_source.dart';
@@ -796,6 +799,14 @@ Future<void> init() async {
         return RegisterUseCase(repository, sl<CryptoEngine>(), sl<KeyringService>());
       }
   );
+
+  // Registration: the email is verified with an emailed code first
+  sl.registerFactory(() => RequestRegistrationCodeUseCase(sl<AuthRepository>()));
+  sl.registerFactory(() => VerifyRegistrationCodeUseCase(sl<AuthRepository>()));
+  sl.registerFactory(() => RegistrationEmailCubit(
+        requestCode: sl<RequestRegistrationCodeUseCase>(),
+        verifyCode: sl<VerifyRegistrationCodeUseCase>(),
+      ));
 
   sl.registerFactory(
       () {

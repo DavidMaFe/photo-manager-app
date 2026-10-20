@@ -6,7 +6,7 @@ import 'package:photo_manager_app/features/auth/presentation/widgets/auth_title.
 import 'package:photo_manager_app/features/auth/presentation/widgets/password_reset/step_indicator.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-/// Shared layout of the three password reset steps.
+/// Shared layout of the three steps of the password reset, and of the first two of the registration.
 class PasswordResetLayout extends StatelessWidget {
   static const int totalSteps = 3;
 

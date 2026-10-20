@@ -125,6 +125,7 @@ void main() {
           key: key,
           acceptedTermsVersion: '1.0',
           acceptedPrivacyVersion: '1.1',
+          emailCode: '482913',
         );
 
         // Assert
@@ -132,6 +133,7 @@ void main() {
         expect(body['authKey'], 'YXV0aEtleQ==');
         expect(body['acceptedTermsVersion'], '1.0');
         expect(body['acceptedPrivacyVersion'], '1.1');
+        expect(body['emailCode'], '482913');
         expect(body.containsKey('surname'), isFalse);
         expect(body['kdfSalt'], base64Encode(E2eeTestData.bytes(16, 1)));
         expect(body['kdfParams'], {'algorithm': 'argon2id13', 'ops': 2, 'memBytes': 32 * 1024 * 1024});
@@ -149,9 +151,31 @@ void main() {
 
         await dataSource.register(email: 'e@example.com', authKey: 'a', name: 'John', surname: 'Doe',
             deviceUuid: 'u', kdfParams: E2eeTestData.kdfParams(), key: E2eeTestData.newKeyMaterial(),
-            acceptedTermsVersion: '1.0', acceptedPrivacyVersion: '1.0');
+            acceptedTermsVersion: '1.0', acceptedPrivacyVersion: '1.0', emailCode: '482913');
 
         expect(capturedPost().body['surname'], 'Doe');
+      });
+    });
+
+    group('registration code', () {
+      test('should request the code that verifies the email', () async {
+        stubPost(null);
+
+        await dataSource.requestRegistrationCode('new@example.com');
+
+        final request = capturedPost();
+        expect(request.uri.path, '/api/register/email-code/');
+        expect(request.body, {'email': 'new@example.com'});
+      });
+
+      test('should verify the emailed code', () async {
+        stubPost(null);
+
+        await dataSource.verifyRegistrationCode('new@example.com', '482913');
+
+        final request = capturedPost();
+        expect(request.uri.path, '/api/register/email-code/verify/');
+        expect(request.body, {'email': 'new@example.com', 'code': '482913'});
       });
     });
 
