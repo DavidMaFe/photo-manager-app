@@ -79,10 +79,14 @@ class SyncSessionCompleting extends SyncSessionState {
 class SyncSessionSuccess extends SyncSessionState {
 
   final SyncResult result;
-  const SyncSessionSuccess(this.result);
+
+  /// Videos left out because they are over the limit of the plan.
+  final int skippedLargeVideos;
+
+  const SyncSessionSuccess(this.result, {this.skippedLargeVideos = 0});
 
   @override
-  List<Object?> get props => [result];
+  List<Object?> get props => [result, skippedLargeVideos];
 
   @override
   String toString() => 'SyncSessionSuccess (uploaded: ${result.uploadedFiles}/${result.totalFiles})';

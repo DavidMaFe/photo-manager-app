@@ -184,6 +184,18 @@ class StorageSpaceExceededFailure extends Failure {
   });
 }
 
+/// A limit of the plan of the user: the account is read only, the device is over the limit of linked devices or
+/// paused ([code] tells which). The screens offer the plans.
+class PlanLimitFailure extends Failure {
+  const PlanLimitFailure({
+    super.messageKey = 'errorPlanLimit',
+    super.messageParams,
+    super.code,
+    super.data,
+    super.errorResponse,
+  });
+}
+
 class PermissionDeniedFailure extends Failure {
   const PermissionDeniedFailure({
     super.messageKey = 'errorPermissionDenied',

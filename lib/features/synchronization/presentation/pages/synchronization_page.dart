@@ -1,6 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/errors/helper/failure_message_helper.dart';
+import 'package:photo_manager_app/features/plans/presentation/widgets/plan_limit_banner.dart';
+import 'package:photo_manager_app/features/plans/presentation/widgets/plan_texts.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -156,6 +161,8 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(child: ScreenHeader(title: l10n.navBackup)),
+          // Read only account or paused device (CLAUDE.md of the backend)
+          const SliverToBoxAdapter(child: PlanLimitBanner()),
           SliverToBoxAdapter(
             child: BlocBuilder<SyncSessionBloc, SyncSessionState>(
               builder: (context, sessionState) {
@@ -292,10 +299,23 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
 
     if (state is SyncSessionSuccess) {
       // The history refreshes itself through SyncCompletedEvent.
-      _showSnackBar(context, l10n.itemsSaved(state.result.uploadedFiles));
+      if (state.skippedLargeVideos > 0) {
+        final maxVideo = context.read<PlanCubit>().state.plan?.limits.maxVideoBytes;
+        _showPlanSnackBar(context, l10n.planVideosSkipped(
+            state.skippedLargeVideos, maxVideo == null ? '' : PlanTexts.size(maxVideo, l10n)));
+      } else {
+        _showSnackBar(context, l10n.itemsSaved(state.result.uploadedFiles));
+      }
     } else if (state is SyncSessionCancelling) {
       context.read<SynchronizationBloc>().add(const RefreshSynchronizations());
       _showSnackBar(context, l10n.backupCancelled);
+    } else if (state is SyncSessionError &&
+        !wasCancelled &&
+        (state.failure is PlanLimitFailure || state.failure is StorageSpaceExceededFailure)) {
+      // A limit of the plan: retrying does not help, the plans do (and the plan may have changed)
+      context.read<SynchronizationBloc>().add(const RefreshSynchronizations());
+      context.read<PlanCubit>().load();
+      _showPlanSnackBar(context, FailureMessageHelper.getMessage(context, state.failure));
     } else if (state is SyncSessionError && !wasCancelled) {
       context.read<SynchronizationBloc>().add(const RefreshSynchronizations());
       ErrorNotificationService.showError(
@@ -305,6 +325,18 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
         onRetry: () => _startBackup(context),
       );
     }
+  }
+
+  /// A message about a limit of the plan, with the way to the plans.
+  void _showPlanSnackBar(BuildContext context, String message) {
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 8),
+        action: SnackBarAction(label: l10n.planSeePlans, onPressed: () => context.goNamed(RouteNames.plans)),
+      ));
   }
 
   void _showSnackBar(BuildContext context, String message) {

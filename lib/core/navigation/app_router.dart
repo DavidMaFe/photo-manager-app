@@ -65,6 +65,7 @@ import '../../features/file_management/presentation/bloc/file_management/file_ma
 import '../../features/file_management/presentation/bloc/manage_folder/manage_folder_bloc.dart';
 import '../../features/gallery/domain/entities/gallery_file.dart';
 import '../../features/sync_session/presentation/bloc/sync_session_bloc.dart';
+import '../../features/plans/presentation/pages/plans_page.dart';
 import '../injection_container.dart';
 
 
@@ -335,6 +336,11 @@ class AppRouter {
                               create: (_) => sl<VerifyRecoveryPhraseBloc>()..add(VerifyRecoveryPhraseStarted()),
                               child: const VerifyRecoveryPhrasePage(),
                             ),
+                          ),
+                          GoRoute(
+                            path: 'plans',
+                            name: RouteNames.plans,
+                            builder: (context, state) => const PlansPage(),
                           ),
                           GoRoute(
                             path: 'delete-account',

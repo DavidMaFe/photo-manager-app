@@ -28,6 +28,7 @@ class FailureMessageHelper {
     if (failure is UnauthorizedFailure) return l10n.errorUnauthorizedTitle;
     if (failure is NotFoundFailure) return l10n.errorNotFoundTitle;
     if (failure is StorageSpaceExceededFailure) return l10n.errorStorageSpaceExceededTitle;
+    if (failure is PlanLimitFailure) return l10n.plansTitle;
     if (failure is ConcurrencyFailure) return l10n.syncInProgressErrorTitle;
 
     return l10n.errorUnknown;
@@ -35,6 +36,8 @@ class FailureMessageHelper {
 
   static String _getLocalizedMessage(AppLocalizations l10n, Failure failure) {
     switch (failure.messageKey) {
+      case 'errorPlanLimit':
+        return l10n.errorPlanLimit;
     // Network
       case 'errorNetwork':
         return l10n.errorNetwork;

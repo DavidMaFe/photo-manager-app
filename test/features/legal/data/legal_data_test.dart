@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
+import 'package:photo_manager_app/features/legal/data/content/legal_provider.dart';
 import 'package:photo_manager_app/features/legal/data/data_sources/legal_remote_data_source.dart';
 import 'package:photo_manager_app/features/legal/data/repositories/bundled_legal_document_repository.dart';
 import 'package:photo_manager_app/features/legal/data/repositories/legal_acceptance_data_repository.dart';
@@ -89,9 +90,9 @@ void main() {
 
     test('should explain the account deletion, the backups and the shared files in the privacy policy', () {
       for (final (language, words) in [
-        ('es', ['Perfil → Eliminar cuenta', 'hasta 6 meses', 'archivo temporal', 'soporte@photo-manager-pro.com',
+        ('es', ['Perfil → Eliminar cuenta', 'hasta 5 semanas', 'archivo temporal', 'soporte@photo-manager-pro.com',
             'photo-manager-pro.com/eliminar-cuenta']),
-        ('en', ['Profile → Delete account', 'up to 6 months', 'temporary file', 'soporte@photo-manager-pro.com',
+        ('en', ['Profile → Delete account', 'up to 5 weeks', 'temporary file', 'soporte@photo-manager-pro.com',
             'photo-manager-pro.com/eliminar-cuenta']),
       ]) {
         final text = allText(repository.document(LegalDocumentType.privacy, language));
@@ -100,6 +101,47 @@ void main() {
         }
         expect(text, contains('David Martínez Fernández'));
         expect(RegExp(r'\[[^\]]*\]').hasMatch(text), isFalse, reason: '$language has a placeholder');
+      }
+    });
+
+    test('should explain the subscriptions in the terms', () {
+      for (final (language, words) in [
+        ('es', ['1,99 € al mes', '19,99 € al año', '99,99 € al año', 'IVA', 'se renueva automáticamente',
+            'Gestionar en Google Play', 'hasta el final del periodo', 'solo lectura', 'en pausa', 'Nunca borramos',
+            '30 días de antelación', 'desistimiento', 'empiece de inmediato', 'cancelamos su renovación']),
+        ('en', ['€1.99 per month', '€19.99 per year', '€99.99 per year', 'VAT', 'renews automatically',
+            'Manage in Google Play', 'until the end of the', 'read only', 'paused', 'We never delete',
+            '30 days in advance', 'withdrawal', 'start at once', 'cancels its renewal']),
+      ]) {
+        final text = allText(repository.document(LegalDocumentType.terms, language));
+        for (final word in words) {
+          expect(text, contains(word), reason: '$language: $word');
+        }
+      }
+    });
+
+    test('should name Google Play as the payment processor in the privacy policy, without card data', () {
+      for (final (language, words) in [
+        ('es', ['Google Ireland Limited', 'Nunca recibimos los datos de tu tarjeta', 'seudónimo']),
+        ('en', ['Google Ireland Limited', 'We never receive the details of your card', 'pseudonymous']),
+      ]) {
+        final text = allText(repository.document(LegalDocumentType.privacy, language));
+        for (final word in words) {
+          expect(text, contains(word), reason: '$language: $word');
+        }
+      }
+    });
+
+    test('should identify the provider in the terms and the privacy policy (LSSI)', () {
+      for (final language in ['es', 'en']) {
+        for (final type in [LegalDocumentType.terms, LegalDocumentType.privacy]) {
+          final text = allText(repository.document(type, language));
+          expect(text, contains(LegalProvider.name), reason: '$language ${type.slug}');
+          expect(text, contains(LegalProvider.taxId), reason: '$language ${type.slug}');
+          expect(text, contains(LegalProvider.address), reason: '$language ${type.slug}');
+          expect(RegExp(r'\[[^\]]*\]').hasMatch(text), isFalse, reason: '$language ${type.slug} has a placeholder');
+        }
+        expect(allText(repository.document(LegalDocumentType.terms, language)), contains(LegalProvider.email));
       }
     });
 

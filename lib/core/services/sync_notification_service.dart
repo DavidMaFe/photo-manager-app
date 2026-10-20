@@ -356,6 +356,7 @@ class SyncNotificationService {
   /// only says what the user can do.
   Future<void> showSyncFailureNotification({
     required bool sessionExpired,
+    bool planLimit = false,
   }) async {
     try {
       final l10n = _strings();
@@ -378,7 +379,11 @@ class SyncNotificationService {
       await _notificationsPlugin.show(
         _notificationIdFailure,
         l10n.notificationBackupFailedTitle,
-        sessionExpired ? l10n.notificationBackupSessionExpired : l10n.notificationBackupFailedBody,
+        sessionExpired
+            ? l10n.notificationBackupSessionExpired
+            : planLimit
+                ? l10n.notificationBackupPlanLimit
+                : l10n.notificationBackupFailedBody,
         notificationDetails,
         payload: 'sync_history',
       );

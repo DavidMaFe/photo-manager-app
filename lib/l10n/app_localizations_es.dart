@@ -2368,4 +2368,202 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get accentGraphite => 'Grafito';
+
+  @override
+  String get plansTitle => 'Planes';
+
+  @override
+  String get plansSubtitle => 'Cifrado de extremo a extremo: nadie más que tú puede ver tus fotos, con cualquier plan.';
+
+  @override
+  String get planNameFree => 'Gratis';
+
+  @override
+  String get planName100 => '100 GB';
+
+  @override
+  String get planName250 => '250 GB';
+
+  @override
+  String get planName1tb => '1 TB';
+
+  @override
+  String get planYours => 'Tu plan';
+
+  @override
+  String planStorage(String size) {
+    return '$size de espacio';
+  }
+
+  @override
+  String planDevices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dispositivos',
+      one: '1 dispositivo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String planVideos(String size) {
+    return 'Vídeos de hasta $size';
+  }
+
+  @override
+  String get planBackupDaily => 'Copia automática diaria';
+
+  @override
+  String get planBackupWeekly => 'Copia automática semanal';
+
+  @override
+  String planPriceMonthly(String price) {
+    return '$price/mes';
+  }
+
+  @override
+  String planPriceAnnual(String price) {
+    return 'o $price/año: 2 meses gratis';
+  }
+
+  @override
+  String get planComingSoon => 'Los planes de pago llegarán pronto.';
+
+  @override
+  String planUsageStorage(String used, String limit) {
+    return 'Espacio: $used de $limit';
+  }
+
+  @override
+  String planUsageDevices(int count, int max) {
+    return 'Dispositivos: $count de $max';
+  }
+
+  @override
+  String planRenews(String date) {
+    return 'Se renueva el $date';
+  }
+
+  @override
+  String planEnds(String date) {
+    return 'Termina el $date: no se renovará';
+  }
+
+  @override
+  String get planPaymentIssue => 'El último pago falló: revisa tu método de pago en Google Play';
+
+  @override
+  String planEnded(String date) {
+    return 'Tu suscripción terminó el $date';
+  }
+
+  @override
+  String get planRow => 'Tu plan';
+
+  @override
+  String planRowValue(String name, String size) {
+    return '$name · $size';
+  }
+
+  @override
+  String get planSeePlans => 'Ver planes';
+
+  @override
+  String get planReadOnlyTitle => 'Tu cuenta está en solo lectura';
+
+  @override
+  String planReadOnlyBody(String used, String limit) {
+    return 'Ocupas $used y tu plan permite $limit. Puedes ver, descargar y borrar tus archivos, pero no copiar otros nuevos hasta liberar espacio o mejorar tu plan.';
+  }
+
+  @override
+  String get planDevicePausedTitle => 'Este dispositivo está en pausa';
+
+  @override
+  String planDevicePausedBody(int max) {
+    String _temp0 = intl.Intl.pluralLogic(
+      max,
+      locale: localeName,
+      other: 'Tu plan permite $max dispositivos',
+      one: 'Tu plan permite 1 dispositivo',
+    );
+    return '$_temp0 y hacen copia los que la hicieron más recientemente. Desvincula otro o mejora tu plan.';
+  }
+
+  @override
+  String get planDeviceNotLinkedTitle => 'Este dispositivo no está vinculado';
+
+  @override
+  String planDeviceNotLinkedBody(int max) {
+    String _temp0 = intl.Intl.pluralLogic(
+      max,
+      locale: localeName,
+      other: 'Tu plan permite $max dispositivos',
+      one: 'Tu plan permite 1 dispositivo',
+    );
+    return '$_temp0. Desvincula otro desde Mis dispositivos o mejora tu plan para hacer copia desde este.';
+  }
+
+  @override
+  String get planWeeklyOnly => 'En el plan gratuito la copia automática es semanal.';
+
+  @override
+  String planVideosSkipped(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vídeos no se han copiado',
+      one: '1 vídeo no se ha copiado',
+    );
+    return '$_temp0: tu plan admite vídeos de hasta $size.';
+  }
+
+  @override
+  String get errorPlanLimit => 'Tu plan ha llegado a uno de sus límites.';
+
+  @override
+  String get notificationBackupPlanLimit => 'Tu plan ha llegado a uno de sus límites. Abre la app para verlo.';
+
+  @override
+  String get planPaymentPending => 'Pago pendiente: el plan se aplica en cuanto se confirme';
+
+  @override
+  String planBuyMonthly(String price) {
+    return '$price al mes';
+  }
+
+  @override
+  String planBuyAnnual(String price) {
+    return '$price al año';
+  }
+
+  @override
+  String get planStoreUnavailable => 'No se pudo conectar con Google Play. Inténtalo más tarde.';
+
+  @override
+  String planPurchaseDone(String name) {
+    return '¡Listo! Ya tienes el plan $name';
+  }
+
+  @override
+  String get planPurchasePending => 'Tu pago está pendiente. El plan se aplicará en cuanto se confirme.';
+
+  @override
+  String get planPurchaseError => 'No se pudo completar la compra. Inténtalo de nuevo más tarde.';
+
+  @override
+  String get planManage => 'Gestionar en Google Play';
+
+  @override
+  String get deleteAccountSubscription => 'Tu suscripción se cancela';
+
+  @override
+  String get deleteAccountSubscriptionDetail => 'No se renovará ni se te volverá a cobrar';
+
+  @override
+  String get planPurchaseTerms => 'Al contratar, el plan empieza al momento y pides que empiece ya, así que renuncias al desistimiento. Se renueva solo hasta que lo canceles en Google Play; al cancelarlo lo mantienes hasta el final del periodo pagado y no se devuelve.';
+
+  @override
+  String get planPurchaseTermsLink => 'Términos de uso';
 }

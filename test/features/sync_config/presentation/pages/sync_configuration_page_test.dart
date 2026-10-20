@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/segmented_control.dart';
@@ -12,6 +14,7 @@ import 'package:photo_manager_app/features/sync_config/presentation/pages/sync_c
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/day_of_week_picker_widget.dart';
 
 import '../../../../fixtures/test_data.dart';
+import '../../../../helpers/plan_test_providers.dart';
 import '../../../../helpers/widget_test_helper.dart';
 
 class MockSyncConfigBloc extends Mock implements SyncConfigBloc {}
@@ -28,12 +31,13 @@ void main() {
   });
 
   /// Pumps the view with [initial] and then [states] in order.
-  Future<void> pump(WidgetTester tester, SyncConfig initial, {List<SyncConfigState> states = const []}) async {
+  Future<void> pump(WidgetTester tester, SyncConfig initial,
+      {List<SyncConfigState> states = const [], PlanState planState = const PlanState()}) async {
     setUpCustomScreenSize(tester, 390, 1600);
     when(() => bloc.state).thenReturn(SyncConfigLoaded(initial));
     when(() => bloc.stream).thenAnswer((_) => Stream.fromIterable(states));
-    await tester.pumpWidget(makeTestableWidgetWithBloc<SyncConfigBloc>(
-      bloc: bloc,
+    await tester.pumpWidget(makeTestableWidgetWithBlocs(
+      providers: [BlocProvider<SyncConfigBloc>.value(value: bloc), ...PlanTestProviders(state: planState).providers],
       child: const SyncConfigurationView(),
     ));
     await tester.pump();
@@ -102,6 +106,33 @@ void main() {
       // Assert
       final event = verify(() => bloc.add(captureAny())).captured.single;
       expect(event, isA<UpdateSyncFrequency>().having((e) => e.frequency, 'frequency', SyncFrequency.weekly));
+    });
+
+    testWidgets('should keep the free plan on weekly backups and offer the plans', (tester) async {
+      // Arrange
+      await pump(tester, TestSyncConfigs.weeklySync, planState: const PlanState(plan: TestPlans.free));
+      expect(find.byKey(const ValueKey('sync-config-weekly-only')), findsOneWidget);
+
+      // Act
+      await tester.tap(find.text('Every day'));
+      await tester.pump();
+
+      // Assert: nothing changes, the snack bar explains it
+      verifyNever(() => bloc.add(any()));
+      expect(find.text('See plans'), findsOneWidget);
+    });
+
+    testWidgets('should let a paid plan choose daily backups', (tester) async {
+      // Arrange
+      await pump(tester, TestSyncConfigs.weeklySync, planState: const PlanState(plan: TestPlans.plus100));
+      expect(find.byKey(const ValueKey('sync-config-weekly-only')), findsNothing);
+
+      // Act
+      await tester.tap(find.text('Every day'));
+
+      // Assert
+      final event = verify(() => bloc.add(captureAny())).captured.single;
+      expect(event, isA<UpdateSyncFrequency>().having((e) => e.frequency, 'frequency', SyncFrequency.daily));
     });
 
     testWidgets('should dispatch the alert switches', (tester) async {

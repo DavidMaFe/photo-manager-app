@@ -37,6 +37,26 @@ void main() {
       });
     });
 
+    group('plan codes', () {
+      for (final code in [FailureCodes.accountReadOnly, FailureCodes.deviceLimitReached, FailureCodes.devicePaused]) {
+        test('should map $code to a PlanLimitFailure with the server message', () {
+          final failure = ErrorHandler.handleError(apiError(code));
+
+          expect(failure, isA<PlanLimitFailure>());
+          expect(failure.code, code);
+          expect(failure.errorResponse?.message, 'Mensaje del servidor');
+        });
+      }
+
+      test('should map the storage code of the server to a StorageSpaceExceededFailure', () {
+        expect(ErrorHandler.handleError(apiError('USER_NOT_HAVE_STORAGE_SPACE')), isA<StorageSpaceExceededFailure>());
+      });
+
+      test('should map the device code of the server to a not found failure', () {
+        expect(ErrorHandler.handleError(apiError('DEVICE_NOT_LINKED')), isA<NotFoundFailure>());
+      });
+    });
+
     test('should return a Failure thrown by a use case as it is', () {
       // Arrange
       const failure = ValidationFailure(code: FailureCodes.folderCoversLimitExceeded);

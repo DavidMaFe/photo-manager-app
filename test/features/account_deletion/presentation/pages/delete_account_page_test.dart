@@ -9,8 +9,13 @@ import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/account_deletion/domain/entities/account_deletion_summary.dart';
 import 'package:photo_manager_app/features/account_deletion/presentation/bloc/account_deletion_summary_cubit.dart';
 import 'package:photo_manager_app/features/account_deletion/presentation/pages/delete_account_page.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/plan_subscription.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/plan_tier.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
 
 import '../../../../helpers/downloads_test_providers.dart';
+import '../../../../helpers/plan_test_providers.dart';
 import '../../../../helpers/widget_test_helper.dart';
 
 class MockAccountDeletionSummaryCubit extends MockCubit<AccountDeletionSummaryState>
@@ -23,7 +28,8 @@ void main() {
 
   setUp(() => cubit = MockAccountDeletionSummaryCubit());
 
-  Future<void> pumpPage(WidgetTester tester, AccountDeletionSummaryState state, {Locale locale = const Locale('en')}) async {
+  Future<void> pumpPage(WidgetTester tester, AccountDeletionSummaryState state,
+      {Locale locale = const Locale('en'), PlanState plan = const PlanState()}) async {
     setUpCustomScreenSize(tester, 390, 1200);
     when(() => cubit.state).thenReturn(state);
     when(() => cubit.load()).thenAnswer((_) async {});
@@ -34,6 +40,7 @@ void main() {
         builder: (_, __) => MultiBlocProvider(
           providers: [
             ...downloadsTestProviders(),
+            ...PlanTestProviders(state: plan).providers,
             BlocProvider<AccountDeletionSummaryCubit>.value(value: cubit),
           ],
           child: const DeleteAccountPage(saveEverythingRow: Text('save everything')),
@@ -96,6 +103,27 @@ void main() {
       expect(find.text('profile'), findsOneWidget);
     });
 
+    // ==================== BUSINESS LOGIC TESTS ====================
+
+    testWidgets('should warn that the subscription is cancelled when it renews', (tester) async {
+      await pumpPage(tester, AccountDeletionSummaryLoaded(summary), plan: PlanState(plan: _withSubscription(true)));
+
+      expect(find.text('Your subscription is cancelled'), findsOneWidget);
+      expect(find.text('It will not renew and you will not be charged again'), findsOneWidget);
+    });
+
+    testWidgets('should not talk about a subscription that does not renew', (tester) async {
+      await pumpPage(tester, AccountDeletionSummaryLoaded(summary), plan: PlanState(plan: _withSubscription(false)));
+
+      expect(find.text('Your subscription is cancelled'), findsNothing);
+    });
+
+    testWidgets('should not talk about a subscription on the free plan', (tester) async {
+      await pumpPage(tester, AccountDeletionSummaryLoaded(summary), plan: const PlanState(plan: TestPlans.free));
+
+      expect(find.text('Your subscription is cancelled'), findsNothing);
+    });
+
     // ==================== EDGE CASE TESTS ====================
 
     testWidgets('should not let continue while the summary loads', (tester) async {
@@ -128,3 +156,14 @@ void main() {
     });
   });
 }
+
+UserPlan _withSubscription(bool autoRenewing) => UserPlan(
+      tier: PlanTier.plus100,
+      limits: TestPlans.plus100.limits,
+      storedBytes: 0,
+      devices: 1,
+      pausedDevices: const [],
+      readOnly: false,
+      subscription: PlanSubscription(
+          tier: PlanTier.plus100, status: SubscriptionStatus.active, periodEnd: null, autoRenewing: autoRenewing),
+    );

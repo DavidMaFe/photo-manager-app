@@ -25,6 +25,9 @@ import 'package:photo_manager_app/features/downloads/presentation/bloc/on_device
 import 'package:photo_manager_app/features/downloads/presentation/bloc/share_cubit.dart';
 import 'package:photo_manager_app/features/downloads/presentation/services/on_device_presence_updater.dart';
 import 'package:photo_manager_app/features/onboarding/domain/use_cases/check_onboarding_status_use_case.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/billing_cubit.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
+import 'package:photo_manager_app/features/sync_config/domain/use_cases/apply_plan_to_sync_config_use_case.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 import 'package:workmanager/workmanager.dart';
@@ -128,6 +131,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   StreamSubscription<AuthState>? _authSubscription;
+  StreamSubscription<Object?>? _planSubscription;
 
   @override
   void initState() {
@@ -136,12 +140,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     di.sl<ClearSharedFilesUseCase>()();
     _onAuthState(widget.authBloc.state);
     _authSubscription = widget.authBloc.stream.listen(_onAuthState);
+    // The free plan backs up weekly: a daily automatic backup becomes weekly when the plan is read
+    _planSubscription = di.sl<PlanCubit>().stream
+        .map((state) => state.plan)
+        .where((plan) => plan != null)
+        .distinct()
+        .listen((plan) => di.sl<ApplyPlanToSyncConfigUseCase>()(dailyBackup: plan!.limits.dailyBackup));
   }
 
   /// With a session: what this device is missing and a download that may be running in the background
   /// (ROADMAP-downloads-and-account-deletion.md).
   void _onAuthState(AuthState state) {
     if (state is AuthSuccessful) {
+      di.sl<PlanCubit>().load();
+      // Purchases paid while the app was closed, or in another session, reach the server
+      if (AppConfig.billingEnabled) di.sl<BillingCubit>().start();
       di.sl<OnDevicePresenceUpdater>().start();
       di.sl<DownloadProgressBloc>().add(const DownloadProgressWatchRequested());
     }
@@ -151,6 +164,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void dispose() {
   WidgetsBinding.instance.removeObserver(this);
     _authSubscription?.cancel();
+    _planSubscription?.cancel();
     super.dispose();
   }
 
@@ -162,7 +176,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       // Back from the share sheet: the other app already copied the shared files
       di.sl<ClearSharedFilesUseCase>()();
       if (widget.authBloc.state is AuthSuccessful) {
-        // Photos deleted from the gallery meanwhile, and the progress of a download
+        // Photos deleted from the gallery meanwhile, the progress of a download, and the plan (it may have changed in
+        // the store)
+        di.sl<PlanCubit>().load();
         di.sl<OnDevicePresenceUpdater>().refresh();
         di.sl<DownloadProgressBloc>().add(const DownloadProgressWatchRequested());
       }
@@ -179,6 +195,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         BlocProvider.value(value: di.sl<DownloadProgressBloc>()),
         BlocProvider(create: (_) => di.sl<OnDevicePresenceCubit>()),
         BlocProvider(create: (_) => di.sl<ShareCubit>()),
+        BlocProvider.value(value: di.sl<PlanCubit>()),
+        BlocProvider.value(value: di.sl<BillingCubit>()),
       ],
       // Theme mode and color of the app chosen by the user
       child: ListenableBuilder(

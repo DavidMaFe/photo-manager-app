@@ -2,17 +2,22 @@ import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/widgets/permission/permission_helper.dart';
+import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
+import 'package:photo_manager_app/features/plans/domain/use_cases/get_user_plan_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/files_within_plan.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/sync_keep_alive.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_sync_session_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_sync_session_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/upload_result.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_event.dart';
 import 'package:photo_manager_app/features/sync_session/presentation/bloc/sync_session_state.dart';
@@ -35,6 +40,9 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
   final SyncLock syncLock;
   final SyncKeepAlive syncKeepAlive;
 
+  /// The plan of the user (CLAUDE.md of the backend): read when the backup starts.
+  final GetUserPlanUseCase getUserPlanUseCase;
+
   String? _currentSessionId;
   bool _isCancelled = false;
 
@@ -49,6 +57,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     required this.eventBus,
     required this.syncLock,
     required this.syncKeepAlive,
+    required this.getUserPlanUseCase,
   }) : super(const SyncSessionInitial()) {
     on<SyncSessionStarted>(_onSyncSessionStarted);
     on<SyncSessionCancelled>(_onSyncSessionCancelled);
@@ -90,6 +99,12 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     try {
       emit(const SyncSessionStarting());
       final startStopwatch = Stopwatch()..start();
+
+      // A read only account (a paid plan ended with more stored than the free plan) uploads nothing
+      final plan = await _readPlan();
+      if (plan != null && plan.readOnly) {
+        throw const PlanLimitFailure(code: FailureCodes.accountReadOnly);
+      }
 
       final deviceUuid = await syncDeviceRepository.getDeviceUuid();
       final session = await startSyncSessionUseCase(deviceUuid: deviceUuid);
@@ -164,9 +179,10 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
         return;
       }
 
-      final filesToUpload = scannedFiles.where((file) {
-        return duplicateCheckResult.filesToUpload.contains(file.hash);
-      }).toList();
+      // Videos over the limit of the plan are left out: the server would reject them after sending them whole
+      final pending = scannedFiles.where((file) => duplicateCheckResult.filesToUpload.contains(file.hash));
+      final filesToUpload = filesWithinPlan(pending, plan);
+      int skippedLargeVideos = pending.length - filesToUpload.length;
 
       if (_isCancelled) {
         await _handleCancellation(emit, null);
@@ -188,7 +204,17 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
           return;
         }
 
-        final uploadResult = await uploadFileUseCase(sessionId: session.id, file: file);
+        final UploadResult uploadResult;
+        try {
+          uploadResult = await uploadFileUseCase(sessionId: session.id, file: file);
+        } on ApiException catch (e) {
+          // Too big for the plan: the backup goes on with the rest. Any other error stops it, as before
+          if (e.code != FailureCodes.fileSizeNotAccepted) rethrow;
+          skippedLargeVideos++;
+          remainingBytes -= file.sizeBytes;
+          processedCount++;
+          continue;
+        }
         if(uploadResult.serverFileId != null) {
           await AppDatabase().saveFileMapping(
             serverId: uploadResult.serverFileId!,
@@ -215,7 +241,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
         return;
       }
 
-      await _completeSession(emit, session.id);
+      await _completeSession(emit, session.id, skippedLargeVideos: skippedLargeVideos);
 
     } catch (e) {
       if (_currentSessionId != null) {
@@ -279,7 +305,16 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     return super.close();
   }
 
-  Future<void> _completeSession(Emitter<SyncSessionState> emit, String sessionId) async {
+  /// The plan of the user, or null when it cannot be read (the server applies the limits anyway).
+  Future<UserPlan?> _readPlan() async {
+    try {
+      return await getUserPlanUseCase();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _completeSession(Emitter<SyncSessionState> emit, String sessionId, {int skippedLargeVideos = 0}) async {
 
     emit(const SyncSessionCompleting());
     final completeSessionStopWatch = Stopwatch()..start();
@@ -287,7 +322,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
 
     final result = await completeSyncSessionUseCase(sessionId: sessionId);
 
-    emit(SyncSessionSuccess(result));
+    emit(SyncSessionSuccess(result, skippedLargeVideos: skippedLargeVideos));
 
     // Broadcast sync completed event
     eventBus.fire(SyncCompletedEvent(

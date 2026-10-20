@@ -23,6 +23,7 @@ import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/notification_preferences_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/save_button_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/time_picker_widget.dart';
+import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 class SyncConfigurationPage extends StatelessWidget {
@@ -135,7 +136,23 @@ class _SyncConfigurationViewState extends State<SyncConfigurationView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      FrequencySelectorWidget(frequency: config.syncFrequency),
+                      // The free plan backs up weekly (CLAUDE.md of the backend)
+                      Builder(builder: (context) {
+                        final dailyAllowed =
+                            context.select<PlanCubit, bool>((cubit) => cubit.state.plan?.limits.dailyBackup ?? true);
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            FrequencySelectorWidget(frequency: config.syncFrequency, dailyAllowed: dailyAllowed),
+                            if (!dailyAllowed) ...[
+                              const SizedBox(height: 8),
+                              Text(l10n.planWeeklyOnly,
+                                  key: const ValueKey('sync-config-weekly-only'),
+                                  style: TextStyle(fontSize: 13, color: context.palette.ink2)),
+                            ],
+                          ],
+                        );
+                      }),
                       if (config.isWeeklySync) ...[
                         const SizedBox(height: 12),
                         DayOfWeekPickerWidget(selectedDay: config.syncDayOfWeek),
