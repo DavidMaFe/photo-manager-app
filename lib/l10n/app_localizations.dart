@@ -4114,6 +4114,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change email'**
   String get registerChangeEmail;
+
+  /// No description provided for @errorSecondFactorExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The verification expired. Sign in again.'**
+  String get errorSecondFactorExpired;
+
+  /// No description provided for @loginSecondFactorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you'**
+  String get loginSecondFactorTitle;
+
+  /// No description provided for @loginSecondFactorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is new for your account. We\'ve sent a 6-digit code to {email}'**
+  String loginSecondFactorBody(String email);
+
+  /// No description provided for @loginSecondFactorBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get loginSecondFactorBack;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

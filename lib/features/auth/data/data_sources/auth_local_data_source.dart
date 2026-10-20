@@ -15,7 +15,17 @@ abstract class AuthLocalDataSource {
   Future<void> cacheLoginTimestamp(DateTime timestamp);
   Future<DateTime?> getLoginTimestamp();
   Future<bool> hasValidToken();
+
+  /// Removes the session (user, tokens and login time). The device trust token stays: the device is still trusted
+  /// after a logout.
   Future<void> clearCache();
+
+  /// Keeps the token that trusts this device for the account of [email], replacing any other one.
+  Future<void> cacheDeviceTrustToken(String email, String token);
+
+  /// The token that trusts this device for [email], if it has one.
+  Future<String?> getDeviceTrustToken(String email);
+  Future<void> clearDeviceTrustToken();
 }
 
 
@@ -30,6 +40,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   static const String _keyToken = 'AUTH_TOKEN';
   static const String _keyRefreshToken = 'REFRESH_TOKEN';
   static const String _keyLoginTimestamp = 'LOGIN_TIMESTAMP';
+  static const String _keyDeviceTrust = 'DEVICE_TRUST_TOKEN';
 
   AuthLocalDataSourceImpl({required this.sharedPreferences, required this.secureStore});
 
@@ -103,6 +114,28 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     await secureStore.delete(_keyToken);
     await secureStore.delete(_keyRefreshToken);
     await _removeLegacyTokens();
+  }
+
+  @override
+  Future<void> cacheDeviceTrustToken(String email, String token) async {
+    await secureStore.write(_keyDeviceTrust, jsonEncode({'email': email.trim().toLowerCase(), 'token': token}));
+  }
+
+  @override
+  Future<String?> getDeviceTrustToken(String email) async {
+    final stored = await secureStore.read(_keyDeviceTrust);
+    if (stored == null) return null;
+    try {
+      final json = jsonDecode(stored) as Map<String, dynamic>;
+      return json['email'] == email.trim().toLowerCase() ? json['token'] as String? : null;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> clearDeviceTrustToken() async {
+    await secureStore.delete(_keyDeviceTrust);
   }
 
   /// Versions before the end-to-end encryption kept the tokens in SharedPreferences, unencrypted.

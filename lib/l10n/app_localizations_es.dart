@@ -2575,4 +2575,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get registerChangeEmail => 'Cambiar email';
+
+  @override
+  String get errorSecondFactorExpired => 'La verificación ha caducado. Vuelve a iniciar sesión.';
+
+  @override
+  String get loginSecondFactorTitle => 'Confirma que eres tú';
+
+  @override
+  String loginSecondFactorBody(String email) {
+    return 'Es la primera vez que entras desde este dispositivo. Te hemos enviado un código de 6 dígitos a $email';
+  }
+
+  @override
+  String get loginSecondFactorBack => 'Volver al inicio de sesión';
 }

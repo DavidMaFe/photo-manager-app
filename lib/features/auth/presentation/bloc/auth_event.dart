@@ -14,6 +14,25 @@ class LoginRequested extends AuthEvent {
 }
 
 
+/// The emailed code of the second factor of a login from a new device.
+class LoginSecondFactorSubmitted extends AuthEvent {
+  final String code;
+
+  LoginSecondFactorSubmitted(this.code);
+}
+
+
+class LoginSecondFactorResendRequested extends AuthEvent {}
+
+
+/// The user leaves the second factor and goes back to the login.
+class LoginSecondFactorCancelled extends AuthEvent {}
+
+
+/// The message that a new code was sent was shown.
+class LoginSecondFactorResentShown extends AuthEvent {}
+
+
 class RegisterRequested extends AuthEvent {
 
   final String email;

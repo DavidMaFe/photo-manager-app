@@ -13,6 +13,7 @@ import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:photo_manager_app/core/utils/http_headers_util.dart';
 
 import '../models/auth_response_model.dart';
+import '../models/login_response_model.dart';
 import '../models/refresh_token_response_model.dart';
 
 
@@ -20,7 +21,13 @@ import '../models/refresh_token_response_model.dart';
 /// Base64 (docs/e2ee-spec.md, section 12).
 abstract class AuthRemoteDataSource {
   Future<KdfParams> getKdfParams(String email);
-  Future<AuthResponseModel> login(String email, String authKey, String deviceUuid);
+
+  /// [deviceTrustToken] is the token this device got when it passed the second factor; [deviceName] goes in the email
+  /// of a new login.
+  Future<LoginResponseModel> login(String email, String authKey, String deviceUuid,
+      {String? deviceTrustToken, String? deviceName});
+  Future<AuthResponseModel> verifyLoginSecondFactor(String challengeToken, String code);
+  Future<void> resendLoginSecondFactor(String challengeToken);
   Future<void> logout(String token);
   Future<AuthResponseModel> register({
     required String email,
@@ -70,13 +77,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<AuthResponseModel> login(String email, String authKey, String deviceUuid) async {
+  Future<LoginResponseModel> login(String email, String authKey, String deviceUuid,
+      {String? deviceTrustToken, String? deviceName}) async {
     final json = await _post('/api/login/', {
       'email': email,
       'authKey': authKey,
       'deviceUuid': deviceUuid,
+      if (deviceTrustToken != null) 'deviceTrustToken': deviceTrustToken,
+      if (deviceName != null) 'deviceName': deviceName,
     });
+    return LoginResponseModel.fromJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<AuthResponseModel> verifyLoginSecondFactor(String challengeToken, String code) async {
+    final json = await _post('/api/login/second-factor/', {'challengeToken': challengeToken, 'code': code});
     return AuthResponseModel.fromJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> resendLoginSecondFactor(String challengeToken) async {
+    await _post('/api/login/second-factor/resend/', {'challengeToken': challengeToken});
   }
 
   @override

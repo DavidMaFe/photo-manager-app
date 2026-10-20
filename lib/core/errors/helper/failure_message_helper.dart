@@ -61,6 +61,8 @@ class FailureMessageHelper {
         return l10n.errorInvalidEmail;
       case 'errorPasswordMismatch':
         return l10n.errorPasswordMismatch;
+      case 'errorSecondFactorExpired':
+        return l10n.errorSecondFactorExpired;
       case 'errorRequiredField':
         final fieldName = failure.messageParams?['fieldName'] as String? ?? '';
         return l10n.errorRequiredField(fieldName);

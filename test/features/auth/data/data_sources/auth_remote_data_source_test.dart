@@ -73,12 +73,41 @@ void main() {
         expect(request.uri.toString(), '$baseUrl/api/login/');
         expect(request.body, {'email': 'test@example.com', 'authKey': 'YXV0aEtleQ==', 'deviceUuid': 'uuid_123'});
         expect(request.body.containsKey('password'), isFalse);
-        expect(response.token, 'access_token');
-        expect(response.refreshToken, 'refresh_token');
-        expect(response.keys!.accountLocked, isFalse);
-        expect(response.keys!.versions.single.state, KeyState.current);
-        expect(response.keys!.versions.single.encryptedMasterKey, E2eeTestData.bytes(72, 1));
-        expect(response.legalAcceptanceRequired, isFalse);
+        expect(response.challenge, isNull);
+        final session = response.session!;
+        expect(session.token, 'access_token');
+        expect(session.refreshToken, 'refresh_token');
+        expect(session.keys!.accountLocked, isFalse);
+        expect(session.keys!.versions.single.state, KeyState.current);
+        expect(session.keys!.versions.single.encryptedMasterKey, E2eeTestData.bytes(72, 1));
+        expect(session.legalAcceptanceRequired, isFalse);
+        expect(session.deviceTrustToken, isNull);
+      });
+
+      test('should send the device trust token and the device name when it has them', () async {
+        stubPost(E2eeTestData.authResponseJson());
+
+        await dataSource.login('test@example.com', 'a', 'uuid', deviceTrustToken: 'trust-token', deviceName: 'Pixel 9');
+
+        final request = capturedPost();
+        expect(request.body['deviceTrustToken'], 'trust-token');
+        expect(request.body['deviceName'], 'Pixel 9');
+      });
+
+      test('should parse the second factor asked to a device that is not trusted', () async {
+        stubPost({
+          'secondFactorRequired': true,
+          'challengeToken': 'challenge-token',
+          'method': 'EMAIL',
+          'emailHint': 't***@example.com',
+        });
+
+        final response = await dataSource.login('test@example.com', 'a', 'uuid');
+
+        expect(response.session, isNull);
+        expect(response.challenge!.challengeToken, 'challenge-token');
+        expect(response.challenge!.method, 'EMAIL');
+        expect(response.challenge!.emailHint, 't***@example.com');
       });
 
       test('should parse a locked account', () async {
@@ -86,8 +115,8 @@ void main() {
 
         final response = await dataSource.login('test@example.com', 'a', 'uuid');
 
-        expect(response.keys!.accountLocked, isTrue);
-        expect(response.keys!.versions.single.state, KeyState.locked);
+        expect(response.session!.keys!.accountLocked, isTrue);
+        expect(response.session!.keys!.versions.single.state, KeyState.locked);
       });
 
       test('should throw ApiException with the backend error on a non-2xx response', () async {
@@ -105,6 +134,46 @@ void main() {
             .thenThrow(StateError('boom'));
         expect(() => dataSource.login('e', 'a', 'u'),
             throwsA(isA<Exception>().having((e) => e.toString(), 'message', contains('Connection error'))));
+      });
+    });
+
+    group('verifyLoginSecondFactor', () {
+      test('should send the challenge token and the code and parse the session with the device trust token',
+          () async {
+        stubPost({...E2eeTestData.authResponseJson(), 'deviceTrustToken': 'trust-token'});
+
+        final response = await dataSource.verifyLoginSecondFactor('challenge-token', '482913');
+
+        final request = capturedPost();
+        expect(request.uri.toString(), '$baseUrl/api/login/second-factor/');
+        expect(request.body, {'challengeToken': 'challenge-token', 'code': '482913'});
+        expect(response.token, 'access_token');
+        expect(response.deviceTrustToken, 'trust-token');
+      });
+
+      test('should throw ApiException with the backend error', () async {
+        stubPost({'code': 'INVALID_SECOND_FACTOR_CODE', 'message': 'Wrong code', 'timestamp': 'now'}, status: 400);
+
+        expect(() => dataSource.verifyLoginSecondFactor('challenge-token', '000000'),
+            throwsA(isA<ApiException>().having((e) => e.code, 'code', 'INVALID_SECOND_FACTOR_CODE')));
+      });
+    });
+
+    group('resendLoginSecondFactor', () {
+      test('should POST the challenge token to the resend endpoint', () async {
+        stubPost(null, status: 204);
+
+        await dataSource.resendLoginSecondFactor('challenge-token');
+
+        final request = capturedPost();
+        expect(request.uri.toString(), '$baseUrl/api/login/second-factor/resend/');
+        expect(request.body, {'challengeToken': 'challenge-token'});
+      });
+
+      test('should throw ApiException when it is too soon', () async {
+        stubPost({'code': 'SECOND_FACTOR_RESEND_TOO_SOON', 'message': 'Wait', 'timestamp': 'now'}, status: 429);
+
+        expect(() => dataSource.resendLoginSecondFactor('challenge-token'), throwsA(isA<ApiException>()));
       });
     });
 

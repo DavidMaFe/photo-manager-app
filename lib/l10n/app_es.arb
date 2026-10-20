@@ -992,5 +992,9 @@
   "planPurchaseTermsLink": "Términos de uso",
   "registerEmailBody": "Primero verificamos tu email: te enviaremos un código de 6 dígitos.",
   "registerEmailTaken": "Este email ya tiene una cuenta.",
-  "registerChangeEmail": "Cambiar email"
+  "registerChangeEmail": "Cambiar email",
+  "errorSecondFactorExpired": "La verificación ha caducado. Vuelve a iniciar sesión.",
+  "loginSecondFactorTitle": "Confirma que eres tú",
+  "loginSecondFactorBody": "Es la primera vez que entras desde este dispositivo. Te hemos enviado un código de 6 dígitos a {email}",
+  "loginSecondFactorBack": "Volver al inicio de sesión"
 }

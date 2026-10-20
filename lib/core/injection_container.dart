@@ -87,6 +87,10 @@ import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_da
 import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/services/pending_login.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/cancel_login_second_factor_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/resend_login_second_factor_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/verify_login_second_factor_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/refresh_token_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
@@ -719,9 +723,15 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final repository = sl<AuthRepository>();
-        return LoginUseCase(repository, sl<CryptoEngine>(), sl<KeyringService>());
+        return LoginUseCase(repository, sl<CryptoEngine>(), sl<KeyringService>(), sl<PendingLogin>());
       }
   );
+  // The login waiting for the second factor: one for the whole app, it keeps the keys of the password in memory
+  sl.registerLazySingleton(() => PendingLogin());
+  sl.registerFactory(() => VerifyLoginSecondFactorUseCase(
+      sl<AuthRepository>(), sl<KeyringService>(), sl<PendingLogin>()));
+  sl.registerFactory(() => ResendLoginSecondFactorUseCase(sl<AuthRepository>(), sl<PendingLogin>()));
+  sl.registerFactory(() => CancelLoginSecondFactorUseCase(sl<PendingLogin>()));
 
   sl.registerFactory(
       () {
@@ -1078,6 +1088,9 @@ Future<void> init() async {
             syncDeviceRepository: syncDeviceRepository,
             recoveryReminderUseCase: sl<RecoveryReminderUseCase>(),
             acceptLegalTermsUseCase: sl<AcceptLegalTermsUseCase>(),
+            verifyLoginSecondFactorUseCase: sl<VerifyLoginSecondFactorUseCase>(),
+            resendLoginSecondFactorUseCase: sl<ResendLoginSecondFactorUseCase>(),
+            cancelLoginSecondFactorUseCase: sl<CancelLoginSecondFactorUseCase>(),
             eventBus: eventBus,
         );
       }

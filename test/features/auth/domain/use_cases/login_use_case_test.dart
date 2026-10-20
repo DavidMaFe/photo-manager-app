@@ -6,9 +6,12 @@ import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/crypto/domain/crypto_key.dart';
 import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
 import 'package:photo_manager_app/core/crypto/domain/key_version.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_outcome.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/login_result.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/second_factor_challenge.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:photo_manager_app/features/auth/domain/services/pending_login.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 
 import '../../../../helpers/e2ee_test_kit.dart';
@@ -19,6 +22,7 @@ void main() {
   late E2eeTestKit kit;
   late MockAuthRepository repository;
   late LoginUseCase useCase;
+  late PendingLogin pendingLogin;
 
   const email = 'test@example.com';
   const password = 'correct horse battery';
@@ -32,7 +36,8 @@ void main() {
   setUp(() async {
     kit = await E2eeTestKit.create();
     repository = MockAuthRepository();
-    useCase = LoginUseCase(repository, kit.engine, kit.keyring);
+    pendingLogin = PendingLogin();
+    useCase = LoginUseCase(repository, kit.engine, kit.keyring, pendingLogin);
     when(() => repository.getKdfParams(any())).thenAnswer((_) async => params);
   });
 
@@ -42,10 +47,14 @@ void main() {
     when(() => repository.login(email: any(named: 'email'), authKey: any(named: 'authKey'))).thenAnswer((invocation) async {
       // Copied now: the use case wipes the key once the login is done
       receivedAuthKeys.add(base64Encode((invocation.namedArguments[#authKey] as CryptoKey).bytes));
-      return LoginResult(user: user, keys: keys);
+      return LoginCompleted(LoginResult(user: user, keys: keys));
     });
     return receivedAuthKeys;
   }
+
+  LoginResult completed(LoginOutcome outcome) => (outcome as LoginCompleted).result;
+
+  const challenge = SecondFactorChallenge(challengeToken: 'challenge-token', method: 'EMAIL', emailHint: 't***@example.com');
 
   group('LoginUseCase', () {
     // ==================== HAPPY PATH TESTS ====================
@@ -56,7 +65,7 @@ void main() {
       final received = serverAnswers(AccountKeys(accountLocked: false, versions: [E2eeTestKit.serverVersion(material)]));
 
       // Act
-      final result = await useCase(email: email, password: password);
+      final result = completed(await useCase(email: email, password: password));
 
       // Assert
       final expected = await kit.passwordKeys(password, params);
@@ -99,7 +108,7 @@ void main() {
       serverAnswers(AccountKeys(accountLocked: true,
           versions: [E2eeTestKit.serverVersion(material, state: KeyState.locked)]));
 
-      final result = await useCase(email: email, password: password);
+      final result = completed(await useCase(email: email, password: password));
 
       expect(result.accountLocked, isTrue);
       expect(await kit.store.getVersions(), isEmpty);
@@ -119,6 +128,47 @@ void main() {
 
       await expectLater(useCase(email: email, password: password), throwsException);
       expect(await kit.store.getVersions(), isEmpty);
+    });
+
+    // ==================== SECOND FACTOR TESTS ====================
+
+    test('should keep the keys of the password in memory, not on the device, until the second factor', () async {
+      // Arrange
+      when(() => repository.login(email: any(named: 'email'), authKey: any(named: 'authKey')))
+          .thenAnswer((_) async => const LoginSecondFactorRequired(challenge));
+
+      // Act
+      final outcome = await useCase(email: email, password: password);
+
+      // Assert
+      expect(outcome, isA<LoginSecondFactorRequired>());
+      expect(pendingLogin.challenge, challenge);
+      final expected = await kit.passwordKeys(password, params);
+      expect(pendingLogin.keys!.kek.bytes, expected.kek.bytes);
+      expect(await kit.store.getVersions(), isEmpty);
+    });
+
+    test('should drop a previous pending login when logging in again', () async {
+      when(() => repository.login(email: any(named: 'email'), authKey: any(named: 'authKey')))
+          .thenAnswer((_) async => const LoginSecondFactorRequired(challenge));
+      await useCase(email: email, password: password);
+      final previousKek = pendingLogin.keys!.kek;
+
+      final material = await kit.material(password, params);
+      serverAnswers(AccountKeys(accountLocked: false, versions: [E2eeTestKit.serverVersion(material)]));
+      await useCase(email: email, password: password);
+
+      expect(pendingLogin.isActive, isFalse);
+      expect(previousKek.bytes.every((b) => b == 0), isTrue);
+    });
+
+    test('should not keep the keys when the login fails', () async {
+      when(() => repository.login(email: any(named: 'email'), authKey: any(named: 'authKey')))
+          .thenThrow(Exception('Invalid credentials'));
+
+      await expectLater(useCase(email: email, password: password), throwsException);
+
+      expect(pendingLogin.isActive, isFalse);
     });
 
     // ==================== VALIDATION ERROR TESTS ====================

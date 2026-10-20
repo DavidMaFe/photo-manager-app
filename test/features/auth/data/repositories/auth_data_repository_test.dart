@@ -9,11 +9,16 @@ import 'package:photo_manager_app/core/crypto/domain/key_version.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/models/auth_response_model.dart';
+import 'package:photo_manager_app/features/auth/data/models/login_response_model.dart';
+import 'package:photo_manager_app/features/auth/data/models/second_factor_challenge_model.dart';
 import 'package:photo_manager_app/features/auth/data/models/refresh_token_response_model.dart';
 import 'package:photo_manager_app/features/auth/data/models/user_model.dart';
 import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repository.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_outcome.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_result.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/sync_device_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/data/models/sync_device_model.dart';
 
 import '../../../../fixtures/e2ee_test_data.dart';
 import '../../../../helpers/in_memory_secure_store.dart';
@@ -31,6 +36,9 @@ class FakeUserModel extends Fake implements UserModel {}
 class FakeKdfParams extends Fake implements KdfParams {}
 
 class FakeNewKeyMaterial extends Fake implements NewKeyMaterial {}
+
+SyncDeviceModel deviceInfo(String name) => SyncDeviceModel.fromRegistrationResponse(id: '', uuid: 'uuid_123', name: name,
+    model: name, osType: 'Android', osVersion: '15', appVersion: '1.0.0', userId: '');
 
 void main() {
   late AuthDataRepository repository;
@@ -74,7 +82,19 @@ void main() {
     when(() => local.cacheUser(any())).thenAnswer((_) async {});
     when(() => local.clearCache()).thenAnswer((_) async {});
     when(() => profileLocal.clearProfileCache()).thenAnswer((_) async {});
+    when(() => local.getDeviceTrustToken(any())).thenAnswer((_) async => null);
+    when(() => local.cacheDeviceTrustToken(any(), any())).thenAnswer((_) async {});
+    when(() => local.clearDeviceTrustToken()).thenAnswer((_) async {});
+    when(() => syncDeviceLocal.getCurrentDeviceInfo()).thenAnswer((_) async => deviceInfo('Pixel 9'));
   });
+
+  void stubLogin(LoginResponseModel response) {
+    when(() => remote.login(any(), any(), any(),
+            deviceTrustToken: any(named: 'deviceTrustToken'), deviceName: any(named: 'deviceName')))
+        .thenAnswer((_) async => response);
+  }
+
+  LoginResult completed(LoginOutcome outcome) => (outcome as LoginCompleted).result;
 
   group('AuthDataRepository', () {
     group('getKdfParams', () {
@@ -90,28 +110,52 @@ void main() {
       test('should send the authKey as Base64 with the device and return user and keys', () async {
         // Arrange
         final authKey = E2eeTestData.key(7);
-        when(() => remote.login(any(), any(), any())).thenAnswer((_) async => authResponse);
+        stubLogin(LoginResponseModel.session(authResponse));
 
         // Act
-        final result = await repository.login(email: email, authKey: authKey);
+        final result = completed(await repository.login(email: email, authKey: authKey));
 
         // Assert
-        verify(() => remote.login(email, base64Encode(authKey.bytes), deviceUuid)).called(1);
+        verify(() => remote.login(email, base64Encode(authKey.bytes), deviceUuid,
+            deviceTrustToken: null, deviceName: 'Pixel 9')).called(1);
         expect(result.user, user);
         expect(result.keys, keys);
       });
 
-      test('should tell when the terms in force must be accepted', () async {
-        when(() => remote.login(any(), any(), any())).thenAnswer((_) async => AuthResponseModel(
-            token: 'access', refreshToken: 'refresh', user: user, keys: keys, legalAcceptanceRequired: true));
+      test('should send the token that trusts this device for the email', () async {
+        when(() => local.getDeviceTrustToken(email)).thenAnswer((_) async => 'trust-token');
+        stubLogin(LoginResponseModel.session(authResponse));
 
-        final result = await repository.login(email: email, authKey: E2eeTestData.key(7));
+        await repository.login(email: email, authKey: E2eeTestData.key(7));
+
+        verify(() => remote.login(any(), any(), any(), deviceTrustToken: 'trust-token',
+            deviceName: any(named: 'deviceName'))).called(1);
+      });
+
+      test('should log in without the device name when it cannot be read, and cut a long one', () async {
+        when(() => syncDeviceLocal.getCurrentDeviceInfo()).thenThrow(Exception('no device info'));
+        stubLogin(LoginResponseModel.session(authResponse));
+        await repository.login(email: email, authKey: E2eeTestData.key(7));
+        verify(() => remote.login(any(), any(), any(), deviceTrustToken: any(named: 'deviceTrustToken'),
+            deviceName: null)).called(1);
+
+        when(() => syncDeviceLocal.getCurrentDeviceInfo()).thenAnswer((_) async => deviceInfo('x' * 150));
+        await repository.login(email: email, authKey: E2eeTestData.key(7));
+        verify(() => remote.login(any(), any(), any(), deviceTrustToken: any(named: 'deviceTrustToken'),
+            deviceName: 'x' * 100)).called(1);
+      });
+
+      test('should tell when the terms in force must be accepted', () async {
+        stubLogin(LoginResponseModel.session(AuthResponseModel(
+            token: 'access', refreshToken: 'refresh', user: user, keys: keys, legalAcceptanceRequired: true)));
+
+        final result = completed(await repository.login(email: email, authKey: E2eeTestData.key(7)));
 
         expect(result.legalAcceptanceRequired, isTrue);
       });
 
       test('should cache the session after a successful login', () async {
-        when(() => remote.login(any(), any(), any())).thenAnswer((_) async => authResponse);
+        stubLogin(LoginResponseModel.session(authResponse));
 
         await repository.login(email: email, authKey: E2eeTestData.key(7));
 
@@ -119,14 +163,63 @@ void main() {
         verify(() => local.cacheRefreshToken('refresh')).called(1);
         verify(() => local.cacheUser(user)).called(1);
         verify(() => local.cacheLoginTimestamp(any())).called(1);
+        verifyNever(() => local.cacheDeviceTrustToken(any(), any()));
+      });
+
+      test('should return the second factor without caching any session', () async {
+        const challenge = SecondFactorChallengeModel(
+            challengeToken: 'challenge-token', method: 'EMAIL', emailHint: 't***@example.com');
+        stubLogin(const LoginResponseModel.challenge(challenge));
+
+        final outcome = await repository.login(email: email, authKey: E2eeTestData.key(7));
+
+        expect(outcome, isA<LoginSecondFactorRequired>().having((o) => o.challenge, 'challenge', challenge));
+        verifyNever(() => local.cacheToken(any()));
+        verifyNever(() => local.cacheUser(any()));
       });
 
       test('should not cache anything when the login fails', () async {
-        when(() => remote.login(any(), any(), any())).thenThrow(Exception('401'));
+        when(() => remote.login(any(), any(), any(),
+                deviceTrustToken: any(named: 'deviceTrustToken'), deviceName: any(named: 'deviceName')))
+            .thenThrow(Exception('401'));
 
         await expectLater(repository.login(email: email, authKey: E2eeTestData.key(7)), throwsException);
 
         verifyNever(() => local.cacheToken(any()));
+      });
+    });
+
+    group('verifyLoginSecondFactor', () {
+      test('should start the session and keep the token that trusts this device', () async {
+        when(() => remote.verifyLoginSecondFactor(any(), any())).thenAnswer((_) async => AuthResponseModel(
+            token: 'access', refreshToken: 'refresh', user: user, keys: keys, deviceTrustToken: 'trust-token'));
+
+        final result = await repository.verifyLoginSecondFactor(challengeToken: 'challenge-token', code: '482913');
+
+        verify(() => remote.verifyLoginSecondFactor('challenge-token', '482913')).called(1);
+        expect(result.user, user);
+        expect(result.keys, keys);
+        verify(() => local.cacheToken('access')).called(1);
+        verify(() => local.cacheDeviceTrustToken(email, 'trust-token')).called(1);
+      });
+
+      test('should cache nothing with a wrong code', () async {
+        when(() => remote.verifyLoginSecondFactor(any(), any())).thenThrow(Exception('400'));
+
+        await expectLater(repository.verifyLoginSecondFactor(challengeToken: 't', code: '000000'), throwsException);
+
+        verifyNever(() => local.cacheToken(any()));
+        verifyNever(() => local.cacheDeviceTrustToken(any(), any()));
+      });
+    });
+
+    group('resendLoginSecondFactor', () {
+      test('should delegate to the remote data source', () async {
+        when(() => remote.resendLoginSecondFactor(any())).thenAnswer((_) async {});
+
+        await repository.resendLoginSecondFactor('challenge-token');
+
+        verify(() => remote.resendLoginSecondFactor('challenge-token')).called(1);
       });
     });
 
@@ -160,6 +253,28 @@ void main() {
         verify(() => local.cacheToken('access')).called(1);
         expect(result.keys.versions.single.version, 1);
       });
+
+      test('should keep the token that trusts the device that registered', () async {
+        when(() => remote.register(
+              email: any(named: 'email'),
+              authKey: any(named: 'authKey'),
+              name: any(named: 'name'),
+              surname: any(named: 'surname'),
+              deviceUuid: any(named: 'deviceUuid'),
+              kdfParams: any(named: 'kdfParams'),
+              key: any(named: 'key'),
+              acceptedTermsVersion: any(named: 'acceptedTermsVersion'),
+              acceptedPrivacyVersion: any(named: 'acceptedPrivacyVersion'),
+              emailCode: any(named: 'emailCode'),
+            )).thenAnswer((_) async => AuthResponseModel(
+            token: 'access', refreshToken: 'refresh', user: user, keys: keys, deviceTrustToken: 'trust-token'));
+
+        await repository.register(email: email, authKey: E2eeTestData.key(7), name: 'John', surname: 'Doe',
+            kdfParams: E2eeTestData.kdfParams(), key: E2eeTestData.newKeyMaterial(), acceptedTermsVersion: '1.0',
+            acceptedPrivacyVersion: '1.0', emailCode: '482913');
+
+        verify(() => local.cacheDeviceTrustToken(email, 'trust-token')).called(1);
+      });
     });
 
     group('registration code', () {
@@ -192,6 +307,8 @@ void main() {
         verify(() => profileLocal.clearProfileCache()).called(1);
         expect(await masterKeys.getVersions(), isEmpty);
         expect(await masterKeys.getRecoveryKey(1), isNull);
+        // The device stays trusted for the next login
+        verifyNever(() => local.clearDeviceTrustToken());
       });
 
       test('should remove the keys even when the remote logout fails', () async {
@@ -226,6 +343,7 @@ void main() {
         // Assert
         verifyNever(() => remote.logout(any()));
         verify(() => local.clearCache()).called(1);
+        verify(() => local.clearDeviceTrustToken()).called(1);
         verify(() => profileLocal.clearProfileCache()).called(1);
         expect(await masterKeys.getVersions(), isEmpty);
       });

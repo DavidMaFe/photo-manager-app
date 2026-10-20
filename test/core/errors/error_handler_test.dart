@@ -75,6 +75,28 @@ void main() {
       });
     });
 
+    group('second factor of the login', () {
+      test('should map a wrong code to a ValidationFailure with the server message', () {
+        final failure = ErrorHandler.handleError(apiError(FailureCodes.invalidSecondFactorCode));
+
+        expect(failure, isA<ValidationFailure>());
+        expect(failure, isNot(isA<SecondFactorExpiredFailure>()));
+        expect(failure.errorResponse?.message, 'Mensaje del servidor');
+      });
+
+      test('should map an expired challenge to a SecondFactorExpiredFailure', () {
+        final failure = ErrorHandler.handleError(apiError(FailureCodes.secondFactorChallengeExpired));
+
+        expect(failure, isA<SecondFactorExpiredFailure>());
+        expect(failure.code, FailureCodes.secondFactorChallengeExpired);
+      });
+
+      test('should map a code asked too soon to a PermissionDeniedFailure', () {
+        expect(ErrorHandler.handleError(apiError(FailureCodes.secondFactorResendTooSoon)),
+            isA<PermissionDeniedFailure>());
+      });
+    });
+
     test('should return a Failure thrown by a use case as it is', () {
       // Arrange
       const failure = ValidationFailure(code: FailureCodes.folderCoversLimitExceeded);

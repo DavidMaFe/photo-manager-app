@@ -2587,4 +2587,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get registerChangeEmail => 'Change email';
+
+  @override
+  String get errorSecondFactorExpired => 'The verification expired. Sign in again.';
+
+  @override
+  String get loginSecondFactorTitle => 'Confirm it\'s you';
+
+  @override
+  String loginSecondFactorBody(String email) {
+    return 'This device is new for your account. We\'ve sent a 6-digit code to $email';
+  }
+
+  @override
+  String get loginSecondFactorBack => 'Back to sign in';
 }

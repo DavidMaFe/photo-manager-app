@@ -1145,5 +1145,16 @@
   "planPurchaseTermsLink": "Terms of use",
   "registerEmailBody": "First we verify your email: we'll send you a 6-digit code.",
   "registerEmailTaken": "This email already has an account.",
-  "registerChangeEmail": "Change email"
+  "registerChangeEmail": "Change email",
+  "errorSecondFactorExpired": "The verification expired. Sign in again.",
+  "loginSecondFactorTitle": "Confirm it's you",
+  "loginSecondFactorBody": "This device is new for your account. We've sent a 6-digit code to {email}",
+  "@loginSecondFactorBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "loginSecondFactorBack": "Back to sign in"
 }
