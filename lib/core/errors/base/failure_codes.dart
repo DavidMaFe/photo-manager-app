@@ -22,7 +22,7 @@ class FailureCodes {
   static const String deviceLinkedToAnotherUser = "DEVICE_LINKED_TO_ANOTHER_USER";
   static const String deviceNotLinkedToUser = "DEVICE_NOT_LINKED";
 
-  // ==================== Plan Limits (ROADMAP-subscriptions.md in the backend) ====================
+  // ==================== Plan Limits (CLAUDE.md of the backend) ====================
   static const String accountReadOnly = "ACCOUNT_READ_ONLY";
   static const String deviceLimitReached = "DEVICE_LIMIT_REACHED";
   static const String devicePaused = "DEVICE_PAUSED";

@@ -64,7 +64,7 @@ class _SyncResult {
       _SyncResult(success: false, errorMessage: errorMessage, isPlanLimit: true);
 }
 
-/// Codes of the server for a limit of the plan that stops the whole backup (ROADMAP-subscriptions.md in the backend).
+/// Codes of the server for a limit of the plan that stops the whole backup (CLAUDE.md of the backend).
 const _planLimitCodes = {
   FailureCodes.accountReadOnly,
   FailureCodes.deviceLimitReached,

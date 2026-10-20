@@ -2,7 +2,7 @@ import 'package:photo_manager_app/features/sync_config/domain/entities/sync_conf
 import 'package:photo_manager_app/features/sync_config/domain/enums/sync_frequency.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
 
-/// The free plan backs up weekly (ROADMAP-subscriptions.md in the backend): when the plan does not include the daily
+/// The free plan backs up weekly (CLAUDE.md of the backend): when the plan does not include the daily
 /// backup, a daily automatic backup becomes weekly, at the same time (on Mondays unless a day was chosen before), and
 /// is scheduled again. The server does not keep the backup schedule, so the app applies it.
 class ApplyPlanToSyncConfigUseCase {

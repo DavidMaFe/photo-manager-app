@@ -161,7 +161,7 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(child: ScreenHeader(title: l10n.navBackup)),
-          // Read only account or paused device (ROADMAP-subscriptions.md in the backend)
+          // Read only account or paused device (CLAUDE.md of the backend)
           const SliverToBoxAdapter(child: PlanLimitBanner()),
           SliverToBoxAdapter(
             child: BlocBuilder<SyncSessionBloc, SyncSessionState>(

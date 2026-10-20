@@ -136,7 +136,7 @@ class _SyncConfigurationViewState extends State<SyncConfigurationView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // The free plan backs up weekly (ROADMAP-subscriptions.md in the backend)
+                      // The free plan backs up weekly (CLAUDE.md of the backend)
                       Builder(builder: (context) {
                         final dailyAllowed =
                             context.select<PlanCubit, bool>((cubit) => cubit.state.plan?.limits.dailyBackup ?? true);

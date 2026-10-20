@@ -754,7 +754,7 @@ Future<void> init() async {
   sl.registerFactory(() => AccountDeletionSummaryCubit(getSummary: sl<GetAccountDeletionSummaryUseCase>()));
   sl.registerFactory(() => DeleteAccountBloc(deleteAccountUseCase: sl<DeleteAccountUseCase>()));
 
-  // plans (ROADMAP-subscriptions.md in the backend)
+  // plans (CLAUDE.md of the backend)
   sl.registerLazySingleton<PlanRemoteDataSource>(() => PlanRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
   sl.registerLazySingleton<PlanRepository>(() => PlanDataRepository(remoteDataSource: sl<PlanRemoteDataSource>()));
   sl.registerFactory(() => GetUserPlanUseCase(sl<PlanRepository>()));

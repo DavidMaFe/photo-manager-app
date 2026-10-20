@@ -1,4 +1,4 @@
-/// Plans of the app (ROADMAP-subscriptions.md in the backend). The order is from the smallest to the biggest.
+/// Plans of the app (CLAUDE.md of the backend). The order is from the smallest to the biggest.
 enum PlanTier {
   free('FREE'),
   plus100('PLUS_100'),

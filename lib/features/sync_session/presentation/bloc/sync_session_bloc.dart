@@ -40,7 +40,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
   final SyncLock syncLock;
   final SyncKeepAlive syncKeepAlive;
 
-  /// The plan of the user (ROADMAP-subscriptions.md in the backend): read when the backup starts.
+  /// The plan of the user (CLAUDE.md of the backend): read when the backup starts.
   final GetUserPlanUseCase getUserPlanUseCase;
 
   String? _currentSessionId;
