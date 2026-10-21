@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -106,6 +108,35 @@ void main() {
       expect(find.textContaining('This device has no copy of your 24 words'), findsOneWidget);
       expect(find.text('page ${RouteNames.verifyRecoveryWords}'), findsOneWidget);
       verifyNever(() => getWords(any(), reason: any(named: 'reason'), password: any(named: 'password')));
+    });
+
+    testWidgets('should open the words although the profile was rebuilt while the device lock was asked',
+        (tester) async {
+      // Given: The fingerprint prompt pauses and resumes the app, and the resume rebuilds the profile
+      final prompt = Completer<List<String>?>();
+      when(() => getWords(any(), reason: any(named: 'reason'), password: any(named: 'password')))
+          .thenAnswer((_) => prompt.future);
+      final rebuild = ValueNotifier(0);
+      setUpCustomScreenSize(tester, 390, 844);
+      await tester.pumpWidget(makeTestableRouter(
+        router: routerWith(ValueListenableBuilder<int>(
+          valueListenable: rebuild,
+          builder: (_, value, __) =>
+              SecuritySection(key: ValueKey(value), email: 'ana@example.com', getRecoveryWordsUseCase: getWords),
+        )),
+      ));
+
+      await tester.tap(find.byKey(const ValueKey('security-recovery-words')));
+      await tester.pump();
+      rebuild.value++;
+      await tester.pump();
+
+      // When: The device lock is passed
+      prompt.complete(words);
+      await tester.pumpAndSettle();
+
+      // Then: The words open
+      expect(find.text('page ${RouteNames.recoveryWords}'), findsOneWidget);
     });
 
     testWidgets('should not open the words when the device lock is not passed', (tester) async {
