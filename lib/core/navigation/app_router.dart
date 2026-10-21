@@ -14,7 +14,7 @@ import 'package:photo_manager_app/features/legal/presentation/pages/legal_index_
 import 'package:photo_manager_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_bloc.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/bloc/sync_config_event.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/navigation/app_redirect.dart';
@@ -73,11 +73,14 @@ import '../injection_container.dart';
 
 class AppRouter {
 
-  static GoRouter createRouter(AuthBloc authBloc, OnboardingNotifier onboardingNotifier) {
+  /// [observers]: e.g. the screen tracking of the monitoring ([AppScreenObserver]).
+  static GoRouter createRouter(AuthBloc authBloc, OnboardingNotifier onboardingNotifier,
+      {List<NavigatorObserver> observers = const []}) {
     final authNotifier = AuthNotifier(authBloc);
 
     return GoRouter(
         initialLocation: RoutePaths.login,
+        observers: observers,
         refreshListenable: Listenable.merge([authNotifier, onboardingNotifier]),
         redirect: (context, state) => AppRedirect.resolve(
           AppRedirectStatus(

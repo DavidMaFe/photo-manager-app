@@ -34,6 +34,7 @@ import 'package:workmanager/workmanager.dart';
 import 'config/app_config.dart';
 import 'config/theme/app_theme.dart';
 import 'core/injection_container.dart' as di;
+import 'core/monitoring/app_logger.dart';
 import 'core/utils/app_locale.dart';
 
 
@@ -49,6 +50,18 @@ void main() async {
 
   // Initialize dependency injection
   await di.init();
+
+  // Monitoring: the errors nobody handled go to the log of the backend (CLAUDE.md, «Logs and metrics»)
+  final appLogger = di.sl<AppLogger>();
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    appLogger.recordError(details.exception, details.stack);
+  };
+  PlatformDispatcher.instance.onError = (error, stackTrace) {
+    appLogger.recordError(error, stackTrace);
+    return true;
+  };
+  appLogger.start();
 
   // Initialize WorkManager for background tasks
   await Workmanager().initialize(
@@ -83,7 +96,8 @@ void main() async {
   );
   di.sl.registerSingleton<OnboardingNotifier>(onboardingNotifier);
 
-  final router = AppRouter.createRouter(authBloc, onboardingNotifier);
+  final router = AppRouter.createRouter(authBloc, onboardingNotifier,
+      observers: [AppScreenObserver(appLogger)]);
 
   final startupAuth = AuthNotifier(authBloc);
   StartupSplash(
@@ -170,6 +184,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Monitoring: what is queued goes out when the app leaves and when it comes back
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.resumed) {
+      di.sl<AppLogger>().flush();
+    }
     if (state == AppLifecycleState.resumed) {
       // Android resets system UI on resume — reapply immersive mode.
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);

@@ -273,6 +273,9 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEn = {
               'detect duplicates.',
           'Devices: name, model, operating system, app version and identifier.',
           'Session and security: access dates, session tokens and the IP address of the requests.',
+          'Error reports of the app: the type of error, the screen where it happened, the version of the app and the '
+              'model and system of the device. They never carry your email, your files or their names, and they are '
+              'kept on our own server.',
           'Your keys, always encrypted: the server cannot open them.',
           'The version of the terms and of this policy you accepted, and the date.',
           'Subscriptions: the identifier of the purchase in Google Play, the plan, its state, the dates of the period '
@@ -292,6 +295,8 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEn = {
               'password and applying the plan you buy. Basis: performance of the contract (art. 6.1.b GDPR).',
           'Protecting the service and preventing abuse, for example by limiting attempts per IP address. Basis: our '
               'legitimate interest (art. 6.1.f).',
+          'Finding and fixing errors, outages and performance problems, with the technical logs of the server and '
+              'the error reports of the app. Basis: our legitimate interest (art. 6.1.f).',
           'Complying with legal obligations. Basis: legal obligation (art. 6.1.c).',
         ]),
         LegalParagraph('We do not use your data for advertising and we do not sell it.'),
@@ -316,6 +321,7 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEn = {
           'As long as you have the account.',
           'Files in the trash are deleted after 30 days.',
           'Session tokens expire after 30 days.',
+          'The technical logs of the server and the error reports of the app are deleted after 30 days.',
           'The data of your subscriptions, as long as you have the account. Google Play keeps its own records of the '
               'payments.',
           'If you delete your account from the app, your data is deleted at once; if you ask by email, within 30 '

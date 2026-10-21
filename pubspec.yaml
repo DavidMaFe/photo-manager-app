@@ -80,6 +80,7 @@ dependencies:
   # MediaStore ids, free space and saving into the gallery in chunks (ROADMAP-downloads-and-account-deletion.md)
   device_media:
     path: packages/device_media
+  package_info_plus: ^9.0.1
 
 dev_dependencies:
   flutter_test:

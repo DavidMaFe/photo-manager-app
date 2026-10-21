@@ -25,9 +25,9 @@ flutter run --release
 # Build APK (Android)
 flutter build apk
 
-# Build app bundle (Android). For the store: obfuscated, keeping the symbols (build/symbols, not in git) to read the
-# stack traces of the crash reports (`flutter symbolize`)
-flutter build appbundle --obfuscate --split-debug-info=build/symbols
+# Build app bundle (Android). Not obfuscated: the stack traces of the errors the app sends to the backend must be
+# readable in Grafana (CLAUDE.md of the backend, «Logs and metrics»)
+flutter build appbundle --release --dart-define-from-file=config/prod.json
 
 # Build iOS app
 flutter build ios
