@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
 import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/features/account_security/domain/use_cases/recovery_phrase_use_cases.dart';
@@ -22,7 +23,8 @@ void main() {
   /// A router with the security routes by name; each shows its name.
   GoRouter routerWith(Widget home, {void Function(Object?)? onWordsExtra}) => GoRouter(routes: [
         GoRoute(path: '/', builder: (_, __) => Scaffold(body: home)),
-        for (final name in [RouteNames.verifyRecoveryWords, RouteNames.forgotPassword, RouteNames.lockedPhotos])
+        for (final name in [RouteNames.verifyRecoveryWords, RouteNames.forgotPassword, RouteNames.lockedPhotos,
+          RouteNames.twoFactor])
           GoRoute(path: '/$name', name: name, builder: (_, __) => Scaffold(body: Text('page $name'))),
         GoRoute(
           path: '/${RouteNames.recoveryWords}',
@@ -52,7 +54,11 @@ void main() {
     late MockGetRecoveryWordsUseCase getWords;
     final words = List.generate(24, (i) => 'word$i');
 
-    setUp(() => getWords = MockGetRecoveryWordsUseCase());
+    setUp(() {
+      getWords = MockGetRecoveryWordsUseCase();
+      when(() => getWords.hasWords()).thenAnswer((_) async => true);
+      when(() => getWords.needsPassword()).thenAnswer((_) async => false);
+    });
 
     Future<void> pumpSection(WidgetTester tester, {void Function(Object?)? onWordsExtra}) async {
       setUpCustomScreenSize(tester, 390, 844);
@@ -76,7 +82,8 @@ void main() {
 
     testWidgets('should open the words kept on this device only to view them', (tester) async {
       Object? extra;
-      when(() => getWords(any())).thenAnswer((_) async => words);
+      when(() => getWords(any(), reason: any(named: 'reason'), password: any(named: 'password')))
+          .thenAnswer((_) async => words);
       await pumpSection(tester, onWordsExtra: (value) => extra = value);
 
       await tester.tap(find.byKey(const ValueKey('security-recovery-words')));
@@ -90,7 +97,7 @@ void main() {
     });
 
     testWidgets('should send to the verification when this device has no copy of the words', (tester) async {
-      when(() => getWords(any())).thenAnswer((_) async => null);
+      when(() => getWords.hasWords()).thenAnswer((_) async => false);
       await pumpSection(tester);
 
       await tester.tap(find.byKey(const ValueKey('security-recovery-words')));
@@ -98,12 +105,56 @@ void main() {
 
       expect(find.textContaining('This device has no copy of your 24 words'), findsOneWidget);
       expect(find.text('page ${RouteNames.verifyRecoveryWords}'), findsOneWidget);
+      verifyNever(() => getWords(any(), reason: any(named: 'reason'), password: any(named: 'password')));
+    });
+
+    testWidgets('should not open the words when the device lock is not passed', (tester) async {
+      when(() => getWords(any(), reason: any(named: 'reason'), password: any(named: 'password')))
+          .thenThrow(const DeviceAuthenticationFailure());
+      await pumpSection(tester);
+
+      await tester.tap(find.byKey(const ValueKey('security-recovery-words')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('page ${RouteNames.recoveryWords}'), findsNothing);
+      expect(find.textContaining('could not be verified'), findsOneWidget);
+    });
+
+    testWidgets('should ask for the password on a phone without a screen lock', (tester) async {
+      when(() => getWords.needsPassword()).thenAnswer((_) async => true);
+      when(() => getWords(any(), reason: any(named: 'reason'), password: any(named: 'password')))
+          .thenAnswer((_) async => words);
+      await pumpSection(tester);
+
+      await tester.tap(find.byKey(const ValueKey('security-recovery-words')));
+      await tester.pumpAndSettle();
+      expect(find.text('Confirm your password'), findsOneWidget);
+      await tester.enterText(find.byType(EditableText).first, 'the password');
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      verify(() => getWords(any(), reason: any(named: 'reason'), password: 'the password')).called(1);
+      expect(find.text('page ${RouteNames.recoveryWords}'), findsOneWidget);
+    });
+
+    testWidgets('should not open the words when the password dialog is cancelled', (tester) async {
+      when(() => getWords.needsPassword()).thenAnswer((_) async => true);
+      await pumpSection(tester);
+
+      await tester.tap(find.byKey(const ValueKey('security-recovery-words')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      verifyNever(() => getWords(any(), reason: any(named: 'reason'), password: any(named: 'password')));
+      expect(find.text('page ${RouteNames.recoveryWords}'), findsNothing);
     });
 
     for (final (key, route) in [
       ('security-verify-words', RouteNames.verifyRecoveryWords),
       ('security-forgot-password', RouteNames.forgotPassword),
       ('security-locked-photos', RouteNames.lockedPhotos),
+      ('security-two-factor', RouteNames.twoFactor),
     ]) {
       testWidgets('should open $route', (tester) async {
         await pumpSection(tester);

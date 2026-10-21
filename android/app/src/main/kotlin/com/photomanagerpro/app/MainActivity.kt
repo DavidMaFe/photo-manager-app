@@ -2,6 +2,7 @@ package com.photomanagerpro.app
 
 import android.content.Context
 import android.os.PowerManager
+import android.view.WindowManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -12,6 +13,10 @@ class MainActivity : FlutterFragmentActivity() {
     // Partial wake lock held while a manual sync uploads files (AndroidSyncKeepAlive), so the CPU does not sleep
     // with the screen off. Not reference counted: acquiring it again renews its timeout.
     private var wakeLock: PowerManager.WakeLock? = null
+
+    // Screens open that show secrets (recovery words, backup codes, the TOTP key): while there is one, the window
+    // cannot be captured, recorded or shown in the recent apps (FLAG_SECURE)
+    private var secureScreens = 0
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -25,6 +30,24 @@ class MainActivity : FlutterFragmentActivity() {
                 }
                 "release" -> {
                     releaseWakeLock()
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SECURE_SCREEN_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "enable" -> {
+                    secureScreens++
+                    window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    result.success(null)
+                }
+                "disable" -> {
+                    secureScreens = (secureScreens - 1).coerceAtLeast(0)
+                    if (secureScreens == 0) {
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    }
                     result.success(null)
                 }
                 else -> result.notImplemented()
@@ -51,6 +74,7 @@ class MainActivity : FlutterFragmentActivity() {
 
     companion object {
         private const val WAKE_LOCK_CHANNEL = "com.photomanagerpro.app/wake_lock"
+        private const val SECURE_SCREEN_CHANNEL = "com.photomanagerpro.app/secure_screen"
         private const val DEFAULT_TIMEOUT_MS = 10 * 60 * 1000L
     }
 }

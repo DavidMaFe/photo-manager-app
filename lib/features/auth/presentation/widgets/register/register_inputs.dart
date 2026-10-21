@@ -14,6 +14,9 @@ class RegisterInputs extends StatelessWidget {
   final TextEditingController confirmPasswordInputController;
   final bool enabled;
 
+  /// The email was verified in the first steps of the registration: it is shown but cannot be changed here.
+  final bool emailLocked;
+
   const RegisterInputs({
     super.key,
     required this.nameInputController,
@@ -22,6 +25,7 @@ class RegisterInputs extends StatelessWidget {
     required this.passwordInputController,
     required this.confirmPasswordInputController,
     this.enabled = true,
+    this.emailLocked = false,
   });
 
   @override
@@ -80,7 +84,7 @@ class RegisterInputs extends StatelessWidget {
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.email],
-            enabled: enabled,
+            enabled: enabled && !emailLocked,
             validator: (value) => AuthValidators.email(l10n, value),
           ),
 

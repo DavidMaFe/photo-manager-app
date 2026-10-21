@@ -97,14 +97,15 @@ void main() {
       expect(find.text('Notifications'), findsOneWidget);
       expect(find.text('Appearance'), findsOneWidget);
       expect(find.text('Password'), findsOneWidget);
-      // Security section of the end-to-end encryption
+      // Security section: the authenticator app and the end-to-end encryption
+      expect(find.text('Authenticator app'), findsOneWidget);
       expect(find.text('My 24 words'), findsOneWidget);
       expect(find.text('Verify my 24 words'), findsOneWidget);
       expect(find.text('I forgot my password'), findsOneWidget);
       expect(find.text('Recover locked photos'), findsOneWidget);
       // Information pages and legal texts
       expect(find.text('Information and legal'), findsOneWidget);
-      expect(find.byType(ListRow), findsNWidgets(13));
+      expect(find.byType(ListRow), findsNWidgets(14));
     });
 
     testWidgets('should summarize the backup as off when it cannot be loaded', (tester) async {

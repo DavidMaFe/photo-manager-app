@@ -1,5 +1,6 @@
 
 import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/second_factor_challenge.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 
 
@@ -16,6 +17,19 @@ class AuthSuccessful extends AuthState {
   final User user;
 
   AuthSuccessful(this.user);
+}
+
+
+/// The password was right on a device that is not trusted: the code emailed to the account comes next. [working]
+/// while the code is checked or sent again; [failure] of the last attempt (a wrong code); [codeResent] when a new code
+/// was just sent.
+class AuthSecondFactorRequired extends AuthState {
+  final SecondFactorChallenge challenge;
+  final bool working;
+  final Failure? failure;
+  final bool codeResent;
+
+  AuthSecondFactorRequired(this.challenge, {this.working = false, this.failure, this.codeResent = false});
 }
 
 

@@ -57,6 +57,51 @@ void main() {
       });
     });
 
+    group('registration codes', () {
+      test('should map a wrong emailed code to a ValidationFailure with the server message', () {
+        final failure = ErrorHandler.handleError(apiError(FailureCodes.invalidEmailCode));
+
+        expect(failure, isA<ValidationFailure>());
+        expect(failure.code, FailureCodes.invalidEmailCode);
+        expect(failure.errorResponse?.message, 'Mensaje del servidor');
+      });
+
+      test('should map too many emailed codes to a PermissionDeniedFailure', () {
+        expect(ErrorHandler.handleError(apiError(FailureCodes.tooManyEmailCodes)), isA<PermissionDeniedFailure>());
+      });
+
+      test('should map an email with an account to an EmailAlreadyExistsFailure', () {
+        expect(ErrorHandler.handleError(apiError(FailureCodes.emailAlreadyUsed)), isA<EmailAlreadyExistsFailure>());
+      });
+    });
+
+    group('second factor of the login', () {
+      test('should map a wrong code to a ValidationFailure with the server message', () {
+        final failure = ErrorHandler.handleError(apiError(FailureCodes.invalidSecondFactorCode));
+
+        expect(failure, isA<ValidationFailure>());
+        expect(failure, isNot(isA<SecondFactorExpiredFailure>()));
+        expect(failure.errorResponse?.message, 'Mensaje del servidor');
+      });
+
+      test('should map an expired challenge to a SecondFactorExpiredFailure', () {
+        final failure = ErrorHandler.handleError(apiError(FailureCodes.secondFactorChallengeExpired));
+
+        expect(failure, isA<SecondFactorExpiredFailure>());
+        expect(failure.code, FailureCodes.secondFactorChallengeExpired);
+      });
+
+      test('should map a code asked too soon to a PermissionDeniedFailure', () {
+        expect(ErrorHandler.handleError(apiError(FailureCodes.secondFactorResendTooSoon)),
+            isA<PermissionDeniedFailure>());
+      });
+
+      test('should map too many wrong passwords to a PermissionDeniedFailure', () {
+        expect(ErrorHandler.handleError(apiError(FailureCodes.tooManyLoginAttempts)),
+            isA<PermissionDeniedFailure>());
+      });
+    });
+
     test('should return a Failure thrown by a use case as it is', () {
       // Arrange
       const failure = ValidationFailure(code: FailureCodes.folderCoversLimitExceeded);

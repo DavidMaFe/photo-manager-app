@@ -64,6 +64,21 @@ class KeyringService {
     }
   }
 
+  /// Whether [kek] (from a password) opens the current version of [keys]: the password is the right one. Nothing is
+  /// stored.
+  bool opensCurrentKey(AccountKeys keys, CryptoKey kek) {
+    final current = keys.available.where((version) => version.state == KeyState.current);
+    if (current.isEmpty) {
+      return false;
+    }
+    try {
+      _unwrap(kek, current.first.encryptedMasterKey, WrapPurpose.masterKeyByPassword).dispose();
+      return true;
+    } on KeyUnlockFailure {
+      return false;
+    }
+  }
+
   /// Every available version this device holds, wrapped with the KEK of a new password.
   /// Throws [MissingDeviceKeyFailure] if the device does not hold one of them.
   Future<List<RewrappedKey>> rewrapAvailable(AccountKeys keys, CryptoKey newKek) async {

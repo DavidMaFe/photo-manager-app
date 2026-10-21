@@ -1,131 +1,56 @@
-import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
-
-import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
-import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
-import 'package:photo_manager_app/core/navigation/route_names.dart';
-import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/core/injection_container.dart' as di;
+import 'package:photo_manager_app/features/auth/presentation/bloc/registration_email_cubit.dart';
+import 'package:photo_manager_app/features/auth/presentation/widgets/register/register_code_step.dart';
+import 'package:photo_manager_app/features/auth/presentation/widgets/register/register_details_step.dart';
+import 'package:photo_manager_app/features/auth/presentation/widgets/register/register_email_step.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-import '../bloc/auth_event.dart';
-import '../widgets/register/register_actions.dart';
-import '../widgets/auth_title.dart';
-import '../widgets/register/register_inputs.dart';
-
-class RegisterPage extends StatefulWidget {
-
+/// Registration in three steps: the email, the code emailed to it and the rest of the data. Nobody can register an
+/// email they do not own.
+class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => di.sl<RegistrationEmailCubit>(),
+      child: const RegisterSteps(),
+    );
+  }
 }
 
-
-class _RegisterPageState extends State<RegisterPage> {
-
-  final TextEditingController _nameInputController = TextEditingController();
-  final TextEditingController _surnameInputController = TextEditingController();
-  final TextEditingController _emailInputController = TextEditingController();
-  final TextEditingController _passwordInputController = TextEditingController();
-  final TextEditingController _confirmPasswordInputController = TextEditingController();
-
-  final _formKey = GlobalKey<FormState>();
-  bool _acceptedLegalTerms = false;
-
-  @override
-  void dispose() {
-    _nameInputController.dispose();
-    _surnameInputController.dispose();
-    _emailInputController.dispose();
-    _passwordInputController.dispose();
-    _confirmPasswordInputController.dispose();
-    super.dispose();
-  }
-
-  void _handleRegister() {
-    if (_formKey.currentState?.validate() ?? false) {
-      final name = _nameInputController.text.trim();
-      final surname = _surnameInputController.text.trim();
-      final email = _emailInputController.text.trim();
-      final password = _passwordInputController.text;
-
-      context.read<AuthBloc>().add(
-        RegisterRequested(
-          email: email,
-          password: password,
-          name: name,
-          surname: surname.isEmpty ? null : surname,
-          // The 24 recovery words are generated in the language of the app
-          language: Localizations.localeOf(context).languageCode == 'es'
-              ? RecoveryPhraseLanguage.spanish
-              : RecoveryPhraseLanguage.english,
-          acceptedLegalTerms: _acceptedLegalTerms,
-        ),
-      );
-    }
-  }
-
-  void _handleGoToLogin() {
-    context.go(RoutePaths.login);
-  }
+/// The step of the registration, under a [RegistrationEmailCubit] provided above.
+class RegisterSteps extends StatelessWidget {
+  const RegisterSteps({super.key});
 
   @override
   Widget build(BuildContext context) {
-
-    final l10n = AppLocalizations.of(context)!;
-
-    return Scaffold(
-      backgroundColor: context.palette.surface,
-      appBar: SecondaryTopBar(onBack: _handleGoToLogin, backgroundColor: context.palette.surface),
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthError) {
-            ErrorNotificationService.showError(
-              context,
-              state.failure,
-              config: ErrorDisplayConfig.snackBar,
-              onRetry: () => _handleRegister()
-            );
-          }
-          // RecoveryPhraseRequired: the router opens the page of the 24 words
-        },
-        builder: (context, state) {
-          final isLoading = state is AuthLoading;
-
-          return SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(24, 8, 24, MediaQuery.paddingOf(context).bottom + 16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  AuthTitle(title: l10n.registerHeadline, subtitle: l10n.registerSubtitle),
-                  const SizedBox(height: 24),
-                  RegisterInputs(
-                    nameInputController: _nameInputController,
-                    surnameInputController: _surnameInputController,
-                    emailInputController: _emailInputController,
-                    passwordInputController: _passwordInputController,
-                    confirmPasswordInputController: _confirmPasswordInputController,
-                    enabled: !isLoading,
-                  ),
-                  const SizedBox(height: 20),
-                  RegisterActions(
-                    onRegister: _handleRegister,
-                    onGoToLogin: _handleGoToLogin,
-                    onLegalTermsChanged: (accepted) => _acceptedLegalTerms = accepted,
-                    isLoading: isLoading,
-                  ),
-                ],
-              ),
-            ),
-          );
+    return BlocListener<RegistrationEmailCubit, RegistrationEmailState>(
+      listenWhen: (previous, current) =>
+          (current.failure != null && previous.failure != current.failure) ||
+          (current.codeResent && !previous.codeResent),
+      listener: _showNotice,
+      child: BlocBuilder<RegistrationEmailCubit, RegistrationEmailState>(
+        buildWhen: (previous, current) => previous.step != current.step,
+        builder: (context, state) => switch (state.step) {
+          RegistrationStep.email => const RegisterEmailStep(),
+          RegistrationStep.code => const RegisterCodeStep(),
+          RegistrationStep.details => RegisterDetailsStep(email: state.email, emailCode: state.code),
         },
       ),
     );
+  }
+
+  void _showNotice(BuildContext context, RegistrationEmailState state) {
+    if (state.failure != null) {
+      // Kept until the next request: the code field shows the error meanwhile
+      ErrorNotificationService.showError(context, state.failure!, config: ErrorDisplayConfig.snackBar);
+    } else if (state.codeResent) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.codeResent)));
+      context.read<RegistrationEmailCubit>().codeResentShown();
+    }
   }
 }

@@ -98,6 +98,18 @@ class ValidationFailure extends Failure {
   });
 }
 
+/// The login waiting for the second factor can no longer go on (expired, too many wrong codes, already used, or the
+/// app lost it): the user logs in again.
+class SecondFactorExpiredFailure extends ValidationFailure {
+  const SecondFactorExpiredFailure({
+    super.messageKey = 'errorSecondFactorExpired',
+    super.messageParams,
+    super.code = 'SECOND_FACTOR_CHALLENGE_EXPIRED',
+    super.data,
+    super.errorResponse,
+  });
+}
+
 class InvalidEmailFailure extends ValidationFailure {
   const InvalidEmailFailure({
     super.messageKey = 'errorInvalidEmail',

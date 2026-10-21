@@ -32,6 +32,11 @@ class DeviceAuthenticationFailure extends Failure {
   const DeviceAuthenticationFailure({super.messageKey = 'errorDeviceAuthentication', super.code});
 }
 
+/// The password typed to confirm a sensitive action is not the one of the account.
+class WrongPasswordFailure extends Failure {
+  const WrongPasswordFailure({super.messageKey = 'errorWrongPassword', super.code});
+}
+
 /// This device has no current master key (account locked, or the keys were removed), so it cannot encrypt new files.
 class MissingCurrentKeyFailure extends Failure {
   const MissingCurrentKeyFailure({super.messageKey = 'errorMissingCurrentKey', super.code});

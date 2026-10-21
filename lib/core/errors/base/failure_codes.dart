@@ -48,11 +48,21 @@ class FailureCodes {
   static const String folderCoverVideoNotAllowed = "FOLDER_COVER_VIDEO_NOT_ALLOWED";
   static const String folderCoverReplaceNotValid = "FOLDER_COVER_REPLACE_NOT_VALID";
 
+  // ==================== Email Verification on Registration ====================
+  static const String invalidEmailCode = "INVALID_EMAIL_CODE";
+  static const String tooManyEmailCodes = "TOO_MANY_EMAIL_CODES";
+
+  // ==================== Second Factor of the Login ====================
+  static const String invalidSecondFactorCode = "INVALID_SECOND_FACTOR_CODE";
+  static const String secondFactorChallengeExpired = "SECOND_FACTOR_CHALLENGE_EXPIRED";
+  static const String secondFactorResendTooSoon = "SECOND_FACTOR_RESEND_TOO_SOON";
+
   // ==================== Password Reset Domain Errors ====================
   static const String expiredResetCode = "EXPIRED_RESET_CODE";
   static const String invalidResetCode = "INVALID_RESET_CODE";
   static const String resetCodeNotFound = "RESET_CODE_NOT_FOUND";
   static const String tooManyResetAttempts = "TOO_MANY_RESET_ATTEMPTS";
+  static const String tooManyLoginAttempts = "TOO_MANY_LOGIN_ATTEMPTS";
 
   // ==================== JWT/Token Errors ====================
   static const String invalidTokenFormat = "INVALID_TOKEN_FORMAT";

@@ -34,6 +34,7 @@ class RouteNames {
   static const String syncConfiguration = 'sync_configuration';
   static const String trash = 'trash';
   static const String trashFileDetail = 'trash_file_detail';
+  static const String twoFactor = 'two_factor';
   static const String deleteAccount = 'delete_account';
   static const String plans = 'plans';
   static const String deleteAccountConfirm = 'delete_account_confirm';
@@ -76,6 +77,7 @@ class RoutePaths {
   static const String verifyRecoveryWords = '/profile/verify-recovery-words';
   static const String forgotPassword = '/profile/forgot-password';
   static const String lockedPhotos = '/profile/locked-photos';
+  static const String twoFactor = '/profile/two-factor';
 
   // Account deletion, in two steps
   static const String deleteAccount = '/profile/delete-account';

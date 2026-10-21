@@ -14,6 +14,25 @@ class LoginRequested extends AuthEvent {
 }
 
 
+/// The emailed code of the second factor of a login from a new device.
+class LoginSecondFactorSubmitted extends AuthEvent {
+  final String code;
+
+  LoginSecondFactorSubmitted(this.code);
+}
+
+
+class LoginSecondFactorResendRequested extends AuthEvent {}
+
+
+/// The user leaves the second factor and goes back to the login.
+class LoginSecondFactorCancelled extends AuthEvent {}
+
+
+/// The message that a new code was sent was shown.
+class LoginSecondFactorResentShown extends AuthEvent {}
+
+
 class RegisterRequested extends AuthEvent {
 
   final String email;
@@ -27,6 +46,9 @@ class RegisterRequested extends AuthEvent {
   /// The user ticked the acceptance of the terms of use and the privacy policy.
   final bool acceptedLegalTerms;
 
+  /// The code emailed to verify [email] (first steps of the registration).
+  final String emailCode;
+
   RegisterRequested({
     required this.email,
     required this.password,
@@ -34,6 +56,7 @@ class RegisterRequested extends AuthEvent {
     this.surname,
     required this.language,
     required this.acceptedLegalTerms,
+    required this.emailCode,
   });
 }
 

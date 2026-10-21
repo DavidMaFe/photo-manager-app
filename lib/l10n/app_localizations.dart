@@ -4096,6 +4096,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Terms of use'**
   String get planPurchaseTermsLink;
+
+  /// No description provided for @registerEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'First we verify your email: we\'ll send you a 6-digit code.'**
+  String get registerEmailBody;
+
+  /// No description provided for @registerEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This email already has an account.'**
+  String get registerEmailTaken;
+
+  /// No description provided for @registerChangeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Change email'**
+  String get registerChangeEmail;
+
+  /// No description provided for @errorSecondFactorExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The verification expired. Sign in again.'**
+  String get errorSecondFactorExpired;
+
+  /// No description provided for @loginSecondFactorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you'**
+  String get loginSecondFactorTitle;
+
+  /// No description provided for @loginSecondFactorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is new for your account. We\'ve sent a 6-digit code to {email}'**
+  String loginSecondFactorBody(String email);
+
+  /// No description provided for @loginSecondFactorBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get loginSecondFactorBack;
+
+  /// No description provided for @profileTwoFactor.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticator app'**
+  String get profileTwoFactor;
+
+  /// No description provided for @twoFactorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticator app'**
+  String get twoFactorTitle;
+
+  /// No description provided for @twoFactorOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When you sign in on a new device we email you a code. With an authenticator app (Google Authenticator, Microsoft Authenticator…) the code comes from the app instead: even with your password and your email, nobody can get in.'**
+  String get twoFactorOffBody;
+
+  /// No description provided for @twoFactorOnBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in on a new device asks for a code of your authenticator app, or one of your backup codes.'**
+  String get twoFactorOnBody;
+
+  /// No description provided for @twoFactorStatusOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get twoFactorStatusOn;
+
+  /// No description provided for @twoFactorStatusOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get twoFactorStatusOff;
+
+  /// No description provided for @twoFactorBackupCodesLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unused backup code} other{{count} unused backup codes}}'**
+  String twoFactorBackupCodesLeft(int count);
+
+  /// No description provided for @twoFactorEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get twoFactorEnable;
+
+  /// No description provided for @twoFactorDisable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off'**
+  String get twoFactorDisable;
+
+  /// No description provided for @twoFactorRegenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'New backup codes'**
+  String get twoFactorRegenerate;
+
+  /// No description provided for @twoFactorSetUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up the app'**
+  String get twoFactorSetUpTitle;
+
+  /// No description provided for @twoFactorSetUpStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Add the account to your authenticator app: open it with the button, or type the key by hand.'**
+  String get twoFactorSetUpStep1;
+
+  /// No description provided for @twoFactorOpenApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in the authenticator app'**
+  String get twoFactorOpenApp;
+
+  /// No description provided for @twoFactorNoApp.
+  ///
+  /// In en, this message translates to:
+  /// **'No authenticator app on this phone opens the link. Install one, or type the key by hand.'**
+  String get twoFactorNoApp;
+
+  /// No description provided for @twoFactorCopyKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy key'**
+  String get twoFactorCopyKey;
+
+  /// No description provided for @twoFactorKeyCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Key copied'**
+  String get twoFactorKeyCopied;
+
+  /// No description provided for @twoFactorSetUpStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Type the 6-digit code the app shows.'**
+  String get twoFactorSetUpStep2;
+
+  /// No description provided for @twoFactorBackupCodesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your backup codes'**
+  String get twoFactorBackupCodesTitle;
+
+  /// No description provided for @twoFactorBackupCodesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If you lose the phone with the app, each code lets you in once. Keep them somewhere safe: you will not see them again.'**
+  String get twoFactorBackupCodesBody;
+
+  /// No description provided for @twoFactorCopyCodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get twoFactorCopyCodes;
+
+  /// No description provided for @twoFactorCodesCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Codes copied'**
+  String get twoFactorCodesCopied;
+
+  /// No description provided for @twoFactorShareCodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get twoFactorShareCodes;
+
+  /// No description provided for @twoFactorCodesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'I have saved them'**
+  String get twoFactorCodesSaved;
+
+  /// No description provided for @twoFactorShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo Manager backup codes. Each one works once.'**
+  String get twoFactorShareText;
+
+  /// No description provided for @twoFactorPromptDisableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off the authenticator app'**
+  String get twoFactorPromptDisableTitle;
+
+  /// No description provided for @twoFactorPromptRegenerateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New backup codes'**
+  String get twoFactorPromptRegenerateTitle;
+
+  /// No description provided for @twoFactorPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your password and a code of the app (or a backup code).'**
+  String get twoFactorPromptBody;
+
+  /// No description provided for @twoFactorCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get twoFactorCodeLabel;
+
+  /// No description provided for @twoFactorDisabledMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticator app turned off'**
+  String get twoFactorDisabledMessage;
+
+  /// No description provided for @loginTotpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Code of your authenticator app'**
+  String get loginTotpTitle;
+
+  /// No description provided for @loginTotpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is new for your account. Type the 6-digit code of your authenticator app.'**
+  String get loginTotpBody;
+
+  /// No description provided for @loginBackupCodeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Type one of your backup codes (like abcde-fghij). Each one works once.'**
+  String get loginBackupCodeBody;
+
+  /// No description provided for @loginUseBackupCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a backup code'**
+  String get loginUseBackupCode;
+
+  /// No description provided for @loginUseAppCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the code of the app'**
+  String get loginUseAppCode;
+
+  /// No description provided for @loginBackupCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup code'**
+  String get loginBackupCodeLabel;
+
+  /// No description provided for @recoveryWordsAuthReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you to see the recovery words'**
+  String get recoveryWordsAuthReason;
+
+  /// No description provided for @recoveryWordsPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password'**
+  String get recoveryWordsPasswordTitle;
+
+  /// No description provided for @recoveryWordsPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone has no screen lock. Type your password to see the recovery words.'**
+  String get recoveryWordsPasswordBody;
+
+  /// No description provided for @errorWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is not correct.'**
+  String get errorWrongPassword;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

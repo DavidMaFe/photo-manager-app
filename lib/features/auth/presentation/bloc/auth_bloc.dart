@@ -6,7 +6,13 @@ import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_outcome.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_result.dart';
+import 'package:photo_manager_app/features/auth/domain/services/pending_login.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/cancel_login_second_factor_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/resend_login_second_factor_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/verify_login_second_factor_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/refresh_token_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
@@ -34,6 +40,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SyncDeviceRepository syncDeviceRepository;
   final RecoveryReminderUseCase? recoveryReminderUseCase;
   final AcceptLegalTermsUseCase acceptLegalTermsUseCase;
+  final VerifyLoginSecondFactorUseCase verifyLoginSecondFactorUseCase;
+  final ResendLoginSecondFactorUseCase resendLoginSecondFactorUseCase;
+  final CancelLoginSecondFactorUseCase cancelLoginSecondFactorUseCase;
 
   static const int minimumLoadingDuration = 800;
 
@@ -54,9 +63,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.syncDeviceRepository,
     this.recoveryReminderUseCase,
     required this.acceptLegalTermsUseCase,
+    required this.verifyLoginSecondFactorUseCase,
+    required this.resendLoginSecondFactorUseCase,
+    required this.cancelLoginSecondFactorUseCase,
     required AppEventBus eventBus,
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
+    on<LoginSecondFactorSubmitted>(_onLoginSecondFactorSubmitted);
+    on<LoginSecondFactorResendRequested>(_onLoginSecondFactorResendRequested);
+    on<LoginSecondFactorCancelled>((event, emit) {
+      cancelLoginSecondFactorUseCase();
+      emit(NotAuthenticated());
+    });
+    on<LoginSecondFactorResentShown>((event, emit) {
+      final current = state;
+      if (current is AuthSecondFactorRequired) {
+        emit(AuthSecondFactorRequired(current.challenge));
+      }
+    });
     on<RegisterRequested>(_onRegisterRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<AccountDeleted>((event, emit) => emit(NotAuthenticated()));
@@ -98,25 +122,78 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final stopwatch = Stopwatch()..start();
 
     try {
-      final result = await loginUseCase(
+      final outcome = await loginUseCase(
         email: event.email,
         password: event.password
       );
-      // Delay the promise response the remaining time
-      await _registerDevice();
-      await _waitForLoading(stopwatch);
-
-      if (result.legalAcceptanceRequired) {
-        // The terms in force are accepted first, then the locked account flow or the gallery
-        emit(AuthLegalAcceptanceRequired(result.user, accountLocked: result.accountLocked));
-      } else {
-        // A locked account goes through the locked account flow before the gallery
-        emit(result.accountLocked ? AuthAccountLocked(result.user) : AuthSuccessful(result.user));
+      switch (outcome) {
+        case LoginCompleted(:final result):
+          // Delay the promise response the remaining time
+          await _registerDevice();
+          await _waitForLoading(stopwatch);
+          _emitSessionStarted(result, emit);
+        case LoginSecondFactorRequired(:final challenge):
+          await _waitForLoading(stopwatch);
+          emit(AuthSecondFactorRequired(challenge));
       }
     } catch (e) {
       await _waitForLoading(stopwatch);
       final failure = ErrorHandler.handleError(e);
       emit(AuthError(failure));
+    }
+  }
+
+  Future<void> _onLoginSecondFactorSubmitted(LoginSecondFactorSubmitted event, Emitter<AuthState> emit) async {
+    final current = state;
+    if (current is! AuthSecondFactorRequired || current.working) return;
+
+    emit(AuthSecondFactorRequired(current.challenge, working: true));
+    final stopwatch = Stopwatch()..start();
+    try {
+      final result = await verifyLoginSecondFactorUseCase(event.code);
+      await _registerDevice();
+      await _waitForLoading(stopwatch);
+      _emitSessionStarted(result, emit);
+    } catch (e) {
+      await _waitForLoading(stopwatch);
+      _emitSecondFactorFailure(current, e, emit);
+    }
+  }
+
+  Future<void> _onLoginSecondFactorResendRequested(LoginSecondFactorResendRequested event,
+      Emitter<AuthState> emit) async {
+    final current = state;
+    if (current is! AuthSecondFactorRequired || current.working) return;
+
+    emit(AuthSecondFactorRequired(current.challenge, working: true));
+    final stopwatch = Stopwatch()..start();
+    try {
+      await resendLoginSecondFactorUseCase();
+      await _waitForLoading(stopwatch);
+      emit(AuthSecondFactorRequired(current.challenge, codeResent: true));
+    } catch (e) {
+      await _waitForLoading(stopwatch);
+      _emitSecondFactorFailure(current, e, emit);
+    }
+  }
+
+  /// A login that can no longer go on goes back to the login form with the error; any other one stays on the code.
+  void _emitSecondFactorFailure(AuthSecondFactorRequired current, Object error, Emitter<AuthState> emit) {
+    final failure = ErrorHandler.handleError(error);
+    if (isSecondFactorExpired(failure)) {
+      emit(AuthError(failure));
+    } else {
+      emit(AuthSecondFactorRequired(current.challenge, failure: failure));
+    }
+  }
+
+  void _emitSessionStarted(LoginResult result, Emitter<AuthState> emit) {
+    if (result.legalAcceptanceRequired) {
+      // The terms in force are accepted first, then the locked account flow or the gallery
+      emit(AuthLegalAcceptanceRequired(result.user, accountLocked: result.accountLocked));
+    } else {
+      // A locked account goes through the locked account flow before the gallery
+      emit(result.accountLocked ? AuthAccountLocked(result.user) : AuthSuccessful(result.user));
     }
   }
 
@@ -129,7 +206,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final result = await registerUseCase(email: event.email, password: event.password,
           name: event.name, surname: event.surname, language: event.language,
-          acceptedLegalTerms: event.acceptedLegalTerms);
+          acceptedLegalTerms: event.acceptedLegalTerms, emailCode: event.emailCode);
       await _waitForLoading(stopwatch);
       emit(RecoveryPhraseRequired(result.user, result.recoveryWords));
 

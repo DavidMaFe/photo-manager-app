@@ -1,213 +1,174 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
+import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
-import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
+import 'package:photo_manager_app/core/widgets/otp_field.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/registration_email_cubit.dart';
 import 'package:photo_manager_app/features/auth/presentation/pages/register_page.dart';
+import 'package:photo_manager_app/features/auth/presentation/widgets/register/register_code_step.dart';
+import 'package:photo_manager_app/features/auth/presentation/widgets/register/register_details_step.dart';
+import 'package:photo_manager_app/features/auth/presentation/widgets/register/register_email_step.dart';
 
 import '../../../../helpers/widget_test_helper.dart';
 
 class MockAuthBloc extends Mock implements AuthBloc {}
 
-class FakeAuthEvent extends Fake implements AuthEvent {}
+class MockRegistrationEmailCubit extends MockCubit<RegistrationEmailState> implements RegistrationEmailCubit {}
 
 void main() {
-  late MockAuthBloc mockAuthBloc;
+  late MockAuthBloc authBloc;
+  late MockRegistrationEmailCubit cubit;
 
-  setUpAll(() => registerFallbackValue(FakeAuthEvent()));
+  const email = 'ana@example.com';
 
   setUp(() {
-    mockAuthBloc = MockAuthBloc();
-    when(() => mockAuthBloc.state).thenReturn(NotAuthenticated());
-    when(() => mockAuthBloc.stream).thenAnswer((_) => const Stream.empty());
-    when(() => mockAuthBloc.close()).thenAnswer((_) async {});
+    authBloc = MockAuthBloc();
+    when(() => authBloc.state).thenReturn(NotAuthenticated());
+    when(() => authBloc.stream).thenAnswer((_) => const Stream.empty());
+    cubit = MockRegistrationEmailCubit();
+    when(() => cubit.sendCode(any())).thenAnswer((_) async {});
+    when(() => cubit.verifyCode(any())).thenAnswer((_) async {});
+    when(() => cubit.resendCode()).thenAnswer((_) async {});
   });
 
-  Future<void> pumpPage(WidgetTester tester, {AuthState? state, Locale locale = const Locale('en')}) async {
-    // 390x844 is the design reference size.
+  Future<void> pumpSteps(WidgetTester tester, RegistrationEmailState state,
+      {Stream<RegistrationEmailState>? states}) async {
     setUpCustomScreenSize(tester, 390, 844);
-    if (state != null) when(() => mockAuthBloc.state).thenReturn(state);
-    await tester.pumpWidget(makeTestableWidgetWithBloc<AuthBloc>(
-      bloc: mockAuthBloc,
-      locale: locale,
-      child: const RegisterPage(),
+    whenListen(cubit, states ?? const Stream<RegistrationEmailState>.empty(), initialState: state);
+    await tester.pumpWidget(makeTestableWidgetWithBlocs(
+      providers: [
+        BlocProvider<AuthBloc>.value(value: authBloc),
+        BlocProvider<RegistrationEmailCubit>.value(value: cubit),
+      ],
+      child: const RegisterSteps(),
     ));
   }
 
-  Finder field(int index) => find.byType(TextFormField).at(index);
-
-  Future<void> acceptLegalTerms(WidgetTester tester) async {
-    // The text selection menu of the last field would cover the checkbox
-    FocusManager.instance.primaryFocus?.unfocus();
-    await tester.pump();
-    await tester.ensureVisible(find.byKey(const ValueKey('legal-accept-checkbox')));
-    await tester.tap(find.byKey(const ValueKey('legal-accept-checkbox')));
-    await tester.pump();
-  }
-
-  Future<void> tapRegister(WidgetTester tester) async {
-    await tester.ensureVisible(find.byType(AppButton));
-    await tester.tap(find.byType(AppButton));
-    await tester.pump();
-  }
-
-  Future<void> fillValidForm(WidgetTester tester) async {
-    await tester.enterText(field(0), 'Ana');
-    await tester.enterText(field(2), 'ana@example.com');
-    await tester.enterText(field(3), 'long secret 1');
-    await tester.enterText(field(4), 'long secret 1');
-    await acceptLegalTerms(tester);
-  }
-
-  group('RegisterPage', () {
+  group('RegisterSteps', () {
     // ==================== HAPPY PATH TESTS ====================
 
-    testWidgets('should show the headline, a back bar and all fields', (tester) async {
-      // Arrange
-      await pumpPage(tester);
+    testWidgets('should start asking for the email', (tester) async {
+      await pumpSteps(tester, const RegistrationEmailState());
 
-      // Assert
-      expect(find.text('Create your account'), findsOneWidget);
-      expect(find.text('Back up your photos and free up space on your phone.'), findsOneWidget);
-      expect(find.byType(SecondaryTopBar), findsOneWidget);
-      expect(find.byType(TextFormField), findsNWidgets(5));
-      expect(find.text('(optional)', findRichText: true), findsNothing);
-      expect(find.textContaining('(optional)', findRichText: true), findsOneWidget);
+      expect(find.byType(RegisterEmailStep), findsOneWidget);
+      expect(find.text('Step 1 of 3'), findsOneWidget);
+      expect(find.text("First we verify your email: we'll send you a 6-digit code."), findsOneWidget);
     });
 
-    testWidgets('should place name and last name on the same row', (tester) async {
-      // Arrange
-      await pumpPage(tester);
+    testWidgets('should send the code to the email typed', (tester) async {
+      await pumpSteps(tester, const RegistrationEmailState());
 
-      // Act
-      final name = tester.getRect(field(0));
-      final surname = tester.getRect(field(1));
+      await tester.enterText(find.byType(TextFormField), ' $email ');
+      await tester.tap(find.widgetWithText(AppButton, 'Send code'));
+      await tester.pump();
 
-      // Assert: side by side (the test font may wrap the longer label).
-      expect(surname.top, lessThan(name.bottom));
-      expect(surname.left, greaterThan(name.right));
+      verify(() => cubit.sendCode(' $email ')).called(1);
     });
 
-    testWidgets('should need at most a short scroll on the reference screen', (tester) async {
-      // Arrange
-      await pumpPage(tester);
+    testWidgets('should ask for the code sent to the email', (tester) async {
+      await pumpSteps(tester, const RegistrationEmailState(step: RegistrationStep.code, email: email));
 
-      // Act
-      final scrollable = tester.state<ScrollableState>(find.byType(Scrollable).first);
-
-      // Assert: the mandatory acceptance of the terms (Phase 4) added a few lines below the fields
-      expect(scrollable.position.maxScrollExtent, lessThan(80));
+      expect(find.byType(RegisterCodeStep), findsOneWidget);
+      expect(find.text('Step 2 of 3'), findsOneWidget);
+      expect(find.textContaining(email, findRichText: true), findsOneWidget);
+      expect(find.byType(OtpField), findsOneWidget);
     });
 
-    testWidgets('should dispatch RegisterRequested with trimmed values', (tester) async {
-      // Arrange
-      await pumpPage(tester);
-      await tester.enterText(field(0), ' Ana ');
-      await tester.enterText(field(1), '   ');
-      await tester.enterText(field(2), ' ana@example.com ');
-      await tester.enterText(field(3), 'long secret 1');
-      await tester.enterText(field(4), 'long secret 1');
-      await acceptLegalTerms(tester);
+    testWidgets('should verify the code once its 6 digits are typed', (tester) async {
+      await pumpSteps(tester, const RegistrationEmailState(step: RegistrationStep.code, email: email));
 
-      // Act
-      await tapRegister(tester);
+      await tester.enterText(find.byType(EditableText), '482913');
+      await tester.pump();
 
-      // Assert
-      final event = verify(() => mockAuthBloc.add(captureAny())).captured.single as RegisterRequested;
-      expect(event.name, 'Ana');
-      expect(event.surname, isNull);
-      expect(event.email, 'ana@example.com');
-      expect(event.password, 'long secret 1');
-      expect(event.language, RecoveryPhraseLanguage.english);
-      expect(event.acceptedLegalTerms, isTrue);
+      verify(() => cubit.verifyCode('482913')).called(1);
     });
 
-    testWidgets('should ask for the recovery words in Spanish when the app is in Spanish', (tester) async {
-      // Arrange
-      await pumpPage(tester, locale: const Locale('es'));
-      await fillValidForm(tester);
+    testWidgets('should ask for the rest of the data with the verified email and code', (tester) async {
+      await pumpSteps(tester,
+          const RegistrationEmailState(step: RegistrationStep.details, email: email, code: '482913'));
 
-      // Act
-      await tapRegister(tester);
-
-      // Assert
-      final event = verify(() => mockAuthBloc.add(captureAny())).captured.single as RegisterRequested;
-      expect(event.language, RecoveryPhraseLanguage.spanish);
+      final details = tester.widget<RegisterDetailsStep>(find.byType(RegisterDetailsStep));
+      expect(details.email, email);
+      expect(details.emailCode, '482913');
     });
 
-    // ==================== VALIDATION ERROR TESTS ====================
+    testWidgets('should go from step to step when the cubit moves on', (tester) async {
+      await pumpSteps(tester, const RegistrationEmailState(),
+          states: Stream.value(const RegistrationEmailState(step: RegistrationStep.code, email: email)));
+      await tester.pump();
 
-    testWidgets('should show required errors and not dispatch with empty form', (tester) async {
-      // Arrange
-      await pumpPage(tester);
-
-      // Act
-      await tapRegister(tester);
-
-      // Assert
-      expect(find.text('Name is required'), findsOneWidget);
-      expect(find.text('Please enter an email address'), findsOneWidget);
-      verifyNever(() => mockAuthBloc.add(any()));
+      expect(find.byType(RegisterCodeStep), findsOneWidget);
     });
 
-    testWidgets('should reject mismatching passwords', (tester) async {
-      // Arrange
-      await pumpPage(tester);
-      await tester.enterText(field(0), 'Ana');
-      await tester.enterText(field(2), 'ana@example.com');
-      await tester.enterText(field(3), 'long secret 1');
-      await tester.enterText(field(4), 'long secret 2');
+    // ==================== BUSINESS LOGIC TESTS ====================
 
-      // Act
-      await tapRegister(tester);
+    testWidgets('should tell when the email already has an account and offer to log in', (tester) async {
+      await pumpSteps(tester, const RegistrationEmailState(email: email, emailTaken: true));
 
-      // Assert
-      expect(find.text('Passwords do not match'), findsOneWidget);
-      verifyNever(() => mockAuthBloc.add(any()));
+      expect(find.byKey(const ValueKey('register-email-taken')), findsOneWidget);
+      expect(find.text('This email already has an account.'), findsOneWidget);
+      expect(find.widgetWithText(TextButton, 'Sign In'), findsOneWidget);
     });
 
-    testWidgets('should not register without accepting the terms and the privacy policy', (tester) async {
-      // Arrange
-      await pumpPage(tester);
-      await fillValidForm(tester);
-      await acceptLegalTerms(tester); // untick
+    testWidgets('should not resend the code until a minute has passed', (tester) async {
+      await pumpSteps(tester, const RegistrationEmailState(step: RegistrationStep.code, email: email));
 
-      // Act
-      await tapRegister(tester);
+      final resend = find.byKey(const ValueKey('register-resend-code'));
+      expect(tester.widget<TextButton>(resend).onPressed, isNull);
 
-      // Assert
-      expect(find.text('You must accept the terms of use and the privacy policy'), findsOneWidget);
-      verifyNever(() => mockAuthBloc.add(any()));
+      await tester.pump(const Duration(seconds: RegisterCodeStep.resendCooldownSeconds));
+      await tester.tap(resend);
+      await tester.pump();
+
+      verify(() => cubit.resendCode()).called(1);
     });
 
-    testWidgets('should reject passwords shorter than 10 characters', (tester) async {
-      // Arrange: the server never sees the password, so the app is the only one that can check it
-      await pumpPage(tester);
-      await fillValidForm(tester);
-      await tester.enterText(field(3), 'secret1');
-      await tester.enterText(field(4), 'secret1');
+    testWidgets('should go back to change the email', (tester) async {
+      await pumpSteps(tester, const RegistrationEmailState(step: RegistrationStep.code, email: email));
 
-      // Act
-      await tapRegister(tester);
+      await tester.tap(find.byKey(const ValueKey('register-change-email')));
+      await tester.pump();
 
-      // Assert
-      expect(find.text('The password must have at least 10 characters.'), findsOneWidget);
-      verifyNever(() => mockAuthBloc.add(any()));
+      verify(() => cubit.changeEmail()).called(1);
+    });
+
+    testWidgets('should say when a new code was sent', (tester) async {
+      await pumpSteps(tester, const RegistrationEmailState(step: RegistrationStep.code, email: email),
+          states: Stream.value(
+              const RegistrationEmailState(step: RegistrationStep.code, email: email, codeResent: true)));
+      await tester.pump();
+
+      expect(find.text('Code resent successfully'), findsOneWidget);
+      verify(() => cubit.codeResentShown()).called(1);
+    });
+
+    // ==================== ERROR TESTS ====================
+
+    testWidgets('should show the error of a wrong code', (tester) async {
+      final failure = ValidationFailure(code: 'INVALID_EMAIL_CODE', errorResponse: ErrorResponseModel(
+          code: 'INVALID_EMAIL_CODE', message: 'The code is not valid', timestamp: '2026-10-20T10:00:00'));
+      await pumpSteps(tester, const RegistrationEmailState(step: RegistrationStep.code, email: email),
+          states: Stream.value(
+              RegistrationEmailState(step: RegistrationStep.code, email: email, failure: failure)));
+      await tester.pump();
+
+      expect(find.text('The code is not valid'), findsOneWidget);
+      expect(tester.widget<OtpField>(find.byType(OtpField)).hasError, isTrue);
     });
 
     // ==================== LOADING STATE TESTS ====================
 
-    testWidgets('should show loading and disable fields while registering', (tester) async {
-      // Arrange
-      await pumpPage(tester, state: AuthLoading());
+    testWidgets('should wait while the code is being sent', (tester) async {
+      await pumpSteps(tester, const RegistrationEmailState(email: email, loading: true));
 
-      // Assert
       expect(tester.widget<AppButton>(find.byType(AppButton)).loading, isTrue);
-      expect(tester.widget<TextFormField>(field(0)).enabled, isFalse);
+      expect(tester.widget<TextFormField>(find.byType(TextFormField)).enabled, isFalse);
     });
   });
 }

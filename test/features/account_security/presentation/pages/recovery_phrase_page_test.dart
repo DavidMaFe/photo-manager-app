@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/widgets/secure_screen_guard.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
@@ -67,6 +68,8 @@ void main() {
       expect(find.text('1.'), findsOneWidget);
       expect(find.text('24.'), findsOneWidget);
       expect(find.text('Your 24 recovery words'), findsOneWidget);
+      // No screenshots of the words
+      expect(find.byType(SecureScreenGuard), findsOneWidget);
     });
 
     testWidgets('should go to the confirmation after registering, with the same words', (tester) async {

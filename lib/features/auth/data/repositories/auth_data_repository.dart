@@ -8,6 +8,7 @@ import 'package:photo_manager_app/core/crypto/domain/key_material.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:photo_manager_app/features/auth/data/models/auth_response_model.dart';
 import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_data_source.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_outcome.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/login_result.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/profile/data/data_sources/profile_local_data_source.dart';
@@ -17,6 +18,9 @@ import '../../domain/entities/user.dart';
 
 
 class AuthDataRepository implements AuthRepository {
+
+  /// The server accepts device names of up to 100 characters.
+  static const int _maxDeviceNameLength = 100;
 
   final AuthRemoteDataSource remoteDataSource;
   final AuthLocalDataSource localDataSource;
@@ -36,15 +40,27 @@ class AuthDataRepository implements AuthRepository {
   Future<KdfParams> getKdfParams(String email) => remoteDataSource.getKdfParams(email);
 
   @override
-  Future<LoginResult> login({required String email, required CryptoKey authKey}) async {
+  Future<LoginOutcome> login({required String email, required CryptoKey authKey}) async {
 
     final deviceUuid = await syncDeviceLocalDataSource.getDeviceUuid();
-    final authResponse = await remoteDataSource.login(email, base64Encode(authKey.bytes), deviceUuid);
+    final response = await remoteDataSource.login(email, base64Encode(authKey.bytes), deviceUuid,
+        deviceTrustToken: await localDataSource.getDeviceTrustToken(email), deviceName: await _deviceName());
 
-    await _cacheSession(authResponse);
-    return LoginResult(user: authResponse.user, keys: authResponse.keys!,
-        legalAcceptanceRequired: authResponse.legalAcceptanceRequired);
+    final challenge = response.challenge;
+    if (challenge != null) {
+      return LoginSecondFactorRequired(challenge);
+    }
+    return LoginCompleted(await _startSession(response.session!));
   }
+
+  @override
+  Future<LoginResult> verifyLoginSecondFactor({required String challengeToken, required String code}) async {
+    return _startSession(await remoteDataSource.verifyLoginSecondFactor(challengeToken, code));
+  }
+
+  @override
+  Future<void> resendLoginSecondFactor(String challengeToken) =>
+      remoteDataSource.resendLoginSecondFactor(challengeToken);
 
   @override
   Future<void> logout() async {
@@ -70,6 +86,8 @@ class AuthDataRepository implements AuthRepository {
   Future<void> clearSession() async {
     try {
       await localDataSource.clearCache();
+      // The account no longer exists: neither does the trust of this device
+      await localDataSource.clearDeviceTrustToken();
       await profileLocalDataSource.clearProfileCache();
     } finally {
       await masterKeyLocalDataSource.clear();
@@ -86,6 +104,7 @@ class AuthDataRepository implements AuthRepository {
     required NewKeyMaterial key,
     required String acceptedTermsVersion,
     required String acceptedPrivacyVersion,
+    required String emailCode,
   }) async {
     final deviceUuid = await syncDeviceLocalDataSource.getDeviceUuid();
     final authResponse = await remoteDataSource.register(
@@ -98,12 +117,18 @@ class AuthDataRepository implements AuthRepository {
       key: key,
       acceptedTermsVersion: acceptedTermsVersion,
       acceptedPrivacyVersion: acceptedPrivacyVersion,
+      emailCode: emailCode,
     );
 
-    await _cacheSession(authResponse);
-    return LoginResult(user: authResponse.user, keys: authResponse.keys!,
-        legalAcceptanceRequired: authResponse.legalAcceptanceRequired);
+    return _startSession(authResponse);
   }
+
+  @override
+  Future<void> requestRegistrationCode(String email) => remoteDataSource.requestRegistrationCode(email);
+
+  @override
+  Future<void> verifyRegistrationCode(String email, String code) =>
+      remoteDataSource.verifyRegistrationCode(email, code);
 
   @override
   Future<User?> getCurrentUser() async {
@@ -169,6 +194,28 @@ class AuthDataRepository implements AuthRepository {
     await localDataSource.cacheToken(refreshResponse.accessToken);
     await localDataSource.cacheRefreshToken(refreshResponse.refreshToken);
     // Note: We don't update login timestamp on refresh, only on new login
+  }
+
+  /// Keeps the session (and the device trust token, when the device was just trusted).
+  Future<LoginResult> _startSession(AuthResponseModel authResponse) async {
+    await _cacheSession(authResponse);
+    final deviceTrustToken = authResponse.deviceTrustToken;
+    if (deviceTrustToken != null) {
+      await localDataSource.cacheDeviceTrustToken(authResponse.user.email, deviceTrustToken);
+    }
+    return LoginResult(user: authResponse.user, keys: authResponse.keys!,
+        legalAcceptanceRequired: authResponse.legalAcceptanceRequired);
+  }
+
+  /// The name of this device for the email of a new login. Optional: the login goes on without it.
+  Future<String?> _deviceName() async {
+    try {
+      final name = (await syncDeviceLocalDataSource.getCurrentDeviceInfo()).name.trim();
+      if (name.isEmpty) return null;
+      return name.length > _maxDeviceNameLength ? name.substring(0, _maxDeviceNameLength) : name;
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> _cacheSession(AuthResponseModel authResponse) async {

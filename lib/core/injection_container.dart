@@ -87,9 +87,27 @@ import 'package:photo_manager_app/features/auth/data/data_sources/auth_remote_da
 import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/services/pending_login.dart';
+import 'package:photo_manager_app/features/two_factor/data/data_sources/two_factor_remote_data_source.dart';
+import 'package:photo_manager_app/features/two_factor/data/repositories/two_factor_data_repository.dart';
+import 'package:photo_manager_app/features/two_factor/data/services/platform_two_factor_exporter.dart';
+import 'package:photo_manager_app/features/two_factor/domain/repositories/two_factor_repository.dart';
+import 'package:photo_manager_app/features/two_factor/domain/services/two_factor_exporter.dart';
+import 'package:photo_manager_app/features/two_factor/domain/use_cases/disable_totp_use_case.dart';
+import 'package:photo_manager_app/features/two_factor/domain/use_cases/enable_totp_use_case.dart';
+import 'package:photo_manager_app/features/two_factor/domain/use_cases/get_two_factor_status_use_case.dart';
+import 'package:photo_manager_app/features/two_factor/domain/use_cases/regenerate_backup_codes_use_case.dart';
+import 'package:photo_manager_app/features/two_factor/domain/use_cases/set_up_totp_use_case.dart';
+import 'package:photo_manager_app/features/two_factor/presentation/bloc/two_factor_cubit.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/cancel_login_second_factor_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/resend_login_second_factor_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/verify_login_second_factor_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/refresh_token_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/request_registration_code_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/verify_registration_code_use_case.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/registration_email_cubit.dart';
 import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_deletion_local_data_source.dart';
 import 'package:photo_manager_app/features/file_management/data/data_sources/file_management_remote_data_source.dart';
@@ -688,7 +706,8 @@ Future<void> init() async {
   sl.registerFactory(() => UnlockWithRecoveryPhraseUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
   sl.registerFactory(() => UnlockWithDeviceKeysUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
   sl.registerFactory(() => CreateNewKeyVersionUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
-  sl.registerFactory(() => GetRecoveryWordsUseCase(sl<KeyringService>()));
+  sl.registerFactory(() => GetRecoveryWordsUseCase(
+      sl<KeyringService>(), sl<DeviceAuthenticator>(), sl<AccountSecurityRepository>(), sl<CryptoEngine>()));
   sl.registerFactory(() => VerifyRecoveryWordsUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
   sl.registerFactory(() => RecoveryReminderUseCase(sl<RecoveryReminderRepository>()));
   sl.registerFactory(() => CheckKeysUpToDateUseCase(sl<AccountSecurityRepository>(), sl<MasterKeyLocalDataSource>()));
@@ -716,9 +735,15 @@ Future<void> init() async {
   sl.registerFactory(
       () {
         final repository = sl<AuthRepository>();
-        return LoginUseCase(repository, sl<CryptoEngine>(), sl<KeyringService>());
+        return LoginUseCase(repository, sl<CryptoEngine>(), sl<KeyringService>(), sl<PendingLogin>());
       }
   );
+  // The login waiting for the second factor: one for the whole app, it keeps the keys of the password in memory
+  sl.registerLazySingleton(() => PendingLogin());
+  sl.registerFactory(() => VerifyLoginSecondFactorUseCase(
+      sl<AuthRepository>(), sl<KeyringService>(), sl<PendingLogin>()));
+  sl.registerFactory(() => ResendLoginSecondFactorUseCase(sl<AuthRepository>(), sl<PendingLogin>()));
+  sl.registerFactory(() => CancelLoginSecondFactorUseCase(sl<PendingLogin>()));
 
   sl.registerFactory(
       () {
@@ -753,6 +778,27 @@ Future<void> init() async {
       ));
   sl.registerFactory(() => AccountDeletionSummaryCubit(getSummary: sl<GetAccountDeletionSummaryUseCase>()));
   sl.registerFactory(() => DeleteAccountBloc(deleteAccountUseCase: sl<DeleteAccountUseCase>()));
+
+  // authenticator app and backup codes (ROADMAP-account-security.md, Phase 2)
+  sl.registerLazySingleton<TwoFactorRemoteDataSource>(
+      () => TwoFactorRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<TwoFactorRepository>(
+      () => TwoFactorDataRepository(remoteDataSource: sl<TwoFactorRemoteDataSource>()));
+  sl.registerLazySingleton<TwoFactorExporter>(() => PlatformTwoFactorExporter());
+  sl.registerFactory(() => GetTwoFactorStatusUseCase(sl<TwoFactorRepository>()));
+  sl.registerFactory(() => SetUpTotpUseCase(sl<TwoFactorRepository>()));
+  sl.registerFactory(() => EnableTotpUseCase(sl<TwoFactorRepository>()));
+  sl.registerFactory(() => DisableTotpUseCase(
+      sl<TwoFactorRepository>(), sl<AccountSecurityRepository>(), sl<CryptoEngine>()));
+  sl.registerFactory(() => RegenerateBackupCodesUseCase(
+      sl<TwoFactorRepository>(), sl<AccountSecurityRepository>(), sl<CryptoEngine>()));
+  sl.registerFactory(() => TwoFactorCubit(
+        getStatus: sl<GetTwoFactorStatusUseCase>(),
+        setUpTotp: sl<SetUpTotpUseCase>(),
+        enableTotp: sl<EnableTotpUseCase>(),
+        disableTotp: sl<DisableTotpUseCase>(),
+        regenerateBackupCodes: sl<RegenerateBackupCodesUseCase>(),
+      ));
 
   // plans (CLAUDE.md of the backend)
   sl.registerLazySingleton<PlanRemoteDataSource>(() => PlanRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
@@ -796,6 +842,14 @@ Future<void> init() async {
         return RegisterUseCase(repository, sl<CryptoEngine>(), sl<KeyringService>());
       }
   );
+
+  // Registration: the email is verified with an emailed code first
+  sl.registerFactory(() => RequestRegistrationCodeUseCase(sl<AuthRepository>()));
+  sl.registerFactory(() => VerifyRegistrationCodeUseCase(sl<AuthRepository>()));
+  sl.registerFactory(() => RegistrationEmailCubit(
+        requestCode: sl<RequestRegistrationCodeUseCase>(),
+        verifyCode: sl<VerifyRegistrationCodeUseCase>(),
+      ));
 
   sl.registerFactory(
       () {
@@ -1067,6 +1121,9 @@ Future<void> init() async {
             syncDeviceRepository: syncDeviceRepository,
             recoveryReminderUseCase: sl<RecoveryReminderUseCase>(),
             acceptLegalTermsUseCase: sl<AcceptLegalTermsUseCase>(),
+            verifyLoginSecondFactorUseCase: sl<VerifyLoginSecondFactorUseCase>(),
+            resendLoginSecondFactorUseCase: sl<ResendLoginSecondFactorUseCase>(),
+            cancelLoginSecondFactorUseCase: sl<CancelLoginSecondFactorUseCase>(),
             eventBus: eventBus,
         );
       }

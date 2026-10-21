@@ -227,7 +227,23 @@ class ErrorHandler {
           errorResponse: errorResponse,
         );
 
+      case FailureCodes.invalidEmailCode:
+      case FailureCodes.invalidSecondFactorCode:
+        return ValidationFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.secondFactorChallengeExpired:
+        return SecondFactorExpiredFailure(
+          code: code,
+          errorResponse: errorResponse,
+        );
+
+      case FailureCodes.tooManyEmailCodes:
+      case FailureCodes.secondFactorResendTooSoon:
       case FailureCodes.tooManyResetAttempts:
+      case FailureCodes.tooManyLoginAttempts:
         return PermissionDeniedFailure(
           code: code,
           errorResponse: errorResponse,

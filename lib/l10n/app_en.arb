@@ -1142,5 +1142,65 @@
   "deleteAccountSubscription": "Your subscription is cancelled",
   "deleteAccountSubscriptionDetail": "It will not renew and you will not be charged again",
   "planPurchaseTerms": "When you subscribe, the plan starts at once at your request, so you give up the right of withdrawal. It renews automatically until you cancel it in Google Play; once cancelled you keep it until the end of the paid period and it is not refunded.",
-  "planPurchaseTermsLink": "Terms of use"
+  "planPurchaseTermsLink": "Terms of use",
+  "registerEmailBody": "First we verify your email: we'll send you a 6-digit code.",
+  "registerEmailTaken": "This email already has an account.",
+  "registerChangeEmail": "Change email",
+  "errorSecondFactorExpired": "The verification expired. Sign in again.",
+  "loginSecondFactorTitle": "Confirm it's you",
+  "loginSecondFactorBody": "This device is new for your account. We've sent a 6-digit code to {email}",
+  "@loginSecondFactorBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "loginSecondFactorBack": "Back to sign in",
+  "profileTwoFactor": "Authenticator app",
+  "twoFactorTitle": "Authenticator app",
+  "twoFactorOffBody": "When you sign in on a new device we email you a code. With an authenticator app (Google Authenticator, Microsoft Authenticator…) the code comes from the app instead: even with your password and your email, nobody can get in.",
+  "twoFactorOnBody": "Signing in on a new device asks for a code of your authenticator app, or one of your backup codes.",
+  "twoFactorStatusOn": "On",
+  "twoFactorStatusOff": "Off",
+  "twoFactorBackupCodesLeft": "{count, plural, =1{1 unused backup code} other{{count} unused backup codes}}",
+  "@twoFactorBackupCodesLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "twoFactorEnable": "Turn on",
+  "twoFactorDisable": "Turn off",
+  "twoFactorRegenerate": "New backup codes",
+  "twoFactorSetUpTitle": "Set up the app",
+  "twoFactorSetUpStep1": "1. Add the account to your authenticator app: open it with the button, or type the key by hand.",
+  "twoFactorOpenApp": "Open in the authenticator app",
+  "twoFactorNoApp": "No authenticator app on this phone opens the link. Install one, or type the key by hand.",
+  "twoFactorCopyKey": "Copy key",
+  "twoFactorKeyCopied": "Key copied",
+  "twoFactorSetUpStep2": "2. Type the 6-digit code the app shows.",
+  "twoFactorBackupCodesTitle": "Keep your backup codes",
+  "twoFactorBackupCodesBody": "If you lose the phone with the app, each code lets you in once. Keep them somewhere safe: you will not see them again.",
+  "twoFactorCopyCodes": "Copy",
+  "twoFactorCodesCopied": "Codes copied",
+  "twoFactorShareCodes": "Share",
+  "twoFactorCodesSaved": "I have saved them",
+  "twoFactorShareText": "Photo Manager backup codes. Each one works once.",
+  "twoFactorPromptDisableTitle": "Turn off the authenticator app",
+  "twoFactorPromptRegenerateTitle": "New backup codes",
+  "twoFactorPromptBody": "Type your password and a code of the app (or a backup code).",
+  "twoFactorCodeLabel": "Code",
+  "twoFactorDisabledMessage": "Authenticator app turned off",
+  "loginTotpTitle": "Code of your authenticator app",
+  "loginTotpBody": "This device is new for your account. Type the 6-digit code of your authenticator app.",
+  "loginBackupCodeBody": "Type one of your backup codes (like abcde-fghij). Each one works once.",
+  "loginUseBackupCode": "Use a backup code",
+  "loginUseAppCode": "Use the code of the app",
+  "loginBackupCodeLabel": "Backup code",
+  "recoveryWordsAuthReason": "Confirm it's you to see the recovery words",
+  "recoveryWordsPasswordTitle": "Confirm your password",
+  "recoveryWordsPasswordBody": "This phone has no screen lock. Type your password to see the recovery words.",
+  "errorWrongPassword": "The password is not correct."
 }

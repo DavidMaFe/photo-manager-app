@@ -241,6 +241,47 @@ void main() {
       });
     });
 
+    group('device trust token', () {
+      test('should keep the token in the secure storage for the email, whatever its case', () async {
+        await dataSource.cacheDeviceTrustToken('Ana@Example.com', 'trust-token');
+
+        expect(await dataSource.getDeviceTrustToken('ana@example.com'), 'trust-token');
+        expect(await dataSource.getDeviceTrustToken(' ANA@example.com '), 'trust-token');
+        expect(secureStore.values['DEVICE_TRUST_TOKEN'], isNot(contains('Ana@Example.com')));
+      });
+
+      test('should not give the token of another account', () async {
+        await dataSource.cacheDeviceTrustToken('ana@example.com', 'trust-token');
+
+        expect(await dataSource.getDeviceTrustToken('other@example.com'), isNull);
+      });
+
+      test('should replace the token of the previous account', () async {
+        await dataSource.cacheDeviceTrustToken('ana@example.com', 'first');
+        await dataSource.cacheDeviceTrustToken('other@example.com', 'second');
+
+        expect(await dataSource.getDeviceTrustToken('ana@example.com'), isNull);
+        expect(await dataSource.getDeviceTrustToken('other@example.com'), 'second');
+      });
+
+      test('should return null without a token, or with an unreadable one', () async {
+        expect(await dataSource.getDeviceTrustToken('ana@example.com'), isNull);
+
+        await secureStore.write('DEVICE_TRUST_TOKEN', 'not json');
+        expect(await dataSource.getDeviceTrustToken('ana@example.com'), isNull);
+      });
+
+      test('should survive the logout and be removed on its own', () async {
+        await dataSource.cacheDeviceTrustToken('ana@example.com', 'trust-token');
+
+        await dataSource.clearCache();
+        expect(await dataSource.getDeviceTrustToken('ana@example.com'), 'trust-token');
+
+        await dataSource.clearDeviceTrustToken();
+        expect(await dataSource.getDeviceTrustToken('ana@example.com'), isNull);
+      });
+    });
+
     group('cache round-trip', () {
       test('should retrieve same user data after caching', () async {
         // Arrange

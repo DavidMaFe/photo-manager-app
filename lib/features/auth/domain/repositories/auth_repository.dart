@@ -1,6 +1,7 @@
 import 'package:photo_manager_app/core/crypto/domain/crypto_key.dart';
 import 'package:photo_manager_app/core/crypto/domain/kdf_params.dart';
 import 'package:photo_manager_app/core/crypto/domain/key_material.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_outcome.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/login_result.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 
@@ -11,7 +12,15 @@ abstract class AuthRepository {
 
   /// Salt and Argon2id parameters of the password of [email] (a stable fake answer for unknown emails).
   Future<KdfParams> getKdfParams(String email);
-  Future<LoginResult> login({required String email, required CryptoKey authKey});
+
+  /// A trusted device gets the session ([LoginCompleted]); any other one, a second factor ([LoginSecondFactorRequired]).
+  Future<LoginOutcome> login({required String email, required CryptoKey authKey});
+
+  /// Passes the second factor with the emailed [code]: the session starts and this device is trusted from now on.
+  Future<LoginResult> verifyLoginSecondFactor({required String challengeToken, required String code});
+
+  /// Emails another code for the login of [challengeToken].
+  Future<void> resendLoginSecondFactor(String challengeToken);
 
   /// Logs out and removes the tokens and the keys of this device.
   Future<void> logout();
@@ -20,6 +29,15 @@ abstract class AuthRepository {
   /// deleted, so its tokens are no longer valid).
   Future<void> clearSession();
   Future<User?> getCurrentUser();
+
+  /// First step of the registration: emails a code to verify [email]. Fails with an `EmailAlreadyExistsFailure` when
+  /// the email already has an account.
+  Future<void> requestRegistrationCode(String email);
+
+  /// Second step: checks the emailed code without spending it (the registration spends it).
+  Future<void> verifyRegistrationCode(String email, String code);
+
+  /// [emailCode] is the code emailed by [requestRegistrationCode].
   Future<LoginResult> register({
     required String email,
     required CryptoKey authKey,
@@ -29,6 +47,7 @@ abstract class AuthRepository {
     required NewKeyMaterial key,
     required String acceptedTermsVersion,
     required String acceptedPrivacyVersion,
+    required String emailCode,
   });
   Future<bool> hasToken();
   Future<void> refreshToken();

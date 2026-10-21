@@ -6,11 +6,12 @@ import 'package:photo_manager_app/features/auth/presentation/widgets/auth_title.
 import 'package:photo_manager_app/features/auth/presentation/widgets/password_reset/step_indicator.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-/// Shared layout of the three password reset steps.
+/// Shared layout of the three steps of the password reset, of the first two of the registration and of the second
+/// factor of the login (without [step]: no step indicator).
 class PasswordResetLayout extends StatelessWidget {
   static const int totalSteps = 3;
 
-  final int step;
+  final int? step;
   final IconData icon;
   final String title;
   final String? description;
@@ -25,7 +26,7 @@ class PasswordResetLayout extends StatelessWidget {
 
   const PasswordResetLayout({
     super.key,
-    required this.step,
+    this.step,
     required this.icon,
     required this.title,
     this.description,
@@ -41,7 +42,8 @@ class PasswordResetLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final p = context.palette;
-    final stepLabel = l10n.stepOf(step, totalSteps);
+    final step = this.step;
+    final stepLabel = step == null ? null : l10n.stepOf(step, totalSteps);
 
     return Scaffold(
       backgroundColor: p.surface,
@@ -49,7 +51,7 @@ class PasswordResetLayout extends StatelessWidget {
         onBack: onBack,
         backgroundColor: p.surface,
         actions: [
-          StepIndicator(current: step, total: totalSteps, semanticLabel: stepLabel),
+          if (step != null) StepIndicator(current: step, total: totalSteps, semanticLabel: stepLabel!),
         ],
       ),
       body: SafeArea(
@@ -76,11 +78,13 @@ class PasswordResetLayout extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Text(
-                      stepLabel,
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: p.ink2),
-                    ),
-                    const SizedBox(height: 6),
+                    if (stepLabel != null) ...[
+                      Text(
+                        stepLabel,
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: p.ink2),
+                      ),
+                      const SizedBox(height: 6),
+                    ],
                     AuthTitle(title: title, subtitle: description, subtitleSpan: descriptionSpan),
                     const SizedBox(height: 24),
                     child,

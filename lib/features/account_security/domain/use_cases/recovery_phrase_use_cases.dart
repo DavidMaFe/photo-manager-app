@@ -8,16 +8,59 @@ import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
 import 'package:photo_manager_app/core/crypto/domain/wrap_purpose.dart';
 import 'package:photo_manager_app/features/account_security/domain/repositories/account_security_repository.dart';
 import 'package:photo_manager_app/features/account_security/domain/repositories/recovery_reminder_repository.dart';
+import 'package:photo_manager_app/features/account_security/domain/services/device_authenticator.dart';
 
 /// The 24 words of the current key version, if this device keeps a copy of the recovery key.
+///
+/// They open the photos for good, so whoever holds the phone must prove they are its owner first: the device lock
+/// (fingerprint, face or PIN) or, on a phone without a screen lock, the password, checked on this device against the
+/// current key (docs/security-audit-2026-10.md, A1).
 class GetRecoveryWordsUseCase {
   final KeyringService _keyringService;
+  final DeviceAuthenticator _deviceAuthenticator;
+  final AccountSecurityRepository _repository;
+  final CryptoEngine _cryptoEngine;
 
-  GetRecoveryWordsUseCase(this._keyringService);
+  GetRecoveryWordsUseCase(this._keyringService, this._deviceAuthenticator, this._repository, this._cryptoEngine);
 
-  Future<List<String>?> call(RecoveryPhraseLanguage language) async {
+  /// Whether this device keeps the words: without them there is nothing to show (nor to ask for).
+  Future<bool> hasWords() async => await _keyringService.store.getCurrentVersion() != null;
+
+  /// Whether [call] needs the password: the phone has no screen lock.
+  Future<bool> needsPassword() async => !await _deviceAuthenticator.isAvailable();
+
+  /// [reason] is the translated text of the fingerprint or PIN prompt; [password] is only used when [needsPassword].
+  ///
+  /// Throws [DeviceAuthenticationFailure] if the device lock is not passed and [WrongPasswordFailure] with a wrong
+  /// password. Returns null if this device does not keep the words.
+  Future<List<String>?> call(RecoveryPhraseLanguage language, {required String reason, String? password}) async {
     final version = await _keyringService.store.getCurrentVersion();
-    return version == null ? null : _keyringService.recoveryWords(version, language);
+    if (version == null) {
+      return null;
+    }
+
+    if (await _deviceAuthenticator.isAvailable()) {
+      if (!await _deviceAuthenticator.authenticate(reason)) {
+        throw const DeviceAuthenticationFailure();
+      }
+    } else {
+      await _checkPassword(password);
+    }
+    return _keyringService.recoveryWords(version, language);
+  }
+
+  Future<void> _checkPassword(String? password) async {
+    if (password == null || password.isEmpty) {
+      throw const WrongPasswordFailure();
+    }
+    final keys = await _cryptoEngine.deriveFromPassword(password, await _repository.getKdfParams());
+    try {
+      if (!_keyringService.opensCurrentKey(await _repository.getAccountKeys(), keys.kek)) {
+        throw const WrongPasswordFailure();
+      }
+    } finally {
+      keys.dispose();
+    }
   }
 }
 

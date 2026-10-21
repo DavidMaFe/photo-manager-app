@@ -7,11 +7,18 @@ import 'package:photo_manager_app/core/crypto/domain/key_version.dart';
 import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/features/account_security/domain/use_cases/recovery_phrase_use_cases.dart';
+import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
+import 'package:photo_manager_app/core/errors/models/error_response_model.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/login_outcome.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/login_result.dart';
+import 'package:photo_manager_app/features/auth/domain/entities/second_factor_challenge.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/registration_result.dart';
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/cancel_login_second_factor_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/resend_login_second_factor_use_case.dart';
+import 'package:photo_manager_app/features/auth/domain/use_cases/verify_login_second_factor_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/logout_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/refresh_token_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/register_use_case.dart';
@@ -49,6 +56,12 @@ class MockRecoveryReminderUseCase extends Mock implements RecoveryReminderUseCas
 
 class MockAcceptLegalTermsUseCase extends Mock implements AcceptLegalTermsUseCase {}
 
+class MockVerifyLoginSecondFactorUseCase extends Mock implements VerifyLoginSecondFactorUseCase {}
+
+class MockResendLoginSecondFactorUseCase extends Mock implements ResendLoginSecondFactorUseCase {}
+
+class MockCancelLoginSecondFactorUseCase extends Mock implements CancelLoginSecondFactorUseCase {}
+
 void main() {
   late AuthBloc authBloc;
   late MockLoginUseCase mockLoginUseCase;
@@ -63,6 +76,9 @@ void main() {
   late MockRefreshTokenUseCase mockRefreshTokenUseCase;
   late MockRecoveryReminderUseCase mockRecoveryReminderUseCase;
   late MockAcceptLegalTermsUseCase mockAcceptLegalTermsUseCase;
+  late MockVerifyLoginSecondFactorUseCase mockVerifySecondFactor;
+  late MockResendLoginSecondFactorUseCase mockResendSecondFactor;
+  late MockCancelLoginSecondFactorUseCase mockCancelSecondFactor;
 
   setUpAll(() {
     registerFallbackValue(RecoveryPhraseLanguage.english);
@@ -81,6 +97,9 @@ void main() {
     mockRefreshTokenUseCase = MockRefreshTokenUseCase();
     mockRecoveryReminderUseCase = MockRecoveryReminderUseCase();
     mockAcceptLegalTermsUseCase = MockAcceptLegalTermsUseCase();
+    mockVerifySecondFactor = MockVerifyLoginSecondFactorUseCase();
+    mockResendSecondFactor = MockResendLoginSecondFactorUseCase();
+    mockCancelSecondFactor = MockCancelLoginSecondFactorUseCase();
     when(() => mockRecoveryReminderUseCase.start()).thenAnswer((_) async {});
 
     authBloc = AuthBloc(
@@ -96,6 +115,9 @@ void main() {
         refreshTokenUseCase: mockRefreshTokenUseCase,
         recoveryReminderUseCase: mockRecoveryReminderUseCase,
         acceptLegalTermsUseCase: mockAcceptLegalTermsUseCase,
+        verifyLoginSecondFactorUseCase: mockVerifySecondFactor,
+        resendLoginSecondFactorUseCase: mockResendSecondFactor,
+        cancelLoginSecondFactorUseCase: mockCancelSecondFactor,
         eventBus: AppEventBus(),
     );
   });
@@ -124,6 +146,160 @@ void main() {
       expect(authBloc.state, isA<AuthInitial>());
     });
 
+    const challenge = SecondFactorChallenge(
+        challengeToken: 'challenge-token', method: 'EMAIL', emailHint: 't***@example.com');
+
+    ApiException apiError(String code) =>
+        ApiException(ErrorResponseModel(code: code, message: 'message', timestamp: '2026-10-20T10:00:00'));
+
+    group('second factor', () {
+      void stubDeviceRegistration() {
+        when(() => mockSyncDeviceRepository.getDeviceUuid()).thenThrow(Exception('not needed'));
+      }
+
+      blocTest<AuthBloc, AuthState>(
+        'should emit [AuthLoading, AuthSecondFactorRequired] when the device is not trusted',
+        build: () {
+          when(() => mockLoginUseCase(email: any(named: 'email'), password: any(named: 'password')))
+              .thenAnswer((_) async => const LoginSecondFactorRequired(challenge));
+          return authBloc;
+        },
+        act: (bloc) => bloc.add(LoginRequested(email: testEmail, password: testPassword)),
+        wait: const Duration(milliseconds: 900),
+        expect: () => [
+          isA<AuthLoading>(),
+          isA<AuthSecondFactorRequired>()
+              .having((s) => s.challenge, 'challenge', challenge)
+              .having((s) => s.working, 'working', isFalse),
+        ],
+        verify: (_) => verifyNever(() => mockSyncDeviceRepository.getDeviceUuid()),
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should start the session with the right code',
+        build: () {
+          stubDeviceRegistration();
+          when(() => mockVerifySecondFactor(any())).thenAnswer((_) async => loginResult());
+          return authBloc;
+        },
+        seed: () => AuthSecondFactorRequired(challenge),
+        act: (bloc) => bloc.add(LoginSecondFactorSubmitted('482913')),
+        wait: const Duration(milliseconds: 900),
+        expect: () => [
+          isA<AuthSecondFactorRequired>().having((s) => s.working, 'working', isTrue),
+          isA<AuthSuccessful>().having((s) => s.user, 'user', testUser),
+        ],
+        verify: (_) => verify(() => mockVerifySecondFactor('482913')).called(1),
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should go to the terms or the locked account after the code, like a login',
+        build: () {
+          stubDeviceRegistration();
+          when(() => mockVerifySecondFactor(any()))
+              .thenAnswer((_) async => loginResult(accountLocked: true, legalAcceptanceRequired: true));
+          return authBloc;
+        },
+        seed: () => AuthSecondFactorRequired(challenge),
+        act: (bloc) => bloc.add(LoginSecondFactorSubmitted('482913')),
+        wait: const Duration(milliseconds: 900),
+        expect: () => [
+          isA<AuthSecondFactorRequired>(),
+          isA<AuthLegalAcceptanceRequired>().having((s) => s.accountLocked, 'accountLocked', isTrue),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should stay on the code with the failure of a wrong code',
+        build: () {
+          when(() => mockVerifySecondFactor(any())).thenThrow(apiError('INVALID_SECOND_FACTOR_CODE'));
+          return authBloc;
+        },
+        seed: () => AuthSecondFactorRequired(challenge),
+        act: (bloc) => bloc.add(LoginSecondFactorSubmitted('000000')),
+        wait: const Duration(milliseconds: 900),
+        expect: () => [
+          isA<AuthSecondFactorRequired>().having((s) => s.working, 'working', isTrue),
+          isA<AuthSecondFactorRequired>()
+              .having((s) => s.working, 'working', isFalse)
+              .having((s) => s.failure?.code, 'failure', 'INVALID_SECOND_FACTOR_CODE'),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should go back to the login with the error when the challenge expired',
+        build: () {
+          when(() => mockVerifySecondFactor(any())).thenThrow(apiError('SECOND_FACTOR_CHALLENGE_EXPIRED'));
+          return authBloc;
+        },
+        seed: () => AuthSecondFactorRequired(challenge),
+        act: (bloc) => bloc.add(LoginSecondFactorSubmitted('482913')),
+        wait: const Duration(milliseconds: 900),
+        expect: () => [
+          isA<AuthSecondFactorRequired>(),
+          isA<AuthError>().having((s) => s.failure, 'failure', isA<SecondFactorExpiredFailure>()),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should ignore a code while another one is being checked',
+        build: () => authBloc,
+        seed: () => AuthSecondFactorRequired(challenge, working: true),
+        act: (bloc) => bloc.add(LoginSecondFactorSubmitted('482913')),
+        expect: () => <AuthState>[],
+        verify: (_) => verifyNever(() => mockVerifySecondFactor(any())),
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should say that a new code was sent, and then forget it',
+        build: () {
+          when(() => mockResendSecondFactor()).thenAnswer((_) async {});
+          return authBloc;
+        },
+        seed: () => AuthSecondFactorRequired(challenge),
+        act: (bloc) async {
+          bloc.add(LoginSecondFactorResendRequested());
+          await Future<void>.delayed(const Duration(milliseconds: 900));
+          bloc.add(LoginSecondFactorResentShown());
+        },
+        wait: const Duration(milliseconds: 100),
+        expect: () => [
+          isA<AuthSecondFactorRequired>().having((s) => s.working, 'working', isTrue),
+          isA<AuthSecondFactorRequired>().having((s) => s.codeResent, 'codeResent', isTrue),
+          isA<AuthSecondFactorRequired>().having((s) => s.codeResent, 'codeResent', isFalse),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should stay on the code when it is too soon to send another one',
+        build: () {
+          when(() => mockResendSecondFactor()).thenThrow(apiError('SECOND_FACTOR_RESEND_TOO_SOON'));
+          return authBloc;
+        },
+        seed: () => AuthSecondFactorRequired(challenge),
+        act: (bloc) => bloc.add(LoginSecondFactorResendRequested()),
+        wait: const Duration(milliseconds: 900),
+        expect: () => [
+          isA<AuthSecondFactorRequired>(),
+          isA<AuthSecondFactorRequired>()
+              .having((s) => s.failure, 'failure', isA<PermissionDeniedFailure>())
+              .having((s) => s.codeResent, 'codeResent', isFalse),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'should drop the pending login and go back to the form when cancelled',
+        build: () {
+          when(() => mockCancelSecondFactor()).thenReturn(null);
+          return authBloc;
+        },
+        seed: () => AuthSecondFactorRequired(challenge),
+        act: (bloc) => bloc.add(LoginSecondFactorCancelled()),
+        expect: () => [isA<NotAuthenticated>()],
+        verify: (_) => verify(() => mockCancelSecondFactor()).called(1),
+      );
+    });
+
     group('LoginRequested', () {
       blocTest<AuthBloc, AuthState>(
         'should emit [AuthLoading, AuthSuccessful] when login succeeds',
@@ -131,7 +307,7 @@ void main() {
           when(() => mockLoginUseCase(
                 email: any(named: 'email'),
                 password: any(named: 'password'),
-              )).thenAnswer((_) async => loginResult());
+              )).thenAnswer((_) async => LoginCompleted(loginResult()));
           return authBloc;
         },
         act: (bloc) => bloc.add(LoginRequested(
@@ -155,7 +331,7 @@ void main() {
           when(() => mockLoginUseCase(
                 email: any(named: 'email'),
                 password: any(named: 'password'),
-              )).thenAnswer((_) async => loginResult(accountLocked: true));
+              )).thenAnswer((_) async => LoginCompleted(loginResult(accountLocked: true)));
           return authBloc;
         },
         act: (bloc) => bloc.add(LoginRequested(email: testEmail, password: testPassword)),
@@ -172,7 +348,7 @@ void main() {
           when(() => mockLoginUseCase(
                 email: any(named: 'email'),
                 password: any(named: 'password'),
-              )).thenAnswer((_) async => loginResult());
+              )).thenAnswer((_) async => LoginCompleted(loginResult()));
           return authBloc;
         },
         act: (bloc) => bloc.add(LoginRequested(
@@ -241,7 +417,7 @@ void main() {
           when(() => mockLoginUseCase(
                 email: any(named: 'email'),
                 password: any(named: 'password'),
-              )).thenAnswer((_) async => loginResult());
+              )).thenAnswer((_) async => LoginCompleted(loginResult()));
           return authBloc;
         },
         act: (bloc) => bloc.add(LoginRequested(
@@ -288,6 +464,7 @@ void main() {
               surname: any(named: 'surname'),
               language: any(named: 'language'),
               acceptedLegalTerms: any(named: 'acceptedLegalTerms'),
+              emailCode: any(named: 'emailCode'),
             )).thenAnswer((_) async => RegistrationResult(user: testUser, recoveryWords: testWords));
       }
 
@@ -298,6 +475,7 @@ void main() {
             surname: surname,
             language: RecoveryPhraseLanguage.spanish,
             acceptedLegalTerms: true,
+            emailCode: '482913',
           );
 
       blocTest<AuthBloc, AuthState>(
@@ -332,6 +510,7 @@ void main() {
                 surname: null,
                 language: RecoveryPhraseLanguage.spanish,
                 acceptedLegalTerms: true,
+                emailCode: '482913',
               )).called(1);
         },
       );
@@ -360,6 +539,7 @@ void main() {
                 surname: any(named: 'surname'),
                 language: any(named: 'language'),
                 acceptedLegalTerms: any(named: 'acceptedLegalTerms'),
+                emailCode: any(named: 'emailCode'),
               )).thenThrow(Exception('Email already registered'));
           return authBloc;
         },
@@ -381,6 +561,7 @@ void main() {
                 surname: any(named: 'surname'),
                 language: any(named: 'language'),
                 acceptedLegalTerms: any(named: 'acceptedLegalTerms'),
+                emailCode: any(named: 'emailCode'),
               )).thenThrow(const WeakPasswordFailure());
           return authBloc;
         },
@@ -401,7 +582,7 @@ void main() {
         'should ask for the terms in force after a login that requires them',
         build: () {
           when(() => mockLoginUseCase(email: any(named: 'email'), password: any(named: 'password')))
-              .thenAnswer((_) async => loginResult(accountLocked: true, legalAcceptanceRequired: true));
+              .thenAnswer((_) async => LoginCompleted(loginResult(accountLocked: true, legalAcceptanceRequired: true)));
           return authBloc;
         },
         act: (bloc) => bloc.add(LoginRequested(email: testEmail, password: testPassword)),
@@ -1167,7 +1348,7 @@ void main() {
           when(() => mockLoginUseCase(
                 email: any(named: 'email'),
                 password: any(named: 'password'),
-              )).thenAnswer((_) async => loginResult());
+              )).thenAnswer((_) async => LoginCompleted(loginResult()));
           when(() => mockLogoutUseCase()).thenAnswer((_) async => {});
           return authBloc;
         },
