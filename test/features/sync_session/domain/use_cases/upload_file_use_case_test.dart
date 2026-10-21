@@ -15,11 +15,13 @@ import 'package:photo_manager_app/features/sync_session/domain/entities/sync_fil
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/media_thumbnail_source.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/original_recompressor.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/storage_budget.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
 
 import '../../../../helpers/e2ee_test_kit.dart';
 import '../../../../helpers/fake_jpeg_xl_codec.dart';
 import '../../../../helpers/jpeg_test_bytes.dart';
+import '../../../../helpers/plan_test_providers.dart';
 
 class MockSyncSessionRepository extends Mock implements SyncSessionRepository {}
 
@@ -312,6 +314,58 @@ void main() {
     test('should throw with an empty session id', () async {
       await expectLater(useCase(sessionId: '  ', file: await photo()), throwsException);
       verifyNever(() => repository.uploadFile(sessionId: any(named: 'sessionId'), upload: any(named: 'upload')));
+    });
+
+    // ==================== FREE SPACE OF THE PLAN ====================
+
+    group('with the free space of the plan', () {
+      /// The bytes the server counts for a sent file: the encrypted file, its thumbnail and its preview.
+      int storedBytesOf(_Sent sent) =>
+          sent.encryptedFile.length +
+          (sent.upload.encryptedThumbnail?.length ?? 0) +
+          (sent.upload.encryptedPreview?.length ?? 0);
+
+      test('should send a file that fits and spend what it takes on the server', () async {
+        final budget = StorageBudget(TestPlans.freeWithStored(0));
+        final before = budget.remainingBytes!;
+
+        await useCase(sessionId: sessionId, file: await photo(), budget: budget);
+
+        expect(sent, hasLength(1));
+        expect(budget.remainingBytes, before - storedBytesOf(sent.single));
+      });
+
+      test('should not send a file that does not fit, and say what it would take', () async {
+        // Given: Less free space than the encrypted file, its thumbnail and its preview
+        final budget = StorageBudget(TestPlans.freeWithStored(TestPlans.freeLimits.storageBytes - content.length));
+
+        // When/Then: Rejected on the device, nothing sent and nothing spent
+        await expectLater(
+            useCase(sessionId: sessionId, file: await photo(), budget: budget),
+            throwsA(isA<FileDoesNotFitFailure>()
+                .having((failure) => failure.storedBytes, 'storedBytes', greaterThan(content.length))));
+        verifyNever(() => repository.uploadFile(sessionId: any(named: 'sessionId'), upload: any(named: 'upload')));
+        expect(budget.remainingBytes, content.length);
+        expect(uploadsDir().existsSync() ? uploadsDir().listSync() : [], isEmpty);
+      });
+
+      test('should not even encrypt a video that does not fit', () async {
+        final budget = StorageBudget(TestPlans.freeWithStored(TestPlans.freeLimits.storageBytes - 1000));
+
+        await expectLater(
+            useCase(sessionId: sessionId, file: await photo(name: 'VID.mp4', mime: 'video/mp4', duration: 5),
+                    budget: budget),
+            throwsA(isA<FileDoesNotFitFailure>().having((failure) => failure.storedBytes, 'storedBytes',
+                                                        content.length)));
+        verifyNever(() => repository.uploadFile(sessionId: any(named: 'sessionId'), upload: any(named: 'upload')));
+        expect(uploadsDir().existsSync() ? uploadsDir().listSync() : [], isEmpty);
+      });
+
+      test('should send without a limit when the plan could not be read', () async {
+        await useCase(sessionId: sessionId, file: await photo(), budget: StorageBudget(null));
+
+        expect(sent, hasLength(1));
+      });
     });
   });
 }

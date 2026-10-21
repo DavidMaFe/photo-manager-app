@@ -31,6 +31,17 @@ class TestPlans {
     subscription: null,
   );
 
+  /// The free plan with [storedBytes] already used.
+  static UserPlan freeWithStored(int storedBytes) => UserPlan(
+        tier: PlanTier.free,
+        limits: freeLimits,
+        storedBytes: storedBytes,
+        devices: 1,
+        pausedDevices: const [],
+        readOnly: false,
+        subscription: null,
+      );
+
   static const plus100 = UserPlan(
     tier: PlanTier.plus100,
     limits: PlanLimits(storageBytes: 100 * testGib, maxDevices: 3, maxVideoBytes: 2 * testGib, dailyBackup: true),
