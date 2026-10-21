@@ -349,11 +349,15 @@ Nobody but the user can see the photos, not even the server administrator. Speci
   - `RecoveryPhrase`: the 24 BIP39 words (English and Spanish, accents ignored)
   - `MasterKeyLocalDataSource`: master keys and recovery keys in `flutter_secure_storage` (iOS `first_unlock_this_device`, so background sync works with the phone locked)
 - **`features/auth/`:** registration, login and password reset derive the `authKey` and the KEK on the device. The password never leaves it.
+  - Registration first verifies the email with a 6-digit code (`RegistrationEmailCubit`).
+  - A login from a device that is not trusted gets a second factor challenge (`LoginOutcome`: `LoginCompleted` or `LoginSecondFactorRequired`). `LoginSecondFactorStep` asks for the emailed code (resend after 60 s) or, with the authenticator app, its code or a backup code. Meanwhile `PendingLogin` keeps the KEK in memory, so the password is not asked twice.
+  - The `deviceTrustToken` of each email is kept in secure storage (`DEVICE_TRUST_TOKEN`). It survives the logout, so the next login of that email on this device needs only the password.
 - **`features/account_security/`:**
   - password change, and reset from this device with fingerprint or PIN
   - locked account (old words, device keys or a new key)
-  - view and verify the 24 words, and the reminders
+  - view (after the device lock, or the password on a phone without a screen lock) and verify the 24 words, and the reminders
   - export to the password manager or PDF
+- **`features/two_factor/`:** Profile → Security → «Authenticator app»: turn it on (`otpauth://` link or the key to copy, and a code), the 10 backup codes (copy, share, «I have saved them»), new backup codes and turn it off (password and a code).
 - **`features/sync_session/`:** each upload is encrypted with its own `FileKey`:
   - the content is encrypted to a private temporary file
   - the 512 px thumbnail and the metadata (name and MIME type) are encrypted as well
@@ -376,6 +380,8 @@ Nobody but the user can see the photos, not even the server administrator. Speci
 - Nothing decrypted is written to disk: the cache stores PMEF objects and the decoded images live in memory only.
 - Logout clears the master keys, the recovery keys, the keys of the files, the encrypted cache, the image cache, the video proxy, the exported PDF and the reminders.
 - Never log passwords, `authKey`, keys, recovery words, file names or decrypted content. `ErrorLogger` only prints in debug builds.
+- Screens that show secrets (the 24 words, backup codes, the TOTP key) are wrapped in `SecureScreenGuard` (FLAG_SECURE on Android: no screenshots, recordings or recent apps preview).
+- The app is not backed up (`allowBackup="false"`, `data_extraction_rules.xml`): on a new phone the user logs in again.
 - New screens that show a file use `EncryptedImage(fileId: ...)`. The file only needs to come from a list that registers its key, or be resolved by the batch endpoint.
 
 ### Tests
@@ -386,7 +392,7 @@ Nobody but the user can see the photos, not even the server administrator. Speci
 ## Important Notes
 
 - **Android Emulator:** Use `10.0.2.2` to access localhost on host machine
-- **Token Management:** Tokens stored in `flutter_secure_storage` via AuthLocalDataSource; HTTP calls with a session go through `AuthenticatedHttpClient`, which adds the token and refreshes it on 401
+- **Token Management:** Tokens stored in `flutter_secure_storage` via AuthLocalDataSource; HTTP calls with a session go through `AuthenticatedHttpClient`, which adds the token and refreshes it on 401. Each refresh returns a new refresh token, which replaces the stored one
 - **Logout Cleanup:** Always clears both auth and profile caches
 - **Route Protection:** AuthNotifier listens to AuthBloc and triggers redirects automatically
 - **Loading States:** Use minimum 800ms duration pattern from AuthBloc for consistent UX
