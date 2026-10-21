@@ -14,6 +14,12 @@ import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/duplicate_files_result.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/sync_file.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/sync_result.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/upload_result.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/storage_budget.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/sync_session.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
@@ -42,6 +48,8 @@ class MockSyncKeepAlive extends Mock implements SyncKeepAlive {}
 class MockGetUserPlanUseCase extends Mock implements GetUserPlanUseCase {}
 
 class FakeAppEvent extends Fake implements AppEvent {}
+class FakeSyncFile extends Fake implements SyncFile {}
+class FakeStorageBudget extends Fake implements StorageBudget {}
 
 void main() {
   late SyncSessionBloc bloc;
@@ -59,6 +67,8 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(FakeAppEvent());
+    registerFallbackValue(FakeSyncFile());
+    registerFallbackValue(FakeStorageBudget());
   });
 
   late MockGetUserPlanUseCase mockGetUserPlan;
@@ -404,6 +414,164 @@ void main() {
       );
     });
 
+    group('free space of the plan', () {
+      const sessionId = 'session-123';
+      const deviceUuid = 'device-uuid-123';
+      // 150 MiB free
+      final plan = TestPlans.freeWithStored(5 * testGib - 150 * testMib);
+
+      SyncFileModel image(String hash, int sizeBytes) => SyncFileModel(
+            localId: 'local-$hash',
+            devicePath: '/photos/$hash.jpg',
+            hash: hash,
+            fileName: '$hash.jpg',
+            sizeBytes: sizeBytes,
+            capturedAt: DateTime(2026, 10, 1),
+            mimeType: 'image/jpeg',
+          );
+
+      final big = image('big', 100 * testMib);
+      final tooBig = image('too-big', 80 * testMib);
+      final small = image('small', 10 * testMib);
+
+      SyncSessionBloc buildBloc() => SyncSessionBloc(
+            startSyncSessionUseCase: mockStartUseCase,
+            checkDuplicatedFilesUseCase: mockCheckDuplicatesUseCase,
+            uploadFileUseCase: mockUploadUseCase,
+            completeSyncSessionUseCase: mockCompleteUseCase,
+            syncDeviceRepository: mockDeviceRepository,
+            syncSessionRepository: mockSessionRepository,
+            mediaLocalDataSource: mockMediaDataSource,
+            eventBus: mockEventBus,
+            syncLock: mockSyncLock,
+            syncKeepAlive: mockKeepAlive,
+            getUserPlanUseCase: mockGetUserPlan,
+            requestPhotoAccess: (_) async => true,
+          );
+
+      void givenPendingFiles(List<SyncFileModel> files) {
+        when(() => mockGetUserPlan()).thenAnswer((_) async => plan);
+        when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => deviceUuid);
+        when(() => mockStartUseCase(deviceUuid: deviceUuid)).thenAnswer((_) async => SyncSession(id: sessionId));
+        when(() => mockMediaDataSource.scanMediaFiles(lastCompletedSyncAt: any(named: 'lastCompletedSyncAt')))
+            .thenAnswer((_) async => files);
+        when(() => mockCheckDuplicatesUseCase(sessionId: sessionId, fileHashes: any(named: 'fileHashes')))
+            .thenAnswer((_) async => DuplicateFilesResult(
+                filesToUpload: files.map((file) => file.hash).toList(),
+                duplicatesCount: 0,
+                totalFiles: files.length));
+        // No server id: the file mapping (database) is not written
+        when(() => mockUploadUseCase(
+                sessionId: sessionId, file: any(named: 'file'), budget: any(named: 'budget')))
+            .thenAnswer((_) async => const UploadResult());
+        when(() => mockKeepAlive.update(current: any(named: 'current'), total: any(named: 'total')))
+            .thenAnswer((_) async {});
+        when(() => mockCompleteUseCase(sessionId: sessionId))
+            .thenAnswer((_) async => SyncResult(totalFiles: files.length, uploadedFiles: 0, failedFiles: 0));
+        when(() => mockEventBus.fire(any())).thenReturn(null);
+      }
+
+      void givenUploadFails(SyncFile file, Object error) {
+        when(() => mockUploadUseCase(sessionId: sessionId, file: file, budget: any(named: 'budget')))
+            .thenThrow(error);
+      }
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should skip a file that does not fit and back up the rest',
+        setUp: () {
+          givenPendingFiles([big, tooBig, small]);
+          givenUploadFails(tooBig, const FileDoesNotFitFailure(81 * testMib));
+        },
+        build: buildBloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        wait: const Duration(seconds: 9),
+        expect: () => [
+          const SyncSessionStarting(),
+          const SyncSessionFetchingFiles(),
+          isA<SyncSessionUploading>()
+              .having((state) => state.freeBytes, 'freeBytes', 150 * testMib)
+              .having((state) => state.exceedsFreeSpace, 'exceedsFreeSpace', isTrue),
+          isA<SyncSessionUploading>().having((state) => state.currentFileName, 'file', 'big.jpg'),
+          isA<SyncSessionUploading>().having((state) => state.currentFileName, 'file', 'small.jpg'),
+          const SyncSessionCompleting(),
+          isA<SyncSessionSuccess>()
+              .having((state) => state.skippedForSpace, 'skippedForSpace', 1)
+              .having((state) => state.skippedForSpaceBytes, 'skippedForSpaceBytes', 81 * testMib)
+              .having((state) => state.skippedLargeVideos, 'skippedLargeVideos', 0),
+        ],
+        verify: (_) {
+          verify(() => mockUploadUseCase(sessionId: sessionId, file: small, budget: any(named: 'budget'))).called(1);
+          verifyNever(() => mockSessionRepository.cancelSyncSession(sessionId: any(named: 'sessionId')));
+        },
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should read the plan again and go on when the server has no space left',
+        setUp: () {
+          givenPendingFiles([big, small]);
+          givenUploadFails(big, ApiException(ErrorResponseModel(
+              code: FailureCodes.userDoesNotHaveStorageSpace, message: 'No space', timestamp: '2026-10-21T10:00:00')));
+        },
+        build: buildBloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        wait: const Duration(seconds: 9),
+        expect: () => [
+          const SyncSessionStarting(),
+          const SyncSessionFetchingFiles(),
+          isA<SyncSessionUploading>().having((state) => state.exceedsFreeSpace, 'exceedsFreeSpace', isFalse),
+          isA<SyncSessionUploading>().having((state) => state.currentFileName, 'file', 'small.jpg'),
+          const SyncSessionCompleting(),
+          isA<SyncSessionSuccess>()
+              .having((state) => state.skippedForSpace, 'skippedForSpace', 1)
+              .having((state) => state.skippedForSpaceBytes, 'skippedForSpaceBytes', 100 * testMib),
+        ],
+        verify: (_) {
+          // Once when the backup starts and once after the rejection
+          verify(() => mockGetUserPlan()).called(2);
+          verifyNever(() => mockSessionRepository.cancelSyncSession(sessionId: any(named: 'sessionId')));
+        },
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should not warn when every pending file fits',
+        setUp: () => givenPendingFiles([small]),
+        build: buildBloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        wait: const Duration(seconds: 9),
+        expect: () => [
+          const SyncSessionStarting(),
+          const SyncSessionFetchingFiles(),
+          isA<SyncSessionUploading>().having((state) => state.exceedsFreeSpace, 'exceedsFreeSpace', isFalse),
+          isA<SyncSessionUploading>(),
+          const SyncSessionCompleting(),
+          isA<SyncSessionSuccess>().having((state) => state.skippedForSpace, 'skippedForSpace', 0),
+        ],
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should not limit the backup when the plan cannot be read',
+        setUp: () {
+          givenPendingFiles([big, tooBig, small]);
+          when(() => mockGetUserPlan()).thenThrow(Exception('offline'));
+        },
+        build: buildBloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        wait: const Duration(seconds: 9),
+        expect: () => [
+          const SyncSessionStarting(),
+          const SyncSessionFetchingFiles(),
+          isA<SyncSessionUploading>()
+              .having((state) => state.freeBytes, 'freeBytes', isNull)
+              .having((state) => state.exceedsFreeSpace, 'exceedsFreeSpace', isFalse),
+          isA<SyncSessionUploading>(),
+          isA<SyncSessionUploading>(),
+          isA<SyncSessionUploading>(),
+          const SyncSessionCompleting(),
+          isA<SyncSessionSuccess>(),
+        ],
+      );
+    });
+
     group('SyncSessionUploading', () {
       test('should not know the bytes left by default', () {
         expect(const SyncSessionUploading(uploadCount: 0, totalCount: 2).remainingBytes, 0);
@@ -413,6 +581,13 @@ void main() {
         expect(
           const SyncSessionUploading(uploadCount: 1, totalCount: 2, remainingBytes: 10),
           isNot(const SyncSessionUploading(uploadCount: 1, totalCount: 2, remainingBytes: 5)),
+        );
+      });
+
+      test('should tell states apart by the free space warning', () {
+        expect(
+          const SyncSessionUploading(uploadCount: 0, totalCount: 2, freeBytes: 10, exceedsFreeSpace: true),
+          isNot(const SyncSessionUploading(uploadCount: 0, totalCount: 2, freeBytes: 10)),
         );
       });
     });

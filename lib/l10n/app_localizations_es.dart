@@ -2520,6 +2520,22 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String backupNotEnoughSpace(String free) {
+    return 'No cabe todo lo pendiente: se copiará lo que quepa en los $free libres.';
+  }
+
+  @override
+  String backupFilesDidNotFit(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count archivos no se han copiado',
+      one: '1 archivo no se ha copiado',
+    );
+    return '$_temp0: no cabían en tu espacio ($size). Amplía tu plan para copiarlos.';
+  }
+
+  @override
   String get errorPlanLimit => 'Tu plan ha llegado a uno de sus límites.';
 
   @override

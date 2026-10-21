@@ -65,6 +65,9 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
   bool _showAllActivity = false;
   bool _cancelRequested = false;
   bool _backgroundEnabled = false;
+
+  /// The warning that the pending files do not all fit was already shown in this backup.
+  bool _spaceWarningShown = false;
   Duration? _remaining;
 
   @override
@@ -283,6 +286,11 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
 
     if (state is SyncSessionUploading) {
       _remaining = _estimator.update(uploaded: state.uploadCount, total: state.totalCount, now: widget.clock());
+      // Does not block: the backup uploads what fits and says at the end what was left out
+      if (state.exceedsFreeSpace && state.freeBytes != null && !_spaceWarningShown) {
+        _spaceWarningShown = true;
+        _showPlanSnackBar(context, l10n.backupNotEnoughSpace(PlanTexts.used(state.freeBytes!, l10n)));
+      }
       return;
     }
     if (state is SyncSessionStarting || state is SyncSessionFetchingFiles || state is SyncSessionCompleting) {
@@ -291,6 +299,7 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
 
     // The backup finished one way or another.
     final wasCancelled = _cancelRequested;
+    _spaceWarningShown = false;
     setState(() {
       _cancelRequested = false;
       _remaining = null;
@@ -299,7 +308,11 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
 
     if (state is SyncSessionSuccess) {
       // The history refreshes itself through SyncCompletedEvent.
-      if (state.skippedLargeVideos > 0) {
+      if (state.skippedForSpace > 0) {
+        context.read<PlanCubit>().load();
+        _showPlanSnackBar(context, l10n.backupFilesDidNotFit(
+            state.skippedForSpace, PlanTexts.used(state.skippedForSpaceBytes, l10n)));
+      } else if (state.skippedLargeVideos > 0) {
         final maxVideo = context.read<PlanCubit>().state.plan?.limits.maxVideoBytes;
         _showPlanSnackBar(context, l10n.planVideosSkipped(
             state.skippedLargeVideos, maxVideo == null ? '' : PlanTexts.size(maxVideo, l10n)));

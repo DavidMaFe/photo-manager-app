@@ -4013,6 +4013,18 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 video was not backed up} other{{count} videos were not backed up}}: your plan allows videos up to {size}.'**
   String planVideosSkipped(int count, String size);
 
+  /// No description provided for @backupNotEnoughSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Not everything pending fits: what fits in the {free} free will be backed up.'**
+  String backupNotEnoughSpace(String free);
+
+  /// No description provided for @backupFilesDidNotFit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file was not backed up} other{{count} files were not backed up}}: they did not fit in your space ({size}). Upgrade your plan to back them up.'**
+  String backupFilesDidNotFit(int count, String size);
+
   /// No description provided for @errorPlanLimit.
   ///
   /// In en, this message translates to:

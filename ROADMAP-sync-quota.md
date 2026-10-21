@@ -40,18 +40,18 @@ Qué hace una copia (manual o en segundo plano) cuando lo pendiente de subir no 
 Status: ✅ Completed
 
 ## Phase 1: Copia manual
-- [ ] `SyncSessionBloc`:
+- [x] `SyncSessionBloc`:
   - lee el plan al empezar y crea el `StorageBudget`;
   - si lo pendiente (suma de tamaños originales) supera el espacio libre, el estado de subida lo indica y la página lo avisa sin bloquear;
   - un `FileDoesNotFitFailure` salta el archivo y sigue;
   - un `USER_NOT_HAVE_STORAGE_SPACE` del servidor relee el plan, salta el archivo y sigue (ya no para ni cancela la sesión).
-- [ ] Al terminar, `SyncSessionSuccess` lleva los archivos y bytes que no cupieron. La página lo dice, con el enlace a los planes, como ya hace con los vídeos demasiado grandes.
-- [ ] Textos en español e inglés.
-- [ ] Tests del bloc y de la página.
+- [x] Al terminar, `SyncSessionSuccess` lleva los archivos y bytes que no cupieron. La página lo dice, con el enlace a los planes, como ya hace con los vídeos demasiado grandes.
+- [x] Textos en español e inglés.
+- [x] Tests del bloc y de la página. Para llegar al bucle de subida en los tests, el permiso de fotos se inyecta en el bloc (`requestPhotoAccess`, por defecto el diálogo de siempre).
 
 **Criterio de aceptación:** con poco espacio libre, la copia manual sube todo lo que cabe, termina y dice qué se quedó fuera.
 
-Status: 🚧 In Progress
+Status: ✅ Completed
 
 ## Phase 2: Copia en segundo plano
 - [ ] `BackgroundSyncService`: la misma lógica. `USER_NOT_HAVE_STORAGE_SPACE` deja de parar la copia (sale de `_planLimitCodes`).
@@ -61,7 +61,7 @@ Status: 🚧 In Progress
 
 **Criterio de aceptación:** la copia en segundo plano sube lo que cabe y avisa del resto.
 
-Status: ⏳ Pending
+Status: 🚧 In Progress
 
 ## Phase 3: Publicación y cierre
 - [ ] `CLAUDE.md` de la app: qué hace una copia cuando no cabe todo.

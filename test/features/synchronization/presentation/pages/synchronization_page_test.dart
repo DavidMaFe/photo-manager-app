@@ -336,6 +336,51 @@ void main() {
       expect(find.text('See plans'), findsOneWidget);
     });
 
+    testWidgets('should say how many files did not fit in the free space', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionCompleting());
+
+      // Act
+      await emitSession(tester, SyncSessionSuccess(SyncResult(totalFiles: 12, uploadedFiles: 9, failedFiles: 0),
+          skippedLargeVideos: 1, skippedForSpace: 3, skippedForSpaceBytes: 81 * 1024 * 1024));
+
+      // Assert: the space comes first, and the plan is read again
+      expect(find.text('3 files were not backed up: they did not fit in your space (81 MB). '
+          'Upgrade your plan to back them up.'), findsOneWidget);
+      expect(find.text('See plans'), findsOneWidget);
+      verify(() => plan.plan.load()).called(1);
+    });
+
+    testWidgets('should warn once, without stopping the backup, when the pending files do not all fit',
+        (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+
+      // Act
+      await emitSession(tester, const SyncSessionUploading(
+          uploadCount: 0, totalCount: 3, freeBytes: 150 * 1024 * 1024, exceedsFreeSpace: true));
+      await emitSession(tester, const SyncSessionUploading(
+          uploadCount: 1, totalCount: 3, freeBytes: 150 * 1024 * 1024, exceedsFreeSpace: true));
+
+      // Assert
+      expect(find.text('Not everything pending fits: what fits in the 150 MB free will be backed up.'),
+          findsOneWidget);
+      expect(find.text('See plans'), findsOneWidget);
+    });
+
+    testWidgets('should not warn when the pending files fit', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+
+      // Act
+      await emitSession(tester, const SyncSessionUploading(
+          uploadCount: 0, totalCount: 3, freeBytes: 150 * 1024 * 1024));
+
+      // Assert
+      expect(find.textContaining('Not everything pending fits'), findsNothing);
+    });
+
     testWidgets('should offer the plans when a limit of the plan stops the backup', (tester) async {
       // Arrange
       await pump(tester, loaded(1));
