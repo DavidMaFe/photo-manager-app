@@ -2,7 +2,8 @@ import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
 
 /// The free space of the plan during a backup: what the server will still accept. A file is checked against it
-/// before it is sent, so a file that does not fit never leaves the device (ROADMAP-sync-quota.md).
+/// before it is sent, so a file that does not fit never leaves the device (CLAUDE.md, «Backups and the free space
+/// of the plan»).
 ///
 /// Without a plan (it could not be read) nothing is limited: the server decides.
 class StorageBudget {
