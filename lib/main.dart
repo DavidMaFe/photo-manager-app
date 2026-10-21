@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:photo_manager_app/core/navigation/app_router.dart';
 import 'package:photo_manager_app/core/navigation/auth_notifier.dart';
 import 'package:photo_manager_app/core/navigation/onboarding_notifier.dart';
+import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/core/navigation/startup_splash.dart';
 import 'package:photo_manager_app/core/services/background_task_handler.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
@@ -99,6 +100,12 @@ void main() async {
   final router = AppRouter.createRouter(authBloc, onboardingNotifier,
       observers: [AppScreenObserver(appLogger)]);
 
+  // The notification of a backup that did not fit opens the plans (the redirect still applies: login, legal…)
+  void openFromNotification(String? payload) {
+    if (payload == SyncNotificationService.plansPayload) router.goNamed(RouteNames.plans);
+  }
+  notificationService.onTap = openFromNotification;
+
   final startupAuth = AuthNotifier(authBloc);
   StartupSplash(
     changes: Listenable.merge([startupAuth, onboardingNotifier]),
@@ -110,6 +117,8 @@ void main() async {
       // the splash, so the login page is never seen
       if (authBloc.state is! NotAuthenticated) await Future<void>.delayed(_routeTransitionDuration);
       binding.allowFirstFrame();
+      // Opened from closed by a notification
+      openFromNotification(await notificationService.launchPayload());
     },
   ).start();
 

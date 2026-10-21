@@ -2542,6 +2542,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get notificationBackupPlanLimit => 'Tu plan ha llegado a uno de sus límites. Abre la app para verlo.';
 
   @override
+  String get notificationStorageFullTitle => 'No cabía todo en tu espacio';
+
+  @override
+  String notificationStorageFullBody(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count archivos se han quedado sin copiar',
+      one: '1 archivo se ha quedado sin copiar',
+    );
+    return '$_temp0 ($size). Toca para ver los planes.';
+  }
+
+  @override
   String get planPaymentPending => 'Pago pendiente: el plan se aplica en cuanto se confirme';
 
   @override

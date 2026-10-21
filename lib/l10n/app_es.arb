@@ -980,6 +980,8 @@
   "backupFilesDidNotFit": "{count, plural, =1{1 archivo no se ha copiado} other{{count} archivos no se han copiado}}: no cabían en tu espacio ({size}). Amplía tu plan para copiarlos.",
   "errorPlanLimit": "Tu plan ha llegado a uno de sus límites.",
   "notificationBackupPlanLimit": "Tu plan ha llegado a uno de sus límites. Abre la app para verlo.",
+  "notificationStorageFullTitle": "No cabía todo en tu espacio",
+  "notificationStorageFullBody": "{count, plural, =1{1 archivo se ha quedado sin copiar} other{{count} archivos se han quedado sin copiar}} ({size}). Toca para ver los planes.",
   "planPaymentPending": "Pago pendiente: el plan se aplica en cuanto se confirme",
   "planBuyMonthly": "{price} al mes",
   "planBuyAnnual": "{price} al año",

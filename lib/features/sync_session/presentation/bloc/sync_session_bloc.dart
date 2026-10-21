@@ -6,6 +6,8 @@ import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_event_log.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_events.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/widgets/permission/permission_helper.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
@@ -63,6 +65,8 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
 
   final PhotoAccessRequest requestPhotoAccess;
 
+  final AppEventLog appEventLog;
+
   String? _currentSessionId;
   bool _isCancelled = false;
 
@@ -78,6 +82,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     required this.syncLock,
     required this.syncKeepAlive,
     required this.getUserPlanUseCase,
+    required this.appEventLog,
     this.requestPhotoAccess = _requestPhotoAccess,
   }) : super(const SyncSessionInitial()) {
     on<SyncSessionStarted>(_onSyncSessionStarted);
@@ -274,6 +279,9 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
         return;
       }
 
+      if (skippedForSpace > 0) {
+        appEventLog.record(SyncStorageFull(background: false, files: skippedForSpace, bytes: skippedForSpaceBytes));
+      }
       await _completeSession(emit, session.id, skippedLargeVideos: skippedLargeVideos,
           skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes);
 

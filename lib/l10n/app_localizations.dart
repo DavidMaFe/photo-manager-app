@@ -4037,6 +4037,18 @@ abstract class AppLocalizations {
   /// **'Your plan has reached one of its limits. Open the app to see it.'**
   String get notificationBackupPlanLimit;
 
+  /// No description provided for @notificationStorageFullTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not everything fit in your space'**
+  String get notificationStorageFullTitle;
+
+  /// No description provided for @notificationStorageFullBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file was not backed up} other{{count} files were not backed up}} ({size}). Tap to see the plans.'**
+  String notificationStorageFullBody(int count, String size);
+
   /// No description provided for @planPaymentPending.
   ///
   /// In en, this message translates to:

@@ -21,3 +21,21 @@ class SyncFailed extends AppLogEvent {
   @override
   String get message => 'background=$background reason=$reason uploaded=$uploaded failed=$failed';
 }
+
+/// A backup that left files out because they did not fit in the free space of the plan.
+class SyncStorageFull extends AppLogEvent {
+  final bool background;
+  final int files;
+  final int bytes;
+
+  const SyncStorageFull({required this.background, required this.files, required this.bytes});
+
+  @override
+  String get name => 'SYNC_STORAGE_FULL';
+
+  @override
+  AppLogLevel get level => AppLogLevel.warn;
+
+  @override
+  String get message => 'background=$background files=$files bytes=$bytes';
+}

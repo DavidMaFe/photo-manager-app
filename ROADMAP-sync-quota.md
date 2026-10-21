@@ -54,14 +54,15 @@ Status: ✅ Completed
 Status: ✅ Completed
 
 ## Phase 2: Copia en segundo plano
-- [ ] `BackgroundSyncService`: la misma lógica. `USER_NOT_HAVE_STORAGE_SPACE` deja de parar la copia (sale de `_planLimitCodes`).
-- [ ] Al terminar con archivos que no cupieron, una notificación con cuántos y cuánto espacio, que abre los planes.
-- [ ] Evento de monitorización `SYNC_STORAGE_FULL` (archivos y bytes que no cupieron, en segundo plano o no), para verlo en el panel «App» de Grafana.
-- [ ] Tests del servicio.
+- [x] `BackgroundSyncService`: la misma lógica. `USER_NOT_HAVE_STORAGE_SPACE` deja de parar la copia (sale de `_planLimitCodes`).
+- [x] Al terminar con archivos que no cupieron, una notificación con cuántos y cuánto espacio, que abre los planes.
+- [x] Evento de monitorización `SYNC_STORAGE_FULL` (archivos y bytes que no cupieron, en segundo plano o no), para verlo en el panel «App» de Grafana.
+- [x] Tests del servicio (nuevos: el servicio no tenía). La red y la batería se inyectan para poder probarlo.
+- [x] La notificación sale si están activadas las notificaciones de fallo (`notifyOnFailure`). Al tocarla se abren los planes, con la app abierta o cerrada (`main.dart`, payload `plans`). El evento se registra siempre.
 
 **Criterio de aceptación:** la copia en segundo plano sube lo que cabe y avisa del resto.
 
-Status: 🚧 In Progress
+Status: ✅ Completed
 
 ## Phase 3: Publicación y cierre
 - [ ] `CLAUDE.md` de la app: qué hace una copia cuando no cabe todo.
@@ -71,4 +72,4 @@ Status: 🚧 In Progress
 
 **Criterio de aceptación:** probado en el S23.
 
-Status: ⏳ Pending
+Status: 🚧 In Progress

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:photo_manager_app/core/utils/app_locale.dart';
+import 'package:photo_manager_app/core/utils/file_size_formatter.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 /// Service for managing background sync notifications
@@ -31,6 +32,13 @@ class SyncNotificationService {
   static const int _notificationIdProgress = 1;
   static const int _notificationIdSuccess = 2;
   static const int _notificationIdFailure = 3;
+  static const int _notificationIdStorageFull = 4;
+
+  /// Payload of the notifications that open the plans page.
+  static const String plansPayload = 'plans';
+
+  /// Called with the payload of a notification tapped while the app runs (set by main.dart, which has the router).
+  void Function(String? payload)? onTap;
 
   /// Texts of the notifications; read on every notification, so a change of the device language applies at once.
   final AppLocalizations Function() _strings;
@@ -401,6 +409,44 @@ class SyncNotificationService {
     }
   }
 
+  /// Files left out of a background backup because they did not fit in the free space of the plan. The tap opens
+  /// the plans.
+  Future<void> showStorageFullNotification({required int files, required int bytes}) async {
+    try {
+      final l10n = _strings();
+      final androidDetails = AndroidNotificationDetails(
+        _channelIdFailure,
+        l10n.notificationChannelFailureName,
+        channelDescription: l10n.notificationChannelFailureDescription,
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      );
+      final notificationDetails = NotificationDetails(android: androidDetails, iOS: const DarwinNotificationDetails());
+
+      await _notificationsPlugin.show(
+        _notificationIdStorageFull,
+        l10n.notificationStorageFullTitle,
+        l10n.notificationStorageFullBody(files, FileSizeFormatter.format(bytes, locale: l10n.localeName)),
+        notificationDetails,
+        payload: plansPayload,
+      );
+    } catch (e) {
+      developer.log('❌ Failed to show storage full notification', name: 'SyncNotificationService', error: e);
+    }
+  }
+
+  /// Payload of the notification that opened the app from closed; null when it was not opened by one.
+  Future<String?> launchPayload() async {
+    try {
+      final details = await _notificationsPlugin.getNotificationAppLaunchDetails();
+      if (details == null || !details.didNotificationLaunchApp) return null;
+      return details.notificationResponse?.payload;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Request notification permissions (iOS).
   Future<bool> requestPermissions() async {
     try {
@@ -435,8 +481,7 @@ class SyncNotificationService {
       name: 'SyncNotificationService',
     );
 
-    // TODO: Navigate to sync history page
-    // This will be implemented when we add navigation support
+    onTap?.call(response.payload);
   }
 
   /// Cancel all notifications.

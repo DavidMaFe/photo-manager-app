@@ -12,6 +12,9 @@ import 'package:photo_manager_app/features/plans/domain/use_cases/get_user_plan_
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_event_log.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_events.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_log_event.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
@@ -48,6 +51,8 @@ class MockSyncKeepAlive extends Mock implements SyncKeepAlive {}
 class MockGetUserPlanUseCase extends Mock implements GetUserPlanUseCase {}
 
 class FakeAppEvent extends Fake implements AppEvent {}
+class MockAppEventLog extends Mock implements AppEventLog {}
+class FakeAppLogEvent extends Fake implements AppLogEvent {}
 class FakeSyncFile extends Fake implements SyncFile {}
 class FakeStorageBudget extends Fake implements StorageBudget {}
 
@@ -69,11 +74,14 @@ void main() {
     registerFallbackValue(FakeAppEvent());
     registerFallbackValue(FakeSyncFile());
     registerFallbackValue(FakeStorageBudget());
+    registerFallbackValue(FakeAppLogEvent());
   });
 
   late MockGetUserPlanUseCase mockGetUserPlan;
+  late MockAppEventLog mockAppEventLog;
 
   setUp(() {
+    mockAppEventLog = MockAppEventLog();
     mockStartUseCase = MockStartSyncSessionUseCase();
     mockCheckDuplicatesUseCase = MockCheckDuplicatedFilesUseCase();
     mockUploadUseCase = MockUploadFileUseCase();
@@ -115,6 +123,7 @@ void main() {
       syncLock: mockSyncLock,
       syncKeepAlive: mockKeepAlive,
       getUserPlanUseCase: mockGetUserPlan,
+      appEventLog: mockAppEventLog,
     );
   });
 
@@ -446,6 +455,7 @@ void main() {
             syncLock: mockSyncLock,
             syncKeepAlive: mockKeepAlive,
             getUserPlanUseCase: mockGetUserPlan,
+            appEventLog: mockAppEventLog,
             requestPhotoAccess: (_) async => true,
           );
 
@@ -502,6 +512,9 @@ void main() {
         verify: (_) {
           verify(() => mockUploadUseCase(sessionId: sessionId, file: small, budget: any(named: 'budget'))).called(1);
           verifyNever(() => mockSessionRepository.cancelSyncSession(sessionId: any(named: 'sessionId')));
+          final event = verify(() => mockAppEventLog.record(captureAny())).captured.single as SyncStorageFull;
+          expect(event.name, 'SYNC_STORAGE_FULL');
+          expect(event.message, 'background=false files=1 bytes=${81 * testMib}');
         },
       );
 
@@ -536,6 +549,7 @@ void main() {
         'should not warn when every pending file fits',
         setUp: () => givenPendingFiles([small]),
         build: buildBloc,
+        verify: (_) => verifyNever(() => mockAppEventLog.record(any())),
         act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
         wait: const Duration(seconds: 9),
         expect: () => [
