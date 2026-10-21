@@ -90,6 +90,18 @@ void main() {
       verifyNever(() => deviceAuthenticator.authenticate(any()));
     });
 
+    test('should say there are no words on a device that only logged in, without asking for the device lock',
+        () async {
+      // Given: The master key opened at a login, but no copy of the recovery key (another device created it)
+      final keys = await kit.engine.deriveFromPassword(password, params);
+      await kit.keyring.unlockAndStore(await server.getAccountKeys(), keys.kek);
+      keys.dispose();
+
+      expect(await useCase.hasWords(), isFalse);
+      expect(await useCase(RecoveryPhraseLanguage.english, reason: reason), isNull);
+      verifyNever(() => deviceAuthenticator.authenticate(any()));
+    });
+
     group('on a phone without a screen lock', () {
       setUp(() async {
         await kit.keyring.storeNewKey(1, material);

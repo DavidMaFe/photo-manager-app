@@ -110,6 +110,19 @@ void main() {
       verifyNever(() => getWords(any(), reason: any(named: 'reason'), password: any(named: 'password')));
     });
 
+    testWidgets('should send to the verification when the words are not there after the device lock', (tester) async {
+      when(() => getWords(any(), reason: any(named: 'reason'), password: any(named: 'password')))
+          .thenAnswer((_) async => null);
+      await pumpSection(tester);
+
+      await tester.tap(find.byKey(const ValueKey('security-recovery-words')));
+      await tester.pumpAndSettle();
+
+      // Never silently back to the profile
+      expect(find.textContaining('This device has no copy of your 24 words'), findsOneWidget);
+      expect(find.text('page ${RouteNames.verifyRecoveryWords}'), findsOneWidget);
+    });
+
     testWidgets('should open the words although the profile was rebuilt while the device lock was asked',
         (tester) async {
       // Given: The fingerprint prompt pauses and resumes the app, and the resume rebuilds the profile

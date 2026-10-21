@@ -23,8 +23,13 @@ class GetRecoveryWordsUseCase {
 
   GetRecoveryWordsUseCase(this._keyringService, this._deviceAuthenticator, this._repository, this._cryptoEngine);
 
-  /// Whether this device keeps the words: without them there is nothing to show (nor to ask for).
-  Future<bool> hasWords() async => await _keyringService.store.getCurrentVersion() != null;
+  /// Whether this device keeps the words: a copy of the recovery key of the current version, kept by the device that
+  /// created the key or verified the words. A device that only logged in has the master key but not the words; then
+  /// there is nothing to show (nor to ask the device lock for).
+  Future<bool> hasWords() async {
+    final version = await _keyringService.store.getCurrentVersion();
+    return version != null && await _keyringService.store.getRecoveryKey(version) != null;
+  }
 
   /// Whether [call] needs the password: the phone has no screen lock.
   Future<bool> needsPassword() async => !await _deviceAuthenticator.isAvailable();
@@ -34,10 +39,10 @@ class GetRecoveryWordsUseCase {
   /// Throws [DeviceAuthenticationFailure] if the device lock is not passed and [WrongPasswordFailure] with a wrong
   /// password. Returns null if this device does not keep the words.
   Future<List<String>?> call(RecoveryPhraseLanguage language, {required String reason, String? password}) async {
-    final version = await _keyringService.store.getCurrentVersion();
-    if (version == null) {
+    if (!await hasWords()) {
       return null;
     }
+    final version = (await _keyringService.store.getCurrentVersion())!;
 
     if (await _deviceAuthenticator.isAvailable()) {
       if (!await _deviceAuthenticator.authenticate(reason)) {
