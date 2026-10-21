@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
-import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
+import 'package:photo_manager_app/core/errors/helper/failure_message_helper.dart';
 import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/core/widgets/list_row.dart';
@@ -21,18 +21,22 @@ class SecuritySection extends StatelessWidget {
 
   const SecuritySection({super.key, required this.email, this.getRecoveryWordsUseCase});
 
+  /// The fingerprint or PIN prompt pauses and resumes the app, and the resume rebuilds the profile (the plan is
+  /// loaded again): this widget may be gone when the prompt closes. The router, the messenger and the texts are taken
+  /// before it, so the words still open.
   Future<void> _showWords(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
+    final router = GoRouter.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     final useCase = getRecoveryWordsUseCase ?? sl<GetRecoveryWordsUseCase>();
     final language = Localizations.localeOf(context).languageCode == 'es'
         ? RecoveryPhraseLanguage.spanish
         : RecoveryPhraseLanguage.english;
 
     if (!await useCase.hasWords()) {
-      if (!context.mounted) return;
       // This device did not create the key: verifying the words keeps a copy here
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.recoveryPhraseNotOnDevice)));
-      context.goNamed(RouteNames.verifyRecoveryWords);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.recoveryPhraseNotOnDevice)));
+      router.goNamed(RouteNames.verifyRecoveryWords);
       return;
     }
 
@@ -50,11 +54,11 @@ class SecuritySection extends StatelessWidget {
     try {
       words = await useCase(language, reason: l10n.recoveryWordsAuthReason, password: password);
     } on Failure catch (failure) {
-      if (context.mounted) ErrorNotificationService.showError(context, failure);
+      messenger.showSnackBar(SnackBar(content: Text(FailureMessageHelper.messageFor(l10n, failure))));
       return;
     }
-    if (!context.mounted || words == null) return;
-    context.goNamed(RouteNames.recoveryWords,
+    if (words == null) return;
+    router.goNamed(RouteNames.recoveryWords,
         extra: RecoveryPhraseArgs(words: words, email: email, flow: RecoveryPhraseFlow.view));
   }
 
