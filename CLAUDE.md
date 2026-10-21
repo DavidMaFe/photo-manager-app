@@ -25,9 +25,9 @@ flutter run --release
 # Build APK (Android)
 flutter build apk
 
-# Build app bundle (Android). For the store: obfuscated, keeping the symbols (build/symbols, not in git) to read the
-# stack traces of the crash reports (`flutter symbolize`)
-flutter build appbundle --obfuscate --split-debug-info=build/symbols
+# Build app bundle (Android). Not obfuscated: the stack traces of the errors the app sends to the backend must be
+# readable in Grafana (CLAUDE.md of the backend, «Logs and metrics»)
+flutter build appbundle --release --dart-define-from-file=config/prod.json
 
 # Build iOS app
 flutter build ios
@@ -374,6 +374,13 @@ Nobody but the user can see the photos, not even the server administrator. Speci
   - If the account is locked, it starts the locked account flow (`AccountLockDetected`).
   - Background sync stops at the first outdated key and leaves the prompt for the next time the app is opened.
 - **`features/legal/`:** information pages, terms of use and privacy policy, readable without a session (`LegalVersions` must match `app.legal.*` in the backend).
+
+- **`core/monitoring/`:** the errors of the app go to the log of the backend (`POST /api/client-logs/`) and are seen in Grafana next to the ones of the backend (CLAUDE.md of the backend, «Logs and metrics»).
+  - Captured without code in the features: `FlutterError.onError`, `PlatformDispatcher.onError`, the background isolate (`BACKGROUND_TASK_FAILED`) and the failures of `ErrorHandler` (`ErrorHandler.onFailure` → `AppLogger.recordHandled`): `SERVER_ERROR`, `UNKNOWN_SERVER_CODE`, `UNEXPECTED_ERROR`, `PARSE_ERROR`. Network, validation and wrong passwords are not sent.
+  - Events of the features through the `AppEventLog` contract, with typed events (`app_events.dart`, e.g. `SyncFailed`).
+  - `AppLogger` queues them (`AppLogQueueLocalDataSource`, SharedPreferences, at most 200) and sends them in batches every 30 s, a few seconds after an error, and when the app leaves or comes back. A failed sending is never recorded.
+  - Every line carries the version and build (`package_info_plus`), platform, system, model and the current screen (`AppScreenObserver` on the router). `LogSanitizer` removes emails, absolute paths and content URIs before they leave the device.
+  - `RequestIdHttpClient` (the inner `http.Client`) gives every request an `X-Request-Id` and remembers the recent 5xx: a `SERVER_ERROR` carries the id of its request, which joins it with the lines of the backend.
 
 ### Rules
 

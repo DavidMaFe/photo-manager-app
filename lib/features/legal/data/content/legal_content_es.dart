@@ -271,6 +271,9 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
               'para detectar duplicados.',
           'Dispositivos: nombre, modelo, sistema operativo, versión de la app e identificador.',
           'Sesión y seguridad: fechas de acceso, tokens de sesión y la dirección IP de las peticiones.',
+          'Informes de errores de la app: el tipo de error, la pantalla en la que ocurrió, la versión de la app y el '
+              'modelo y el sistema del dispositivo. Nunca llevan tu email, tus archivos ni sus nombres, y se guardan '
+              'en nuestro propio servidor.',
           'Tus claves, siempre cifradas: el servidor no puede abrirlas.',
           'La versión de los términos y de esta política que aceptaste, y la fecha.',
           'Suscripciones: el identificador de la compra en Google Play, el plan, su estado, las fechas del periodo '
@@ -291,6 +294,8 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
               'del RGPD).',
           'Proteger el servicio y evitar abusos, por ejemplo limitando los intentos por dirección IP. Base: nuestro '
               'interés legítimo (art. 6.1.f).',
+          'Detectar y corregir errores, caídas y problemas de rendimiento, con los registros técnicos del servidor y '
+              'los informes de errores de la app. Base: nuestro interés legítimo (art. 6.1.f).',
           'Cumplir obligaciones legales. Base: la obligación legal (art. 6.1.c).',
         ]),
         LegalParagraph('No usamos tus datos para publicidad ni los vendemos.'),
@@ -315,6 +320,7 @@ final Map<LegalDocumentType, LegalDocument> legalDocumentsEs = {
           'Mientras tengas la cuenta.',
           'Los archivos de la papelera se borran a los 30 días.',
           'Los tokens de sesión caducan a los 30 días.',
+          'Los registros técnicos del servidor y los informes de errores de la app se borran a los 30 días.',
           'Los datos de tus suscripciones, mientras tengas la cuenta. Google Play conserva sus propios registros de '
               'los pagos.',
           'Si eliminas la cuenta desde la app, tus datos se borran al momento; si lo pides por email, en un plazo '

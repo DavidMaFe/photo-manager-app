@@ -15,7 +15,21 @@ import '../base/failure_codes.dart';
 /// 2. Network exceptions (SocketException, TimeoutException) → Network Failures
 /// 3. Other exceptions (FormatException, etc.) → Generic Failures
 class ErrorHandler {
+  /// Gets every handled failure with its error, for the monitoring (set by the injection container to
+  /// `AppLogger.recordHandled`). Null in the tests.
+  static void Function(Failure failure, Object error)? onFailure;
+
   static Failure handleError(dynamic error, {String? context}) {
+    final failure = _toFailure(error, context);
+    try {
+      onFailure?.call(failure, error as Object);
+    } catch (_) {
+      // The monitoring never breaks the handling of an error
+    }
+    return failure;
+  }
+
+  static Failure _toFailure(dynamic error, String? context) {
     // If already a Failure, return as-is
     if (error is Failure) {
       ErrorLogger.logFailure(error, context: context);

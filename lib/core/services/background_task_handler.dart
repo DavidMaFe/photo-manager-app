@@ -2,6 +2,9 @@ import 'dart:developer' as developer;
 
 import 'package:get_it/get_it.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:photo_manager_app/core/monitoring/app_logger.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_event_log.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_events.dart';
 import 'package:photo_manager_app/core/injection_container.dart' as di;
 import 'package:photo_manager_app/core/services/background_sync_service.dart';
 import 'package:photo_manager_app/core/services/sync_log_service.dart';
@@ -82,6 +85,7 @@ void backgroundTaskHandler() {
         // scheduling chain so tomorrow's run still fires at the right time.
         // The user must open the app to re-authenticate.
         final isAuthFailure = backgroundSyncService.wasLastFailureAuthRelated();
+        di.sl<AppEventLog>().record(SyncFailed(background: true, reason: isAuthFailure ? 'AUTH' : 'SYNC'));
 
         if (isAuthFailure) {
           log.write(
@@ -106,6 +110,7 @@ void backgroundTaskHandler() {
       }
 
       log.write('■ WorkManager tarea terminada (retorna true)');
+      await _flushLogs();
       return Future.value(true);
     } catch (e, stackTrace) {
       developer.log(
@@ -116,9 +121,13 @@ void backgroundTaskHandler() {
       );
 
       log?.write('💥 EXCEPCIÓN NO CAPTURADA: $e');
+      if (GetIt.instance.isRegistered<AppLogger>()) {
+        di.sl<AppLogger>().recordError(e, stackTrace, event: 'BACKGROUND_TASK_FAILED');
+      }
 
       // A download that failed is tried again by WorkManager; the sync schedule is not touched
       if (task == WorkManagerDownloadScheduler.taskName) {
+        await _flushLogs();
         return Future.value(false);
       }
 
@@ -148,7 +157,15 @@ void backgroundTaskHandler() {
         log?.write('✗ No se pudo programar siguiente ejecución: $retryError');
       }
 
+      await _flushLogs();
       return Future.value(true);
     }
   });
+}
+
+/// The isolate ends with the task: what it recorded goes to the backend now, or waits in the queue for the app.
+Future<void> _flushLogs() async {
+  if (GetIt.instance.isRegistered<AppLogger>()) {
+    await di.sl<AppLogger>().flush();
+  }
 }

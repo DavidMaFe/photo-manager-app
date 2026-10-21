@@ -1,5 +1,14 @@
 import 'package:flutter/painting.dart';
 
+import 'package:photo_manager_app/core/errors/handler/error_handler.dart';
+import 'package:photo_manager_app/core/monitoring/app_logger.dart';
+import 'package:photo_manager_app/core/monitoring/data/app_log_data_repository.dart';
+import 'package:photo_manager_app/core/monitoring/data/app_log_queue_local_data_source.dart';
+import 'package:photo_manager_app/core/monitoring/data/client_logs_remote_data_source.dart';
+import 'package:photo_manager_app/core/monitoring/data/device_context.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_event_log.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_log_repository.dart';
+import 'package:photo_manager_app/core/network/request_id_http_client.dart';
 import 'package:photo_manager_app/core/jpeg_xl/data/platform_jpeg_xl_codec.dart';
 import 'package:photo_manager_app/core/jpeg_xl/domain/jpeg_xl_codec.dart';
 import 'package:photo_manager_app/features/account_deletion/data/data_sources/account_deletion_remote_data_source.dart';
@@ -265,7 +274,9 @@ Future<void> init() async {
 
   // GENERAL INJECTIONS
   // Plain HTTP client (used for auth endpoints to avoid circular dependency)
-  sl.registerLazySingleton(() => http.Client());
+  // Every request carries an X-Request-Id, the id of its lines in the log of the backend (core/monitoring)
+  sl.registerLazySingleton<RequestIdHttpClient>(() => RequestIdHttpClient(http.Client()));
+  sl.registerLazySingleton<http.Client>(() => sl<RequestIdHttpClient>());
 
   sl.registerLazySingleton(() => DeviceInfoPlugin());
   sl.registerLazySingleton(() => AppDatabase());
@@ -689,6 +700,18 @@ Future<void> init() async {
         );
       }
   );
+
+  // monitoring: the lines of the app go to the log of the backend (CLAUDE.md, «Logs and metrics»)
+  sl.registerLazySingleton<DeviceContextProvider>(() => PlatformDeviceContextProvider());
+  sl.registerLazySingleton(() => AppLogQueueLocalDataSource(sharedPreferences: sl<SharedPreferences>()));
+  sl.registerLazySingleton(() => ClientLogsRemoteDataSource(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<AppLogRepository>(() => AppLogDataRepository(
+      localDataSource: sl<AppLogQueueLocalDataSource>(),
+      remoteDataSource: sl<ClientLogsRemoteDataSource>(),
+      deviceContextProvider: sl<DeviceContextProvider>()));
+  sl.registerLazySingleton<AppLogger>(() => AppLogger(sl<AppLogRepository>(), requestIds: sl<RequestIdHttpClient>()));
+  sl.registerLazySingleton<AppEventLog>(() => sl<AppLogger>());
+  ErrorHandler.onFailure = (failure, error) => sl<AppLogger>().recordHandled(failure, error);
 
   // account security (end-to-end encryption keys, docs/e2ee-spec.md)
   sl.registerLazySingleton<AccountSecurityRemoteDataSource>(
