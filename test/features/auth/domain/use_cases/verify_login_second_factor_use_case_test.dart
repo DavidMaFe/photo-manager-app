@@ -92,6 +92,29 @@ void main() {
           code: any(named: 'code')));
     });
 
+    test('should accept a backup code when the challenge is of the authenticator app', () async {
+      pendingLogin.start(const SecondFactorChallenge(challengeToken: 'challenge-token', method: 'TOTP',
+          emailHint: 't***@x.com'), await kit.passwordKeys(password, params));
+      final material = await kit.material(password, params);
+      when(() => repository.verifyLoginSecondFactor(challengeToken: any(named: 'challengeToken'),
+          code: any(named: 'code'))).thenAnswer((_) async => LoginResult(user: user,
+          keys: AccountKeys(accountLocked: false, versions: [E2eeTestKit.serverVersion(material)])));
+
+      await useCase(' ABCDE fghjk ');
+
+      verify(() => repository.verifyLoginSecondFactor(challengeToken: 'challenge-token', code: 'ABCDE fghjk'))
+          .called(1);
+    });
+
+    test('should not send a backup code for an emailed code', () async {
+      await startPendingLogin();
+
+      await expectLater(useCase('abcde-fghjk'), throwsException);
+
+      verifyNever(() => repository.verifyLoginSecondFactor(challengeToken: any(named: 'challengeToken'),
+          code: any(named: 'code')));
+    });
+
     // ==================== VALIDATION ERROR TESTS ====================
 
     test('should not call the server with a code that is not 6 digits', () async {

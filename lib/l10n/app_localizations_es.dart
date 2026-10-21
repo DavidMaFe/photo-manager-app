@@ -2589,4 +2589,117 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get loginSecondFactorBack => 'Volver al inicio de sesión';
+
+  @override
+  String get profileTwoFactor => 'App autenticadora';
+
+  @override
+  String get twoFactorTitle => 'App autenticadora';
+
+  @override
+  String get twoFactorOffBody => 'Al iniciar sesión en un dispositivo nuevo te enviamos un código por correo. Con una app autenticadora (Google Authenticator, Microsoft Authenticator…) el código sale de la app: aunque alguien tenga tu contraseña y tu correo, no podrá entrar.';
+
+  @override
+  String get twoFactorOnBody => 'Iniciar sesión en un dispositivo nuevo pide un código de tu app autenticadora o uno de tus códigos de respaldo.';
+
+  @override
+  String get twoFactorStatusOn => 'Activada';
+
+  @override
+  String get twoFactorStatusOff => 'Desactivada';
+
+  @override
+  String twoFactorBackupCodesLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count códigos de respaldo sin usar',
+      one: '1 código de respaldo sin usar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get twoFactorEnable => 'Activar';
+
+  @override
+  String get twoFactorDisable => 'Desactivar';
+
+  @override
+  String get twoFactorRegenerate => 'Nuevos códigos de respaldo';
+
+  @override
+  String get twoFactorSetUpTitle => 'Configura la app';
+
+  @override
+  String get twoFactorSetUpStep1 => '1. Añade la cuenta a tu app autenticadora: ábrela con el botón o escribe la clave a mano.';
+
+  @override
+  String get twoFactorOpenApp => 'Abrir en la app autenticadora';
+
+  @override
+  String get twoFactorNoApp => 'Ninguna app autenticadora de este móvil abre el enlace. Instala una o escribe la clave a mano.';
+
+  @override
+  String get twoFactorCopyKey => 'Copiar clave';
+
+  @override
+  String get twoFactorKeyCopied => 'Clave copiada';
+
+  @override
+  String get twoFactorSetUpStep2 => '2. Escribe el código de 6 dígitos que muestra la app.';
+
+  @override
+  String get twoFactorBackupCodesTitle => 'Guarda tus códigos de respaldo';
+
+  @override
+  String get twoFactorBackupCodesBody => 'Si pierdes el móvil con la app, cada código te deja entrar una vez. Guárdalos en un lugar seguro: no los volverás a ver.';
+
+  @override
+  String get twoFactorCopyCodes => 'Copiar';
+
+  @override
+  String get twoFactorCodesCopied => 'Códigos copiados';
+
+  @override
+  String get twoFactorShareCodes => 'Compartir';
+
+  @override
+  String get twoFactorCodesSaved => 'Ya los he guardado';
+
+  @override
+  String get twoFactorShareText => 'Códigos de respaldo de Photo Manager. Cada uno sirve una vez.';
+
+  @override
+  String get twoFactorPromptDisableTitle => 'Desactivar la app autenticadora';
+
+  @override
+  String get twoFactorPromptRegenerateTitle => 'Nuevos códigos de respaldo';
+
+  @override
+  String get twoFactorPromptBody => 'Escribe tu contraseña y un código de la app (o un código de respaldo).';
+
+  @override
+  String get twoFactorCodeLabel => 'Código';
+
+  @override
+  String get twoFactorDisabledMessage => 'App autenticadora desactivada';
+
+  @override
+  String get loginTotpTitle => 'Código de tu app autenticadora';
+
+  @override
+  String get loginTotpBody => 'Es la primera vez que entras desde este dispositivo. Escribe el código de 6 dígitos de tu app autenticadora.';
+
+  @override
+  String get loginBackupCodeBody => 'Escribe uno de tus códigos de respaldo (por ejemplo, abcde-fghij). Cada uno sirve una vez.';
+
+  @override
+  String get loginUseBackupCode => 'Usar un código de respaldo';
+
+  @override
+  String get loginUseAppCode => 'Usar el código de la app';
+
+  @override
+  String get loginBackupCodeLabel => 'Código de respaldo';
 }

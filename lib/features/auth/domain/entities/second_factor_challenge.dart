@@ -8,4 +8,7 @@ class SecondFactorChallenge {
   final String emailHint;
 
   const SecondFactorChallenge({required this.challengeToken, required this.method, required this.emailHint});
+
+  /// The code comes from the authenticator app (or is a backup code) instead of the email; nothing can be resent.
+  bool get usesAuthenticatorApp => method == 'TOTP';
 }

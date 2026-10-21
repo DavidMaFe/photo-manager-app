@@ -88,6 +88,17 @@ import 'package:photo_manager_app/features/auth/data/repositories/auth_data_repo
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/services/pending_login.dart';
+import 'package:photo_manager_app/features/two_factor/data/data_sources/two_factor_remote_data_source.dart';
+import 'package:photo_manager_app/features/two_factor/data/repositories/two_factor_data_repository.dart';
+import 'package:photo_manager_app/features/two_factor/data/services/platform_two_factor_exporter.dart';
+import 'package:photo_manager_app/features/two_factor/domain/repositories/two_factor_repository.dart';
+import 'package:photo_manager_app/features/two_factor/domain/services/two_factor_exporter.dart';
+import 'package:photo_manager_app/features/two_factor/domain/use_cases/disable_totp_use_case.dart';
+import 'package:photo_manager_app/features/two_factor/domain/use_cases/enable_totp_use_case.dart';
+import 'package:photo_manager_app/features/two_factor/domain/use_cases/get_two_factor_status_use_case.dart';
+import 'package:photo_manager_app/features/two_factor/domain/use_cases/regenerate_backup_codes_use_case.dart';
+import 'package:photo_manager_app/features/two_factor/domain/use_cases/set_up_totp_use_case.dart';
+import 'package:photo_manager_app/features/two_factor/presentation/bloc/two_factor_cubit.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/cancel_login_second_factor_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/resend_login_second_factor_use_case.dart';
 import 'package:photo_manager_app/features/auth/domain/use_cases/verify_login_second_factor_use_case.dart';
@@ -766,6 +777,27 @@ Future<void> init() async {
       ));
   sl.registerFactory(() => AccountDeletionSummaryCubit(getSummary: sl<GetAccountDeletionSummaryUseCase>()));
   sl.registerFactory(() => DeleteAccountBloc(deleteAccountUseCase: sl<DeleteAccountUseCase>()));
+
+  // authenticator app and backup codes (ROADMAP-account-security.md, Phase 2)
+  sl.registerLazySingleton<TwoFactorRemoteDataSource>(
+      () => TwoFactorRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<TwoFactorRepository>(
+      () => TwoFactorDataRepository(remoteDataSource: sl<TwoFactorRemoteDataSource>()));
+  sl.registerLazySingleton<TwoFactorExporter>(() => PlatformTwoFactorExporter());
+  sl.registerFactory(() => GetTwoFactorStatusUseCase(sl<TwoFactorRepository>()));
+  sl.registerFactory(() => SetUpTotpUseCase(sl<TwoFactorRepository>()));
+  sl.registerFactory(() => EnableTotpUseCase(sl<TwoFactorRepository>()));
+  sl.registerFactory(() => DisableTotpUseCase(
+      sl<TwoFactorRepository>(), sl<AccountSecurityRepository>(), sl<CryptoEngine>()));
+  sl.registerFactory(() => RegenerateBackupCodesUseCase(
+      sl<TwoFactorRepository>(), sl<AccountSecurityRepository>(), sl<CryptoEngine>()));
+  sl.registerFactory(() => TwoFactorCubit(
+        getStatus: sl<GetTwoFactorStatusUseCase>(),
+        setUpTotp: sl<SetUpTotpUseCase>(),
+        enableTotp: sl<EnableTotpUseCase>(),
+        disableTotp: sl<DisableTotpUseCase>(),
+        regenerateBackupCodes: sl<RegenerateBackupCodesUseCase>(),
+      ));
 
   // plans (CLAUDE.md of the backend)
   sl.registerLazySingleton<PlanRemoteDataSource>(() => PlanRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));

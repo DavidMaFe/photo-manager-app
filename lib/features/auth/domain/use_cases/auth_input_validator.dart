@@ -35,4 +35,13 @@ class AuthInputValidator {
       throw Exception('Code must be 6 digits');
     }
   }
+
+  /// The code of the second factor of a login: the emailed one or one of the authenticator app (6 digits) or, when
+  /// [backupCodeAllowed], a backup code (`abcde-fghij`, without regard to case, hyphen or space).
+  static void requireSecondFactorCode(String code, {required bool backupCodeAllowed}) {
+    final trimmed = code.trim();
+    if (RegExp(r'^\d{6}$').hasMatch(trimmed)) return;
+    if (backupCodeAllowed && RegExp(r'^[A-Za-z0-9]{5}[- ]?[A-Za-z0-9]{5}$').hasMatch(trimmed)) return;
+    throw Exception('Code must be 6 digits');
+  }
 }

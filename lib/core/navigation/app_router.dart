@@ -46,6 +46,8 @@ import 'package:photo_manager_app/features/profile/presentation/pages/profile_pa
 import 'package:photo_manager_app/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:photo_manager_app/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:photo_manager_app/features/devices/presentation/pages/devices_page.dart';
+import 'package:photo_manager_app/features/two_factor/presentation/bloc/two_factor_cubit.dart';
+import 'package:photo_manager_app/features/two_factor/presentation/pages/two_factor_page.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/pages/sync_configuration_page.dart';
@@ -375,6 +377,14 @@ class AppRouter {
                               create: (_) => sl<LockedAccountBloc>()..add(LockedAccountStatusRequested()),
                               child: LockedAccountPage(
                                   user: (authBloc.state as AuthSuccessful).user, afterLogin: false),
+                            ),
+                          ),
+                          GoRoute(
+                            path: 'two-factor',
+                            name: RouteNames.twoFactor,
+                            builder: (context, state) => BlocProvider(
+                              create: (_) => sl<TwoFactorCubit>()..load(),
+                              child: const TwoFactorPage(),
                             ),
                           ),
                           GoRoute(

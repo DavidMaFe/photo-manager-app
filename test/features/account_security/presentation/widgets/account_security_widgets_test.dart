@@ -22,7 +22,8 @@ void main() {
   /// A router with the security routes by name; each shows its name.
   GoRouter routerWith(Widget home, {void Function(Object?)? onWordsExtra}) => GoRouter(routes: [
         GoRoute(path: '/', builder: (_, __) => Scaffold(body: home)),
-        for (final name in [RouteNames.verifyRecoveryWords, RouteNames.forgotPassword, RouteNames.lockedPhotos])
+        for (final name in [RouteNames.verifyRecoveryWords, RouteNames.forgotPassword, RouteNames.lockedPhotos,
+          RouteNames.twoFactor])
           GoRoute(path: '/$name', name: name, builder: (_, __) => Scaffold(body: Text('page $name'))),
         GoRoute(
           path: '/${RouteNames.recoveryWords}',
@@ -104,6 +105,7 @@ void main() {
       ('security-verify-words', RouteNames.verifyRecoveryWords),
       ('security-forgot-password', RouteNames.forgotPassword),
       ('security-locked-photos', RouteNames.lockedPhotos),
+      ('security-two-factor', RouteNames.twoFactor),
     ]) {
       testWidgets('should open $route', (tester) async {
         await pumpSection(tester);

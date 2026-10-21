@@ -307,6 +307,49 @@ void main() {
         expect(find.text('The verification expired. Sign in again.'), findsOneWidget);
       });
 
+      // ==================== AUTHENTICATOR APP TESTS ====================
+
+      const totpChallenge = SecondFactorChallenge(
+          challengeToken: 'challenge-token', method: 'TOTP', emailHint: 't***@example.com');
+
+      testWidgets('should ask for the code of the authenticator app, with nothing to resend', (tester) async {
+        await pumpSecondFactor(tester, AuthSecondFactorRequired(totpChallenge));
+
+        expect(find.text('Code of your authenticator app'), findsOneWidget);
+        expect(find.textContaining('6-digit code of your authenticator app'), findsOneWidget);
+        expect(find.byKey(const ValueKey('login-second-factor-resend')), findsNothing);
+        expect(find.byType(OtpField), findsOneWidget);
+      });
+
+      testWidgets('should log in with a backup code instead', (tester) async {
+        await pumpSecondFactor(tester, AuthSecondFactorRequired(totpChallenge));
+
+        await tester.tap(find.byKey(const ValueKey('login-second-factor-backup-code')));
+        await tester.pump();
+        expect(find.byType(OtpField), findsNothing);
+        expect(find.text('Use the code of the app'), findsOneWidget);
+
+        await tester.enterText(find.descendant(of: find.byKey(const ValueKey('login-backup-code-field')),
+            matching: find.byType(EditableText)), ' abcde-fghjk ');
+        await tester.pump();
+        await tester.tap(find.widgetWithText(AppButton, 'Verify code'));
+        await tester.pump();
+
+        final event = verify(() => mockAuthBloc.add(captureAny())).captured.single;
+        expect(event, isA<LoginSecondFactorSubmitted>().having((e) => e.code, 'code', 'abcde-fghjk'));
+      });
+
+      testWidgets('should go back to the code of the app', (tester) async {
+        await pumpSecondFactor(tester, AuthSecondFactorRequired(totpChallenge));
+
+        await tester.tap(find.byKey(const ValueKey('login-second-factor-backup-code')));
+        await tester.pump();
+        await tester.tap(find.byKey(const ValueKey('login-second-factor-backup-code')));
+        await tester.pump();
+
+        expect(find.byType(OtpField), findsOneWidget);
+      });
+
       // ==================== LOADING STATE TESTS ====================
 
       testWidgets('should wait while the code is checked', (tester) async {

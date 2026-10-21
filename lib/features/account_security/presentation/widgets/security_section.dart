@@ -10,7 +10,8 @@ import 'package:photo_manager_app/features/account_security/domain/use_cases/rec
 import 'package:photo_manager_app/features/account_security/presentation/pages/recovery_phrase_page.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
-/// Security options of the profile: the 24 words, the password reset from this device and the locked photos.
+/// Security options of the profile: the authenticator app, the 24 words, the password reset from this device and the
+/// locked photos.
 class SecuritySection extends StatelessWidget {
   final String email;
   final GetRecoveryWordsUseCase? getRecoveryWordsUseCase;
@@ -45,6 +46,12 @@ class SecuritySection extends StatelessWidget {
         ListRowGroup(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           children: [
+            ListRow(
+              key: const ValueKey('security-two-factor'),
+              icon: Symbols.verified_user_rounded,
+              title: l10n.profileTwoFactor,
+              onTap: () => context.goNamed(RouteNames.twoFactor),
+            ),
             ListRow(
               key: const ValueKey('security-recovery-words'),
               icon: Symbols.key_rounded,

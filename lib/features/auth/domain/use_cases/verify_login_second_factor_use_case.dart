@@ -16,14 +16,16 @@ class VerifyLoginSecondFactorUseCase {
 
   VerifyLoginSecondFactorUseCase(this._authRepository, this._keyringService, this._pendingLogin);
 
+  /// [code]: the emailed one or, with the authenticator app, one of its codes or a backup code.
+  ///
   /// Throws [SecondFactorExpiredFailure] when there is no login to go on with.
   Future<LoginResult> call(String code) async {
-    AuthInputValidator.requireEmailCode(code);
     final challenge = _pendingLogin.challenge;
     final keys = _pendingLogin.keys;
     if (challenge == null || keys == null) {
       throw const SecondFactorExpiredFailure();
     }
+    AuthInputValidator.requireSecondFactorCode(code, backupCodeAllowed: challenge.usesAuthenticatorApp);
 
     try {
       final result = await _authRepository.verifyLoginSecondFactor(

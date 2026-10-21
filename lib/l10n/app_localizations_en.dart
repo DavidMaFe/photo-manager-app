@@ -2601,4 +2601,117 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginSecondFactorBack => 'Back to sign in';
+
+  @override
+  String get profileTwoFactor => 'Authenticator app';
+
+  @override
+  String get twoFactorTitle => 'Authenticator app';
+
+  @override
+  String get twoFactorOffBody => 'When you sign in on a new device we email you a code. With an authenticator app (Google Authenticator, Microsoft Authenticator…) the code comes from the app instead: even with your password and your email, nobody can get in.';
+
+  @override
+  String get twoFactorOnBody => 'Signing in on a new device asks for a code of your authenticator app, or one of your backup codes.';
+
+  @override
+  String get twoFactorStatusOn => 'On';
+
+  @override
+  String get twoFactorStatusOff => 'Off';
+
+  @override
+  String twoFactorBackupCodesLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unused backup codes',
+      one: '1 unused backup code',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get twoFactorEnable => 'Turn on';
+
+  @override
+  String get twoFactorDisable => 'Turn off';
+
+  @override
+  String get twoFactorRegenerate => 'New backup codes';
+
+  @override
+  String get twoFactorSetUpTitle => 'Set up the app';
+
+  @override
+  String get twoFactorSetUpStep1 => '1. Add the account to your authenticator app: open it with the button, or type the key by hand.';
+
+  @override
+  String get twoFactorOpenApp => 'Open in the authenticator app';
+
+  @override
+  String get twoFactorNoApp => 'No authenticator app on this phone opens the link. Install one, or type the key by hand.';
+
+  @override
+  String get twoFactorCopyKey => 'Copy key';
+
+  @override
+  String get twoFactorKeyCopied => 'Key copied';
+
+  @override
+  String get twoFactorSetUpStep2 => '2. Type the 6-digit code the app shows.';
+
+  @override
+  String get twoFactorBackupCodesTitle => 'Keep your backup codes';
+
+  @override
+  String get twoFactorBackupCodesBody => 'If you lose the phone with the app, each code lets you in once. Keep them somewhere safe: you will not see them again.';
+
+  @override
+  String get twoFactorCopyCodes => 'Copy';
+
+  @override
+  String get twoFactorCodesCopied => 'Codes copied';
+
+  @override
+  String get twoFactorShareCodes => 'Share';
+
+  @override
+  String get twoFactorCodesSaved => 'I have saved them';
+
+  @override
+  String get twoFactorShareText => 'Photo Manager backup codes. Each one works once.';
+
+  @override
+  String get twoFactorPromptDisableTitle => 'Turn off the authenticator app';
+
+  @override
+  String get twoFactorPromptRegenerateTitle => 'New backup codes';
+
+  @override
+  String get twoFactorPromptBody => 'Type your password and a code of the app (or a backup code).';
+
+  @override
+  String get twoFactorCodeLabel => 'Code';
+
+  @override
+  String get twoFactorDisabledMessage => 'Authenticator app turned off';
+
+  @override
+  String get loginTotpTitle => 'Code of your authenticator app';
+
+  @override
+  String get loginTotpBody => 'This device is new for your account. Type the 6-digit code of your authenticator app.';
+
+  @override
+  String get loginBackupCodeBody => 'Type one of your backup codes (like abcde-fghij). Each one works once.';
+
+  @override
+  String get loginUseBackupCode => 'Use a backup code';
+
+  @override
+  String get loginUseAppCode => 'Use the code of the app';
+
+  @override
+  String get loginBackupCodeLabel => 'Backup code';
 }
