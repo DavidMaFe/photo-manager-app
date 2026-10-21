@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
+import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/core/errors/service/error_notification_service.dart';
 import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/core/widgets/list_row.dart';
 import 'package:photo_manager_app/core/widgets/section_label.dart';
 import 'package:photo_manager_app/features/account_security/domain/use_cases/recovery_phrase_use_cases.dart';
 import 'package:photo_manager_app/features/account_security/presentation/pages/recovery_phrase_page.dart';
+import 'package:photo_manager_app/features/account_security/presentation/widgets/password_prompt_dialog.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 /// Security options of the profile: the authenticator app, the 24 words, the password reset from this device and the
@@ -20,18 +23,37 @@ class SecuritySection extends StatelessWidget {
 
   Future<void> _showWords(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
+    final useCase = getRecoveryWordsUseCase ?? sl<GetRecoveryWordsUseCase>();
     final language = Localizations.localeOf(context).languageCode == 'es'
         ? RecoveryPhraseLanguage.spanish
         : RecoveryPhraseLanguage.english;
-    final words = await (getRecoveryWordsUseCase ?? sl<GetRecoveryWordsUseCase>())(language);
-    if (!context.mounted) return;
 
-    if (words == null) {
+    if (!await useCase.hasWords()) {
+      if (!context.mounted) return;
       // This device did not create the key: verifying the words keeps a copy here
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.recoveryPhraseNotOnDevice)));
       context.goNamed(RouteNames.verifyRecoveryWords);
       return;
     }
+
+    // The words open the photos for good: the owner proves who they are first
+    String? password;
+    if (await useCase.needsPassword()) {
+      if (!context.mounted) return;
+      final typed = await PasswordPromptDialog.show(context,
+          title: l10n.recoveryWordsPasswordTitle, message: l10n.recoveryWordsPasswordBody);
+      if (typed == null) return;
+      password = typed.password;
+    }
+
+    final List<String>? words;
+    try {
+      words = await useCase(language, reason: l10n.recoveryWordsAuthReason, password: password);
+    } on Failure catch (failure) {
+      if (context.mounted) ErrorNotificationService.showError(context, failure);
+      return;
+    }
+    if (!context.mounted || words == null) return;
     context.goNamed(RouteNames.recoveryWords,
         extra: RecoveryPhraseArgs(words: words, email: email, flow: RecoveryPhraseFlow.view));
   }

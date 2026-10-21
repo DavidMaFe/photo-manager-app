@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/core/widgets/secure_screen_guard.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/otp_field.dart';
@@ -76,7 +77,9 @@ class _TotpSetUpViewState extends State<TotpSetUpView> {
     final p = context.palette;
     final textStyle = TextStyle(fontSize: 15, height: 1.45, color: p.ink2);
 
-    return ListView(
+    return SecureScreenGuard(
+        // Secrets on screen: no screenshots, recordings or recent apps preview
+        child: ListView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       children: [
         Text(l10n.twoFactorSetUpStep1, style: textStyle),
@@ -131,6 +134,6 @@ class _TotpSetUpViewState extends State<TotpSetUpView> {
           onPressed: _isCodeComplete && !widget.working ? _enable : null,
         ),
       ],
-    );
+    ));
   }
 }

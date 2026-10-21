@@ -243,6 +243,7 @@ class ErrorHandler {
       case FailureCodes.tooManyEmailCodes:
       case FailureCodes.secondFactorResendTooSoon:
       case FailureCodes.tooManyResetAttempts:
+      case FailureCodes.tooManyLoginAttempts:
         return PermissionDeniedFailure(
           code: code,
           errorResponse: errorResponse,

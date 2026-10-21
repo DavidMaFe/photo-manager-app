@@ -25,8 +25,9 @@ flutter run --release
 # Build APK (Android)
 flutter build apk
 
-# Build app bundle (Android)
-flutter build appbundle
+# Build app bundle (Android). For the store: obfuscated, keeping the symbols (build/symbols, not in git) to read the
+# stack traces of the crash reports (`flutter symbolize`)
+flutter build appbundle --obfuscate --split-debug-info=build/symbols
 
 # Build iOS app
 flutter build ios

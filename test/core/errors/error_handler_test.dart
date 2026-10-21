@@ -95,6 +95,11 @@ void main() {
         expect(ErrorHandler.handleError(apiError(FailureCodes.secondFactorResendTooSoon)),
             isA<PermissionDeniedFailure>());
       });
+
+      test('should map too many wrong passwords to a PermissionDeniedFailure', () {
+        expect(ErrorHandler.handleError(apiError(FailureCodes.tooManyLoginAttempts)),
+            isA<PermissionDeniedFailure>());
+      });
     });
 
     test('should return a Failure thrown by a use case as it is', () {

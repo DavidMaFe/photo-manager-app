@@ -2714,4 +2714,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginBackupCodeLabel => 'Backup code';
+
+  @override
+  String get recoveryWordsAuthReason => 'Confirm it\'s you to see the recovery words';
+
+  @override
+  String get recoveryWordsPasswordTitle => 'Confirm your password';
+
+  @override
+  String get recoveryWordsPasswordBody => 'This phone has no screen lock. Type your password to see the recovery words.';
+
+  @override
+  String get errorWrongPassword => 'The password is not correct.';
 }

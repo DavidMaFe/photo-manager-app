@@ -1031,5 +1031,9 @@
   "loginBackupCodeBody": "Escribe uno de tus códigos de respaldo (por ejemplo, abcde-fghij). Cada uno sirve una vez.",
   "loginUseBackupCode": "Usar un código de respaldo",
   "loginUseAppCode": "Usar el código de la app",
-  "loginBackupCodeLabel": "Código de respaldo"
+  "loginBackupCodeLabel": "Código de respaldo",
+  "recoveryWordsAuthReason": "Confirma que eres tú para ver las palabras de recuperación",
+  "recoveryWordsPasswordTitle": "Confirma tu contraseña",
+  "recoveryWordsPasswordBody": "Este móvil no tiene bloqueo de pantalla. Escribe tu contraseña para ver las palabras de recuperación.",
+  "errorWrongPassword": "La contraseña no es correcta."
 }

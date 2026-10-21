@@ -62,6 +62,7 @@ class FailureCodes {
   static const String invalidResetCode = "INVALID_RESET_CODE";
   static const String resetCodeNotFound = "RESET_CODE_NOT_FOUND";
   static const String tooManyResetAttempts = "TOO_MANY_RESET_ATTEMPTS";
+  static const String tooManyLoginAttempts = "TOO_MANY_LOGIN_ATTEMPTS";
 
   // ==================== JWT/Token Errors ====================
   static const String invalidTokenFormat = "INVALID_TOKEN_FORMAT";

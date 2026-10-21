@@ -100,6 +100,8 @@ class FailureMessageHelper {
         return l10n.errorKeyUnlock;
       case 'errorDeviceAuthentication':
         return l10n.errorDeviceAuthentication;
+      case 'errorWrongPassword':
+        return l10n.errorWrongPassword;
       case 'errorLockedFile':
         return l10n.errorLockedFile;
       case 'errorUnencryptedFile':

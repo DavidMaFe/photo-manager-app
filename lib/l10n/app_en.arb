@@ -1198,5 +1198,9 @@
   "loginBackupCodeBody": "Type one of your backup codes (like abcde-fghij). Each one works once.",
   "loginUseBackupCode": "Use a backup code",
   "loginUseAppCode": "Use the code of the app",
-  "loginBackupCodeLabel": "Backup code"
+  "loginBackupCodeLabel": "Backup code",
+  "recoveryWordsAuthReason": "Confirm it's you to see the recovery words",
+  "recoveryWordsPasswordTitle": "Confirm your password",
+  "recoveryWordsPasswordBody": "This phone has no screen lock. Type your password to see the recovery words.",
+  "errorWrongPassword": "The password is not correct."
 }

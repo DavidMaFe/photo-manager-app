@@ -4348,6 +4348,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Backup code'**
   String get loginBackupCodeLabel;
+
+  /// No description provided for @recoveryWordsAuthReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you to see the recovery words'**
+  String get recoveryWordsAuthReason;
+
+  /// No description provided for @recoveryWordsPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password'**
+  String get recoveryWordsPasswordTitle;
+
+  /// No description provided for @recoveryWordsPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone has no screen lock. Type your password to see the recovery words.'**
+  String get recoveryWordsPasswordBody;
+
+  /// No description provided for @errorWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is not correct.'**
+  String get errorWrongPassword;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

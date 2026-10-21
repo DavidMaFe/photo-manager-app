@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/core/widgets/secure_screen_guard.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/features/two_factor/domain/services/two_factor_exporter.dart';
@@ -29,11 +30,12 @@ class BackupCodesView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final p = context.palette;
 
-    return ListView(
+    return SecureScreenGuard(
+        // Secrets on screen: no screenshots, recordings or recent apps preview
+        child: ListView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       children: [
-        Text(l10n.twoFactorBackupCodesTitle,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: p.ink)),
+        Text(l10n.twoFactorBackupCodesTitle, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: p.ink)),
         const SizedBox(height: 8),
         Text(l10n.twoFactorBackupCodesBody, style: TextStyle(fontSize: 15, height: 1.45, color: p.ink2)),
         const SizedBox(height: 20),
@@ -93,6 +95,6 @@ class BackupCodesView extends StatelessWidget {
           onPressed: () => context.read<TwoFactorCubit>().backupCodesSaved(),
         ),
       ],
-    );
+    ));
   }
 }

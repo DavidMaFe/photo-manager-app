@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:photo_manager_app/core/widgets/secure_screen_guard.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
 import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/otp_field.dart';
@@ -82,6 +83,8 @@ void main() {
       expect(find.byKey(const ValueKey('two-factor-regenerate')), findsOneWidget);
       expect(find.byKey(const ValueKey('two-factor-disable')), findsOneWidget);
       expect(find.byKey(const ValueKey('two-factor-enable')), findsNothing);
+      // Nothing secret on the status
+      expect(find.byType(SecureScreenGuard), findsNothing);
     });
 
     testWidgets('should open the authenticator app with the secret, and copy the key', (tester) async {
@@ -89,6 +92,7 @@ void main() {
       await pumpPage(tester, const TwoFactorState(view: TwoFactorView.setUp, status: off, setUp: totpSetUp));
 
       expect(find.text('GEZD GNBV GY3T QOJQ GEZD GNBV GY3T QOJQ'), findsOneWidget);
+      expect(find.byType(SecureScreenGuard), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('two-factor-open-app')));
       await tester.pump();
       verify(() => exporter.openInAuthenticator('otpauth://totp/x')).called(1);
@@ -114,6 +118,7 @@ void main() {
       for (final code in codes) {
         expect(find.text(code), findsOneWidget);
       }
+      expect(find.byType(SecureScreenGuard), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('two-factor-copy-codes')));
       await tester.pump();
       expect(clipboard.single, contains(codes.join('\n')));

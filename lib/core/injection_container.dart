@@ -706,7 +706,8 @@ Future<void> init() async {
   sl.registerFactory(() => UnlockWithRecoveryPhraseUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
   sl.registerFactory(() => UnlockWithDeviceKeysUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
   sl.registerFactory(() => CreateNewKeyVersionUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
-  sl.registerFactory(() => GetRecoveryWordsUseCase(sl<KeyringService>()));
+  sl.registerFactory(() => GetRecoveryWordsUseCase(
+      sl<KeyringService>(), sl<DeviceAuthenticator>(), sl<AccountSecurityRepository>(), sl<CryptoEngine>()));
   sl.registerFactory(() => VerifyRecoveryWordsUseCase(sl(), sl<CryptoEngine>(), sl<KeyringService>()));
   sl.registerFactory(() => RecoveryReminderUseCase(sl<RecoveryReminderRepository>()));
   sl.registerFactory(() => CheckKeysUpToDateUseCase(sl<AccountSecurityRepository>(), sl<MasterKeyLocalDataSource>()));

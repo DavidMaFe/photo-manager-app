@@ -2702,4 +2702,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get loginBackupCodeLabel => 'Código de respaldo';
+
+  @override
+  String get recoveryWordsAuthReason => 'Confirma que eres tú para ver las palabras de recuperación';
+
+  @override
+  String get recoveryWordsPasswordTitle => 'Confirma tu contraseña';
+
+  @override
+  String get recoveryWordsPasswordBody => 'Este móvil no tiene bloqueo de pantalla. Escribe tu contraseña para ver las palabras de recuperación.';
+
+  @override
+  String get errorWrongPassword => 'La contraseña no es correcta.';
 }

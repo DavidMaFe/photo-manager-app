@@ -1,14 +1,18 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
 import 'package:photo_manager_app/core/crypto/domain/key_material.dart';
 import 'package:photo_manager_app/core/crypto/domain/recovery_phrase.dart';
 import 'package:photo_manager_app/features/account_security/domain/repositories/recovery_reminder_repository.dart';
+import 'package:photo_manager_app/features/account_security/domain/services/device_authenticator.dart';
 import 'package:photo_manager_app/features/account_security/domain/use_cases/recovery_phrase_use_cases.dart';
 
 import '../../../../helpers/e2ee_test_kit.dart';
 import '../../helpers/fake_account_security_server.dart';
+
+class MockDeviceAuthenticator extends Mock implements DeviceAuthenticator {}
 
 class InMemoryRecoveryReminderRepository implements RecoveryReminderRepository {
   DateTime? next;
@@ -52,16 +56,66 @@ void main() {
       RecoveryPhrase.encode(key.recoveryKey.bytes, language);
 
   group('GetRecoveryWordsUseCase', () {
-    test('should give the words of the current version kept on this device', () async {
-      await kit.keyring.storeNewKey(1, material);
+    late MockDeviceAuthenticator deviceAuthenticator;
+    late GetRecoveryWordsUseCase useCase;
+    const reason = 'Confirm it is you';
 
-      final words = await GetRecoveryWordsUseCase(kit.keyring)(RecoveryPhraseLanguage.english);
-
-      expect(words, wordsOf(material));
+    setUp(() {
+      deviceAuthenticator = MockDeviceAuthenticator();
+      when(() => deviceAuthenticator.isAvailable()).thenAnswer((_) async => true);
+      when(() => deviceAuthenticator.authenticate(any())).thenAnswer((_) async => true);
+      useCase = GetRecoveryWordsUseCase(kit.keyring, deviceAuthenticator, server, kit.engine);
     });
 
-    test('should give null without keys on this device', () async {
-      expect(await GetRecoveryWordsUseCase(kit.keyring)(RecoveryPhraseLanguage.english), isNull);
+    test('should give the words of the current version after the device lock', () async {
+      await kit.keyring.storeNewKey(1, material);
+
+      final words = await useCase(RecoveryPhraseLanguage.english, reason: reason);
+
+      expect(words, wordsOf(material));
+      verify(() => deviceAuthenticator.authenticate(reason)).called(1);
+    });
+
+    test('should not give the words when the device lock is not passed', () async {
+      await kit.keyring.storeNewKey(1, material);
+      when(() => deviceAuthenticator.authenticate(any())).thenAnswer((_) async => false);
+
+      expect(() => useCase(RecoveryPhraseLanguage.english, reason: reason),
+          throwsA(isA<DeviceAuthenticationFailure>()));
+    });
+
+    test('should give null without keys on this device, without asking for the device lock', () async {
+      expect(await useCase.hasWords(), isFalse);
+      expect(await useCase(RecoveryPhraseLanguage.english, reason: reason), isNull);
+      verifyNever(() => deviceAuthenticator.authenticate(any()));
+    });
+
+    group('on a phone without a screen lock', () {
+      setUp(() async {
+        await kit.keyring.storeNewKey(1, material);
+        when(() => deviceAuthenticator.isAvailable()).thenAnswer((_) async => false);
+      });
+
+      test('should need the password', () async {
+        expect(await useCase.needsPassword(), isTrue);
+      });
+
+      test('should give the words with the right password', () async {
+        final words = await useCase(RecoveryPhraseLanguage.english, reason: reason, password: password);
+
+        expect(words, wordsOf(material));
+        verifyNever(() => deviceAuthenticator.authenticate(any()));
+      });
+
+      test('should not give the words with a wrong password', () async {
+        expect(() => useCase(RecoveryPhraseLanguage.english, reason: reason, password: 'not the password'),
+            throwsA(isA<WrongPasswordFailure>()));
+      });
+
+      test('should not give the words without a password', () async {
+        expect(() => useCase(RecoveryPhraseLanguage.english, reason: reason),
+            throwsA(isA<WrongPasswordFailure>()));
+      });
     });
   });
 

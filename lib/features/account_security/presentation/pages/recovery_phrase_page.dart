@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:photo_manager_app/core/widgets/secure_screen_guard.dart';
 import 'package:photo_manager_app/config/theme/app_palette.dart';
 import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
@@ -127,7 +128,9 @@ class _RecoveryPhrasePageState extends State<RecoveryPhrasePage> {
     final palette = context.palette;
     final viewOnly = widget.args.flow == RecoveryPhraseFlow.view;
 
-    return PopScope(
+    return SecureScreenGuard(
+        // Secrets on screen: no screenshots, recordings or recent apps preview
+        child: PopScope(
       // Before confirming, the user cannot go back: the account already exists and the words are not shown again
       canPop: viewOnly,
       child: Scaffold(
@@ -199,7 +202,7 @@ class _RecoveryPhrasePageState extends State<RecoveryPhrasePage> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _importance(AppLocalizations l10n, AppPalette palette) {
