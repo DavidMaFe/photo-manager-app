@@ -33,10 +33,14 @@ class SecuritySection extends StatelessWidget {
         ? RecoveryPhraseLanguage.spanish
         : RecoveryPhraseLanguage.english;
 
-    if (!await useCase.hasWords()) {
-      // This device did not create the key: verifying the words keeps a copy here
+    // This device did not create the key: verifying the words keeps a copy here
+    void verifyInstead() {
       messenger.showSnackBar(SnackBar(content: Text(l10n.recoveryPhraseNotOnDevice)));
       router.goNamed(RouteNames.verifyRecoveryWords);
+    }
+
+    if (!await useCase.hasWords()) {
+      verifyInstead();
       return;
     }
 
@@ -57,7 +61,10 @@ class SecuritySection extends StatelessWidget {
       messenger.showSnackBar(SnackBar(content: Text(FailureMessageHelper.messageFor(l10n, failure))));
       return;
     }
-    if (words == null) return;
+    if (words == null) {
+      verifyInstead();
+      return;
+    }
     router.goNamed(RouteNames.recoveryWords,
         extra: RecoveryPhraseArgs(words: words, email: email, flow: RecoveryPhraseFlow.view));
   }
