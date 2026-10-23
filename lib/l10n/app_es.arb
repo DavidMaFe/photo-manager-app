@@ -1062,5 +1062,7 @@
   "backupAlbumsCreated": "{count, plural, =1{Tus fotos se han organizado en el álbum {names}} other{Tus fotos se han organizado en {count} álbumes: {names}}}",
   "seeAlbums": "Ver álbumes",
   "notificationAlbumsCreatedTitle": "Tus fotos tienen nuevos álbumes",
-  "notificationAlbumsCreatedBody": "{count, plural, =1{La copia ha colocado fotos en el álbum {names}.} other{La copia ha colocado fotos en {count} álbumes: {names}.}} Toca para elegir qué se copia."
+  "notificationAlbumsCreatedBody": "{count, plural, =1{La copia ha colocado fotos en el álbum {names}.} other{La copia ha colocado fotos en {count} álbumes: {names}.}} Toca para elegir qué se copia.",
+  "unlinkCurrentDeviceConfirmation": "Vas a desvincular este móvil. Se cerrará la sesión en él y, la próxima vez que entres desde aquí, te pediremos el código de verificación.",
+  "unlinkCurrentDeviceAction": "Desvincular y cerrar sesión"
 }

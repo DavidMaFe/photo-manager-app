@@ -7,6 +7,8 @@ import 'package:photo_manager_app/core/injection_container.dart';
 import 'package:photo_manager_app/core/navigation/route_names.dart';
 import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_state.dart';
@@ -75,6 +77,11 @@ class _DevicesPageState extends State<DevicesPage> {
                   duration: const Duration(seconds: 2),
                 ),
               );
+            }
+
+            // The session of this phone was closed by the server: log out as «Cerrar sesión» does
+            if (state is CurrentDeviceUnlinked) {
+              context.read<AuthBloc>().add(LogoutRequested());
             }
 
             if (state is DeviceAutoSyncEnabled) {

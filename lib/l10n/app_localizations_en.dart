@@ -2873,4 +2873,10 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0 Tap to choose what is backed up.';
   }
+
+  @override
+  String get unlinkCurrentDeviceConfirmation => 'You are about to unlink this phone. You will be logged out of it, and the next time you log in here we will ask for the verification code.';
+
+  @override
+  String get unlinkCurrentDeviceAction => 'Unlink and log out';
 }

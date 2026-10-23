@@ -4534,6 +4534,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{The backup put photos in the album {names}.} other{The backup put photos in {count} albums: {names}.}} Tap to choose what is backed up.'**
   String notificationAlbumsCreatedBody(int count, String names);
+
+  /// No description provided for @unlinkCurrentDeviceConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'You are about to unlink this phone. You will be logged out of it, and the next time you log in here we will ask for the verification code.'**
+  String get unlinkCurrentDeviceConfirmation;
+
+  /// No description provided for @unlinkCurrentDeviceAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink and log out'**
+  String get unlinkCurrentDeviceAction;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

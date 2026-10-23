@@ -179,7 +179,8 @@ class DeviceCard extends StatelessWidget {
         UnlinkDeviceDialog.show(
           context: buttonContext,
           deviceName: device.name,
-          onConfirm: () => bloc.add(UnlinkDevice(deviceId: device.id)),
+          isCurrentDevice: isCurrentDevice,
+          onConfirm: () => bloc.add(UnlinkDevice(deviceId: device.id, isCurrentDevice: isCurrentDevice)),
         );
       case null:
         break;

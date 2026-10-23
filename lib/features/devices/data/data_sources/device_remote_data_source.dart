@@ -136,7 +136,8 @@ class DeviceRemoteDataSourceImpl implements DeviceRemoteDataSource {
         headers: HttpHeadersUtil.getJsonHeaders(),
       );
 
-      if (response.statusCode == 200) {
+      // The server answers 204 No Content (an empty body): any 2xx means the device was unlinked
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         return;
       } else {
         final errorResponse =

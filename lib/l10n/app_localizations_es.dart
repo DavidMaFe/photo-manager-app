@@ -2861,4 +2861,10 @@ class AppLocalizationsEs extends AppLocalizations {
     );
     return '$_temp0 Toca para elegir qué se copia.';
   }
+
+  @override
+  String get unlinkCurrentDeviceConfirmation => 'Vas a desvincular este móvil. Se cerrará la sesión en él y, la próxima vez que entres desde aquí, te pediremos el código de verificación.';
+
+  @override
+  String get unlinkCurrentDeviceAction => 'Desvincular y cerrar sesión';
 }

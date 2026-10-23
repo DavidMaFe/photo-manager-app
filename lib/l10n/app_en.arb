@@ -1238,5 +1238,7 @@
   "seeAlbums": "See albums",
   "notificationAlbumsCreatedTitle": "Your photos have new albums",
   "notificationAlbumsCreatedBody": "{count, plural, =1{The backup put photos in the album {names}.} other{The backup put photos in {count} albums: {names}.}} Tap to choose what is backed up.",
-  "@notificationAlbumsCreatedBody": {"placeholders": {"count": {"type": "int"}, "names": {"type": "String"}}}
+  "@notificationAlbumsCreatedBody": {"placeholders": {"count": {"type": "int"}, "names": {"type": "String"}}},
+  "unlinkCurrentDeviceConfirmation": "You are about to unlink this phone. You will be logged out of it, and the next time you log in here we will ask for the verification code.",
+  "unlinkCurrentDeviceAction": "Unlink and log out"
 }

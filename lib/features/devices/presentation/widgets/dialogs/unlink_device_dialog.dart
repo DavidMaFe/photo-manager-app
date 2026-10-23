@@ -7,6 +7,7 @@ class UnlinkDeviceDialog {
     required BuildContext context,
     required String deviceName,
     required VoidCallback onConfirm,
+    bool isCurrentDevice = false,
   }) async {
     final l10n = AppLocalizations.of(context)!;
 
@@ -15,9 +16,10 @@ class UnlinkDeviceDialog {
       type: DialogType.danger,
       icon: Icons.link_off,
       title: l10n.unlinkDevice,
-      message: l10n.unlinkDeviceConfirmation(deviceName),
+      // The device in use: unlinking it closes the session here
+      message: isCurrentDevice ? l10n.unlinkCurrentDeviceConfirmation : l10n.unlinkDeviceConfirmation(deviceName),
       cancelText: l10n.cancel,
-      confirmText: l10n.unlinkDevice,
+      confirmText: isCurrentDevice ? l10n.unlinkCurrentDeviceAction : l10n.unlinkDevice,
     );
 
     if (result == true) {
