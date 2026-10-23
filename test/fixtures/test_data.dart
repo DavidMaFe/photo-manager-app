@@ -1,6 +1,9 @@
 import 'package:photo_manager_app/features/auth/domain/entities/user.dart';
 import 'package:photo_manager_app/features/devices/domain/entities/device.dart';
 import 'package:photo_manager_app/features/folders/domain/entities/folder.dart';
+import 'package:photo_manager_app/features/local_albums/domain/entities/gallery_album.dart';
+import 'package:photo_manager_app/features/local_albums/domain/entities/local_album.dart';
+import 'package:photo_manager_app/features/local_albums/domain/enums/local_album_mode.dart';
 import 'package:photo_manager_app/features/profile/domain/entities/user_profile.dart';
 import 'package:photo_manager_app/features/sync_config/domain/entities/sync_config.dart';
 import 'package:photo_manager_app/features/sync_config/domain/enums/battery_preference.dart';
@@ -574,4 +577,28 @@ class TestFolders {
       fallbackCoverFileIds: fallbackCoverFileIds,
     );
   }
+}
+
+/// Albums of the gallery of the S23 and their options on the server (ROADMAP-local-albums.md).
+class TestLocalAlbums {
+  static const camera = GalleryAlbum(
+      id: '-1739773001', name: 'Camera', relativePath: 'DCIM/Camera/', assetCount: 1500,
+      sampleAssetIds: {'c1', 'c2'});
+  static const vacaciones = GalleryAlbum(
+      id: '747804901', name: 'Vacaciones 2025', relativePath: 'Pictures/Vacaciones 2025/', assetCount: 600,
+      sampleAssetIds: {'v1', 'v2', 'v3'});
+  static const whatsapp = GalleryAlbum(
+      id: '702742726', name: 'WhatsApp Images', relativePath: 'Pictures/WhatsApp Images/', assetCount: 100,
+      sampleAssetIds: {'w1'});
+
+  /// Downloads of Photo Manager: never offered.
+  static const downloads = GalleryAlbum(
+      id: '11', name: 'Verano', relativePath: 'Pictures/PhotoManager/Verano/', assetCount: 4, sampleAssetIds: {'d1'});
+
+  static const vacacionesOnServer =
+      LocalAlbum(localAlbumId: '747804901', name: 'Vacaciones 2025', mode: LocalAlbumMode.album, isNew: true);
+  static const cameraOnServer =
+      LocalAlbum(localAlbumId: '-1739773001', name: 'Camera', mode: LocalAlbumMode.backupOnly, folderId: null);
+  static const whatsappOnServer =
+      LocalAlbum(localAlbumId: '702742726', name: 'WhatsApp Images', mode: LocalAlbumMode.excluded, folderId: '9');
 }

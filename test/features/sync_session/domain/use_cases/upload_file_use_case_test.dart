@@ -239,6 +239,18 @@ void main() {
       expect(upload.durationSeconds, 12);
     });
 
+    test('should send the album of the gallery the file is in', () async {
+      await useCase(sessionId: sessionId, file: (await photo()).inAlbum('747804901'));
+
+      expect(sent.single.upload.localAlbumId, '747804901');
+    });
+
+    test('should send no album for a file outside the albums of the gallery', () async {
+      await useCase(sessionId: sessionId, file: await photo());
+
+      expect(sent.single.upload.localAlbumId, isNull);
+    });
+
     test('should use a new key for every file', () async {
       final file = await photo();
 

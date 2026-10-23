@@ -15,6 +15,10 @@ class SyncFile {
   final int?  height;
   final int? durationSeconds;
 
+  /// The album of the gallery the file is in (the bucket of MediaStore on Android), or null. The server puts the file
+  /// in the album of Photo Manager linked to it (ROADMAP-local-albums.md).
+  final String? localAlbumId;
+
   SyncFile({
     required this.localId,
     required this.devicePath,
@@ -25,8 +29,24 @@ class SyncFile {
     required this.mimeType,
     this.width,
     this.height,
-    this.durationSeconds
+    this.durationSeconds,
+    this.localAlbumId,
   });
+
+  /// This file in the album [localAlbumId] of the gallery.
+  SyncFile inAlbum(String? localAlbumId) => SyncFile(
+        localId: localId,
+        devicePath: devicePath,
+        hash: hash,
+        fileName: fileName,
+        sizeBytes: sizeBytes,
+        capturedAt: capturedAt,
+        mimeType: mimeType,
+        width: width,
+        height: height,
+        durationSeconds: durationSeconds,
+        localAlbumId: localAlbumId,
+      );
 
   File get file => File(devicePath);
 

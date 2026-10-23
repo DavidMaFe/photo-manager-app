@@ -19,7 +19,9 @@ import 'package:photo_manager_app/features/sync_config/domain/enums/battery_pref
 import 'package:photo_manager_app/features/sync_config/domain/enums/network_preference.dart';
 import 'package:photo_manager_app/features/sync_config/domain/enums/sync_frequency.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
-import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/backup_scan.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_backup_scan_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/scan_backup_files_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/duplicate_files_result.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/sync_file.dart';
@@ -46,7 +48,8 @@ class MockStartSyncSessionUseCase extends Mock implements StartSyncSessionUseCas
 class MockCheckDuplicatedFilesUseCase extends Mock implements CheckDuplicatedFilesUseCase {}
 class MockUploadFileUseCase extends Mock implements UploadFileUseCase {}
 class MockCompleteSyncSessionUseCase extends Mock implements CompleteSyncSessionUseCase {}
-class MockMediaLocalDataSource extends Mock implements MediaLocalDataSource {}
+class MockScanBackupFilesUseCase extends Mock implements ScanBackupFilesUseCase {}
+class MockCompleteBackupScanUseCase extends Mock implements CompleteBackupScanUseCase {}
 class MockAuthRepository extends Mock implements AuthRepository {}
 class MockSyncNotificationService extends Mock implements SyncNotificationService {}
 class MockSyncLock extends Mock implements SyncLock {}
@@ -60,6 +63,7 @@ class FakeStorageBudget extends Fake implements StorageBudget {}
 class FakeAppLogEvent extends Fake implements AppLogEvent {}
 
 void main() {
+  final scanStartedAt = DateTime(2026, 10, 23, 12);
   const sessionId = 'session-1';
   const deviceUuid = 'device-1';
 
@@ -68,7 +72,8 @@ void main() {
   late MockUploadFileUseCase uploadUseCase;
   late MockCompleteSyncSessionUseCase completeUseCase;
   late MockSyncSessionRepository sessionRepository;
-  late MockMediaLocalDataSource mediaDataSource;
+  late MockScanBackupFilesUseCase scanBackupFiles;
+  late MockCompleteBackupScanUseCase completeBackupScan;
   late MockSyncNotificationService notificationService;
   late MockGetUserPlanUseCase getUserPlan;
   late MockAppEventLog appEventLog;
@@ -102,6 +107,8 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(FakeSyncFile());
+    registerFallbackValue(BackupScan(files: const [], startedAt: DateTime(2026)));
+    registerFallbackValue(<String>{});
     registerFallbackValue(FakeStorageBudget());
     registerFallbackValue(FakeAppLogEvent());
   });
@@ -117,7 +124,9 @@ void main() {
     checkDuplicatesUseCase = MockCheckDuplicatedFilesUseCase();
     uploadUseCase = MockUploadFileUseCase();
     completeUseCase = MockCompleteSyncSessionUseCase();
-    mediaDataSource = MockMediaLocalDataSource();
+    scanBackupFiles = MockScanBackupFilesUseCase();
+    completeBackupScan = MockCompleteBackupScanUseCase();
+    when(() => completeBackupScan(any(), any())).thenAnswer((_) async {});
     final authRepository = MockAuthRepository();
     notificationService = MockSyncNotificationService();
     final syncLock = MockSyncLock();
@@ -158,7 +167,8 @@ void main() {
       checkDuplicatesUseCase: checkDuplicatesUseCase,
       uploadFileUseCase: uploadUseCase,
       completeSyncSessionUseCase: completeUseCase,
-      mediaLocalDataSource: mediaDataSource,
+      scanBackupFilesUseCase: scanBackupFiles,
+      completeBackupScanUseCase: completeBackupScan,
       authRepository: authRepository,
       sharedPreferences: prefs,
       notificationService: notificationService,
@@ -173,10 +183,8 @@ void main() {
   });
 
   void givenPendingFiles(List<SyncFileModel> files) {
-    when(() => mediaDataSource.scanMediaFiles(
-          lastCompletedSyncAt: any(named: 'lastCompletedSyncAt'),
-          skipPermissionCheck: true,
-        )).thenAnswer((_) async => files);
+    when(() => scanBackupFiles(lastCompletedAt: any(named: 'lastCompletedAt'), checkPermission: false))
+        .thenAnswer((_) async => BackupScan(files: files, startedAt: scanStartedAt, userId: 'user-1'));
     when(() => checkDuplicatesUseCase(sessionId: sessionId, fileHashes: any(named: 'fileHashes')))
         .thenAnswer((_) async => DuplicateFilesResult(
             filesToUpload: files.map((file) => file.hash).toList(), duplicatesCount: 0, totalFiles: files.length));
@@ -190,6 +198,51 @@ void main() {
       code: FailureCodes.userDoesNotHaveStorageSpace, message: 'No space', timestamp: '2026-10-21T10:00:00'));
 
   group('BackgroundSyncService', () {
+    group('files to try again', () {
+      test('should keep pending the files that did not fit or failed, and look from this backup next time', () async {
+        // Given
+        givenPendingFiles([big, tooBig, small]);
+        givenUploadFails(tooBig, const FileDoesNotFitFailure(81 * testMib));
+        givenUploadFails(big, Exception('Connection reset'));
+
+        // When
+        final success = await service.execute();
+
+        // Then
+        expect(success, isTrue);
+        final remembered = verify(() => completeBackupScan(captureAny(), captureAny())).captured;
+        expect((remembered[0] as BackupScan).startedAt, scanStartedAt);
+        expect(remembered[1], {'local-too-big', 'local-big'});
+      });
+
+      test('should remember the backup with nothing pending when every file was uploaded', () async {
+        givenPendingFiles([small]);
+
+        await service.execute();
+
+        final remembered = verify(() => completeBackupScan(captureAny(), captureAny())).captured;
+        expect(remembered[1], isEmpty);
+      });
+
+      test('should remember the backup when there was nothing new', () async {
+        givenPendingFiles([]);
+
+        await service.execute();
+
+        verify(() => completeBackupScan(any(), <String>{})).called(1);
+      });
+
+      test('should remember nothing when the backup stops', () async {
+        givenPendingFiles([big, small]);
+        givenUploadFails(big, ApiException(ErrorResponseModel(
+            code: FailureCodes.devicePaused, message: 'Paused', timestamp: '2026-10-21T10:00:00')));
+
+        await service.execute();
+
+        verifyNever(() => completeBackupScan(any(), any()));
+      });
+    });
+
     group('free space of the plan', () {
       test('should skip a file that does not fit, back up the rest and say what was left out', () async {
         // Given

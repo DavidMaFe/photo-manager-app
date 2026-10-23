@@ -27,6 +27,9 @@ class EncryptedUpload {
   /// Original name and real MIME type, encrypted with the key of the file.
   final Uint8List encryptedMetadata;
 
+  /// The album of the gallery of the device the file is in, or null (ROADMAP-local-albums.md).
+  final String? localAlbumId;
+
   const EncryptedUpload({
     required this.encryptedFile,
     required this.encryptedThumbnail,
@@ -40,5 +43,6 @@ class EncryptedUpload {
     required this.keyVersion,
     required this.encryptedFileKey,
     required this.encryptedMetadata,
+    this.localAlbumId,
   });
 }

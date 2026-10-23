@@ -16,7 +16,9 @@ import 'package:photo_manager_app/core/monitoring/domain/app_event_log.dart';
 import 'package:photo_manager_app/core/monitoring/domain/app_events.dart';
 import 'package:photo_manager_app/core/monitoring/domain/app_log_event.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
-import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/backup_scan.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_backup_scan_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/scan_backup_files_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/duplicate_files_result.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/sync_file.dart';
@@ -43,7 +45,8 @@ class MockUploadFileUseCase extends Mock implements UploadFileUseCase {}
 class MockCompleteSyncSessionUseCase extends Mock implements CompleteSyncSessionUseCase {}
 class MockSyncDeviceRepository extends Mock implements SyncDeviceRepository {}
 class MockSyncSessionRepository extends Mock implements SyncSessionRepository {}
-class MockMediaLocalDataSource extends Mock implements MediaLocalDataSource {}
+class MockScanBackupFilesUseCase extends Mock implements ScanBackupFilesUseCase {}
+class MockCompleteBackupScanUseCase extends Mock implements CompleteBackupScanUseCase {}
 class MockAppEventBus extends Mock implements AppEventBus {}
 class MockBuildContext extends Mock implements BuildContext {}
 class MockSyncLock extends Mock implements SyncLock {}
@@ -57,6 +60,7 @@ class FakeSyncFile extends Fake implements SyncFile {}
 class FakeStorageBudget extends Fake implements StorageBudget {}
 
 void main() {
+  final scanStartedAt = DateTime(2026, 10, 23, 12);
   late SyncSessionBloc bloc;
   late MockStartSyncSessionUseCase mockStartUseCase;
   late MockCheckDuplicatedFilesUseCase mockCheckDuplicatesUseCase;
@@ -64,7 +68,8 @@ void main() {
   late MockCompleteSyncSessionUseCase mockCompleteUseCase;
   late MockSyncDeviceRepository mockDeviceRepository;
   late MockSyncSessionRepository mockSessionRepository;
-  late MockMediaLocalDataSource mockMediaDataSource;
+  late MockScanBackupFilesUseCase scanBackupFiles;
+  late MockCompleteBackupScanUseCase completeBackupScan;
   late MockAppEventBus mockEventBus;
   late MockBuildContext mockContext;
   late MockSyncLock mockSyncLock;
@@ -73,6 +78,8 @@ void main() {
   setUpAll(() {
     registerFallbackValue(FakeAppEvent());
     registerFallbackValue(FakeSyncFile());
+    registerFallbackValue(BackupScan(files: const [], startedAt: DateTime(2026)));
+    registerFallbackValue(<String>{});
     registerFallbackValue(FakeStorageBudget());
     registerFallbackValue(FakeAppLogEvent());
   });
@@ -88,7 +95,9 @@ void main() {
     mockCompleteUseCase = MockCompleteSyncSessionUseCase();
     mockDeviceRepository = MockSyncDeviceRepository();
     mockSessionRepository = MockSyncSessionRepository();
-    mockMediaDataSource = MockMediaLocalDataSource();
+    scanBackupFiles = MockScanBackupFilesUseCase();
+    completeBackupScan = MockCompleteBackupScanUseCase();
+    when(() => completeBackupScan(any(), any())).thenAnswer((_) async {});
     mockEventBus = MockAppEventBus();
     mockContext = MockBuildContext();
     mockSyncLock = MockSyncLock();
@@ -118,7 +127,8 @@ void main() {
       completeSyncSessionUseCase: mockCompleteUseCase,
       syncDeviceRepository: mockDeviceRepository,
       syncSessionRepository: mockSessionRepository,
-      mediaLocalDataSource: mockMediaDataSource,
+      scanBackupFilesUseCase: scanBackupFiles,
+      completeBackupScanUseCase: completeBackupScan,
       eventBus: mockEventBus,
       syncLock: mockSyncLock,
       syncKeepAlive: mockKeepAlive,
@@ -450,7 +460,8 @@ void main() {
             completeSyncSessionUseCase: mockCompleteUseCase,
             syncDeviceRepository: mockDeviceRepository,
             syncSessionRepository: mockSessionRepository,
-            mediaLocalDataSource: mockMediaDataSource,
+            scanBackupFilesUseCase: scanBackupFiles,
+      completeBackupScanUseCase: completeBackupScan,
             eventBus: mockEventBus,
             syncLock: mockSyncLock,
             syncKeepAlive: mockKeepAlive,
@@ -463,8 +474,8 @@ void main() {
         when(() => mockGetUserPlan()).thenAnswer((_) async => plan);
         when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => deviceUuid);
         when(() => mockStartUseCase(deviceUuid: deviceUuid)).thenAnswer((_) async => SyncSession(id: sessionId));
-        when(() => mockMediaDataSource.scanMediaFiles(lastCompletedSyncAt: any(named: 'lastCompletedSyncAt')))
-            .thenAnswer((_) async => files);
+        when(() => scanBackupFiles(lastCompletedAt: any(named: 'lastCompletedAt')))
+            .thenAnswer((_) async => BackupScan(files: files, startedAt: scanStartedAt, userId: 'user-1'));
         when(() => mockCheckDuplicatesUseCase(sessionId: sessionId, fileHashes: any(named: 'fileHashes')))
             .thenAnswer((_) async => DuplicateFilesResult(
                 filesToUpload: files.map((file) => file.hash).toList(),
@@ -515,6 +526,25 @@ void main() {
           final event = verify(() => mockAppEventLog.record(captureAny())).captured.single as SyncStorageFull;
           expect(event.name, 'SYNC_STORAGE_FULL');
           expect(event.message, 'background=false files=1 bytes=${81 * testMib}');
+          // The file that did not fit is tried again by the next backup
+          final remembered = verify(() => completeBackupScan(captureAny(), captureAny())).captured;
+          expect((remembered[0] as BackupScan).startedAt, scanStartedAt);
+          expect(remembered[1], {'local-too-big'});
+        },
+      );
+
+      blocTest<SyncSessionBloc, SyncSessionState>(
+        'should remember nothing when the backup fails, so the next one looks at the same files again',
+        setUp: () {
+          givenPendingFiles([big, small]);
+          givenUploadFails(big, Exception('Network error'));
+        },
+        build: buildBloc,
+        act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+        wait: const Duration(seconds: 6),
+        verify: (_) {
+          verify(() => mockSessionRepository.cancelSyncSession(sessionId: sessionId)).called(1);
+          verifyNever(() => completeBackupScan(any(), any()));
         },
       );
 
