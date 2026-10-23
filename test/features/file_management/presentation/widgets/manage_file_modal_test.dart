@@ -238,7 +238,7 @@ void main() {
       await tester.tap(find.text('Delete everywhere'));
       await settle(tester);
       expect(find.byType(AppDialog), findsOneWidget);
-      await tester.tap(find.descendant(of: find.byType(AppDialog), matching: find.byType(AppButton)).last);
+      await tester.tap(find.byKey(AppDialog.primaryKey));
       await settle(tester);
 
       // Assert

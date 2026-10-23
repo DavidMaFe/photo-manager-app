@@ -4,7 +4,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/enums/file_status.dart';
 import 'package:photo_manager_app/core/enums/file_type.dart';
 import 'package:photo_manager_app/core/injection_container.dart';
-import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/core/widgets/media_viewer/media_viewer_top_bar.dart';
 import 'package:photo_manager_app/features/encrypted_media/presentation/widgets/zoomable_encrypted_photo.dart';
@@ -153,7 +152,7 @@ void main() {
       await settle(tester);
       expect(find.byType(AppDialog), findsOneWidget);
       // The primary (destructive) action is the last button of the dialog.
-      await tester.tap(find.descendant(of: find.byType(AppDialog), matching: find.byType(AppButton)).last);
+      await tester.tap(find.byKey(AppDialog.primaryKey));
       await settle(tester);
 
       // Assert

@@ -101,6 +101,33 @@ void main() {
       });
     });
 
+    group('showAlbumsCreatedNotification', () {
+      test('should say in Spanish which albums got photos', () async {
+        await service('es').showAlbumsCreatedNotification(albums: ['Roma 2026', 'Boda Laura']);
+
+        expect(shown(), (
+          'Tus fotos tienen nuevos álbumes',
+          'La copia ha colocado fotos en 2 álbumes: Roma 2026, Boda Laura. Toca para elegir qué se copia.',
+        ));
+      });
+
+      test('should say in English the one album that got photos', () async {
+        await service('en').showAlbumsCreatedNotification(albums: ['Roma 2026']);
+
+        expect(shown(), (
+          'Your photos have new albums',
+          'The backup put photos in the album Roma 2026. Tap to choose what is backed up.',
+        ));
+      });
+
+      test('should open the albums of the phone when tapped', () async {
+        await service('en').showAlbumsCreatedNotification(albums: ['Roma 2026']);
+
+        verify(() => plugin.show(any(), any(), any(), any(), payload: SyncNotificationService.localAlbumsPayload))
+            .called(1);
+      });
+    });
+
     group('launchPayload', () {
       test('should give the payload of the notification that opened the app', () async {
         when(() => plugin.getNotificationAppLaunchDetails()).thenAnswer((_) async => const NotificationAppLaunchDetails(

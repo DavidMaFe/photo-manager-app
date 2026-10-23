@@ -17,5 +17,6 @@ class EncryptedUploadModel {
         'keyVersion': upload.keyVersion,
         'encryptedFileKey': base64Encode(upload.encryptedFileKey),
         'encryptedMetadata': base64Encode(upload.encryptedMetadata),
+        if (upload.localAlbumId != null) 'localAlbumId': upload.localAlbumId,
       };
 }

@@ -13,4 +13,9 @@ abstract class SyncConfigRepository {
 
   /// Check if sync configuration exists
   Future<bool> hasSyncConfig();
+
+  /// When the last automatic backup of this device completed, or null.
+  Future<DateTime?> lastAutomaticBackupAt();
+
+  Future<void> recordAutomaticBackup(DateTime completedAt);
 }

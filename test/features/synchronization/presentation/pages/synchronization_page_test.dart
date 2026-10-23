@@ -322,6 +322,20 @@ void main() {
       expect(find.text('Back up now'), findsOneWidget);
     });
 
+    testWidgets('should say which albums the photos were organized into', (tester) async {
+      // Arrange
+      await pump(tester, loaded(1));
+      await emitSession(tester, const SyncSessionCompleting());
+
+      // Act
+      await emitSession(tester, SyncSessionSuccess(SyncResult(totalFiles: 12, uploadedFiles: 12, failedFiles: 0),
+          createdAlbums: const ['Roma 2026', 'Boda Laura']));
+
+      // Assert
+      expect(find.text('Your photos were organized into 2 albums: Roma 2026, Boda Laura'), findsOneWidget);
+      expect(find.text('See albums'), findsOneWidget);
+    });
+
     testWidgets('should say how many videos were too big for the plan', (tester) async {
       // Arrange
       await pump(tester, loaded(1));

@@ -73,6 +73,19 @@ void main() {
       expect(syncFile.durationSeconds, null);
     });
 
+    test('should keep every field when it is put in an album of the gallery', () {
+      final file = SyncFile(localId: '1', devicePath: '/p/a.jpg', hash: 'h', fileName: 'a.jpg', sizeBytes: 10,
+          capturedAt: DateTime(2024), mimeType: 'image/jpeg', width: 4, height: 3);
+
+      final inAlbum = file.inAlbum('747804901');
+
+      expect(inAlbum.localAlbumId, '747804901');
+      expect(inAlbum.localId, '1');
+      expect(inAlbum.hash, 'h');
+      expect(inAlbum.width, 4);
+      expect(file.localAlbumId, isNull);
+    });
+
     test('file getter should return File instance', () {
       // Arrange
       final syncFile = SyncFile(

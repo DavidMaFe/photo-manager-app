@@ -29,6 +29,9 @@ class DeviceActionInProgress extends DeviceState {
   });
 }
 
+/// The device the app runs on was unlinked: the server closed its session, so the app logs out.
+class CurrentDeviceUnlinked extends DeviceState {}
+
 class DeviceActionSuccess extends DeviceState {
   final List<Device> devices;
 

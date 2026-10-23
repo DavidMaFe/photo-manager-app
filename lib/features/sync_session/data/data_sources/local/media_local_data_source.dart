@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_app/features/sync_session/data/models/sync_file_model.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/gallery_scan.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/gallery_media_source.dart';
 
 
-class MediaLocalDataSource {
+class MediaLocalDataSource implements GalleryMediaSource {
 
   MediaLocalDataSource();
 
@@ -41,89 +43,104 @@ class MediaLocalDataSource {
     return state.isAuth || state == PermissionState.limited;
   }
 
-  /// Scan device media files and return them as [SyncFileModel] instances.
-  ///
-  /// [skipPermissionCheck] should be set to `true` when called from a
-  /// WorkManager background isolate. In that context there is no foreground
-  /// Activity, so calling [PhotoManager.requestPermissionExtend] would crash
-  /// with a NullPointerException inside Android's ActivityResultLauncher.
-  /// The OS-level media permission is already granted by the main app process
-  /// and remains valid in background — we just cannot show the dialog again.
-  Future<List<SyncFileModel>> scanMediaFiles({
-    DateTime? lastCompletedSyncAt,
-    bool skipPermissionCheck = false,
-  }) async {
-    if (!skipPermissionCheck) {
-      final permissionState = await PhotoManager.getPermissionState(
-        requestOption: const PermissionRequestOption(
-          iosAccessLevel: IosAccessLevel.readWrite,
-          androidPermission: AndroidPermission(
-            type: RequestType.common,
-            mediaLocation: false,
-          ),
-        ),
-      );
+  static const int _pageSize = 100;
+  static const int _albumPageSize = 500;
 
-      if (!permissionState.isAuth &&
-          permissionState != PermissionState.limited) {
-        throw Exception('No permission to access the gallery');
-      }
+  /// [checkPermission] is false in a WorkManager background isolate. There is no foreground Activity there, so
+  /// asking for the permission would crash inside Android's ActivityResultLauncher; the permission granted to the app
+  /// is still valid in the background.
+  @override
+  Future<GalleryScan> addedSince(DateTime? since, {bool checkPermission = true}) async {
+    if (checkPermission) {
+      await _ensureAccess();
     }
 
-    final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
-      type:  RequestType.common, hasAll: true, onlyAll: true
-    );
-
-    // There is no main album
-    if (albums.isEmpty) return [];
+    // createTimeCond filters by the date the file arrived on the device (DATE_ADDED on Android), not by its capture
+    // date (ROADMAP-local-albums.md, Phase 0)
+    final filter = since == null
+        ? null
+        : FilterOptionGroup(
+            createTimeCond: DateTimeCond(min: since, max: DateTime.now().add(const Duration(days: 1))));
+    final albums = await PhotoManager.getAssetPathList(
+        type: RequestType.common, hasAll: true, onlyAll: true, filterOption: filter);
+    if (albums.isEmpty) return GalleryScan.empty;
 
     final mainAlbum = albums.first;
-    final int totalAssets = await mainAlbum.assetCountAsync;
+    final totalAssets = await mainAlbum.assetCountAsync;
+    final files = <SyncFileModel>[];
+    final unreadable = <String>{};
 
-    final List<SyncFileModel> scannedFiles = [];
-
-    const int pageSize = 100;
-    int page = 0;
-    bool hasMorePages = true;
-
-    while(hasMorePages) {
-      final List<AssetEntity> assets = await mainAlbum.getAssetListPaged(page: page, size: pageSize);
-      if (assets.isEmpty) {
-        hasMorePages = false;
-        break;
-      }
-
+    for (var page = 0; page * _pageSize < totalAssets; page++) {
+      final assets = await mainAlbum.getAssetListPaged(page: page, size: _pageSize);
+      if (assets.isEmpty) break;
       for (final asset in assets) {
-        try {
-
-          if (lastCompletedSyncAt != null) {
-            final capturedAt = asset.createDateTime;
-
-            if (capturedAt.isBefore(lastCompletedSyncAt) ||
-                capturedAt.isAtSameMomentAs(lastCompletedSyncAt)) {
-              continue;
-            }
-          }
-
-          final fileModel = await _convertAssetToSyncFileModel(asset);
-
-          if(fileModel != null) {
-            scannedFiles.add(fileModel);
-          }
-
-        } catch (ignore) {
-          // Ignore the error and continue to the next file
-          continue;
+        final file = await _convertAssetToSyncFileModel(asset);
+        if (file == null) {
+          unreadable.add(asset.id);
+        } else {
+          files.add(file);
         }
       }
-
-      page++;
-      if (assets.length < pageSize || (page * pageSize) >= totalAssets) {
-        hasMorePages = false;
-      }
+      if (assets.length < _pageSize) break;
     }
 
-    return scannedFiles;
+    return GalleryScan(files: files, unreadableIds: unreadable);
+  }
+
+  @override
+  Future<GalleryScan> withIds(Set<String> localIds) async {
+    final files = <SyncFileModel>[];
+    final unreadable = <String>{};
+    final missing = <String>{};
+    for (final id in localIds) {
+      final asset = await AssetEntity.fromId(id);
+      if (asset == null) {
+        missing.add(id);
+        continue;
+      }
+      final file = await _convertAssetToSyncFileModel(asset);
+      if (file == null) {
+        unreadable.add(id);
+      } else {
+        files.add(file);
+      }
+    }
+    return GalleryScan(files: files, unreadableIds: unreadable, missingIds: missing);
+  }
+
+  /// Reads every album of the gallery page by page (about 3 s for 10 000 files on the S23,
+  /// ROADMAP-local-albums.md, Phase 0) and stops when every file asked for has its album.
+  @override
+  Future<Map<String, String>> albumsOf(Set<String> localIds) async {
+    final result = <String, String>{};
+    if (localIds.isEmpty) return result;
+
+    final albums = await PhotoManager.getAssetPathList(type: RequestType.common, hasAll: false);
+    for (final album in albums) {
+      final count = await album.assetCountAsync;
+      for (var page = 0; page * _albumPageSize < count; page++) {
+        final assets = await album.getAssetListPaged(page: page, size: _albumPageSize);
+        for (final asset in assets) {
+          if (localIds.contains(asset.id)) {
+            result[asset.id] = album.id;
+          }
+        }
+        if (result.length == localIds.length) return result;
+      }
+    }
+    return result;
+  }
+
+  Future<void> _ensureAccess() async {
+    final permissionState = await PhotoManager.getPermissionState(
+      requestOption: const PermissionRequestOption(
+        iosAccessLevel: IosAccessLevel.readWrite,
+        androidPermission: AndroidPermission(type: RequestType.common, mediaLocation: false),
+      ),
+    );
+    if (!permissionState.isAuth && permissionState != PermissionState.limited) {
+      throw Exception('No permission to access the gallery');
+    }
   }
 
   Future<SyncFileModel?> _convertAssetToSyncFileModel(AssetEntity asset) async {

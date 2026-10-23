@@ -1,3 +1,5 @@
+import 'package:photo_manager_app/core/injection_container.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/get_local_albums_use_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +20,8 @@ import '../../../../helpers/plan_test_providers.dart';
 import '../../../../helpers/widget_test_helper.dart';
 
 class MockSyncConfigBloc extends Mock implements SyncConfigBloc {}
+
+class MockGetLocalAlbumsUseCase extends Mock implements GetLocalAlbumsUseCase {}
 
 class FakeSyncConfigEvent extends Fake implements SyncConfigEvent {}
 
@@ -47,6 +51,23 @@ void main() {
 
   group('SyncConfigurationView', () {
     // ==================== LAYOUT TESTS ====================
+
+    testWidgets('should show «What to back up» with the albums of the phone on Android', (tester) async {
+      // Arrange
+      SyncConfigurationView.showLocalAlbums = true;
+      addTearDown(() => SyncConfigurationView.showLocalAlbums = false);
+      final getAlbums = MockGetLocalAlbumsUseCase();
+      when(() => getAlbums()).thenAnswer((_) async => []);
+      sl.registerFactory<GetLocalAlbumsUseCase>(() => getAlbums);
+      addTearDown(() => sl.unregister<GetLocalAlbumsUseCase>());
+
+      // Act
+      await pump(tester, TestSyncConfigs.dailySync);
+
+      // Assert
+      expect(find.text('WHAT TO BACK UP'), findsOneWidget);
+      expect(find.text('Albums on the phone'), findsOneWidget);
+    });
 
     testWidgets('should show the master switch and the three sections', (tester) async {
       // Arrange & Act

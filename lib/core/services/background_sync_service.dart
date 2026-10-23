@@ -9,14 +9,20 @@ import 'package:photo_manager_app/core/services/sync_log_service.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:photo_manager_app/features/local_albums/domain/enums/local_album_mode.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/is_local_albums_reviewed_use_case.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/register_local_albums_use_case.dart';
 import 'package:photo_manager_app/features/sync_config/domain/entities/sync_config.dart';
+import 'package:photo_manager_app/features/sync_config/domain/services/next_automatic_backup.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
-import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/sync_keep_alive.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/backup_scan.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_backup_scan_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_sync_session_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/scan_backup_files_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_sync_session_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/files_within_plan.dart';
@@ -49,6 +55,9 @@ class _SyncResult {
   final int skippedForSpace;
   final int skippedForSpaceBytes;
 
+  /// Albums of the gallery that got their album of Photo Manager in this backup.
+  final List<String> createdAlbums;
+
   _SyncResult({
     required this.success,
     this.filesUploaded = 0,
@@ -57,11 +66,13 @@ class _SyncResult {
     this.isPlanLimit = false,
     this.skippedForSpace = 0,
     this.skippedForSpaceBytes = 0,
+    this.createdAlbums = const [],
   });
 
-  factory _SyncResult.success(int filesUploaded, {int skippedForSpace = 0, int skippedForSpaceBytes = 0}) =>
+  factory _SyncResult.success(int filesUploaded,
+          {int skippedForSpace = 0, int skippedForSpaceBytes = 0, List<String> createdAlbums = const []}) =>
       _SyncResult(success: true, filesUploaded: filesUploaded,
-          skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes);
+          skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes, createdAlbums: createdAlbums);
 
   factory _SyncResult.failure(String errorMessage) =>
       _SyncResult(success: false, errorMessage: errorMessage);
@@ -97,7 +108,13 @@ class BackgroundSyncService {
   final CheckDuplicatedFilesUseCase checkDuplicatesUseCase;
   final UploadFileUseCase uploadFileUseCase;
   final CompleteSyncSessionUseCase completeSyncSessionUseCase;
-  final MediaLocalDataSource mediaLocalDataSource;
+  /// The files of the gallery to look at, and what the next backup looks at (ROADMAP-local-albums.md).
+  final ScanBackupFilesUseCase scanBackupFilesUseCase;
+  final CompleteBackupScanUseCase completeBackupScanUseCase;
+
+  /// The albums of the gallery and their options, registered before every backup (ROADMAP-local-albums.md).
+  final RegisterLocalAlbumsUseCase registerLocalAlbumsUseCase;
+  final IsLocalAlbumsReviewedUseCase isLocalAlbumsReviewedUseCase;
   final AuthRepository authRepository;
   final SharedPreferences sharedPreferences;
   final SyncNotificationService notificationService;
@@ -120,7 +137,10 @@ class BackgroundSyncService {
     required this.checkDuplicatesUseCase,
     required this.uploadFileUseCase,
     required this.completeSyncSessionUseCase,
-    required this.mediaLocalDataSource,
+    required this.scanBackupFilesUseCase,
+    required this.completeBackupScanUseCase,
+    required this.registerLocalAlbumsUseCase,
+    required this.isLocalAlbumsReviewedUseCase,
     required this.authRepository,
     required this.sharedPreferences,
     required this.notificationService,
@@ -165,6 +185,14 @@ class BackgroundSyncService {
           'red=${syncConfig.networkPreference.name}, '
           'batería=${syncConfig.batteryPreference.name}');
 
+      // A weekly backup runs at most once per calendar week: a task scheduled before the day was changed does not
+      // back up again, and the next one is scheduled (ROADMAP-local-albums.md, Phase 6)
+      if (NextAutomaticBackup.alreadyDoneThisWeek(
+          syncConfig, DateTime.now(), await _lastAutomaticBackupAt())) {
+        syncLogService.write('■ Ya hubo una copia automática esta semana — se programa la siguiente');
+        return true;
+      }
+
       // 4. Validate network conditions
       final networkOk = await _validateNetworkConditions(syncConfig);
       if (!networkOk) {
@@ -197,6 +225,7 @@ class BackgroundSyncService {
 
         if (result.success) {
           _recordSuccessfulSync();
+          await _recordAutomaticBackup();
           syncLogService.writeResult(
             success: true,
             detail: '${result.filesUploaded} archivos subidos',
@@ -216,6 +245,7 @@ class BackgroundSyncService {
                   files: result.skippedForSpace, bytes: result.skippedForSpaceBytes);
             }
           }
+          await _tellAboutCreatedAlbums(result.createdAlbums, syncConfig);
         } else {
           // A limit of the plan is not retried in an hour either (wasLastFailureAuthRelated)
           _recordFailedSync(isAuthFailure: result.isAuthFailure || result.isPlanLimit);
@@ -343,6 +373,33 @@ class BackgroundSyncService {
     }
   }
 
+  /// New albums of Photo Manager made from albums of the gallery (ROADMAP-local-albums.md). Told unless the user turned
+  /// off every notification of the backups, or has not seen «Tus álbumes» yet (it is shown when the app is opened).
+  Future<void> _tellAboutCreatedAlbums(List<String> albums, SyncConfig syncConfig) async {
+    if (albums.isEmpty) return;
+    appEventLog.record(SyncAlbumsCreated(background: true, albums: albums.length));
+    syncLogService.write('✓ ${albums.length} álbumes con fotos nuevas');
+    if (!syncConfig.notifyOnSuccess && !syncConfig.notifyOnFailure) return;
+    try {
+      if (!await isLocalAlbumsReviewedUseCase()) return;
+    } catch (_) {
+      return;
+    }
+    await notificationService.showAlbumsCreatedNotification(albums: albums);
+  }
+
+  /// A failure here never fails a completed backup: the next one looks at the same files again.
+  Future<void> _rememberScan(BackupScan scan, Set<String> skippedLocalIds) async {
+    try {
+      await completeBackupScanUseCase(scan, skippedLocalIds);
+      if (skippedLocalIds.isNotEmpty) {
+        syncLogService.write('⚠ ${skippedLocalIds.length} archivos quedan pendientes para la próxima copia');
+      }
+    } catch (e) {
+      syncLogService.write('⚠ No se pudo guardar el progreso de la copia: $e');
+    }
+  }
+
   Future<_SyncResult> _performSync(SyncConfig config) async {
     String? sessionId;
 
@@ -361,14 +418,25 @@ class BackgroundSyncService {
       sessionId = session.id;
       syncLogService.write('✓ Sesión iniciada: $sessionId');
 
-      final mediaFiles = await mediaLocalDataSource.scanMediaFiles(
-          lastCompletedSyncAt: session.lastCompletedAt,
-          skipPermissionCheck: true,
-      );
+      // A new album of the gallery gets its default option; the ones not backed up are left out
+      final albums = await registerLocalAlbumsUseCase();
+      final excludedAlbums = {
+        for (final album in albums) if (album.mode == LocalAlbumMode.excluded) album.localAlbumId,
+      };
+      final albumsToCreate = {
+        for (final album in albums)
+          if (album.mode == LocalAlbumMode.album && album.folderId == null) album.localAlbumId: album.name,
+      };
+      final createdAlbums = <String>{};
+      syncLogService.write('✓ Álbumes del móvil: ${albums.length} (${excludedAlbums.length} sin copiar)');
+
+      final scan = await scanBackupFilesUseCase(lastCompletedAt: session.lastCompletedAt, checkPermission: false);
+      final mediaFiles = scan.files.where((file) => !excludedAlbums.contains(file.localAlbumId)).toList();
       syncLogService.write('✓ Archivos multimedia encontrados: ${mediaFiles.length}');
 
       if (mediaFiles.isEmpty) {
         await completeSyncSessionUseCase(sessionId: sessionId);
+        await _rememberScan(scan, const {});
         syncLogService.write('✓ Sin archivos nuevos — sesión completada');
         return _SyncResult.success(0);
       }
@@ -383,6 +451,9 @@ class BackgroundSyncService {
       final pending = mediaFiles.where((f) => hashesToUpload.contains(f.hash)).toList();
       // Videos over the limit of the plan are left out: the server would reject them after sending them whole
       final filesToUpload = filesWithinPlan(pending, plan);
+      // Not uploaded by this backup: the next ones try them again
+      final skippedLocalIds = pending.map((file) => file.localId).toSet()
+        ..removeAll(filesToUpload.map((file) => file.localId));
       if (filesToUpload.length < pending.length) {
         syncLogService.write('⚠ ${pending.length - filesToUpload.length} vídeos superan el límite del plan');
       }
@@ -414,12 +485,15 @@ class BackgroundSyncService {
             );
           }
           uploadedCount++;
+          final createdAlbum = albumsToCreate[file.localAlbumId];
+          if (createdAlbum != null) createdAlbums.add(createdAlbum);
           if (uploadedCount % 5 == 0 || uploadedCount == filesToUpload.length) {
             syncLogService.write('⬆ Subidos $uploadedCount/${filesToUpload.length}');
           }
         } on FileDoesNotFitFailure catch (e) {
           skippedForSpace++;
           skippedForSpaceBytes += e.storedBytes;
+          skippedLocalIds.add(file.localId);
         } catch (e) {
           // No space left on the server (another device uploaded meanwhile): the free space is read again and the
           // backup goes on with what fits
@@ -427,6 +501,7 @@ class BackgroundSyncService {
             budget.refresh(await _readPlan());
             skippedForSpace++;
             skippedForSpaceBytes += file.sizeBytes;
+            skippedLocalIds.add(file.localId);
           } else {
             // A limit of the plan stops every upload the same way
             if (_isPlanLimit(e)) rethrow;
@@ -438,19 +513,21 @@ class BackgroundSyncService {
             // Never the name of the file: it is metadata that the server only receives encrypted
             syncLogService.write(
                 '⚠ Error subiendo el archivo ${filesToUpload.indexOf(file) + 1}/${filesToUpload.length}: $e');
+            skippedLocalIds.add(file.localId);
           }
         }
         await syncKeepAlive.update(current: filesToUpload.indexOf(file) + 1, total: filesToUpload.length);
       }
 
       await completeSyncSessionUseCase(sessionId: sessionId);
+      await _rememberScan(scan, skippedLocalIds);
       syncLogService.write('✓ Sesión completada: $uploadedCount archivos subidos');
       if (skippedForSpace > 0) {
         syncLogService.write('⚠ $skippedForSpace archivos no cabían en el espacio libre ($skippedForSpaceBytes bytes)');
       }
 
-      return _SyncResult.success(uploadedCount,
-          skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes);
+      return _SyncResult.success(uploadedCount, skippedForSpace: skippedForSpace,
+          skippedForSpaceBytes: skippedForSpaceBytes, createdAlbums: createdAlbums.toList());
     } catch (e, stackTrace) {
       developer.log(
         '❌ _performSync failed',
@@ -491,6 +568,23 @@ class BackgroundSyncService {
       return await getUserPlanUseCase();
     } catch (_) {
       return null;
+    }
+  }
+
+  Future<DateTime?> _lastAutomaticBackupAt() async {
+    try {
+      return await syncConfigRepository.lastAutomaticBackupAt();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Only completed automatic backups count for the weekly limit: a failed one is retried.
+  Future<void> _recordAutomaticBackup() async {
+    try {
+      await syncConfigRepository.recordAutomaticBackup(DateTime.now());
+    } catch (e) {
+      syncLogService.write('⚠ No se pudo guardar la fecha de la copia automática: $e');
     }
   }
 

@@ -24,7 +24,7 @@ class AppDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'photo_manager_db');
 
-    return await openDatabase(path, version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
+    return await openDatabase(path, version: 3, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -43,12 +43,50 @@ class AppDatabase {
     ''');
 
     await createDownloadQueue(db);
+    await createBackupProgress(db);
+    await createLocalAlbumSnapshot(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await createDownloadQueue(db);
     }
+    if (oldVersion < 3) {
+      await createBackupProgress(db);
+      await createLocalAlbumSnapshot(db);
+    }
+  }
+
+  /// What the backups of each account have seen (ROADMAP-local-albums.md): when the last completed backup started to
+  /// look at the gallery, and the files a backup skipped (did not fit, too big for the plan, failed), retried by the
+  /// next ones. Shared by the UI isolate and the WorkManager isolate.
+  static Future<void> createBackupProgress(DatabaseExecutor db) async {
+    await db.execute('''
+      CREATE TABLE backup_watermark (
+        user_id TEXT PRIMARY KEY,
+        scan_started_at INTEGER NOT NULL
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE pending_uploads (
+        user_id TEXT NOT NULL,
+        local_id TEXT NOT NULL,
+        PRIMARY KEY (user_id, local_id)
+      )
+    ''');
+  }
+
+  /// The albums of the gallery the last registration saw, with some ids of their files: an album that disappears and
+  /// a new one with its files is a folder renamed on the device (ROADMAP-local-albums.md).
+  static Future<void> createLocalAlbumSnapshot(DatabaseExecutor db) async {
+    await db.execute('''
+      CREATE TABLE local_album_snapshot (
+        user_id TEXT NOT NULL,
+        local_album_id TEXT NOT NULL,
+        sample_asset_ids TEXT NOT NULL,
+        PRIMARY KEY (user_id, local_album_id)
+      )
+    ''');
   }
 
   /// Files waiting to be saved into the gallery (ROADMAP-downloads-and-account-deletion.md). Shared by the UI

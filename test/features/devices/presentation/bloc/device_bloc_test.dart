@@ -382,6 +382,22 @@ void main() {
       const testDeviceId = '1';
 
       blocTest<DeviceBloc, DeviceState>(
+        'should tell the page to log out when the device in use is unlinked, without asking for anything else',
+        build: () {
+          when(() => mockUnlinkDeviceUseCase(deviceId: any(named: 'deviceId'))).thenAnswer((_) async {});
+          return createBloc();
+        },
+        seed: () => DeviceLoaded(testDevices),
+        act: (bloc) => bloc.add(UnlinkDevice(deviceId: testDeviceId, isCurrentDevice: true)),
+        wait: const Duration(milliseconds: 900),
+        expect: () => [isA<DeviceActionInProgress>(), isA<CurrentDeviceUnlinked>()],
+        verify: (_) {
+          verifyNever(() => mockGetUserDevicesUseCase());
+          verifyNever(() => eventBus.fire(any()));
+        },
+      );
+
+      blocTest<DeviceBloc, DeviceState>(
         'should emit [DeviceActionInProgress, DeviceActionSuccess, DeviceLoaded] when unlink succeeds',
         build: () {
           when(() => mockUnlinkDeviceUseCase(deviceId: any(named: 'deviceId')))

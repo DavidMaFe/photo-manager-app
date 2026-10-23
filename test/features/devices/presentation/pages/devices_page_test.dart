@@ -5,6 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_manager_app/core/widgets/secondary_top_bar.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_event.dart';
+import 'package:photo_manager_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_bloc.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_event.dart';
 import 'package:photo_manager_app/features/devices/presentation/bloc/device_state.dart';
@@ -21,6 +24,8 @@ class FakeLoadDevices extends Fake implements LoadDevices {}
 
 class FakeRefreshDevices extends Fake implements RefreshDevices {}
 
+class MockAuthBloc extends MockBloc<AuthEvent, AuthState> implements AuthBloc {}
+
 void main() {
   late MockDeviceBloc mockBloc;
   String? currentUuid;
@@ -28,6 +33,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(FakeLoadDevices());
     registerFallbackValue(FakeRefreshDevices());
+    registerFallbackValue(LogoutRequested());
   });
 
   setUp(() {
@@ -50,6 +56,29 @@ void main() {
   }
 
   group('DevicesPage', () {
+    testWidgets('should log out when the device in use was unlinked', (tester) async {
+      // Arrange
+      final authBloc = MockAuthBloc();
+      when(() => authBloc.state).thenReturn(NotAuthenticated());
+      when(() => mockBloc.state).thenReturn(DeviceLoaded(testDevices));
+      whenListen(mockBloc, Stream<DeviceState>.fromIterable([CurrentDeviceUnlinked()]),
+          initialState: DeviceLoaded(testDevices));
+
+      // Act
+      await tester.pumpWidget(makeTestableWidget(MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthBloc>.value(value: authBloc),
+          BlocProvider<DeviceBloc>.value(value: mockBloc),
+        ],
+        child: DevicesPage(loadCurrentDeviceUuid: () async => currentUuid),
+      )));
+      await tester.pump();
+
+      // Assert: logged out as «Cerrar sesión» does, without an error
+      verify(() => authBloc.add(any(that: isA<LogoutRequested>()))).called(1);
+      expect(find.textContaining('error'), findsNothing);
+    });
+
     testWidgets('should display the secondary top bar with title', (tester) async {
       await tester.pumpWidget(buildTestWidget(DeviceLoading()));
 

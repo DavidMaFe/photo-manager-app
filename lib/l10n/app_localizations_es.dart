@@ -2744,4 +2744,127 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorWrongPassword => 'La contraseña no es correcta.';
+
+  @override
+  String get sectionWhat => 'Qué copiar';
+
+  @override
+  String get localAlbumsTitle => 'Álbumes del móvil';
+
+  @override
+  String get localAlbumsMessage => 'Elige qué hace la copia con las fotos de cada carpeta de tu móvil. Lo que ya está subido no cambia.';
+
+  @override
+  String get localAlbumsReviewTitle => 'Tus álbumes';
+
+  @override
+  String localAlbumsReviewMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Hemos encontrado $count álbumes en tu móvil.',
+      one: 'Hemos encontrado 1 álbum en tu móvil.',
+    );
+    return '$_temp0 Los que estén «Como álbum» se crearán en Photo Manager con sus fotos.';
+  }
+
+  @override
+  String get localAlbumsReviewHint => 'Puedes cambiarlo cuando quieras en Perfil → Configuración de copia → Álbumes del móvil.';
+
+  @override
+  String get localAlbumsLimitedAccess => 'Solo ves los álbumes de las fotos a las que diste acceso.';
+
+  @override
+  String get localAlbumsEmpty => 'No hay álbumes en tu galería';
+
+  @override
+  String get localAlbumsEmptyMessage => 'Cuando tengas carpetas con fotos o vídeos, aparecerán aquí.';
+
+  @override
+  String get localAlbumsNoPermission => 'Falta el permiso de fotos';
+
+  @override
+  String get localAlbumsNoPermissionMessage => 'Para ver los álbumes de tu móvil, Photo Manager necesita acceso a tus fotos.';
+
+  @override
+  String get localAlbumsGrantPermission => 'Dar permiso';
+
+  @override
+  String get localAlbumsLoadError => 'No se pudieron cargar los álbumes';
+
+  @override
+  String get localAlbumModeAlbum => 'Como álbum';
+
+  @override
+  String get localAlbumModeBackupOnly => 'Solo copia';
+
+  @override
+  String get localAlbumModeExcluded => 'No copiar';
+
+  @override
+  String localAlbumFiles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count archivos',
+      one: '1 archivo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String localAlbumsSummary(int albums, int excluded) {
+    String _temp0 = intl.Intl.pluralLogic(
+      albums,
+      locale: localeName,
+      other: '$albums álbumes',
+      one: '1 álbum',
+    );
+    return '$_temp0 · $excluded sin copiar';
+  }
+
+  @override
+  String localAlbumsSummaryAll(int albums) {
+    String _temp0 = intl.Intl.pluralLogic(
+      albums,
+      locale: localeName,
+      other: '$albums álbumes',
+      one: '1 álbum',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupAlbumsCreated(int count, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tus fotos se han organizado en $count álbumes: $names',
+      one: 'Tus fotos se han organizado en el álbum $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get seeAlbums => 'Ver álbumes';
+
+  @override
+  String get notificationAlbumsCreatedTitle => 'Tus fotos tienen nuevos álbumes';
+
+  @override
+  String notificationAlbumsCreatedBody(int count, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'La copia ha colocado fotos en $count álbumes: $names.',
+      one: 'La copia ha colocado fotos en el álbum $names.',
+    );
+    return '$_temp0 Toca para elegir qué se copia.';
+  }
+
+  @override
+  String get unlinkCurrentDeviceConfirmation => 'Vas a desvincular este móvil. Se cerrará la sesión en él y, la próxima vez que entres desde aquí, te pediremos el código de verificación.';
+
+  @override
+  String get unlinkCurrentDeviceAction => 'Desvincular y cerrar sesión';
 }

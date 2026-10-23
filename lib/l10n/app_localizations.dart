@@ -4396,6 +4396,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The password is not correct.'**
   String get errorWrongPassword;
+
+  /// No description provided for @sectionWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'What to back up'**
+  String get sectionWhat;
+
+  /// No description provided for @localAlbumsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Albums on the phone'**
+  String get localAlbumsTitle;
+
+  /// No description provided for @localAlbumsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what the backup does with the photos of each folder of your phone. What is already uploaded does not change.'**
+  String get localAlbumsMessage;
+
+  /// No description provided for @localAlbumsReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your albums'**
+  String get localAlbumsReviewTitle;
+
+  /// No description provided for @localAlbumsReviewMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{We found 1 album on your phone.} other{We found {count} albums on your phone.}} The ones set to «As an album» will be created in Photo Manager with their photos.'**
+  String localAlbumsReviewMessage(int count);
+
+  /// No description provided for @localAlbumsReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change it any time in Profile → Backup settings → Albums on the phone.'**
+  String get localAlbumsReviewHint;
+
+  /// No description provided for @localAlbumsLimitedAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'You only see the albums of the photos you gave access to.'**
+  String get localAlbumsLimitedAccess;
+
+  /// No description provided for @localAlbumsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no albums in your gallery'**
+  String get localAlbumsEmpty;
+
+  /// No description provided for @localAlbumsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'When you have folders with photos or videos, they will show up here.'**
+  String get localAlbumsEmptyMessage;
+
+  /// No description provided for @localAlbumsNoPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo access is missing'**
+  String get localAlbumsNoPermission;
+
+  /// No description provided for @localAlbumsNoPermissionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'To see the albums of your phone, Photo Manager needs access to your photos.'**
+  String get localAlbumsNoPermissionMessage;
+
+  /// No description provided for @localAlbumsGrantPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow access'**
+  String get localAlbumsGrantPermission;
+
+  /// No description provided for @localAlbumsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The albums could not be loaded'**
+  String get localAlbumsLoadError;
+
+  /// No description provided for @localAlbumModeAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'As an album'**
+  String get localAlbumModeAlbum;
+
+  /// No description provided for @localAlbumModeBackupOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup only'**
+  String get localAlbumModeBackupOnly;
+
+  /// No description provided for @localAlbumModeExcluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not back up'**
+  String get localAlbumModeExcluded;
+
+  /// No description provided for @localAlbumFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file} other{{count} files}}'**
+  String localAlbumFiles(int count);
+
+  /// No description provided for @localAlbumsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{albums, plural, =1{1 album} other{{albums} albums}} · {excluded} not backed up'**
+  String localAlbumsSummary(int albums, int excluded);
+
+  /// No description provided for @localAlbumsSummaryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'{albums, plural, =1{1 album} other{{albums} albums}}'**
+  String localAlbumsSummaryAll(int albums);
+
+  /// No description provided for @backupAlbumsCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Your photos were organized into the album {names}} other{Your photos were organized into {count} albums: {names}}}'**
+  String backupAlbumsCreated(int count, String names);
+
+  /// No description provided for @seeAlbums.
+  ///
+  /// In en, this message translates to:
+  /// **'See albums'**
+  String get seeAlbums;
+
+  /// No description provided for @notificationAlbumsCreatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photos have new albums'**
+  String get notificationAlbumsCreatedTitle;
+
+  /// No description provided for @notificationAlbumsCreatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The backup put photos in the album {names}.} other{The backup put photos in {count} albums: {names}.}} Tap to choose what is backed up.'**
+  String notificationAlbumsCreatedBody(int count, String names);
+
+  /// No description provided for @unlinkCurrentDeviceConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'You are about to unlink this phone. You will be logged out of it, and the next time you log in here we will ask for the verification code.'**
+  String get unlinkCurrentDeviceConfirmation;
+
+  /// No description provided for @unlinkCurrentDeviceAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink and log out'**
+  String get unlinkCurrentDeviceAction;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

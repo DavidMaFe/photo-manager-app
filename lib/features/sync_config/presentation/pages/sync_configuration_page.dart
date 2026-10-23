@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -24,6 +26,7 @@ import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/save_button_widget.dart';
 import 'package:photo_manager_app/features/sync_config/presentation/widgets/sync_configuration/time_picker_widget.dart';
 import 'package:photo_manager_app/features/plans/presentation/bloc/plan_cubit.dart';
+import 'package:photo_manager_app/features/local_albums/presentation/widgets/local_albums_settings_tile.dart';
 import 'package:photo_manager_app/l10n/app_localizations.dart';
 
 class SyncConfigurationPage extends StatelessWidget {
@@ -40,6 +43,9 @@ class SyncConfigurationPage extends StatelessWidget {
 
 /// Backup settings content; expects a [SyncConfigBloc] above it.
 class SyncConfigurationView extends StatefulWidget {
+  /// The albums of the gallery are only imported on Android for now (ROADMAP-local-albums.md).
+  static bool showLocalAlbums = Platform.isAndroid;
+
 
   const SyncConfigurationView({super.key});
 
@@ -117,6 +123,12 @@ class _SyncConfigurationViewState extends State<SyncConfigurationView> {
     return ListView(
       padding: const EdgeInsets.only(top: 8, bottom: 24),
       children: [
+        // Applies to every backup, manual or automatic
+        if (SyncConfigurationView.showLocalAlbums) ...[
+          SectionLabel(l10n.sectionWhat),
+          const LocalAlbumsSettingsTile(),
+          const SizedBox(height: 8),
+        ],
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: AutoSyncToggleWidget(isEnabled: enabled),
@@ -203,7 +215,8 @@ class _NextBackupNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final next = nextBackupAt(config, DateTime.now());
+    final next = nextBackupAt(config, DateTime.now(),
+        lastAutomaticBackup: context.read<SyncConfigBloc>().lastAutomaticBackupAt);
     if (next == null) return const SizedBox.shrink();
 
     final locale = l10n.localeName;

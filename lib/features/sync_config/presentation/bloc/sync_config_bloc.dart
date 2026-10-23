@@ -17,11 +17,19 @@ class SyncConfigBloc extends Bloc<SyncConfigEvent, SyncConfigState> {
   /// Current configuration being edited
   SyncConfig? _currentConfig;
 
+  /// When the last automatic backup completed, read with the configuration: the next weekly backup depends on it.
+  final Future<DateTime?> Function() _readLastAutomaticBackup;
+  DateTime? _lastAutomaticBackupAt;
+
+  DateTime? get lastAutomaticBackupAt => _lastAutomaticBackupAt;
+
   SyncConfigBloc({
     required this.getSyncConfigUseCase,
     required this.saveSyncConfigUseCase,
     required this.syncSchedulerService,
-  }) : super(SyncConfigInitial()) {
+    Future<DateTime?> Function()? lastAutomaticBackupAt,
+  })  : _readLastAutomaticBackup = lastAutomaticBackupAt ?? (() async => null),
+        super(SyncConfigInitial()) {
     on<LoadSyncConfig>(_onLoadSyncConfig);
     on<SaveSyncConfig>(_onSaveSyncConfig);
     on<ToggleAutoSync>(_onToggleAutoSync);
@@ -44,6 +52,11 @@ class SyncConfigBloc extends Bloc<SyncConfigEvent, SyncConfigState> {
     try {
       final config = await getSyncConfigUseCase();
       _currentConfig = config;
+      try {
+        _lastAutomaticBackupAt = await _readLastAutomaticBackup();
+      } catch (_) {
+        _lastAutomaticBackupAt = null;
+      }
 
       await _waitForLoading(stopwatch);
       emit(SyncConfigLoaded(config));

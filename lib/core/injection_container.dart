@@ -68,6 +68,25 @@ import 'package:http/http.dart' as http;
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/network/authenticated_http_client.dart';
 import 'package:photo_manager_app/core/services/background_sync_service.dart';
+import 'package:photo_manager_app/features/local_albums/data/data_sources/local_albums_review_local_data_source.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/check_local_albums_review_use_case.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/is_local_albums_reviewed_use_case.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/finish_local_albums_review_use_case.dart';
+import 'package:photo_manager_app/features/local_albums/presentation/bloc/local_albums_cubit.dart';
+import 'package:photo_manager_app/features/local_albums/data/data_sources/gallery_albums_local_data_source.dart';
+import 'package:photo_manager_app/features/local_albums/data/data_sources/local_album_snapshot_local_data_source.dart';
+import 'package:photo_manager_app/features/local_albums/data/data_sources/local_albums_remote_data_source.dart';
+import 'package:photo_manager_app/features/local_albums/data/repositories/local_albums_data_repository.dart';
+import 'package:photo_manager_app/features/local_albums/domain/repositories/local_albums_repository.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/get_local_albums_use_case.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/register_local_albums_use_case.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/set_local_album_modes_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/data/data_sources/local/backup_progress_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/data/repositories/backup_progress_data_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/repositories/backup_progress_repository.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/gallery_media_source.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_backup_scan_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/scan_backup_files_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/data/data_sources/local/android_sync_keep_alive.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/original_recompressor.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/sync_keep_alive.dart';
@@ -398,7 +417,7 @@ Future<void> init() async {
 
   // Sync scheduler service
   sl.registerLazySingleton(
-    () => SyncSchedulerService(),
+    () => SyncSchedulerService(lastAutomaticBackupAt: () => sl<SyncConfigRepository>().lastAutomaticBackupAt()),
   );
 
   sl.registerLazySingleton(
@@ -410,7 +429,10 @@ Future<void> init() async {
       checkDuplicatesUseCase: sl<CheckDuplicatedFilesUseCase>(),
       uploadFileUseCase: sl<UploadFileUseCase>(),
       completeSyncSessionUseCase: sl<CompleteSyncSessionUseCase>(),
-      mediaLocalDataSource: sl<MediaLocalDataSource>(),
+      scanBackupFilesUseCase: sl<ScanBackupFilesUseCase>(),
+      completeBackupScanUseCase: sl<CompleteBackupScanUseCase>(),
+      registerLocalAlbumsUseCase: sl<RegisterLocalAlbumsUseCase>(),
+      isLocalAlbumsReviewedUseCase: sl<IsLocalAlbumsReviewedUseCase>(),
       authRepository: sl<AuthRepository>(),
       sharedPreferences: sl<SharedPreferences>(),
       notificationService: sl<SyncNotificationService>(),
@@ -490,6 +512,28 @@ Future<void> init() async {
   sl.registerLazySingleton<MediaLocalDataSource>(
       () => MediaLocalDataSource()
   );
+  sl.registerLazySingleton<GalleryMediaSource>(() => sl<MediaLocalDataSource>());
+
+  // What the backups have seen of the gallery (ROADMAP-local-albums.md)
+  sl.registerLazySingleton<BackupProgressLocalDataSource>(
+      () => BackupProgressLocalDataSourceImpl(database: () => sl<AppDatabase>().database));
+  sl.registerLazySingleton<BackupProgressRepository>(
+      () => BackupProgressDataRepository(localDataSource: sl<BackupProgressLocalDataSource>()));
+
+  // Albums of the gallery and their options (ROADMAP-local-albums.md)
+  sl.registerLazySingleton<GalleryAlbumsLocalDataSource>(() => GalleryAlbumsLocalDataSourceImpl());
+  sl.registerLazySingleton<LocalAlbumSnapshotLocalDataSource>(
+      () => LocalAlbumSnapshotLocalDataSourceImpl(database: () => sl<AppDatabase>().database));
+  sl.registerLazySingleton<LocalAlbumsRemoteDataSource>(
+      () => LocalAlbumsRemoteDataSourceImpl(client: sl<AuthenticatedHttpClient>()));
+  sl.registerLazySingleton<LocalAlbumsRepository>(() => LocalAlbumsDataRepository(
+        galleryDataSource: sl<GalleryAlbumsLocalDataSource>(),
+        snapshotDataSource: sl<LocalAlbumSnapshotLocalDataSource>(),
+        remoteDataSource: sl<LocalAlbumsRemoteDataSource>(),
+        reviewDataSource: sl<LocalAlbumsReviewLocalDataSource>(),
+      ));
+  sl.registerLazySingleton<LocalAlbumsReviewLocalDataSource>(
+      () => LocalAlbumsReviewLocalDataSourceImpl(sharedPreferences: sl<SharedPreferences>()));
 
   // gallery
   sl.registerLazySingleton<GalleryRemoteDataSource>(
@@ -984,6 +1028,26 @@ Future<void> init() async {
       }
   );
 
+  sl.registerFactory(() => ScanBackupFilesUseCase(
+      sl<GalleryMediaSource>(), sl<BackupProgressRepository>(), sl<AuthRepository>()));
+  sl.registerFactory(() => CompleteBackupScanUseCase(sl<BackupProgressRepository>()));
+  sl.registerFactory(() => RegisterLocalAlbumsUseCase(
+      sl<LocalAlbumsRepository>(), sl<SyncDeviceRepository>(), sl<AuthRepository>()));
+  sl.registerFactory(() => GetLocalAlbumsUseCase(sl<LocalAlbumsRepository>(), sl<SyncDeviceRepository>()));
+  sl.registerFactory(() => SetLocalAlbumModesUseCase(sl<LocalAlbumsRepository>(), sl<SyncDeviceRepository>(),
+      sl<BackupProgressRepository>(), sl<AuthRepository>()));
+  sl.registerFactory(() => IsLocalAlbumsReviewedUseCase(sl<LocalAlbumsRepository>(), sl<AuthRepository>()));
+  sl.registerFactory(() => FinishLocalAlbumsReviewUseCase(
+      sl<SetLocalAlbumModesUseCase>(), sl<LocalAlbumsRepository>(), sl<AuthRepository>()));
+  sl.registerFactory(() => CheckLocalAlbumsReviewUseCase(sl<LocalAlbumsRepository>(),
+      sl<RegisterLocalAlbumsUseCase>(), sl<PermissionService>(), sl<AuthRepository>()));
+  sl.registerFactory(() => LocalAlbumsCubit(
+        registerLocalAlbums: sl<RegisterLocalAlbumsUseCase>(),
+        setLocalAlbumModes: sl<SetLocalAlbumModesUseCase>(),
+        finishLocalAlbumsReview: sl<FinishLocalAlbumsReviewUseCase>(),
+        permissionService: sl<PermissionService>(),
+      ));
+
   // gallery
   sl.registerFactory(
       () {
@@ -1200,7 +1264,6 @@ Future<void> init() async {
         final completeSyncSessionUseCase = sl<CompleteSyncSessionUseCase>();
         final syncSessionRepository = sl<SyncSessionRepository>();
         final syncDeviceRepository = sl<SyncDeviceRepository>();
-        final mediaLocalDataSource = sl<MediaLocalDataSource>();
         final eventBus = sl<AppEventBus>();
         final syncLock = sl<SyncLock>();
         final syncKeepAlive = sl<SyncKeepAlive>();
@@ -1212,7 +1275,9 @@ Future<void> init() async {
           completeSyncSessionUseCase: completeSyncSessionUseCase,
           syncSessionRepository: syncSessionRepository,
           syncDeviceRepository: syncDeviceRepository,
-          mediaLocalDataSource: mediaLocalDataSource,
+          scanBackupFilesUseCase: sl<ScanBackupFilesUseCase>(),
+          completeBackupScanUseCase: sl<CompleteBackupScanUseCase>(),
+          registerLocalAlbumsUseCase: sl<RegisterLocalAlbumsUseCase>(),
           eventBus: eventBus,
           syncLock: syncLock,
           syncKeepAlive: syncKeepAlive,
@@ -1344,6 +1409,7 @@ Future<void> init() async {
           getSyncConfigUseCase: getSyncConfigUseCase,
           saveSyncConfigUseCase: saveSyncConfigUseCase,
           syncSchedulerService: syncSchedulerService,
+          lastAutomaticBackupAt: () => sl<SyncConfigRepository>().lastAutomaticBackupAt(),
         );
       }
   );

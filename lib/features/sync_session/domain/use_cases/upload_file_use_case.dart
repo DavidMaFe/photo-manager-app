@@ -81,6 +81,7 @@ class UploadFileUseCase {
           'mime': file.mimeType,
           if (jpegXl != null) 'enc': 'jxl',
         }),
+        localAlbumId: file.localAlbumId,
       );
 
       // What the server counts in the quota: the three objects (File#storedBytes of the backend)

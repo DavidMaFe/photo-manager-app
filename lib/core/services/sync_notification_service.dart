@@ -33,9 +33,13 @@ class SyncNotificationService {
   static const int _notificationIdSuccess = 2;
   static const int _notificationIdFailure = 3;
   static const int _notificationIdStorageFull = 4;
+  static const int _notificationIdAlbumsCreated = 5;
 
   /// Payload of the notifications that open the plans page.
   static const String plansPayload = 'plans';
+
+  /// Payload of the notification that opens the albums of the phone (ROADMAP-local-albums.md).
+  static const String localAlbumsPayload = 'local_albums';
 
   /// Called with the payload of a notification tapped while the app runs (set by main.dart, which has the router).
   void Function(String? payload)? onTap;
@@ -433,6 +437,33 @@ class SyncNotificationService {
       );
     } catch (e) {
       developer.log('❌ Failed to show storage full notification', name: 'SyncNotificationService', error: e);
+    }
+  }
+
+  /// Albums of the gallery that got their album of Photo Manager in a background backup (ROADMAP-local-albums.md).
+  /// The tap opens the albums of the phone, to choose what is backed up.
+  Future<void> showAlbumsCreatedNotification({required List<String> albums}) async {
+    try {
+      final l10n = _strings();
+      final androidDetails = AndroidNotificationDetails(
+        _channelIdSuccess,
+        l10n.notificationChannelFinishedName,
+        channelDescription: l10n.notificationChannelFinishedDescription,
+        importance: Importance.defaultImportance,
+        priority: Priority.defaultPriority,
+        icon: '@mipmap/ic_launcher',
+      );
+      final notificationDetails = NotificationDetails(android: androidDetails, iOS: const DarwinNotificationDetails());
+
+      await _notificationsPlugin.show(
+        _notificationIdAlbumsCreated,
+        l10n.notificationAlbumsCreatedTitle,
+        l10n.notificationAlbumsCreatedBody(albums.length, albums.join(', ')),
+        notificationDetails,
+        payload: localAlbumsPayload,
+      );
+    } catch (e) {
+      developer.log('❌ Failed to show albums created notification', name: 'SyncNotificationService', error: e);
     }
   }
 

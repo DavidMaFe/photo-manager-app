@@ -121,6 +121,11 @@ class AppButton extends StatelessWidget {
     this.expand,
   }) : variant = AppButtonVariant.dangerSolid;
 
+  /// Horizontal padding of a large button, and the style of its label (without its color): dialogs measure their
+  /// labels with them.
+  static const double largeHorizontalPadding = 20;
+  static const TextStyle largeLabelStyle = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
+
   bool get _isLarge => size == AppButtonSize.large;
   bool get _enabled => onPressed != null && !loading;
 
@@ -128,11 +133,9 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final (background, foreground) = colorsFor(context, variant);
     final radius = BorderRadius.circular(_isLarge ? AppRadius.button : AppRadius.pill);
-    final textStyle = TextStyle(
-      fontSize: _isLarge ? 15 : 13,
-      fontWeight: FontWeight.w700,
-      color: foreground,
-    );
+    final textStyle = _isLarge
+        ? largeLabelStyle.copyWith(color: foreground)
+        : TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: foreground);
 
     final content = loading
         ? SizedBox(
@@ -172,7 +175,7 @@ class AppButton extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: _isLarge ? largeHeight : smallHeight),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: _isLarge ? 20 : 14, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: _isLarge ? largeHorizontalPadding : 14, vertical: 8),
                 child: Center(widthFactor: 1, heightFactor: 1, child: content),
               ),
             ),

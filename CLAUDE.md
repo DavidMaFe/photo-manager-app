@@ -409,11 +409,33 @@ What a backup (manual or in the background) does when the pending files do not f
 - Background (`BackgroundSyncService`): a notification (`showStorageFullNotification`, only with `notifyOnFailure`) whose tap opens the plans (payload `plans`, handled in `main.dart` with the app open or closed).
 - Both record `SYNC_STORAGE_FULL` (`background`, `files`, `bytes`) in the monitoring.
 
+## Albums of the gallery
+
+The albums of the gallery become albums of Photo Manager (`features/local_albums`; backend: CLAUDE.md, «Albums of the Gallery of the Devices»). Only on Android for now: elsewhere everything is backed up without an album, as before.
+
+- Each album (a folder with photos or videos, the bucket of MediaStore) has a mode: «Como álbum» (`album`), «Solo copia» (`backupOnly`) or «No copiar» (`excluded`). `DefaultAlbumMode` proposes «Solo copia» for `DCIM/Camera`, screenshots, screen recordings, downloads and folders of apps, «Como álbum» for the rest, never «No copiar»; `Pictures/PhotoManager` (the downloads of the app) is not offered.
+- `RegisterLocalAlbumsUseCase` sends what the gallery has before every backup and before the list is shown. `RenamedAlbums` recognizes a folder renamed on the device (a new album with the files of one that is gone, from `local_album_snapshot`) and sends it with `previousLocalAlbumId`.
+- Every backup (manual and background) registers the albums first (if it cannot, the backup fails, so no photo goes up without its album), leaves out the files of the albums «No copiar» and sends `localAlbumId` with each file. The album is only chosen at the upload.
+- «Tus álbumes» (`LocalAlbumsPage(review: true)`, `/local-albums-review`): once per account and device (`LocalAlbumsReviewLocalDataSource`), opened by `LocalAlbumsReviewListener` around the shell: after the onboarding, or at the first start after the update. Not shown without photo access or without an album «Como álbum». Changes are saved with «Continuar».
+- «Álbumes del móvil» (Profile → Backup settings → «Qué copiar»): the same list; each change is saved at once. An album that leaves «No copiar» gets all its files pending for the next backup.
+- At the end of a backup: a snackbar (manual) or a notification (background, payload `local_albums`, not before «Tus álbumes» was seen, nor with both alerts off) with the albums that got photos. `SYNC_ALBUMS_CREATED` (`background`, `albums`) in the monitoring.
+
+## What a backup looks at
+
+- `ScanBackupFilesUseCase` looks for the files that arrived on the device since the last completed backup started (`createTimeCond`, the date of addition: a photo of 2019 copied today is backed up), with 10 minutes of margin. The mark is kept per account (`backup_watermark`); the first time after the update it is `lastSyncCompletedAt` of the server.
+- What a completed backup skipped (did not fit, video too big for the plan, upload error, unreadable) stays in `pending_uploads` and is tried again by the next ones (`CompleteBackupScanUseCase`). A backup that does not complete changes nothing.
+
+## Weekly backup
+
+- A weekly automatic backup runs at most once per calendar week (Monday to Sunday): `NextAutomaticBackup` moves a day changed after the backup of the week to the next week, for the scheduler (`SyncSchedulerService`), the note «Próxima copia» and `BackgroundSyncService`, which does not back up again in a week that had its automatic backup. Only completed automatic backups count (`LAST_AUTOMATIC_BACKUP_COMPLETED`); manual backups are free.
+
 ## Important Notes
 
 - **Android Emulator:** Use `10.0.2.2` to access localhost on host machine
 - **Token Management:** Tokens stored in `flutter_secure_storage` via AuthLocalDataSource; HTTP calls with a session go through `AuthenticatedHttpClient`, which adds the token and refreshes it on 401. Each refresh returns a new refresh token, which replaces the stored one
 - **Logout Cleanup:** Always clears both auth and profile caches
+- **Unlinking this device:** the server closes its session; the app warns first and logs out like «Cerrar sesión» (`CurrentDeviceUnlinked`). `DELETE /api/device/unlink/{id}/` answers 204
+- **Dialogs:** `AppDialog` puts its two buttons one above the other (the main one first) when a label does not fit in half the width; tests tap them by `AppDialog.primaryKey`/`secondaryKey`
 - **Route Protection:** AuthNotifier listens to AuthBloc and triggers redirects automatically
 - **Loading States:** Use minimum 800ms duration pattern from AuthBloc for consistent UX
 - **Widget Composition:** Break large pages into focused widgets (see login widgets as example)

@@ -191,6 +191,17 @@ void main() {
             )).called(1);
       });
 
+      test('should complete successfully on 204 No Content, which is what the server answers', () async {
+        // Arrange
+        when(() => mockHttpClient.delete(
+              any(),
+              headers: any(named: 'headers'),
+            )).thenAnswer((_) async => http.Response('', 204));
+
+        // Act & Assert
+        await expectLater(dataSource.unlinkDevice(deviceId: testDeviceId), completes);
+      });
+
       test('should complete successfully on 200 OK', () async {
         // Arrange
         when(() => mockHttpClient.put(

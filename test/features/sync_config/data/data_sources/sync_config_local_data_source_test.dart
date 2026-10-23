@@ -263,5 +263,32 @@ void main() {
         expect(result.syncDayOfWeek, 1);
       });
     });
+
+    group('last automatic backup', () {
+      test('should read it again from disk, since the background isolate writes it', () async {
+        when(() => mockSharedPreferences.reload()).thenAnswer((_) async {});
+        when(() => mockSharedPreferences.getString('LAST_AUTOMATIC_BACKUP_COMPLETED'))
+            .thenReturn('2026-10-19T12:05:00.000');
+
+        expect(await dataSource.lastAutomaticBackupAt(), DateTime(2026, 10, 19, 12, 5));
+        verify(() => mockSharedPreferences.reload()).called(1);
+      });
+
+      test('should answer nothing before the first automatic backup', () async {
+        when(() => mockSharedPreferences.reload()).thenAnswer((_) async {});
+        when(() => mockSharedPreferences.getString('LAST_AUTOMATIC_BACKUP_COMPLETED')).thenReturn(null);
+
+        expect(await dataSource.lastAutomaticBackupAt(), isNull);
+      });
+
+      test('should keep when it completed', () async {
+        when(() => mockSharedPreferences.setString(any(), any())).thenAnswer((_) async => true);
+
+        await dataSource.recordAutomaticBackup(DateTime(2026, 10, 19, 12, 5));
+
+        verify(() => mockSharedPreferences.setString('LAST_AUTOMATIC_BACKUP_COMPLETED', '2026-10-19T12:05:00.000'))
+            .called(1);
+      });
+    });
   });
 }

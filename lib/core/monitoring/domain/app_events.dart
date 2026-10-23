@@ -23,6 +23,21 @@ class SyncFailed extends AppLogEvent {
 }
 
 /// A backup that left files out because they did not fit in the free space of the plan.
+/// A backup put photos in albums of Photo Manager made from albums of the gallery (ROADMAP-local-albums.md). Never
+/// the names of the albums.
+class SyncAlbumsCreated extends AppLogEvent {
+  final bool background;
+  final int albums;
+
+  const SyncAlbumsCreated({required this.background, required this.albums});
+
+  @override
+  String get name => 'SYNC_ALBUMS_CREATED';
+
+  @override
+  String get message => 'background=$background albums=$albums';
+}
+
 class SyncStorageFull extends AppLogEvent {
   final bool background;
   final int files;

@@ -97,11 +97,15 @@ class SyncSessionSuccess extends SyncSessionState {
   /// Bytes those files would have taken on the server.
   final int skippedForSpaceBytes;
 
+  /// Albums of the gallery that got their album of Photo Manager in this backup (ROADMAP-local-albums.md).
+  final List<String> createdAlbums;
+
   const SyncSessionSuccess(this.result,
-      {this.skippedLargeVideos = 0, this.skippedForSpace = 0, this.skippedForSpaceBytes = 0});
+      {this.skippedLargeVideos = 0, this.skippedForSpace = 0, this.skippedForSpaceBytes = 0,
+      this.createdAlbums = const []});
 
   @override
-  List<Object?> get props => [result, skippedLargeVideos, skippedForSpace, skippedForSpaceBytes];
+  List<Object?> get props => [result, skippedLargeVideos, skippedForSpace, skippedForSpaceBytes, createdAlbums];
 
   @override
   String toString() => 'SyncSessionSuccess (uploaded: ${result.uploadedFiles}/${result.totalFiles})';

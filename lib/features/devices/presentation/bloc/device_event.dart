@@ -27,5 +27,8 @@ class ToggleAutoSync extends DeviceEvent {
 class UnlinkDevice extends DeviceEvent {
   final String deviceId;
 
-  UnlinkDevice({required this.deviceId});
+  /// The device the app runs on: unlinking it closes the session here.
+  final bool isCurrentDevice;
+
+  UnlinkDevice({required this.deviceId, this.isCurrentDevice = false});
 }

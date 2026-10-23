@@ -8,6 +8,9 @@ abstract class PermissionService {
   /// Shows the system prompt for [permission]; returns whether it was granted.
   Future<bool> request(AppPermission permission);
 
+  /// Whether the photos can only be read in part (Android 14+ and iOS: the user chose some photos).
+  Future<bool> isPhotoAccessLimited();
+
   /// Opens the system settings of the app.
   Future<void> openSettings();
 }

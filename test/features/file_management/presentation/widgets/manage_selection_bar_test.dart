@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/core/errors/base/failures.dart';
-import 'package:photo_manager_app/core/widgets/app_button.dart';
 import 'package:photo_manager_app/core/widgets/app_dialog.dart';
 import 'package:photo_manager_app/features/file_management/domain/entities/manage_action.dart';
 import 'package:photo_manager_app/features/file_management/domain/enums/server_action.dart';
@@ -92,7 +91,7 @@ void main() {
   Future<void> confirmDialog(WidgetTester tester) async {
     await settle(tester);
     expect(find.byType(AppDialog), findsOneWidget);
-    await tester.tap(find.descendant(of: find.byType(AppDialog), matching: find.byType(AppButton)).last);
+    await tester.tap(find.byKey(AppDialog.primaryKey));
     await settle(tester);
   }
 
@@ -322,7 +321,7 @@ void main() {
       await settle(tester);
 
       // Act
-      await tester.tap(find.descendant(of: find.byType(AppDialog), matching: find.byType(AppButton)).first);
+      await tester.tap(find.byKey(AppDialog.secondaryKey));
       await settle(tester);
 
       // Assert

@@ -13,7 +13,8 @@ class SyncFileModel extends SyncFile {
     required super.mimeType,
     super.width,
     super.height,
-    super.durationSeconds
+    super.durationSeconds,
+    super.localAlbumId,
   });
 
   factory SyncFileModel.fromJson(Map<String, dynamic> json) {
@@ -57,7 +58,8 @@ class SyncFileModel extends SyncFile {
       mimeType: file.mimeType,
       width: file.width,
       height: file.height,
-      durationSeconds: file.durationSeconds
+      durationSeconds: file.durationSeconds,
+      localAlbumId: file.localAlbumId
     );
   }
 }

@@ -223,6 +223,13 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
     try {
       await unlinkDeviceUseCase(deviceId: event.deviceId);
 
+      // Its session is closed on the server: nothing else is asked for, the app logs out
+      if (event.isCurrentDevice) {
+        await _waitForLoading(stopwatch);
+        emit(CurrentDeviceUnlinked());
+        return;
+      }
+
       // Remove the device from the list
       final updatedDevices = currentState.devices
           .where((device) => device.id != event.deviceId)

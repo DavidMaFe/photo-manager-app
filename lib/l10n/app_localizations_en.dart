@@ -2756,4 +2756,127 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorWrongPassword => 'The password is not correct.';
+
+  @override
+  String get sectionWhat => 'What to back up';
+
+  @override
+  String get localAlbumsTitle => 'Albums on the phone';
+
+  @override
+  String get localAlbumsMessage => 'Choose what the backup does with the photos of each folder of your phone. What is already uploaded does not change.';
+
+  @override
+  String get localAlbumsReviewTitle => 'Your albums';
+
+  @override
+  String localAlbumsReviewMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'We found $count albums on your phone.',
+      one: 'We found 1 album on your phone.',
+    );
+    return '$_temp0 The ones set to «As an album» will be created in Photo Manager with their photos.';
+  }
+
+  @override
+  String get localAlbumsReviewHint => 'You can change it any time in Profile → Backup settings → Albums on the phone.';
+
+  @override
+  String get localAlbumsLimitedAccess => 'You only see the albums of the photos you gave access to.';
+
+  @override
+  String get localAlbumsEmpty => 'There are no albums in your gallery';
+
+  @override
+  String get localAlbumsEmptyMessage => 'When you have folders with photos or videos, they will show up here.';
+
+  @override
+  String get localAlbumsNoPermission => 'Photo access is missing';
+
+  @override
+  String get localAlbumsNoPermissionMessage => 'To see the albums of your phone, Photo Manager needs access to your photos.';
+
+  @override
+  String get localAlbumsGrantPermission => 'Allow access';
+
+  @override
+  String get localAlbumsLoadError => 'The albums could not be loaded';
+
+  @override
+  String get localAlbumModeAlbum => 'As an album';
+
+  @override
+  String get localAlbumModeBackupOnly => 'Backup only';
+
+  @override
+  String get localAlbumModeExcluded => 'Do not back up';
+
+  @override
+  String localAlbumFiles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files',
+      one: '1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String localAlbumsSummary(int albums, int excluded) {
+    String _temp0 = intl.Intl.pluralLogic(
+      albums,
+      locale: localeName,
+      other: '$albums albums',
+      one: '1 album',
+    );
+    return '$_temp0 · $excluded not backed up';
+  }
+
+  @override
+  String localAlbumsSummaryAll(int albums) {
+    String _temp0 = intl.Intl.pluralLogic(
+      albums,
+      locale: localeName,
+      other: '$albums albums',
+      one: '1 album',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupAlbumsCreated(int count, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Your photos were organized into $count albums: $names',
+      one: 'Your photos were organized into the album $names',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get seeAlbums => 'See albums';
+
+  @override
+  String get notificationAlbumsCreatedTitle => 'Your photos have new albums';
+
+  @override
+  String notificationAlbumsCreatedBody(int count, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The backup put photos in $count albums: $names.',
+      one: 'The backup put photos in the album $names.',
+    );
+    return '$_temp0 Tap to choose what is backed up.';
+  }
+
+  @override
+  String get unlinkCurrentDeviceConfirmation => 'You are about to unlink this phone. You will be logged out of it, and the next time you log in here we will ask for the verification code.';
+
+  @override
+  String get unlinkCurrentDeviceAction => 'Unlink and log out';
 }

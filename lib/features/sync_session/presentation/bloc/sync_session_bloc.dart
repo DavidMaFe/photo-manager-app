@@ -10,16 +10,20 @@ import 'package:photo_manager_app/core/monitoring/domain/app_event_log.dart';
 import 'package:photo_manager_app/core/monitoring/domain/app_events.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/widgets/permission/permission_helper.dart';
+import 'package:photo_manager_app/features/local_albums/domain/enums/local_album_mode.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/register_local_albums_use_case.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
 import 'package:photo_manager_app/features/plans/domain/use_cases/get_user_plan_use_case.dart';
-import 'package:photo_manager_app/features/sync_session/data/data_sources/local/media_local_data_source.dart';
+import 'package:photo_manager_app/features/sync_session/domain/entities/backup_scan.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/files_within_plan.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/storage_budget.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/sync_keep_alive.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_backup_scan_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_sync_session_use_case.dart';
+import 'package:photo_manager_app/features/sync_session/domain/use_cases/scan_backup_files_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/start_sync_session_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/upload_result.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/upload_file_use_case.dart';
@@ -55,7 +59,12 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
   final CompleteSyncSessionUseCase completeSyncSessionUseCase;
   final SyncDeviceRepository syncDeviceRepository;
   final SyncSessionRepository syncSessionRepository;
-  final MediaLocalDataSource mediaLocalDataSource;
+  /// The files of the gallery to look at, and what the next backup looks at (ROADMAP-local-albums.md).
+  final ScanBackupFilesUseCase scanBackupFilesUseCase;
+  final CompleteBackupScanUseCase completeBackupScanUseCase;
+
+  /// The albums of the gallery and their options, registered before every backup (ROADMAP-local-albums.md).
+  final RegisterLocalAlbumsUseCase registerLocalAlbumsUseCase;
   final AppEventBus eventBus;
   final SyncLock syncLock;
   final SyncKeepAlive syncKeepAlive;
@@ -77,7 +86,9 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     required this.completeSyncSessionUseCase,
     required this.syncDeviceRepository,
     required this.syncSessionRepository,
-    required this.mediaLocalDataSource,
+    required this.scanBackupFilesUseCase,
+    required this.completeBackupScanUseCase,
+    required this.registerLocalAlbumsUseCase,
     required this.eventBus,
     required this.syncLock,
     required this.syncKeepAlive,
@@ -170,13 +181,24 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
         return;
       }
 
-      final scannedFiles = await mediaLocalDataSource.scanMediaFiles(
-        lastCompletedSyncAt: session.lastCompletedAt
-      );
+      // Files of the albums the user chose not to back up are left out; the albums without an album of Photo
+      // Manager yet get one with their first file
+      final albums = await registerLocalAlbumsUseCase();
+      final excludedAlbums = {
+        for (final album in albums) if (album.mode == LocalAlbumMode.excluded) album.localAlbumId,
+      };
+      final albumsToCreate = {
+        for (final album in albums)
+          if (album.mode == LocalAlbumMode.album && album.folderId == null) album.localAlbumId: album.name,
+      };
+      final createdAlbums = <String>{};
+
+      final scan = await scanBackupFilesUseCase(lastCompletedAt: session.lastCompletedAt);
+      final scannedFiles = scan.files.where((file) => !excludedAlbums.contains(file.localAlbumId)).toList();
 
       await _waitForLoading(fetchingFilesStopwatch, 3000);
       if (scannedFiles.isEmpty) {
-        await _completeSession(emit, session.id);
+        await _completeSession(emit, session.id, scan: scan);
         return;
       }
 
@@ -191,7 +213,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
       );
 
       if (duplicateCheckResult.allFilesAreDuplicates) {
-        await _completeSession(emit, session.id);
+        await _completeSession(emit, session.id, scan: scan);
         return;
       }
 
@@ -199,6 +221,9 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
       final pending = scannedFiles.where((file) => duplicateCheckResult.filesToUpload.contains(file.hash));
       final filesToUpload = filesWithinPlan(pending, plan);
       int skippedLargeVideos = pending.length - filesToUpload.length;
+      // Not uploaded by this backup: the next ones try them again
+      final skippedLocalIds = pending.map((file) => file.localId).toSet()
+        ..removeAll(filesToUpload.map((file) => file.localId));
 
       if (_isCancelled) {
         await _handleCancellation(emit, null);
@@ -234,6 +259,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
         } on FileDoesNotFitFailure catch (e) {
           skippedForSpace++;
           skippedForSpaceBytes += e.storedBytes;
+          skippedLocalIds.add(file.localId);
           remainingBytes -= file.sizeBytes;
           processedCount++;
           continue;
@@ -249,6 +275,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
           } else {
             rethrow;
           }
+          skippedLocalIds.add(file.localId);
           remainingBytes -= file.sizeBytes;
           processedCount++;
           continue;
@@ -263,6 +290,8 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
 
           uploadedCount++;
         }
+        final createdAlbum = albumsToCreate[file.localAlbumId];
+        if (createdAlbum != null) createdAlbums.add(createdAlbum);
         // Sent or failed, the file is no longer pending in this session.
         remainingBytes -= file.sizeBytes;
         processedCount++;
@@ -282,8 +311,12 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
       if (skippedForSpace > 0) {
         appEventLog.record(SyncStorageFull(background: false, files: skippedForSpace, bytes: skippedForSpaceBytes));
       }
-      await _completeSession(emit, session.id, skippedLargeVideos: skippedLargeVideos,
-          skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes);
+      if (createdAlbums.isNotEmpty) {
+        appEventLog.record(SyncAlbumsCreated(background: false, albums: createdAlbums.length));
+      }
+      await _completeSession(emit, session.id, scan: scan, skippedLocalIds: skippedLocalIds,
+          skippedLargeVideos: skippedLargeVideos, skippedForSpace: skippedForSpace,
+          skippedForSpaceBytes: skippedForSpaceBytes, createdAlbums: createdAlbums.toList());
 
     } catch (e) {
       if (_currentSessionId != null) {
@@ -357,16 +390,18 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
   }
 
   Future<void> _completeSession(Emitter<SyncSessionState> emit, String sessionId,
-      {int skippedLargeVideos = 0, int skippedForSpace = 0, int skippedForSpaceBytes = 0}) async {
+      {required BackupScan scan, Set<String> skippedLocalIds = const {}, int skippedLargeVideos = 0,
+      int skippedForSpace = 0, int skippedForSpaceBytes = 0, List<String> createdAlbums = const []}) async {
 
     emit(const SyncSessionCompleting());
     final completeSessionStopWatch = Stopwatch()..start();
     await _waitForLoading(completeSessionStopWatch, 2000);
 
     final result = await completeSyncSessionUseCase(sessionId: sessionId);
+    await _rememberScan(scan, skippedLocalIds);
 
     emit(SyncSessionSuccess(result, skippedLargeVideos: skippedLargeVideos,
-        skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes));
+        skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes, createdAlbums: createdAlbums));
 
     // Broadcast sync completed event
     eventBus.fire(SyncCompletedEvent(
@@ -379,6 +414,13 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     eventBus.fire(const CacheInvalidationEvent(type: CacheInvalidationType.syncHistory));
     eventBus.fire(const CacheInvalidationEvent(type: CacheInvalidationType.files));
     eventBus.fire(const CacheInvalidationEvent(type: CacheInvalidationType.gallery));
+  }
+
+  /// A failure here never fails a completed backup: the next one looks at the same files again.
+  Future<void> _rememberScan(BackupScan scan, Set<String> skippedLocalIds) async {
+    try {
+      await completeBackupScanUseCase(scan, skippedLocalIds);
+    } catch (_) {}
   }
 
   Future<void> _waitForLoading(Stopwatch stopwatch, int duration) async {
