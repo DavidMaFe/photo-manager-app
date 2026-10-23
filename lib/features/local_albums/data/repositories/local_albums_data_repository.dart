@@ -1,6 +1,7 @@
 import 'package:photo_manager_app/features/local_albums/data/data_sources/gallery_albums_local_data_source.dart';
 import 'package:photo_manager_app/features/local_albums/data/data_sources/local_album_snapshot_local_data_source.dart';
 import 'package:photo_manager_app/features/local_albums/data/data_sources/local_albums_remote_data_source.dart';
+import 'package:photo_manager_app/features/local_albums/data/data_sources/local_albums_review_local_data_source.dart';
 import 'package:photo_manager_app/features/local_albums/domain/entities/gallery_album.dart';
 import 'package:photo_manager_app/features/local_albums/domain/entities/local_album.dart';
 import 'package:photo_manager_app/features/local_albums/domain/entities/local_album_registration.dart';
@@ -11,12 +12,23 @@ class LocalAlbumsDataRepository implements LocalAlbumsRepository {
   final GalleryAlbumsLocalDataSource galleryDataSource;
   final LocalAlbumSnapshotLocalDataSource snapshotDataSource;
   final LocalAlbumsRemoteDataSource remoteDataSource;
+  final LocalAlbumsReviewLocalDataSource reviewDataSource;
 
   LocalAlbumsDataRepository({
     required this.galleryDataSource,
     required this.snapshotDataSource,
     required this.remoteDataSource,
+    required this.reviewDataSource,
   });
+
+  @override
+  Future<Set<String>> galleryAlbumAssetIds(String localAlbumId) => galleryDataSource.assetIds(localAlbumId);
+
+  @override
+  Future<bool> isReviewed(String userId) => reviewDataSource.isReviewed(userId);
+
+  @override
+  Future<void> markReviewed(String userId) => reviewDataSource.markReviewed(userId);
 
   @override
   Future<List<GalleryAlbum>> galleryAlbums() => galleryDataSource.albums();

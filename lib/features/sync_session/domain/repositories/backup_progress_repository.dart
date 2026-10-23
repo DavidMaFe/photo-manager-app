@@ -9,4 +9,7 @@ abstract class BackupProgressRepository {
   Future<Set<String>> pending(String userId);
 
   Future<void> replacePending(String userId, Set<String> localIds);
+
+  /// Adds files for the next backup to try (an album that was not backed up and now is).
+  Future<void> addPending(String userId, Set<String> localIds);
 }

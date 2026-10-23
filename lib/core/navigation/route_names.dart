@@ -38,6 +38,10 @@ class RouteNames {
   static const String deleteAccount = 'delete_account';
   static const String plans = 'plans';
   static const String deleteAccountConfirm = 'delete_account_confirm';
+
+  // Albums of the gallery (ROADMAP-local-albums.md)
+  static const String localAlbumsReview = 'local_albums_review';
+  static const String localAlbums = 'local_albums';
 }
 
 
@@ -83,4 +87,8 @@ class RoutePaths {
   static const String deleteAccount = '/profile/delete-account';
   static const String plans = '/profile/plans';
   static const String deleteAccountConfirm = '/profile/delete-account/confirm';
+
+  // Albums of the gallery (ROADMAP-local-albums.md): «Tus álbumes» and «Álbumes del móvil» of the backup settings
+  static const String localAlbumsReview = '/local-albums-review';
+  static const String localAlbums = '/profile/sync-configuration/local-albums';
 }

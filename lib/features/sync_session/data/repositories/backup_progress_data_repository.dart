@@ -19,4 +19,7 @@ class BackupProgressDataRepository implements BackupProgressRepository {
   @override
   Future<void> replacePending(String userId, Set<String> localIds) =>
       localDataSource.replacePending(userId, localIds);
+
+  @override
+  Future<void> addPending(String userId, Set<String> localIds) => localDataSource.addPending(userId, localIds);
 }

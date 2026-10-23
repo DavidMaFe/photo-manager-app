@@ -68,6 +68,9 @@ import '../../features/file_management/presentation/bloc/manage_folder/manage_fo
 import '../../features/gallery/domain/entities/gallery_file.dart';
 import '../../features/sync_session/presentation/bloc/sync_session_bloc.dart';
 import '../../features/plans/presentation/pages/plans_page.dart';
+import '../../features/local_albums/domain/entities/local_album.dart';
+import '../../features/local_albums/presentation/bloc/local_albums_cubit.dart';
+import '../../features/local_albums/presentation/pages/local_albums_page.dart';
 import '../injection_container.dart';
 
 
@@ -127,6 +130,14 @@ class AppRouter {
                 ),
               ),
             ],
+          ),
+          GoRoute(
+            path: RoutePaths.localAlbumsReview,
+            name: RouteNames.localAlbumsReview,
+            builder: (context, state) => BlocProvider(
+              create: (_) => sl<LocalAlbumsCubit>()..show(state.extra as List<LocalAlbum>? ?? const []),
+              child: const LocalAlbumsPage(review: true),
+            ),
           ),
           GoRoute(
             path: RoutePaths.legalAcceptance,
@@ -402,6 +413,16 @@ class AppRouter {
                             path: 'sync-configuration',
                             name: RouteNames.syncConfiguration,
                             builder: (context, state) => const SyncConfigurationPage(),
+                            routes: [
+                              GoRoute(
+                                path: 'local-albums',
+                                name: RouteNames.localAlbums,
+                                builder: (context, state) => BlocProvider(
+                                  create: (_) => sl<LocalAlbumsCubit>()..load(),
+                                  child: const LocalAlbumsPage(),
+                                ),
+                              ),
+                            ],
                           ),
                           GoRoute(
                             path: 'trash',

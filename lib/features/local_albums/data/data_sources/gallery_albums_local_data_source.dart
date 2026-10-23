@@ -4,6 +4,8 @@ import 'package:photo_manager_app/features/local_albums/domain/entities/gallery_
 /// The albums of the gallery, read with photo_manager (ROADMAP-local-albums.md, Phase 0: about 0.1 s on the S23).
 abstract class GalleryAlbumsLocalDataSource {
   Future<List<GalleryAlbum>> albums();
+
+  Future<Set<String>> assetIds(String albumId);
 }
 
 class GalleryAlbumsLocalDataSourceImpl implements GalleryAlbumsLocalDataSource {
@@ -27,5 +29,18 @@ class GalleryAlbumsLocalDataSourceImpl implements GalleryAlbumsLocalDataSource {
       ));
     }
     return albums;
+  }
+
+  @override
+  Future<Set<String>> assetIds(String albumId) async {
+    final paths = await PhotoManager.getAssetPathList(type: RequestType.common, hasAll: false);
+    final path = paths.where((path) => path.id == albumId).firstOrNull;
+    if (path == null) return {};
+    final count = await path.assetCountAsync;
+    final ids = <String>{};
+    for (var page = 0; page * 500 < count; page++) {
+      ids.addAll((await path.getAssetListPaged(page: page, size: 500)).map((asset) => asset.id));
+    }
+    return ids;
   }
 }

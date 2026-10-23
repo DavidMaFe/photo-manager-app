@@ -34,7 +34,7 @@ void main() {
     repository = MockLocalAlbumsRepository();
     deviceRepository = MockSyncDeviceRepository();
     authRepository = MockAuthRepository();
-    useCase = RegisterLocalAlbumsUseCase(repository, deviceRepository, authRepository);
+    useCase = RegisterLocalAlbumsUseCase(repository, deviceRepository, authRepository, supported: true);
 
     when(() => deviceRepository.getDeviceUuid()).thenAnswer((_) async => deviceUuid);
     when(() => authRepository.getCurrentUser()).thenAnswer((_) async => user);
@@ -129,6 +129,14 @@ void main() {
       expect(sent().single.previousLocalAlbumId, isNull);
       verifyNever(() => repository.lastSeen(any()));
       verifyNever(() => repository.saveLastSeen(any(), any()));
+    });
+
+    test('should register nothing where the albums are not imported yet (iOS)', () async {
+      final ios = RegisterLocalAlbumsUseCase(repository, deviceRepository, authRepository, supported: false);
+
+      expect(await ios(), isEmpty);
+      verifyNever(() => repository.galleryAlbums());
+      verifyNever(() => repository.register(any(), any()));
     });
 
     test('should send an empty list for a gallery without albums', () async {

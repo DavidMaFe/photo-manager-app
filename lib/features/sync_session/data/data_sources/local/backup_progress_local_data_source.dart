@@ -6,6 +6,7 @@ abstract class BackupProgressLocalDataSource {
   Future<void> saveWatermark(String userId, DateTime scanStartedAt);
   Future<Set<String>> pending(String userId);
   Future<void> replacePending(String userId, Set<String> localIds);
+  Future<void> addPending(String userId, Set<String> localIds);
 }
 
 class BackupProgressLocalDataSourceImpl implements BackupProgressLocalDataSource {
@@ -35,6 +36,16 @@ class BackupProgressLocalDataSourceImpl implements BackupProgressLocalDataSource
     final rows = await (await database())
         .query('pending_uploads', columns: ['local_id'], where: 'user_id = ?', whereArgs: [userId]);
     return {for (final row in rows) row['local_id'] as String};
+  }
+
+  @override
+  Future<void> addPending(String userId, Set<String> localIds) async {
+    final batch = (await database()).batch();
+    for (final localId in localIds) {
+      batch.insert('pending_uploads', {'user_id': userId, 'local_id': localId},
+          conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
+    await batch.commit(noResult: true);
   }
 
   @override

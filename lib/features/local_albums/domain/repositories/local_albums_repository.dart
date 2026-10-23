@@ -8,6 +8,14 @@ abstract class LocalAlbumsRepository {
   /// The albums of the gallery with files.
   Future<List<GalleryAlbum>> galleryAlbums();
 
+  /// Ids of every file of an album of the gallery.
+  Future<Set<String>> galleryAlbumAssetIds(String localAlbumId);
+
+  /// Whether the account already reviewed the albums of this device («Tus álbumes»).
+  Future<bool> isReviewed(String userId);
+
+  Future<void> markReviewed(String userId);
+
   /// The albums the last registration of the account saw, with some ids of their files.
   Future<Map<String, Set<String>>> lastSeen(String userId);
 

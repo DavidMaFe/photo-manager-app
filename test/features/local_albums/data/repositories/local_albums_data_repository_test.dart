@@ -3,6 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager_app/features/local_albums/data/data_sources/gallery_albums_local_data_source.dart';
 import 'package:photo_manager_app/features/local_albums/data/data_sources/local_album_snapshot_local_data_source.dart';
 import 'package:photo_manager_app/features/local_albums/data/data_sources/local_albums_remote_data_source.dart';
+import 'package:photo_manager_app/features/local_albums/data/data_sources/local_albums_review_local_data_source.dart';
 import 'package:photo_manager_app/features/local_albums/data/models/local_album_model.dart';
 import 'package:photo_manager_app/features/local_albums/data/repositories/local_albums_data_repository.dart';
 import 'package:photo_manager_app/features/local_albums/domain/enums/local_album_mode.dart';
@@ -15,18 +16,22 @@ class MockSnapshot extends Mock implements LocalAlbumSnapshotLocalDataSource {}
 
 class MockRemote extends Mock implements LocalAlbumsRemoteDataSource {}
 
+class MockReview extends Mock implements LocalAlbumsReviewLocalDataSource {}
+
 void main() {
   late MockGallery gallery;
   late MockSnapshot snapshot;
   late MockRemote remote;
+  late MockReview review;
   late LocalAlbumsDataRepository repository;
 
   setUp(() {
     gallery = MockGallery();
     snapshot = MockSnapshot();
     remote = MockRemote();
+    review = MockReview();
     repository = LocalAlbumsDataRepository(galleryDataSource: gallery, snapshotDataSource: snapshot,
-        remoteDataSource: remote);
+        remoteDataSource: remote, reviewDataSource: review);
   });
 
   group('LocalAlbumsDataRepository', () {
@@ -44,6 +49,22 @@ void main() {
 
       expect(await repository.lastSeen('user-1'), {'1': {'a'}});
       verify(() => snapshot.save('user-1', [TestLocalAlbums.camera])).called(1);
+    });
+
+    test('should read the files of an album of the gallery', () async {
+      when(() => gallery.assetIds('1')).thenAnswer((_) async => {'a', 'b'});
+
+      expect(await repository.galleryAlbumAssetIds('1'), {'a', 'b'});
+    });
+
+    test('should keep whether the account reviewed the albums', () async {
+      when(() => review.isReviewed('user-1')).thenAnswer((_) async => false);
+      when(() => review.markReviewed('user-1')).thenAnswer((_) async {});
+
+      expect(await repository.isReviewed('user-1'), isFalse);
+      await repository.markReviewed('user-1');
+
+      verify(() => review.markReviewed('user-1')).called(1);
     });
 
     test('should send the options to the server', () async {

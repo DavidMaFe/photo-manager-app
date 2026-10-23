@@ -16,6 +16,9 @@ import 'package:photo_manager_app/core/monitoring/domain/app_event_log.dart';
 import 'package:photo_manager_app/core/monitoring/domain/app_events.dart';
 import 'package:photo_manager_app/core/monitoring/domain/app_log_event.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
+import 'package:photo_manager_app/features/local_albums/domain/entities/local_album.dart';
+import 'package:photo_manager_app/features/local_albums/domain/enums/local_album_mode.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/register_local_albums_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/backup_scan.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_backup_scan_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/scan_backup_files_use_case.dart';
@@ -46,6 +49,7 @@ class MockCompleteSyncSessionUseCase extends Mock implements CompleteSyncSession
 class MockSyncDeviceRepository extends Mock implements SyncDeviceRepository {}
 class MockSyncSessionRepository extends Mock implements SyncSessionRepository {}
 class MockScanBackupFilesUseCase extends Mock implements ScanBackupFilesUseCase {}
+class MockRegisterLocalAlbumsUseCase extends Mock implements RegisterLocalAlbumsUseCase {}
 class MockCompleteBackupScanUseCase extends Mock implements CompleteBackupScanUseCase {}
 class MockAppEventBus extends Mock implements AppEventBus {}
 class MockBuildContext extends Mock implements BuildContext {}
@@ -70,6 +74,7 @@ void main() {
   late MockSyncSessionRepository mockSessionRepository;
   late MockScanBackupFilesUseCase scanBackupFiles;
   late MockCompleteBackupScanUseCase completeBackupScan;
+  late MockRegisterLocalAlbumsUseCase registerLocalAlbums;
   late MockAppEventBus mockEventBus;
   late MockBuildContext mockContext;
   late MockSyncLock mockSyncLock;
@@ -98,6 +103,8 @@ void main() {
     scanBackupFiles = MockScanBackupFilesUseCase();
     completeBackupScan = MockCompleteBackupScanUseCase();
     when(() => completeBackupScan(any(), any())).thenAnswer((_) async {});
+    registerLocalAlbums = MockRegisterLocalAlbumsUseCase();
+    when(() => registerLocalAlbums()).thenAnswer((_) async => []);
     mockEventBus = MockAppEventBus();
     mockContext = MockBuildContext();
     mockSyncLock = MockSyncLock();
@@ -129,6 +136,7 @@ void main() {
       syncSessionRepository: mockSessionRepository,
       scanBackupFilesUseCase: scanBackupFiles,
       completeBackupScanUseCase: completeBackupScan,
+      registerLocalAlbumsUseCase: registerLocalAlbums,
       eventBus: mockEventBus,
       syncLock: mockSyncLock,
       syncKeepAlive: mockKeepAlive,
@@ -462,6 +470,7 @@ void main() {
             syncSessionRepository: mockSessionRepository,
             scanBackupFilesUseCase: scanBackupFiles,
       completeBackupScanUseCase: completeBackupScan,
+      registerLocalAlbumsUseCase: registerLocalAlbums,
             eventBus: mockEventBus,
             syncLock: mockSyncLock,
             syncKeepAlive: mockKeepAlive,
@@ -470,7 +479,7 @@ void main() {
             requestPhotoAccess: (_) async => true,
           );
 
-      void givenPendingFiles(List<SyncFileModel> files) {
+      void givenPendingFiles(List<SyncFile> files) {
         when(() => mockGetUserPlan()).thenAnswer((_) async => plan);
         when(() => mockDeviceRepository.getDeviceUuid()).thenAnswer((_) async => deviceUuid);
         when(() => mockStartUseCase(deviceUuid: deviceUuid)).thenAnswer((_) async => SyncSession(id: sessionId));
@@ -532,6 +541,66 @@ void main() {
           expect(remembered[1], {'local-too-big'});
         },
       );
+
+      group('albums of the gallery', () {
+        const vacaciones = LocalAlbum(localAlbumId: 'bucket-vacaciones', name: 'Vacaciones 2025',
+            mode: LocalAlbumMode.album);
+        const memes = LocalAlbum(localAlbumId: 'bucket-memes', name: 'Memes', mode: LocalAlbumMode.excluded);
+        const camera = LocalAlbum(localAlbumId: 'bucket-camera', name: 'Camera', mode: LocalAlbumMode.backupOnly);
+        const linked = LocalAlbum(localAlbumId: 'bucket-verano', name: 'Verano', mode: LocalAlbumMode.album,
+            folderId: '7');
+
+        blocTest<SyncSessionBloc, SyncSessionState>(
+          'should leave out the files of the albums the user chose not to back up',
+          setUp: () {
+            givenPendingFiles([big.inAlbum('bucket-memes'), small.inAlbum('bucket-camera')]);
+            when(() => registerLocalAlbums()).thenAnswer((_) async => [memes, camera]);
+          },
+          build: buildBloc,
+          act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+          wait: const Duration(seconds: 10),
+          verify: (_) {
+            final hashes = verify(() => mockCheckDuplicatesUseCase(
+                sessionId: sessionId, fileHashes: captureAny(named: 'fileHashes'))).captured.single;
+            expect(hashes, ['small']);
+            verifyNever(() => mockUploadUseCase(
+                sessionId: sessionId, file: big.inAlbum('bucket-memes'), budget: any(named: 'budget')));
+            // A file of an album not backed up is not pending either
+            expect(verify(() => completeBackupScan(any(), captureAny())).captured.single, isEmpty);
+          },
+        );
+
+        blocTest<SyncSessionBloc, SyncSessionState>(
+          'should say which albums got their album of Photo Manager in this backup',
+          setUp: () {
+            givenPendingFiles([big.inAlbum('bucket-vacaciones'), small.inAlbum('bucket-verano')]);
+            when(() => registerLocalAlbums()).thenAnswer((_) async => [vacaciones, linked]);
+          },
+          build: buildBloc,
+          act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+          wait: const Duration(seconds: 10),
+          skip: 6,
+          expect: () => [
+            isA<SyncSessionSuccess>().having((state) => state.createdAlbums, 'createdAlbums', ['Vacaciones 2025']),
+          ],
+        );
+
+        blocTest<SyncSessionBloc, SyncSessionState>(
+          'should not back up anything when the albums cannot be registered',
+          setUp: () {
+            givenPendingFiles([small]);
+            when(() => registerLocalAlbums()).thenThrow(Exception('Network error'));
+          },
+          build: buildBloc,
+          act: (bloc) => bloc.add(SyncSessionStarted(mockContext)),
+          wait: const Duration(seconds: 5),
+          verify: (_) {
+            verifyNever(() => mockUploadUseCase(
+                sessionId: any(named: 'sessionId'), file: any(named: 'file'), budget: any(named: 'budget')));
+            verify(() => mockSessionRepository.cancelSyncSession(sessionId: sessionId)).called(1);
+          },
+        );
+      });
 
       blocTest<SyncSessionBloc, SyncSessionState>(
         'should remember nothing when the backup fails, so the next one looks at the same files again',

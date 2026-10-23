@@ -316,6 +316,9 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
         final maxVideo = context.read<PlanCubit>().state.plan?.limits.maxVideoBytes;
         _showPlanSnackBar(context, l10n.planVideosSkipped(
             state.skippedLargeVideos, maxVideo == null ? '' : PlanTexts.size(maxVideo, l10n)));
+      } else if (state.createdAlbums.isNotEmpty) {
+        _showAlbumsSnackBar(context, l10n.backupAlbumsCreated(state.createdAlbums.length,
+            state.createdAlbums.join(', ')));
       } else {
         _showSnackBar(context, l10n.itemsSaved(state.result.uploadedFiles));
       }
@@ -349,6 +352,19 @@ class _SynchronizationPageState extends State<SynchronizationPage> {
         content: Text(message),
         duration: const Duration(seconds: 8),
         action: SnackBarAction(label: l10n.planSeePlans, onPressed: () => context.goNamed(RouteNames.plans)),
+      ));
+  }
+
+  /// The albums of the gallery that got their album in this backup, with the way to the albums.
+  void _showAlbumsSnackBar(BuildContext context, String message) {
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        key: const ValueKey('backup-albums-created'),
+        content: Text(message),
+        duration: const Duration(seconds: 8),
+        action: SnackBarAction(label: l10n.seeAlbums, onPressed: () => context.goNamed(RouteNames.folders)),
       ));
   }
 

@@ -44,6 +44,14 @@ void main() {
         expect(await dataSource.pending('user-2'), {'z'});
       });
 
+      test('should add pending files to the ones there were', () async {
+        await dataSource.replacePending('user-1', {'a'});
+
+        await dataSource.addPending('user-1', {'a', 'b'});
+
+        expect(await dataSource.pending('user-1'), {'a', 'b'});
+      });
+
       test('should empty the pending files', () async {
         await dataSource.replacePending('user-1', {'a'});
 

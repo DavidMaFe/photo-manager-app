@@ -19,6 +19,7 @@ import '../../features/folders/presentation/bloc/folder/folder_event.dart' hide 
 import '../../features/folders/presentation/bloc/folder/folder_state.dart';
 import '../../features/gallery/presentation/bloc/gallery_bloc.dart';
 import '../../features/gallery/presentation/bloc/gallery_event.dart';
+import '../../features/local_albums/presentation/widgets/local_albums_review_listener.dart';
 
 
 /// Tab scaffold: Photos · Albums · Backup · Profile with the floating bar.
@@ -81,7 +82,9 @@ class _MainShellState extends State<MainShell> {
             // inset to keep their last items visible.
             extendBody: true,
             body: DownloadFeedbackListener(
-              child: KeySyncListener(child: RecoveryReminderListener(child: child ?? const SizedBox.shrink())),
+              child: KeySyncListener(
+                  child: RecoveryReminderListener(
+                      child: LocalAlbumsReviewListener(child: child ?? const SizedBox.shrink()))),
             ),
             bottomNavigationBar: isFileDetailPage || isSelecting
                 ? null

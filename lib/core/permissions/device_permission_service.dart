@@ -40,5 +40,9 @@ class DevicePermissionService implements PermissionService {
   }
 
   @override
+  Future<bool> isPhotoAccessLimited() async =>
+      await PhotoManager.getPermissionState(requestOption: _photoOption) == PermissionState.limited;
+
+  @override
   Future<void> openSettings() => handler.openAppSettings();
 }
