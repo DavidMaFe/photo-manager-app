@@ -9,6 +9,9 @@ import 'package:photo_manager_app/core/services/sync_log_service.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/services/sync_notification_service.dart';
 import 'package:photo_manager_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:photo_manager_app/features/local_albums/domain/enums/local_album_mode.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/is_local_albums_reviewed_use_case.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/register_local_albums_use_case.dart';
 import 'package:photo_manager_app/features/sync_config/domain/entities/sync_config.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
@@ -51,6 +54,9 @@ class _SyncResult {
   final int skippedForSpace;
   final int skippedForSpaceBytes;
 
+  /// Albums of the gallery that got their album of Photo Manager in this backup.
+  final List<String> createdAlbums;
+
   _SyncResult({
     required this.success,
     this.filesUploaded = 0,
@@ -59,11 +65,13 @@ class _SyncResult {
     this.isPlanLimit = false,
     this.skippedForSpace = 0,
     this.skippedForSpaceBytes = 0,
+    this.createdAlbums = const [],
   });
 
-  factory _SyncResult.success(int filesUploaded, {int skippedForSpace = 0, int skippedForSpaceBytes = 0}) =>
+  factory _SyncResult.success(int filesUploaded,
+          {int skippedForSpace = 0, int skippedForSpaceBytes = 0, List<String> createdAlbums = const []}) =>
       _SyncResult(success: true, filesUploaded: filesUploaded,
-          skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes);
+          skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes, createdAlbums: createdAlbums);
 
   factory _SyncResult.failure(String errorMessage) =>
       _SyncResult(success: false, errorMessage: errorMessage);
@@ -102,6 +110,10 @@ class BackgroundSyncService {
   /// The files of the gallery to look at, and what the next backup looks at (ROADMAP-local-albums.md).
   final ScanBackupFilesUseCase scanBackupFilesUseCase;
   final CompleteBackupScanUseCase completeBackupScanUseCase;
+
+  /// The albums of the gallery and their options, registered before every backup (ROADMAP-local-albums.md).
+  final RegisterLocalAlbumsUseCase registerLocalAlbumsUseCase;
+  final IsLocalAlbumsReviewedUseCase isLocalAlbumsReviewedUseCase;
   final AuthRepository authRepository;
   final SharedPreferences sharedPreferences;
   final SyncNotificationService notificationService;
@@ -126,6 +138,8 @@ class BackgroundSyncService {
     required this.completeSyncSessionUseCase,
     required this.scanBackupFilesUseCase,
     required this.completeBackupScanUseCase,
+    required this.registerLocalAlbumsUseCase,
+    required this.isLocalAlbumsReviewedUseCase,
     required this.authRepository,
     required this.sharedPreferences,
     required this.notificationService,
@@ -221,6 +235,7 @@ class BackgroundSyncService {
                   files: result.skippedForSpace, bytes: result.skippedForSpaceBytes);
             }
           }
+          await _tellAboutCreatedAlbums(result.createdAlbums, syncConfig);
         } else {
           // A limit of the plan is not retried in an hour either (wasLastFailureAuthRelated)
           _recordFailedSync(isAuthFailure: result.isAuthFailure || result.isPlanLimit);
@@ -348,6 +363,21 @@ class BackgroundSyncService {
     }
   }
 
+  /// New albums of Photo Manager made from albums of the gallery (ROADMAP-local-albums.md). Told unless the user turned
+  /// off every notification of the backups, or has not seen «Tus álbumes» yet (it is shown when the app is opened).
+  Future<void> _tellAboutCreatedAlbums(List<String> albums, SyncConfig syncConfig) async {
+    if (albums.isEmpty) return;
+    appEventLog.record(SyncAlbumsCreated(background: true, albums: albums.length));
+    syncLogService.write('✓ ${albums.length} álbumes con fotos nuevas');
+    if (!syncConfig.notifyOnSuccess && !syncConfig.notifyOnFailure) return;
+    try {
+      if (!await isLocalAlbumsReviewedUseCase()) return;
+    } catch (_) {
+      return;
+    }
+    await notificationService.showAlbumsCreatedNotification(albums: albums);
+  }
+
   /// A failure here never fails a completed backup: the next one looks at the same files again.
   Future<void> _rememberScan(BackupScan scan, Set<String> skippedLocalIds) async {
     try {
@@ -378,8 +408,20 @@ class BackgroundSyncService {
       sessionId = session.id;
       syncLogService.write('✓ Sesión iniciada: $sessionId');
 
+      // A new album of the gallery gets its default option; the ones not backed up are left out
+      final albums = await registerLocalAlbumsUseCase();
+      final excludedAlbums = {
+        for (final album in albums) if (album.mode == LocalAlbumMode.excluded) album.localAlbumId,
+      };
+      final albumsToCreate = {
+        for (final album in albums)
+          if (album.mode == LocalAlbumMode.album && album.folderId == null) album.localAlbumId: album.name,
+      };
+      final createdAlbums = <String>{};
+      syncLogService.write('✓ Álbumes del móvil: ${albums.length} (${excludedAlbums.length} sin copiar)');
+
       final scan = await scanBackupFilesUseCase(lastCompletedAt: session.lastCompletedAt, checkPermission: false);
-      final mediaFiles = scan.files;
+      final mediaFiles = scan.files.where((file) => !excludedAlbums.contains(file.localAlbumId)).toList();
       syncLogService.write('✓ Archivos multimedia encontrados: ${mediaFiles.length}');
 
       if (mediaFiles.isEmpty) {
@@ -433,6 +475,8 @@ class BackgroundSyncService {
             );
           }
           uploadedCount++;
+          final createdAlbum = albumsToCreate[file.localAlbumId];
+          if (createdAlbum != null) createdAlbums.add(createdAlbum);
           if (uploadedCount % 5 == 0 || uploadedCount == filesToUpload.length) {
             syncLogService.write('⬆ Subidos $uploadedCount/${filesToUpload.length}');
           }
@@ -472,8 +516,8 @@ class BackgroundSyncService {
         syncLogService.write('⚠ $skippedForSpace archivos no cabían en el espacio libre ($skippedForSpaceBytes bytes)');
       }
 
-      return _SyncResult.success(uploadedCount,
-          skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes);
+      return _SyncResult.success(uploadedCount, skippedForSpace: skippedForSpace,
+          skippedForSpaceBytes: skippedForSpaceBytes, createdAlbums: createdAlbums.toList());
     } catch (e, stackTrace) {
       developer.log(
         '❌ _performSync failed',

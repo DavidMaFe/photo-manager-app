@@ -1060,5 +1060,7 @@
   "localAlbumsSummary": "{albums, plural, =1{1 álbum} other{{albums} álbumes}} · {excluded} sin copiar",
   "localAlbumsSummaryAll": "{albums, plural, =1{1 álbum} other{{albums} álbumes}}",
   "backupAlbumsCreated": "{count, plural, =1{Tus fotos se han organizado en el álbum {names}} other{Tus fotos se han organizado en {count} álbumes: {names}}}",
-  "seeAlbums": "Ver álbumes"
+  "seeAlbums": "Ver álbumes",
+  "notificationAlbumsCreatedTitle": "Tus fotos tienen nuevos álbumes",
+  "notificationAlbumsCreatedBody": "{count, plural, =1{La copia ha colocado fotos en el álbum {names}.} other{La copia ha colocado fotos en {count} álbumes: {names}.}} Toca para elegir qué se copia."
 }

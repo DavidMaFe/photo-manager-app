@@ -4522,6 +4522,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See albums'**
   String get seeAlbums;
+
+  /// No description provided for @notificationAlbumsCreatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photos have new albums'**
+  String get notificationAlbumsCreatedTitle;
+
+  /// No description provided for @notificationAlbumsCreatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The backup put photos in the album {names}.} other{The backup put photos in {count} albums: {names}.}} Tap to choose what is backed up.'**
+  String notificationAlbumsCreatedBody(int count, String names);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

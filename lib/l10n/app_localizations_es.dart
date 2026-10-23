@@ -2847,4 +2847,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get seeAlbums => 'Ver álbumes';
+
+  @override
+  String get notificationAlbumsCreatedTitle => 'Tus fotos tienen nuevos álbumes';
+
+  @override
+  String notificationAlbumsCreatedBody(int count, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'La copia ha colocado fotos en $count álbumes: $names.',
+      one: 'La copia ha colocado fotos en el álbum $names.',
+    );
+    return '$_temp0 Toca para elegir qué se copia.';
+  }
 }

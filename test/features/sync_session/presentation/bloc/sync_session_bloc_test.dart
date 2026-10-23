@@ -583,6 +583,10 @@ void main() {
           expect: () => [
             isA<SyncSessionSuccess>().having((state) => state.createdAlbums, 'createdAlbums', ['Vacaciones 2025']),
           ],
+          verify: (_) {
+            final event = verify(() => mockAppEventLog.record(captureAny())).captured.single as SyncAlbumsCreated;
+            expect(event.message, 'background=false albums=1');
+          },
         );
 
         blocTest<SyncSessionBloc, SyncSessionState>(

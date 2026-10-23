@@ -19,6 +19,10 @@ import 'package:photo_manager_app/features/sync_config/domain/enums/battery_pref
 import 'package:photo_manager_app/features/sync_config/domain/enums/network_preference.dart';
 import 'package:photo_manager_app/features/sync_config/domain/enums/sync_frequency.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
+import 'package:photo_manager_app/features/local_albums/domain/entities/local_album.dart';
+import 'package:photo_manager_app/features/local_albums/domain/enums/local_album_mode.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/is_local_albums_reviewed_use_case.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/register_local_albums_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/entities/backup_scan.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_backup_scan_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/scan_backup_files_use_case.dart';
@@ -49,6 +53,8 @@ class MockCheckDuplicatedFilesUseCase extends Mock implements CheckDuplicatedFil
 class MockUploadFileUseCase extends Mock implements UploadFileUseCase {}
 class MockCompleteSyncSessionUseCase extends Mock implements CompleteSyncSessionUseCase {}
 class MockScanBackupFilesUseCase extends Mock implements ScanBackupFilesUseCase {}
+class MockRegisterLocalAlbumsUseCase extends Mock implements RegisterLocalAlbumsUseCase {}
+class MockIsLocalAlbumsReviewedUseCase extends Mock implements IsLocalAlbumsReviewedUseCase {}
 class MockCompleteBackupScanUseCase extends Mock implements CompleteBackupScanUseCase {}
 class MockAuthRepository extends Mock implements AuthRepository {}
 class MockSyncNotificationService extends Mock implements SyncNotificationService {}
@@ -74,6 +80,8 @@ void main() {
   late MockSyncSessionRepository sessionRepository;
   late MockScanBackupFilesUseCase scanBackupFiles;
   late MockCompleteBackupScanUseCase completeBackupScan;
+  late MockRegisterLocalAlbumsUseCase registerLocalAlbums;
+  late MockIsLocalAlbumsReviewedUseCase isReviewed;
   late MockSyncNotificationService notificationService;
   late MockGetUserPlanUseCase getUserPlan;
   late MockAppEventLog appEventLog;
@@ -127,6 +135,10 @@ void main() {
     scanBackupFiles = MockScanBackupFilesUseCase();
     completeBackupScan = MockCompleteBackupScanUseCase();
     when(() => completeBackupScan(any(), any())).thenAnswer((_) async {});
+    registerLocalAlbums = MockRegisterLocalAlbumsUseCase();
+    when(() => registerLocalAlbums()).thenAnswer((_) async => []);
+    isReviewed = MockIsLocalAlbumsReviewedUseCase();
+    when(() => isReviewed()).thenAnswer((_) async => true);
     final authRepository = MockAuthRepository();
     notificationService = MockSyncNotificationService();
     final syncLock = MockSyncLock();
@@ -156,6 +168,8 @@ void main() {
     when(() => sessionRepository.cancelSyncSession(sessionId: any(named: 'sessionId'))).thenAnswer((_) async {});
     when(() => notificationService.showStorageFullNotification(
         files: any(named: 'files'), bytes: any(named: 'bytes'))).thenAnswer((_) async {});
+    when(() => notificationService.showAlbumsCreatedNotification(albums: any(named: 'albums')))
+        .thenAnswer((_) async {});
     when(() => notificationService.showSyncFailureNotification(
         sessionExpired: any(named: 'sessionExpired'), planLimit: any(named: 'planLimit'))).thenAnswer((_) async {});
 
@@ -169,6 +183,8 @@ void main() {
       completeSyncSessionUseCase: completeUseCase,
       scanBackupFilesUseCase: scanBackupFiles,
       completeBackupScanUseCase: completeBackupScan,
+      registerLocalAlbumsUseCase: registerLocalAlbums,
+      isLocalAlbumsReviewedUseCase: isReviewed,
       authRepository: authRepository,
       sharedPreferences: prefs,
       notificationService: notificationService,
@@ -182,7 +198,7 @@ void main() {
     );
   });
 
-  void givenPendingFiles(List<SyncFileModel> files) {
+  void givenPendingFiles(List<SyncFile> files) {
     when(() => scanBackupFiles(lastCompletedAt: any(named: 'lastCompletedAt'), checkPermission: false))
         .thenAnswer((_) async => BackupScan(files: files, startedAt: scanStartedAt, userId: 'user-1'));
     when(() => checkDuplicatesUseCase(sessionId: sessionId, fileHashes: any(named: 'fileHashes')))
@@ -198,6 +214,85 @@ void main() {
       code: FailureCodes.userDoesNotHaveStorageSpace, message: 'No space', timestamp: '2026-10-21T10:00:00'));
 
   group('BackgroundSyncService', () {
+    group('albums of the gallery', () {
+      const vacaciones = LocalAlbum(localAlbumId: 'bucket-vacaciones', name: 'Vacaciones 2025',
+          mode: LocalAlbumMode.album);
+      const boda = LocalAlbum(localAlbumId: 'bucket-boda', name: 'Boda Laura', mode: LocalAlbumMode.album);
+      const memes = LocalAlbum(localAlbumId: 'bucket-memes', name: 'Memes', mode: LocalAlbumMode.excluded);
+
+      void givenAlbums(List<LocalAlbum> albums) => when(() => registerLocalAlbums()).thenAnswer((_) async => albums);
+
+      test('should leave out the files of the albums the user chose not to back up', () async {
+        givenAlbums([memes]);
+        givenPendingFiles([big.inAlbum('bucket-memes'), small]);
+
+        await service.execute();
+
+        final hashes = verify(() => checkDuplicatesUseCase(
+            sessionId: sessionId, fileHashes: captureAny(named: 'fileHashes'))).captured.single;
+        expect(hashes, ['small']);
+      });
+
+      test('should tell which albums got photos, and record it without their names', () async {
+        // Given: Two new albums of the gallery, as albums
+        givenAlbums([vacaciones, boda]);
+        givenPendingFiles([big.inAlbum('bucket-vacaciones'), small.inAlbum('bucket-boda')]);
+
+        // When
+        await service.execute();
+
+        // Then
+        verify(() => notificationService.showAlbumsCreatedNotification(albums: ['Vacaciones 2025', 'Boda Laura']))
+            .called(1);
+        final event = verify(() => appEventLog.record(captureAny())).captured.single as SyncAlbumsCreated;
+        expect(event.name, 'SYNC_ALBUMS_CREATED');
+        expect(event.message, 'background=true albums=2');
+      });
+
+      test('should not tell about an album already linked to an album of Photo Manager', () async {
+        givenAlbums([const LocalAlbum(localAlbumId: 'bucket-verano', name: 'Verano', mode: LocalAlbumMode.album,
+            folderId: '7')]);
+        givenPendingFiles([small.inAlbum('bucket-verano')]);
+
+        await service.execute();
+
+        verifyNever(() => notificationService.showAlbumsCreatedNotification(albums: any(named: 'albums')));
+      });
+
+      test('should not tell before the user saw «Tus álbumes», but still record it', () async {
+        when(() => isReviewed()).thenAnswer((_) async => false);
+        givenAlbums([vacaciones]);
+        givenPendingFiles([small.inAlbum('bucket-vacaciones')]);
+
+        await service.execute();
+
+        verifyNever(() => notificationService.showAlbumsCreatedNotification(albums: any(named: 'albums')));
+        verify(() => appEventLog.record(any(that: isA<SyncAlbumsCreated>()))).called(1);
+      });
+
+      test('should not tell when every notification of the backups is turned off', () async {
+        when(() => configRepository.getSyncConfig()).thenAnswer((_) async => config(notifyOnFailure: false));
+        givenAlbums([vacaciones]);
+        givenPendingFiles([small.inAlbum('bucket-vacaciones')]);
+
+        await service.execute();
+
+        verifyNever(() => notificationService.showAlbumsCreatedNotification(albums: any(named: 'albums')));
+      });
+
+      test('should not back up anything when the albums cannot be registered', () async {
+        when(() => registerLocalAlbums()).thenThrow(Exception('Network error'));
+        givenPendingFiles([small]);
+
+        final success = await service.execute();
+
+        expect(success, isFalse);
+        verifyNever(() => uploadUseCase(
+            sessionId: any(named: 'sessionId'), file: any(named: 'file'), budget: any(named: 'budget')));
+        verify(() => sessionRepository.cancelSyncSession(sessionId: sessionId)).called(1);
+      });
+    });
+
     group('files to try again', () {
       test('should keep pending the files that did not fit or failed, and look from this backup next time', () async {
         // Given

@@ -311,6 +311,9 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
       if (skippedForSpace > 0) {
         appEventLog.record(SyncStorageFull(background: false, files: skippedForSpace, bytes: skippedForSpaceBytes));
       }
+      if (createdAlbums.isNotEmpty) {
+        appEventLog.record(SyncAlbumsCreated(background: false, albums: createdAlbums.length));
+      }
       await _completeSession(emit, session.id, scan: scan, skippedLocalIds: skippedLocalIds,
           skippedLargeVideos: skippedLargeVideos, skippedForSpace: skippedForSpace,
           skippedForSpaceBytes: skippedForSpaceBytes, createdAlbums: createdAlbums.toList());

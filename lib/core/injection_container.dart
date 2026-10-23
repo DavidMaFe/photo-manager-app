@@ -70,6 +70,7 @@ import 'package:photo_manager_app/core/network/authenticated_http_client.dart';
 import 'package:photo_manager_app/core/services/background_sync_service.dart';
 import 'package:photo_manager_app/features/local_albums/data/data_sources/local_albums_review_local_data_source.dart';
 import 'package:photo_manager_app/features/local_albums/domain/use_cases/check_local_albums_review_use_case.dart';
+import 'package:photo_manager_app/features/local_albums/domain/use_cases/is_local_albums_reviewed_use_case.dart';
 import 'package:photo_manager_app/features/local_albums/domain/use_cases/finish_local_albums_review_use_case.dart';
 import 'package:photo_manager_app/features/local_albums/presentation/bloc/local_albums_cubit.dart';
 import 'package:photo_manager_app/features/local_albums/data/data_sources/gallery_albums_local_data_source.dart';
@@ -430,6 +431,8 @@ Future<void> init() async {
       completeSyncSessionUseCase: sl<CompleteSyncSessionUseCase>(),
       scanBackupFilesUseCase: sl<ScanBackupFilesUseCase>(),
       completeBackupScanUseCase: sl<CompleteBackupScanUseCase>(),
+      registerLocalAlbumsUseCase: sl<RegisterLocalAlbumsUseCase>(),
+      isLocalAlbumsReviewedUseCase: sl<IsLocalAlbumsReviewedUseCase>(),
       authRepository: sl<AuthRepository>(),
       sharedPreferences: sl<SharedPreferences>(),
       notificationService: sl<SyncNotificationService>(),
@@ -1033,6 +1036,7 @@ Future<void> init() async {
   sl.registerFactory(() => GetLocalAlbumsUseCase(sl<LocalAlbumsRepository>(), sl<SyncDeviceRepository>()));
   sl.registerFactory(() => SetLocalAlbumModesUseCase(sl<LocalAlbumsRepository>(), sl<SyncDeviceRepository>(),
       sl<BackupProgressRepository>(), sl<AuthRepository>()));
+  sl.registerFactory(() => IsLocalAlbumsReviewedUseCase(sl<LocalAlbumsRepository>(), sl<AuthRepository>()));
   sl.registerFactory(() => FinishLocalAlbumsReviewUseCase(
       sl<SetLocalAlbumModesUseCase>(), sl<LocalAlbumsRepository>(), sl<AuthRepository>()));
   sl.registerFactory(() => CheckLocalAlbumsReviewUseCase(sl<LocalAlbumsRepository>(),

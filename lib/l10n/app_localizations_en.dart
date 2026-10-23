@@ -2859,4 +2859,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get seeAlbums => 'See albums';
+
+  @override
+  String get notificationAlbumsCreatedTitle => 'Your photos have new albums';
+
+  @override
+  String notificationAlbumsCreatedBody(int count, String names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The backup put photos in $count albums: $names.',
+      one: 'The backup put photos in the album $names.',
+    );
+    return '$_temp0 Tap to choose what is backed up.';
+  }
 }

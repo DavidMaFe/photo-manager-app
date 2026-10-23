@@ -1235,5 +1235,8 @@
   "@localAlbumsSummaryAll": {"placeholders": {"albums": {"type": "int"}}},
   "backupAlbumsCreated": "{count, plural, =1{Your photos were organized into the album {names}} other{Your photos were organized into {count} albums: {names}}}",
   "@backupAlbumsCreated": {"placeholders": {"count": {"type": "int"}, "names": {"type": "String"}}},
-  "seeAlbums": "See albums"
+  "seeAlbums": "See albums",
+  "notificationAlbumsCreatedTitle": "Your photos have new albums",
+  "notificationAlbumsCreatedBody": "{count, plural, =1{The backup put photos in the album {names}.} other{The backup put photos in {count} albums: {names}.}} Tap to choose what is backed up.",
+  "@notificationAlbumsCreatedBody": {"placeholders": {"count": {"type": "int"}, "names": {"type": "String"}}}
 }

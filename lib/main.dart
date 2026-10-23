@@ -100,9 +100,11 @@ void main() async {
   final router = AppRouter.createRouter(authBloc, onboardingNotifier,
       observers: [AppScreenObserver(appLogger)]);
 
-  // The notification of a backup that did not fit opens the plans (the redirect still applies: login, legal…)
+  // The notification of a backup that did not fit opens the plans, and the one of new albums the albums of the phone
+  // (the redirect still applies: login, legal…)
   void openFromNotification(String? payload) {
     if (payload == SyncNotificationService.plansPayload) router.goNamed(RouteNames.plans);
+    if (payload == SyncNotificationService.localAlbumsPayload) router.goNamed(RouteNames.localAlbums);
   }
   notificationService.onTap = openFromNotification;
 
