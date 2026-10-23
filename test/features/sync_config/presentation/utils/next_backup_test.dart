@@ -26,6 +26,14 @@ void main() {
       expect(nextBackupAt(TestSyncConfigs.weeklySync, saturdayNoon), DateTime(2026, 10, 5, 1, 0));
     });
 
+    test('should say the week after when the automatic backup of this week already ran', () {
+      // Monday backup at 01:00 done; the user moves it to Wednesday of the same week
+      final config = TestSyncConfigs.weeklySync.copyWith(syncDayOfWeek: DateTime.wednesday);
+
+      expect(nextBackupAt(config, DateTime(2026, 10, 5, 8, 0), lastAutomaticBackup: DateTime(2026, 10, 5, 1, 3)),
+          DateTime(2026, 10, 14, 1, 0));
+    });
+
     test('should move a weekly backup to next week once it passed today', () {
       final mondayMorning = DateTime(2026, 10, 5, 8, 0);
       expect(nextBackupAt(TestSyncConfigs.weeklySync, mondayMorning), DateTime(2026, 10, 12, 1, 0));

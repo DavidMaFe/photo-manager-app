@@ -55,6 +55,22 @@ void main() {
 
     group('LoadSyncConfig', () {
       blocTest<SyncConfigBloc, SyncConfigState>(
+        'should read when the last automatic backup completed, for the next weekly backup',
+        build: () {
+          when(() => mockGetSyncConfigUseCase()).thenAnswer((_) async => testConfig);
+          return SyncConfigBloc(
+            getSyncConfigUseCase: mockGetSyncConfigUseCase,
+            saveSyncConfigUseCase: mockSaveSyncConfigUseCase,
+            syncSchedulerService: mockSyncSchedulerService,
+            lastAutomaticBackupAt: () async => DateTime(2026, 10, 19, 12, 5),
+          );
+        },
+        act: (bloc) => bloc.add(LoadSyncConfig()),
+        wait: const Duration(milliseconds: 900),
+        verify: (bloc) => expect(bloc.lastAutomaticBackupAt, DateTime(2026, 10, 19, 12, 5)),
+      );
+
+      blocTest<SyncConfigBloc, SyncConfigState>(
         'should emit [SyncConfigLoading, SyncConfigLoaded] when load succeeds',
         build: () {
           when(() => mockGetSyncConfigUseCase())

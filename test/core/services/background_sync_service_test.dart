@@ -117,6 +117,7 @@ void main() {
     registerFallbackValue(FakeSyncFile());
     registerFallbackValue(BackupScan(files: const [], startedAt: DateTime(2026)));
     registerFallbackValue(<String>{});
+    registerFallbackValue(DateTime(2026));
     registerFallbackValue(FakeStorageBudget());
     registerFallbackValue(FakeAppLogEvent());
   });
@@ -156,7 +157,9 @@ void main() {
     when(() => keepAlive.stop()).thenAnswer((_) async {});
     when(() => keepAlive.update(current: any(named: 'current'), total: any(named: 'total'))).thenAnswer((_) async {});
     when(() => authRepository.getCurrentUser()).thenAnswer((_) async => TestUsers.johnDoe);
-    when(() => configRepository.getSyncConfig()).thenAnswer((_) async => config());
+    when(() => configRepository.lastAutomaticBackupAt()).thenAnswer((_) async => null);
+    when(() => configRepository.recordAutomaticBackup(any())).thenAnswer((_) async {});
+        when(() => configRepository.getSyncConfig()).thenAnswer((_) async => config());
     when(() => connectivity.checkConnectivity()).thenAnswer((_) async => [ConnectivityResult.wifi]);
     when(() => deviceRepository.getDeviceUuid()).thenAnswer((_) async => deviceUuid);
     when(() => startUseCase(deviceUuid: deviceUuid)).thenAnswer((_) async => SyncSession(id: sessionId));
@@ -214,6 +217,41 @@ void main() {
       code: FailureCodes.userDoesNotHaveStorageSpace, message: 'No space', timestamp: '2026-10-21T10:00:00'));
 
   group('BackgroundSyncService', () {
+    group('one automatic backup a week', () {
+      test('should not back up again in a week that already had its weekly backup, and schedule the next', () async {
+        // Given: A weekly backup that already ran this week (a task scheduled before the day was changed)
+        when(() => configRepository.getSyncConfig()).thenAnswer((_) async => TestSyncConfigs.weeklySync);
+        when(() => configRepository.lastAutomaticBackupAt()).thenAnswer((_) async => DateTime.now());
+        givenPendingFiles([small]);
+
+        // When
+        final success = await service.execute();
+
+        // Then: nothing is backed up, and the task handler schedules the next one
+        expect(success, isTrue);
+        verifyNever(() => startUseCase(deviceUuid: any(named: 'deviceUuid')));
+        verifyNever(() => configRepository.recordAutomaticBackup(any()));
+      });
+
+      test('should remember when a completed automatic backup ended', () async {
+        givenPendingFiles([small]);
+
+        await service.execute();
+
+        verify(() => configRepository.recordAutomaticBackup(any())).called(1);
+      });
+
+      test('should not count a failed backup, so its retry runs', () async {
+        givenPendingFiles([big, small]);
+        givenUploadFails(big, ApiException(ErrorResponseModel(
+            code: FailureCodes.devicePaused, message: 'Paused', timestamp: '2026-10-21T10:00:00')));
+
+        await service.execute();
+
+        verifyNever(() => configRepository.recordAutomaticBackup(any()));
+      });
+    });
+
     group('albums of the gallery', () {
       const vacaciones = LocalAlbum(localAlbumId: 'bucket-vacaciones', name: 'Vacaciones 2025',
           mode: LocalAlbumMode.album);

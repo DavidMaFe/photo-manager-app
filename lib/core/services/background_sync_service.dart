@@ -13,6 +13,7 @@ import 'package:photo_manager_app/features/local_albums/domain/enums/local_album
 import 'package:photo_manager_app/features/local_albums/domain/use_cases/is_local_albums_reviewed_use_case.dart';
 import 'package:photo_manager_app/features/local_albums/domain/use_cases/register_local_albums_use_case.dart';
 import 'package:photo_manager_app/features/sync_config/domain/entities/sync_config.dart';
+import 'package:photo_manager_app/features/sync_config/domain/services/next_automatic_backup.dart';
 import 'package:photo_manager_app/features/sync_config/domain/repositories/sync_config_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
@@ -184,6 +185,14 @@ class BackgroundSyncService {
           'red=${syncConfig.networkPreference.name}, '
           'batería=${syncConfig.batteryPreference.name}');
 
+      // A weekly backup runs at most once per calendar week: a task scheduled before the day was changed does not
+      // back up again, and the next one is scheduled (ROADMAP-local-albums.md, Phase 6)
+      if (NextAutomaticBackup.alreadyDoneThisWeek(
+          syncConfig, DateTime.now(), await _lastAutomaticBackupAt())) {
+        syncLogService.write('■ Ya hubo una copia automática esta semana — se programa la siguiente');
+        return true;
+      }
+
       // 4. Validate network conditions
       final networkOk = await _validateNetworkConditions(syncConfig);
       if (!networkOk) {
@@ -216,6 +225,7 @@ class BackgroundSyncService {
 
         if (result.success) {
           _recordSuccessfulSync();
+          await _recordAutomaticBackup();
           syncLogService.writeResult(
             success: true,
             detail: '${result.filesUploaded} archivos subidos',
@@ -558,6 +568,23 @@ class BackgroundSyncService {
       return await getUserPlanUseCase();
     } catch (_) {
       return null;
+    }
+  }
+
+  Future<DateTime?> _lastAutomaticBackupAt() async {
+    try {
+      return await syncConfigRepository.lastAutomaticBackupAt();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Only completed automatic backups count for the weekly limit: a failed one is retried.
+  Future<void> _recordAutomaticBackup() async {
+    try {
+      await syncConfigRepository.recordAutomaticBackup(DateTime.now());
+    } catch (e) {
+      syncLogService.write('⚠ No se pudo guardar la fecha de la copia automática: $e');
     }
   }
 

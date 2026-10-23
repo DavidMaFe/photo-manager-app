@@ -215,7 +215,8 @@ class _NextBackupNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final next = nextBackupAt(config, DateTime.now());
+    final next = nextBackupAt(config, DateTime.now(),
+        lastAutomaticBackup: context.read<SyncConfigBloc>().lastAutomaticBackupAt);
     if (next == null) return const SizedBox.shrink();
 
     final locale = l10n.localeName;

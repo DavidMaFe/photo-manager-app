@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:photo_manager_app/features/sync_config/domain/entities/sync_config.dart';
+import 'package:photo_manager_app/features/sync_config/domain/services/next_automatic_backup.dart';
 import 'package:workmanager/workmanager.dart';
 
 /// Service for scheduling background sync tasks
@@ -19,6 +20,15 @@ class SyncSchedulerService {
 
   // Retry configuration
   static const Duration retryDelay = Duration(hours: 1);
+
+  /// When the last automatic backup completed: a weekly backup runs at most once per calendar week
+  /// ([NextAutomaticBackup]).
+  final Future<DateTime?> Function() _lastAutomaticBackupAt;
+  final DateTime Function() _now;
+
+  SyncSchedulerService({Future<DateTime?> Function()? lastAutomaticBackupAt, DateTime Function()? now})
+      : _lastAutomaticBackupAt = lastAutomaticBackupAt ?? (() async => null),
+        _now = now ?? DateTime.now;
 
   /// Schedule background sync based on configuration.
   ///
@@ -45,7 +55,7 @@ class SyncSchedulerService {
 
     try {
       // Calculate initial delay until next scheduled time
-      final initialDelay = _calculateInitialDelay(config);
+      final initialDelay = await _calculateInitialDelay(config);
 
       developer.log(
         '📅 Scheduling one-off sync task: ${config.syncFrequency.name} '
@@ -111,7 +121,7 @@ class SyncSchedulerService {
     }
 
     try {
-      final nextDelay = _calculateInitialDelay(config);
+      final nextDelay = await _calculateInitialDelay(config);
 
       developer.log(
         '📅 Scheduling next recurrence: '
@@ -249,7 +259,7 @@ class SyncSchedulerService {
     }
 
     try {
-      final nextDelay = _calculateInitialDelay(config);
+      final nextDelay = await _calculateInitialDelay(config);
 
       developer.log(
         '🔁 Restoring sync schedule if needed '
@@ -288,68 +298,29 @@ class SyncSchedulerService {
     }
   }
 
-  /// Calculate initial delay until next scheduled sync time
-  Duration _calculateInitialDelay(SyncConfig config) {
-    final now = DateTime.now();
-    DateTime nextSync;
-
-    if (config.isDailySync) {
-      // Calculate next daily sync
-      nextSync = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        config.syncHour,
-        config.syncMinute,
-      );
-
-      // If the time has already passed today, schedule for tomorrow
-      if (nextSync.isBefore(now)) {
-        nextSync = nextSync.add(const Duration(days: 1));
-      }
-    } else {
-      // Weekly sync
-      final targetDayOfWeek = config.syncDayOfWeek ?? DateTime.monday;
-
-      // Calculate next occurrence of target day
-      nextSync = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        config.syncHour,
-        config.syncMinute,
-      );
-
-      // Find next occurrence of the target day
-      int daysUntilTarget = (targetDayOfWeek - now.weekday) % 7;
-
-      if (daysUntilTarget == 0) {
-        // Today is the target day
-        if (nextSync.isBefore(now)) {
-          // Time has passed, schedule for next week
-          daysUntilTarget = 7;
-        }
-      }
-
-      nextSync = nextSync.add(Duration(days: daysUntilTarget));
-    }
-
-    final delay = nextSync.difference(now);
+  /// Delay until the next automatic backup ([NextAutomaticBackup]).
+  Future<Duration> _calculateInitialDelay(SyncConfig config) async {
+    final now = _now();
+    DateTime? lastCompleted;
+    try {
+      lastCompleted = await _lastAutomaticBackupAt();
+    } catch (_) {}
+    final nextSync = NextAutomaticBackup.of(config.copyWith(autoSyncEnabled: true), now, lastCompleted: lastCompleted)!;
 
     developer.log(
       '⏰ Next sync scheduled for: ${nextSync.toLocal()}',
       name: 'SyncSchedulerService',
     );
 
-    return delay;
+    return nextSync.difference(now);
   }
 
   /// Calculate time until next sync for display purposes
-  Duration? getTimeUntilNextSync(SyncConfig config) {
+  Future<Duration?> getTimeUntilNextSync(SyncConfig config) async {
     if (!config.autoSyncEnabled) {
       return null;
     }
 
-    return _calculateInitialDelay(config);
+    return await _calculateInitialDelay(config);
   }
 }

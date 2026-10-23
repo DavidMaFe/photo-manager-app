@@ -28,4 +28,10 @@ class SyncConfigDataRepository implements SyncConfigRepository {
   Future<bool> hasSyncConfig() async {
     return await localDataSource.hasSyncConfig();
   }
+
+  @override
+  Future<DateTime?> lastAutomaticBackupAt() => localDataSource.lastAutomaticBackupAt();
+
+  @override
+  Future<void> recordAutomaticBackup(DateTime completedAt) => localDataSource.recordAutomaticBackup(completedAt);
 }

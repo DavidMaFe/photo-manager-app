@@ -417,7 +417,7 @@ Future<void> init() async {
 
   // Sync scheduler service
   sl.registerLazySingleton(
-    () => SyncSchedulerService(),
+    () => SyncSchedulerService(lastAutomaticBackupAt: () => sl<SyncConfigRepository>().lastAutomaticBackupAt()),
   );
 
   sl.registerLazySingleton(
@@ -1409,6 +1409,7 @@ Future<void> init() async {
           getSyncConfigUseCase: getSyncConfigUseCase,
           saveSyncConfigUseCase: saveSyncConfigUseCase,
           syncSchedulerService: syncSchedulerService,
+          lastAutomaticBackupAt: () => sl<SyncConfigRepository>().lastAutomaticBackupAt(),
         );
       }
   );
