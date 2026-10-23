@@ -72,6 +72,10 @@ class AppDialog extends StatelessWidget {
     );
   }
 
+  /// Keys of the two buttons: their place changes with the width (side by side or one above the other).
+  static const Key primaryKey = ValueKey('app-dialog-primary');
+  static const Key secondaryKey = ValueKey('app-dialog-secondary');
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -79,6 +83,7 @@ class AppDialog extends StatelessWidget {
     final hasSecondary = secondaryLabel != null && secondaryLabel!.isNotEmpty;
 
     final primary = AppButton(
+      key: primaryKey,
       label: primaryLabel,
       variant: destructive ? AppButtonVariant.danger : AppButtonVariant.primary,
       onPressed: () {
@@ -128,20 +133,18 @@ class AppDialog extends StatelessWidget {
               if (content != null) ...[const SizedBox(height: 16), content!],
               const SizedBox(height: 24),
               if (hasSecondary)
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppButton.neutral(
-                        label: secondaryLabel!,
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                          onSecondary?.call();
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(child: primary),
-                  ],
+                _DialogActions(
+                  primary: primary,
+                  primaryLabel: primaryLabel,
+                  secondaryLabel: secondaryLabel!,
+                  secondary: AppButton.neutral(
+                    key: secondaryKey,
+                    label: secondaryLabel!,
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                      onSecondary?.call();
+                    },
+                  ),
                 )
               else
                 primary,
@@ -160,5 +163,56 @@ class AppDialog extends StatelessWidget {
       AppDialogTone.danger => (p.dangerSoft, p.danger),
       AppDialogTone.neutral => (p.surface2, p.ink2),
     };
+  }
+}
+
+/// The two buttons of a dialog side by side, or one above the other (the main one first) when a label does not fit
+/// in half the width: «Cerrar sesión» on a phone of 360 dp, or any label with a big system font.
+class _DialogActions extends StatelessWidget {
+  static const double _gap = 12;
+
+  final Widget primary;
+  final Widget secondary;
+  final String primaryLabel;
+  final String secondaryLabel;
+
+  const _DialogActions({
+    required this.primary,
+    required this.secondary,
+    required this.primaryLabel,
+    required this.secondaryLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final labelWidth = (constraints.maxWidth - _gap) / 2 - 2 * AppButton.largeHorizontalPadding;
+      final fits = _fits(context, primaryLabel, labelWidth) && _fits(context, secondaryLabel, labelWidth);
+      if (fits) {
+        return Row(
+          children: [
+            Expanded(child: secondary),
+            const SizedBox(width: _gap),
+            Expanded(child: primary),
+          ],
+        );
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [primary, const SizedBox(height: 8), secondary],
+      );
+    });
+  }
+
+  static bool _fits(BuildContext context, String label, double width) {
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: DefaultTextStyle.of(context).style.merge(AppButton.largeLabelStyle)),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final fits = painter.width <= width;
+    painter.dispose();
+    return fits;
   }
 }

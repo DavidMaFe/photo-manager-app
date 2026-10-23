@@ -126,7 +126,7 @@ void main() {
       await tester.tap(find.widgetWithText(AppButton, 'Sign out'));
       await tester.pumpAndSettle();
       expect(find.byType(AppDialog), findsOneWidget);
-      await tester.tap(find.descendant(of: find.byType(AppDialog), matching: find.byType(AppButton)).last);
+      await tester.tap(find.byKey(AppDialog.primaryKey));
       await tester.pumpAndSettle();
 
       // Assert
