@@ -396,6 +396,19 @@ Nobody but the user can see the photos, not even the server administrator. Speci
 - The crypto tests use the real libsodium of the host (`test/helpers/sodium_test_helper.dart`, `E2eeTestKit`) with cheap Argon2id parameters.
 - `test/flutter_test_config.dart` registers an offline `LoadMediaUseCase` and an offline `AuthenticatedHttpClient` for every widget test: images show their error placeholder instead of a spinner that never settles.
 
+## Backups and the free space of the plan
+
+What a backup (manual or in the background) does when the pending files do not fit in the free space of the plan:
+
+- `StorageBudget` (`features/sync_session/domain/services`) holds the free space (`limits.storageBytes - storedBytes` of `GET /api/profile/plan/`). Without a plan (it could not be read) it does not limit: the server decides.
+- `UploadFileUseCase` checks every file with its exact size on the server before sending it: the encrypted original, thumbnail and 2048 px version, the same as `File#storedBytes` of the backend. A file that does not fit throws `FileDoesNotFitFailure(storedBytes)` without calling the server. Videos are checked by their original size before encrypting them (their encrypted size is never smaller). Images are checked after encrypting, since JPEG XL can make them smaller.
+- Files go from the newest to the oldest. One that does not fit is skipped and the backup goes on with the rest. `USER_NOT_HAVE_STORAGE_SPACE` from the server (another device uploaded meanwhile) reads the plan again and skips the file: it no longer stops nor cancels the backup. The other limits of the plan (read only, device over the limit or paused) still stop it.
+- Manual (`SyncSessionBloc`, `SynchronizationPage`):
+  - at the start, if the pending files do not all fit, `SyncSessionUploading.exceedsFreeSpace` shows a warning once that does not stop the backup;
+  - at the end, `SyncSessionSuccess.skippedForSpace`/`skippedForSpaceBytes` say what was left out, with «See plans».
+- Background (`BackgroundSyncService`): a notification (`showStorageFullNotification`, only with `notifyOnFailure`) whose tap opens the plans (payload `plans`, handled in `main.dart` with the app open or closed).
+- Both record `SYNC_STORAGE_FULL` (`background`, `files`, `bytes`) in the monitoring.
+
 ## Important Notes
 
 - **Android Emulator:** Use `10.0.2.2` to access localhost on host machine

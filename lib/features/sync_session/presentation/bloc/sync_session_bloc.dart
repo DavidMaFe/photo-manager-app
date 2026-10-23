@@ -1,10 +1,13 @@
 import 'package:photo_manager_app/core/crypto/domain/key_failures.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager_app/core/database/app_database.dart';
 import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/events/app_event_bus.dart';
 import 'package:photo_manager_app/core/events/app_events.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_event_log.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_events.dart';
 import 'package:photo_manager_app/core/services/sync_lock.dart';
 import 'package:photo_manager_app/core/widgets/permission/permission_helper.dart';
 import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
@@ -13,6 +16,7 @@ import 'package:photo_manager_app/features/sync_session/data/data_sources/local/
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_device_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/repositories/sync_session_repository.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/files_within_plan.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/storage_budget.dart';
 import 'package:photo_manager_app/features/sync_session/domain/services/sync_keep_alive.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/check_duplicated_files_use_case.dart';
 import 'package:photo_manager_app/features/sync_session/domain/use_cases/complete_sync_session_use_case.dart';
@@ -26,6 +30,22 @@ import 'package:photo_manager_app/l10n/app_localizations.dart';
 import '../../../../core/errors/base/failures.dart';
 import '../../../../core/errors/handler/error_handler.dart';
 
+/// Asks for access to the photos, with the education and denial dialogs; true when granted.
+typedef PhotoAccessRequest = Future<bool> Function(BuildContext context);
+
+Future<bool> _requestPhotoAccess(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
+  return PermissionHelper.requestPhotoAccess(
+    context: context,
+    educationTitle: l10n.permissionPhotoAccessTitle,
+    educationMessage: l10n.permissionPhotoAccessMessage,
+    deniedTitle: l10n.permissionPhotoAccessDeniedTitle,
+    deniedMessage: l10n.permissionPhotoAccessDeniedMessage,
+    continueText: l10n.permissionPhotoAccessContinue,
+    settingsText: l10n.permissionOpenSettings,
+    cancelText: l10n.cancel,
+  );
+}
 
 class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
 
@@ -43,6 +63,10 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
   /// The plan of the user (CLAUDE.md of the backend): read when the backup starts.
   final GetUserPlanUseCase getUserPlanUseCase;
 
+  final PhotoAccessRequest requestPhotoAccess;
+
+  final AppEventLog appEventLog;
+
   String? _currentSessionId;
   bool _isCancelled = false;
 
@@ -58,6 +82,8 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     required this.syncLock,
     required this.syncKeepAlive,
     required this.getUserPlanUseCase,
+    required this.appEventLog,
+    this.requestPhotoAccess = _requestPhotoAccess,
   }) : super(const SyncSessionInitial()) {
     on<SyncSessionStarted>(_onSyncSessionStarted);
     on<SyncSessionCancelled>(_onSyncSessionCancelled);
@@ -126,17 +152,7 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
         return;
       }
 
-      final l10n = AppLocalizations.of(event.context)!;
-      final hasPermission = await PermissionHelper.requestPhotoAccess(
-        context: event.context,
-        educationTitle: l10n.permissionPhotoAccessTitle,
-        educationMessage: l10n.permissionPhotoAccessMessage,
-        deniedTitle: l10n.permissionPhotoAccessDeniedTitle,
-        deniedMessage: l10n.permissionPhotoAccessDeniedMessage,
-        continueText: l10n.permissionPhotoAccessContinue,
-        settingsText: l10n.permissionOpenSettings,
-        cancelText: l10n.cancel,
-      );
+      final hasPermission = await requestPhotoAccess(event.context);
 
       if (!hasPermission) {
         // Cancel the session on the server since permission was denied
@@ -194,7 +210,15 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
       int totalCount = duplicateCheckResult.totalFiles;
       int remainingBytes = filesToUpload.fold(0, (total, file) => total + file.sizeBytes);
 
-      emit(SyncSessionUploading(uploadCount: uploadedCount, totalCount: totalCount, remainingBytes: remainingBytes));
+      // Files that do not fit in the free space are skipped without sending them; the backup goes on with the rest
+      final budget = StorageBudget(plan);
+      final freeBytes = budget.remainingBytes;
+      final exceedsFreeSpace = !budget.fits(remainingBytes);
+      int skippedForSpace = 0;
+      int skippedForSpaceBytes = 0;
+
+      emit(SyncSessionUploading(uploadCount: uploadedCount, totalCount: totalCount, remainingBytes: remainingBytes,
+          freeBytes: freeBytes, exceedsFreeSpace: exceedsFreeSpace));
       for (final file in filesToUpload) {
 
         final uploadingFileStopWatch = Stopwatch()..start();
@@ -206,11 +230,25 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
 
         final UploadResult uploadResult;
         try {
-          uploadResult = await uploadFileUseCase(sessionId: session.id, file: file);
+          uploadResult = await uploadFileUseCase(sessionId: session.id, file: file, budget: budget);
+        } on FileDoesNotFitFailure catch (e) {
+          skippedForSpace++;
+          skippedForSpaceBytes += e.storedBytes;
+          remainingBytes -= file.sizeBytes;
+          processedCount++;
+          continue;
         } on ApiException catch (e) {
-          // Too big for the plan: the backup goes on with the rest. Any other error stops it, as before
-          if (e.code != FailureCodes.fileSizeNotAccepted) rethrow;
-          skippedLargeVideos++;
+          // Too big for the plan or no space left (another device uploaded meanwhile): the backup goes on with the
+          // rest. Any other error stops it, as before
+          if (e.code == FailureCodes.fileSizeNotAccepted) {
+            skippedLargeVideos++;
+          } else if (e.code == FailureCodes.userDoesNotHaveStorageSpace) {
+            budget.refresh(await _readPlan());
+            skippedForSpace++;
+            skippedForSpaceBytes += file.sizeBytes;
+          } else {
+            rethrow;
+          }
           remainingBytes -= file.sizeBytes;
           processedCount++;
           continue;
@@ -241,7 +279,11 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
         return;
       }
 
-      await _completeSession(emit, session.id, skippedLargeVideos: skippedLargeVideos);
+      if (skippedForSpace > 0) {
+        appEventLog.record(SyncStorageFull(background: false, files: skippedForSpace, bytes: skippedForSpaceBytes));
+      }
+      await _completeSession(emit, session.id, skippedLargeVideos: skippedLargeVideos,
+          skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes);
 
     } catch (e) {
       if (_currentSessionId != null) {
@@ -314,7 +356,8 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
     }
   }
 
-  Future<void> _completeSession(Emitter<SyncSessionState> emit, String sessionId, {int skippedLargeVideos = 0}) async {
+  Future<void> _completeSession(Emitter<SyncSessionState> emit, String sessionId,
+      {int skippedLargeVideos = 0, int skippedForSpace = 0, int skippedForSpaceBytes = 0}) async {
 
     emit(const SyncSessionCompleting());
     final completeSessionStopWatch = Stopwatch()..start();
@@ -322,7 +365,8 @@ class SyncSessionBloc extends Bloc<SyncSessionEvent, SyncSessionState> {
 
     final result = await completeSyncSessionUseCase(sessionId: sessionId);
 
-    emit(SyncSessionSuccess(result, skippedLargeVideos: skippedLargeVideos));
+    emit(SyncSessionSuccess(result, skippedLargeVideos: skippedLargeVideos,
+        skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes));
 
     // Broadcast sync completed event
     eventBus.fire(SyncCompletedEvent(

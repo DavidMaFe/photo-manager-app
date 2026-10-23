@@ -25,6 +25,9 @@ import 'package:photo_manager_app/features/plans/domain/use_cases/get_user_plan_
 import 'package:photo_manager_app/features/plans/domain/entities/user_plan.dart';
 import 'package:photo_manager_app/core/errors/exceptions/api_exception.dart';
 import 'package:photo_manager_app/core/errors/base/failure_codes.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_event_log.dart';
+import 'package:photo_manager_app/core/monitoring/domain/app_events.dart';
+import 'package:photo_manager_app/features/sync_session/domain/services/storage_budget.dart';
 
 /// Result of a background sync operation.
 class _SyncResult {
@@ -42,16 +45,23 @@ class _SyncResult {
   /// in an hour does not help either: like [isAuthFailure], the next regular recurrence is scheduled.
   final bool isPlanLimit;
 
+  /// Files left out because they did not fit in the free space of the plan, and the bytes they would take.
+  final int skippedForSpace;
+  final int skippedForSpaceBytes;
+
   _SyncResult({
     required this.success,
     this.filesUploaded = 0,
     this.errorMessage,
     this.isAuthFailure = false,
     this.isPlanLimit = false,
+    this.skippedForSpace = 0,
+    this.skippedForSpaceBytes = 0,
   });
 
-  factory _SyncResult.success(int filesUploaded) =>
-      _SyncResult(success: true, filesUploaded: filesUploaded);
+  factory _SyncResult.success(int filesUploaded, {int skippedForSpace = 0, int skippedForSpaceBytes = 0}) =>
+      _SyncResult(success: true, filesUploaded: filesUploaded,
+          skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes);
 
   factory _SyncResult.failure(String errorMessage) =>
       _SyncResult(success: false, errorMessage: errorMessage);
@@ -64,12 +74,12 @@ class _SyncResult {
       _SyncResult(success: false, errorMessage: errorMessage, isPlanLimit: true);
 }
 
-/// Codes of the server for a limit of the plan that stops the whole backup (CLAUDE.md of the backend).
+/// Codes of the server for a limit of the plan that stops the whole backup (CLAUDE.md of the backend). A file that
+/// does not fit in the free space (`USER_NOT_HAVE_STORAGE_SPACE`) is skipped instead: smaller ones may still fit.
 const _planLimitCodes = {
   FailureCodes.accountReadOnly,
   FailureCodes.deviceLimitReached,
   FailureCodes.devicePaused,
-  FailureCodes.userDoesNotHaveStorageSpace,
 };
 
 bool _isPlanLimit(Object error) => error is ApiException && _planLimitCodes.contains(error.code);
@@ -95,6 +105,9 @@ class BackgroundSyncService {
   final SyncLock syncLock;
   final SyncKeepAlive syncKeepAlive;
   final GetUserPlanUseCase getUserPlanUseCase;
+  final AppEventLog appEventLog;
+  final Connectivity _connectivity;
+  final Battery _battery;
 
   static const String _lastSyncAttemptKey = 'LAST_SYNC_ATTEMPT';
   static const String _lastSyncAuthFailureKey = 'SYNC_LAST_FAILURE_IS_AUTH';
@@ -115,7 +128,11 @@ class BackgroundSyncService {
     required this.syncLock,
     required this.syncKeepAlive,
     required this.getUserPlanUseCase,
-  });
+    required this.appEventLog,
+    Connectivity? connectivity,
+    Battery? battery,
+  })  : _connectivity = connectivity ?? Connectivity(),
+        _battery = battery ?? Battery();
 
   /// Execute background sync.
   ///
@@ -190,6 +207,15 @@ class BackgroundSyncService {
               filesUploaded: result.filesUploaded,
             );
           }
+          // Files left out need the user (a bigger plan or less stored): told like a failure
+          if (result.skippedForSpace > 0) {
+            appEventLog.record(SyncStorageFull(
+                background: true, files: result.skippedForSpace, bytes: result.skippedForSpaceBytes));
+            if (syncConfig.notifyOnFailure) {
+              await notificationService.showStorageFullNotification(
+                  files: result.skippedForSpace, bytes: result.skippedForSpaceBytes);
+            }
+          }
         } else {
           // A limit of the plan is not retried in an hour either (wasLastFailureAuthRelated)
           _recordFailedSync(isAuthFailure: result.isAuthFailure || result.isPlanLimit);
@@ -263,8 +289,7 @@ class BackgroundSyncService {
 
   Future<bool> _validateNetworkConditions(SyncConfig config) async {
     try {
-      final connectivity = Connectivity();
-      final results = await connectivity.checkConnectivity();
+      final results = await _connectivity.checkConnectivity();
 
       if (results.isEmpty || results.contains(ConnectivityResult.none)) {
         syncLogService.write('✗ Red: sin conexión');
@@ -295,8 +320,7 @@ class BackgroundSyncService {
         return true;
       }
 
-      final battery = Battery();
-      final batteryState = await battery.batteryState;
+      final batteryState = await _battery.batteryState;
       final isCharging = batteryState == BatteryState.charging ||
           batteryState == BatteryState.full;
 
@@ -305,7 +329,7 @@ class BackgroundSyncService {
         return true;
       }
 
-      final batteryLevel = await battery.batteryLevel;
+      final batteryLevel = await _battery.batteryLevel;
       if (batteryLevel > 15) {
         syncLogService.write('✓ Batería: $batteryLevel% (sin cargar)');
         return true;
@@ -324,12 +348,7 @@ class BackgroundSyncService {
 
     try {
       // A read only account (a paid plan ended with more stored than the free plan) uploads nothing
-      UserPlan? plan;
-      try {
-        plan = await getUserPlanUseCase();
-      } catch (_) {
-        plan = null;
-      }
+      final plan = await _readPlan();
       if (plan != null && plan.readOnly) {
         syncLogService.write('✗ Cuenta en solo lectura: el plan no permite subir más');
         return _SyncResult.planLimit(FailureCodes.accountReadOnly);
@@ -373,10 +392,19 @@ class BackgroundSyncService {
         '(${duplicateResult.duplicatesCount} duplicados omitidos)',
       );
 
+      // Files that do not fit in the free space are skipped without sending them; the backup goes on with the rest
+      final budget = StorageBudget(plan);
+      final pendingBytes = filesToUpload.fold(0, (total, file) => total + file.sizeBytes);
+      if (!budget.fits(pendingBytes)) {
+        syncLogService.write('⚠ Lo pendiente no cabe en el espacio libre: se sube lo que quepa');
+      }
+      int skippedForSpace = 0;
+      int skippedForSpaceBytes = 0;
+
       int uploadedCount = 0;
       for (final file in filesToUpload) {
         try {
-          final uploadResult = await uploadFileUseCase(sessionId: sessionId, file: file);
+          final uploadResult = await uploadFileUseCase(sessionId: sessionId, file: file, budget: budget);
           if (uploadResult.serverFileId != null) {
             await AppDatabase().saveFileMapping(
               serverId: uploadResult.serverFileId!,
@@ -389,24 +417,40 @@ class BackgroundSyncService {
           if (uploadedCount % 5 == 0 || uploadedCount == filesToUpload.length) {
             syncLogService.write('⬆ Subidos $uploadedCount/${filesToUpload.length}');
           }
+        } on FileDoesNotFitFailure catch (e) {
+          skippedForSpace++;
+          skippedForSpaceBytes += e.storedBytes;
         } catch (e) {
-          // A limit of the plan stops every upload the same way
-          if (_isPlanLimit(e)) rethrow;
-          // Every file would fail the same way: the keys are refreshed the next time the app is opened
-          if (e is OutdatedKeysFailure || e is MissingCurrentKeyFailure) {
-            syncLogService.write('✗ Las claves cambiaron en otro dispositivo: abre la app para actualizarlas');
-            rethrow;
+          // No space left on the server (another device uploaded meanwhile): the free space is read again and the
+          // backup goes on with what fits
+          if (e is ApiException && e.code == FailureCodes.userDoesNotHaveStorageSpace) {
+            budget.refresh(await _readPlan());
+            skippedForSpace++;
+            skippedForSpaceBytes += file.sizeBytes;
+          } else {
+            // A limit of the plan stops every upload the same way
+            if (_isPlanLimit(e)) rethrow;
+            // Every file would fail the same way: the keys are refreshed the next time the app is opened
+            if (e is OutdatedKeysFailure || e is MissingCurrentKeyFailure) {
+              syncLogService.write('✗ Las claves cambiaron en otro dispositivo: abre la app para actualizarlas');
+              rethrow;
+            }
+            // Never the name of the file: it is metadata that the server only receives encrypted
+            syncLogService.write(
+                '⚠ Error subiendo el archivo ${filesToUpload.indexOf(file) + 1}/${filesToUpload.length}: $e');
           }
-          // Never the name of the file: it is metadata that the server only receives encrypted
-          syncLogService.write('⚠ Error subiendo el archivo ${filesToUpload.indexOf(file) + 1}/${filesToUpload.length}: $e');
         }
         await syncKeepAlive.update(current: filesToUpload.indexOf(file) + 1, total: filesToUpload.length);
       }
 
       await completeSyncSessionUseCase(sessionId: sessionId);
       syncLogService.write('✓ Sesión completada: $uploadedCount archivos subidos');
+      if (skippedForSpace > 0) {
+        syncLogService.write('⚠ $skippedForSpace archivos no cabían en el espacio libre ($skippedForSpaceBytes bytes)');
+      }
 
-      return _SyncResult.success(uploadedCount);
+      return _SyncResult.success(uploadedCount,
+          skippedForSpace: skippedForSpace, skippedForSpaceBytes: skippedForSpaceBytes);
     } catch (e, stackTrace) {
       developer.log(
         '❌ _performSync failed',
@@ -438,6 +482,15 @@ class BackgroundSyncService {
       return isAuth
           ? _SyncResult.authFailure(e.toString())
           : _SyncResult.failure(e.toString());
+    }
+  }
+
+  /// The plan of the user, or null when it cannot be read (the server applies the limits anyway).
+  Future<UserPlan?> _readPlan() async {
+    try {
+      return await getUserPlanUseCase();
+    } catch (_) {
+      return null;
     }
   }
 

@@ -418,6 +418,7 @@ Future<void> init() async {
       syncLock: sl<SyncLock>(),
       syncKeepAlive: sl<SyncKeepAlive>(),
       getUserPlanUseCase: sl<GetUserPlanUseCase>(),
+      appEventLog: sl<AppEventLog>(),
     ),
   );
 
@@ -1216,6 +1217,7 @@ Future<void> init() async {
           syncLock: syncLock,
           syncKeepAlive: syncKeepAlive,
           getUserPlanUseCase: sl<GetUserPlanUseCase>(),
+          appEventLog: sl<AppEventLog>(),
         );
       }
   );

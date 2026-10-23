@@ -78,6 +78,49 @@ void main() {
       });
     });
 
+    group('showStorageFullNotification', () {
+      test('should say in Spanish how many files and how much space did not fit', () async {
+        await service('es').showStorageFullNotification(files: 3, bytes: 81 * 1024 * 1024);
+
+        expect(shown(), (
+          'No cabía todo en tu espacio',
+          '3 archivos se han quedado sin copiar (81 MB). Toca para ver los planes.',
+        ));
+      });
+
+      test('should say in English that one file did not fit', () async {
+        await service('en').showStorageFullNotification(files: 1, bytes: 5 * 1024 * 1024);
+
+        expect(shown(), ('Not everything fit in your space', '1 file was not backed up (5 MB). Tap to see the plans.'));
+      });
+
+      test('should open the plans when tapped', () async {
+        await service('en').showStorageFullNotification(files: 1, bytes: 1024);
+
+        verify(() => plugin.show(any(), any(), any(), any(), payload: SyncNotificationService.plansPayload)).called(1);
+      });
+    });
+
+    group('launchPayload', () {
+      test('should give the payload of the notification that opened the app', () async {
+        when(() => plugin.getNotificationAppLaunchDetails()).thenAnswer((_) async => const NotificationAppLaunchDetails(
+              true,
+              notificationResponse: NotificationResponse(
+                  notificationResponseType: NotificationResponseType.selectedNotification,
+                  payload: SyncNotificationService.plansPayload),
+            ));
+
+        expect(await service('en').launchPayload(), SyncNotificationService.plansPayload);
+      });
+
+      test('should give nothing when the app was not opened by a notification', () async {
+        when(() => plugin.getNotificationAppLaunchDetails())
+            .thenAnswer((_) async => const NotificationAppLaunchDetails(false));
+
+        expect(await service('en').launchPayload(), isNull);
+      });
+    });
+
     group('showDownloadFinished', () {
       test('should tell how many files were saved to this phone', () async {
         await service('es').showDownloadFinished(saved: 1, failed: 0);

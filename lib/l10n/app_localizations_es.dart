@@ -2520,10 +2520,40 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String backupNotEnoughSpace(String free) {
+    return 'No cabe todo lo pendiente: se copiará lo que quepa en los $free libres.';
+  }
+
+  @override
+  String backupFilesDidNotFit(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count archivos no se han copiado',
+      one: '1 archivo no se ha copiado',
+    );
+    return '$_temp0: no cabían en tu espacio ($size). Amplía tu plan para copiarlos.';
+  }
+
+  @override
   String get errorPlanLimit => 'Tu plan ha llegado a uno de sus límites.';
 
   @override
   String get notificationBackupPlanLimit => 'Tu plan ha llegado a uno de sus límites. Abre la app para verlo.';
+
+  @override
+  String get notificationStorageFullTitle => 'No cabía todo en tu espacio';
+
+  @override
+  String notificationStorageFullBody(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count archivos se han quedado sin copiar',
+      one: '1 archivo se ha quedado sin copiar',
+    );
+    return '$_temp0 ($size). Toca para ver los planes.';
+  }
 
   @override
   String get planPaymentPending => 'Pago pendiente: el plan se aplica en cuanto se confirme';

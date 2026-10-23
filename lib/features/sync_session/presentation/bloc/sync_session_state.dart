@@ -45,11 +45,19 @@ class SyncSessionUploading extends SyncSessionState {
   /// Bytes of the files not sent yet; 0 when unknown.
   final int remainingBytes;
 
+  /// Free space of the plan when the backup started; null when unknown (the server applies the limits).
+  final int? freeBytes;
+
+  /// The pending files do not all fit in [freeBytes]: only what fits is uploaded.
+  final bool exceedsFreeSpace;
+
   const SyncSessionUploading({
     required this.uploadCount,
     required this.totalCount,
     this.currentFileName,
-    this.remainingBytes = 0
+    this.remainingBytes = 0,
+    this.freeBytes,
+    this.exceedsFreeSpace = false,
   });
 
   double get progress {
@@ -61,7 +69,7 @@ class SyncSessionUploading extends SyncSessionState {
   bool get isComplete => uploadCount >= totalCount;
 
   @override
-  List<Object?> get props => [uploadCount, totalCount, currentFileName, remainingBytes];
+  List<Object?> get props => [uploadCount, totalCount, currentFileName, remainingBytes, freeBytes, exceedsFreeSpace];
 
   @override
   String toString() => 'SyncSessionUploading (uploaded: $uploadCount/$totalCount, $progressPercentage%)';
@@ -83,10 +91,17 @@ class SyncSessionSuccess extends SyncSessionState {
   /// Videos left out because they are over the limit of the plan.
   final int skippedLargeVideos;
 
-  const SyncSessionSuccess(this.result, {this.skippedLargeVideos = 0});
+  /// Files left out because they did not fit in the free space of the plan.
+  final int skippedForSpace;
+
+  /// Bytes those files would have taken on the server.
+  final int skippedForSpaceBytes;
+
+  const SyncSessionSuccess(this.result,
+      {this.skippedLargeVideos = 0, this.skippedForSpace = 0, this.skippedForSpaceBytes = 0});
 
   @override
-  List<Object?> get props => [result, skippedLargeVideos];
+  List<Object?> get props => [result, skippedLargeVideos, skippedForSpace, skippedForSpaceBytes];
 
   @override
   String toString() => 'SyncSessionSuccess (uploaded: ${result.uploadedFiles}/${result.totalFiles})';
